@@ -35,7 +35,7 @@ export default function Page2() {
   const [myPosts, setMyPosts] = useState<any[]>([])
   const [showPosts, setShowPosts] = useState(false)
   const [rewardPerPost, setRewardPerPost] = useState(0)
-  const [projectFilter, setProjectFilter] = useState<'active' | 'past'>('active')
+  const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
   const router = useRouter()
 
   useEffect(() => {
@@ -153,14 +153,16 @@ export default function Page2() {
     router.push('/')
   }
 
-  const instagramPosts = myPosts.filter(p => p.platform === 'instagram')
-  const youtubePosts = myPosts.filter(p => p.platform === 'youtube')
-  const tiktokPosts = myPosts.filter(p => p.platform === 'tiktok')
-  const facebookPosts = myPosts.filter(p => p.platform === 'facebook')
+  // 현재 프로젝트 게시물 vs 전체 게시물
+  const currentProjectPosts = projectCode
+    ? myPosts.filter(p => p.project_code === projectCode.toUpperCase())
+    : []
+  const displayPosts = postFilter === 'current' ? currentProjectPosts : myPosts
 
-  // 진행/지난 프로젝트 필터링 (프로젝트 코드 기준)
-  const activePosts = myPosts.filter(p => p.project_code === projectCode?.toUpperCase())
-  const filteredPosts = projectFilter === 'active' ? activePosts : myPosts
+  const instagramPosts = displayPosts.filter(p => p.platform === 'instagram')
+  const youtubePosts = displayPosts.filter(p => p.platform === 'youtube')
+  const tiktokPosts = displayPosts.filter(p => p.platform === 'tiktok')
+  const facebookPosts = displayPosts.filter(p => p.platform === 'facebook')
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -198,10 +200,31 @@ export default function Page2() {
               {showPosts ? '숨기기' : '금액 내역 보기'}
             </button>
           </div>
+
+          {/* 진행 프로젝트 / 전체 내역 탭 */}
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={() => setPostFilter('current')}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}
+            >
+              진행 프로젝트
+            </button>
+            <button
+              onClick={() => setPostFilter('all')}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}
+            >
+              전체 내역
+            </button>
+          </div>
+
+          {postFilter === 'current' && !projectCode && (
+            <p className="text-xs text-gray-400 text-center mb-3">아래 미션 제출 폼에서 프로젝트 코드를 입력하면 해당 프로젝트 게시물이 표시돼요</p>
+          )}
+
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div className="bg-gray-50 rounded-lg p-3 col-span-2">
               <p className="text-xs text-gray-500">총 게시물</p>
-              <p className="text-xl font-bold text-blue-600">{myPosts.length}개</p>
+              <p className="text-xl font-bold text-blue-600">{displayPosts.length}개</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
               <p className="text-xs text-gray-500">인스타그램</p>
@@ -221,24 +244,18 @@ export default function Page2() {
             </div>
           </div>
 
-          {/* 진행/지난 프로젝트 탭 */}
-          <div className="flex gap-2 mb-3">
-            <button onClick={() => setProjectFilter('active')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${projectFilter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-            <button onClick={() => setProjectFilter('past')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${projectFilter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
-          </div>
-
-          {/* 게시물 금액 내역 */}
+          {/* 금액 내역 */}
           {showPosts && (
             <div className="space-y-2">
-              {(projectFilter === 'active' && projectCode ? activePosts : myPosts).length === 0 ? (
+              {displayPosts.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
               ) : (
-                (projectFilter === 'active' && projectCode ? activePosts : myPosts).map((post) => (
+                displayPosts.map((post) => (
                   <div key={post.id} className="border rounded-lg p-3">
                     <div className="flex justify-between items-start">
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                        <p className="text-xs text-gray-500">{post.project_code}</p>
+                        <p className="text-xs text-gray-400">{post.project_code}</p>
                         <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                       </div>
                       <div className="text-right shrink-0 ml-2">
@@ -249,9 +266,9 @@ export default function Page2() {
                   </div>
                 ))
               )}
-              {showPosts && myPosts.length > 0 && (
+              {displayPosts.length > 0 && (
                 <div className="bg-blue-50 rounded-lg p-3 text-sm">
-                  <p className="font-medium">총 예상 금액: {(myPosts.length * rewardPerPost).toLocaleString()}원</p>
+                  <p className="font-medium">총 예상 금액: {(displayPosts.length * rewardPerPost).toLocaleString()}원</p>
                   <p className="text-xs text-gray-500">※ 실제 정산 금액과 다를 수 있어요</p>
                 </div>
               )}
