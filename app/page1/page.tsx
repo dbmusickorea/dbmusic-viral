@@ -241,7 +241,6 @@ export default function Page1() {
           </div>
         </div>
 
-        {/* 게시물 목록 */}
         {selectedProject && (
           <div className="bg-white rounded-2xl shadow p-4">
             <h2 className="font-bold mb-3">📋 게시물 목록 ({posts.length}개)</h2>
@@ -251,17 +250,17 @@ export default function Page1() {
               <div className="space-y-2">
                 {posts.map((post) => (
                   <div key={post.id} className="border rounded-lg p-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium">{post.influencer_name}</p>
                         <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block truncate">{post.post_url}</a>
+                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
                         <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
                       </div>
                       <button
                         onClick={() => handleUpdateSingleLike(post)}
                         disabled={updatingPostId === post.id}
-                        className="ml-2 text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0"
+                        className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0"
                       >
                         {updatingPostId === post.id ? '...' : '갱신'}
                       </button>
