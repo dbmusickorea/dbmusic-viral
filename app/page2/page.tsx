@@ -34,10 +34,7 @@ export default function Page2() {
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
-    if (!info) {
-      router.push('/')
-      return
-    }
+    if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')
@@ -45,28 +42,17 @@ export default function Page2() {
   }, [])
 
   const fetchBalance = async (id: number) => {
-    const { data } = await supabase
-      .from('participants')
-      .select('balance')
-      .eq('id', id)
-      .maybeSingle()
+    const { data } = await supabase.from('participants').select('balance').eq('id', id).maybeSingle()
     setBalance(data?.balance ?? 0)
   }
 
   const getRequirements = async (code: string) => {
-    const { data } = await supabase
-      .from('projects')
-      .select('requirements')
-      .ilike('project_code', code)
-      .maybeSingle()
+    const { data } = await supabase.from('projects').select('requirements').ilike('project_code', code).maybeSingle()
     setRequirements(data?.requirements ?? '')
   }
 
   const handleSubmit = async () => {
-    if (!projectCode || !postUrl) {
-      alert('프로젝트 코드와 미션 링크를 입력해주세요.')
-      return
-    }
+    if (!projectCode || !postUrl) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     const { error } = await supabase.from('posts').insert({
       project_code: projectCode.toUpperCase(),
       influencer_name: influencerName,
@@ -76,63 +62,37 @@ export default function Page2() {
     })
     if (error) { alert('미션 제출 실패!'); return }
     alert('미션 제출 완료!')
-    setProjectCode('')
-    setInfluencerName('')
-    setSnsAccount('')
-    setPostUrl('')
-    setPlatform('instagram')
-    setRequirements('')
+    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl(''); setPlatform('instagram'); setRequirements('')
   }
 
   const handleExchange = async () => {
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
-    const taxRate = 0.033
-    const taxAmount = Math.floor(amount * taxRate)
+    const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
-
     const { error } = await supabase.from('settlements').insert({
-      member_id: userInfo?.id,
-      amount,
-      tax_amount: taxAmount,
-      net_amount: netAmount,
-      resident_number: residentNumber,
-      address,
-      status: 'PENDING'
+      member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
+      resident_number: residentNumber, address, status: 'PENDING'
     })
     if (error) { alert('환전 신청 실패!'); return }
     alert('환전 신청 완료!')
-    setShowExchange(false)
-    setResidentNumber('')
-    setAddress('')
-    setExchangeAmount('')
+    setShowExchange(false); setResidentNumber(''); setAddress(''); setExchangeAmount('')
   }
 
   const loadMyInfo = () => {
-    setMyName(userInfo?.name ?? '')
-    setMyMobile(userInfo?.mobile ?? '')
-    setMyBankName(userInfo?.bank_name ?? '')
-    setMyAccountHolder(userInfo?.account_holder ?? '')
-    setMyAccountNumber(userInfo?.account_number ?? '')
-    setMyInstagram(userInfo?.instagram_id ?? '')
-    setMyYoutube(userInfo?.youtube_id ?? '')
-    setMyTiktok(userInfo?.tiktok_id ?? '')
-    setMyFacebook(userInfo?.facebook_id ?? '')
-    setShowMyInfo(true)
+    setMyName(userInfo?.name ?? ''); setMyMobile(userInfo?.mobile ?? '')
+    setMyBankName(userInfo?.bank_name ?? ''); setMyAccountHolder(userInfo?.account_holder ?? '')
+    setMyAccountNumber(userInfo?.account_number ?? ''); setMyInstagram(userInfo?.instagram_id ?? '')
+    setMyYoutube(userInfo?.youtube_id ?? ''); setMyTiktok(userInfo?.tiktok_id ?? '')
+    setMyFacebook(userInfo?.facebook_id ?? ''); setShowMyInfo(true)
   }
 
   const handleUpdateMyInfo = async () => {
     const { error } = await supabase.from('participants').update({
-      name: myName,
-      mobile: myMobile,
-      bank_name: myBankName,
-      account_holder: myAccountHolder,
-      account_number: myAccountNumber,
-      instagram_id: myInstagram,
-      youtube_id: myYoutube,
-      tiktok_id: myTiktok,
-      facebook_id: myFacebook,
-      password: myPassword || userInfo?.password
+      name: myName, mobile: myMobile, bank_name: myBankName,
+      account_holder: myAccountHolder, account_number: myAccountNumber,
+      instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
+      facebook_id: myFacebook, password: myPassword || userInfo?.password
     }).eq('id', userInfo?.id)
     if (error) { alert('수정 실패!'); return }
     alert('정보 수정 완료!')
@@ -148,23 +108,21 @@ export default function Page2() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-lg mx-auto">
-        {/* 헤더 */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">🎵 DBMUSIC 체험단</h1>
-          <div className="flex gap-1 flex-wrap justify-end">
-            {userRole === 'admin' && (
-              <>
-                <button onClick={() => router.push('/page1')} className="text-xs border rounded px-2 py-1">프로젝트</button>
-                <button onClick={() => router.push('/page3')} className="text-xs border rounded px-2 py-1">의뢰인</button>
-                <button onClick={() => router.push('/page4')} className="text-xs border rounded px-2 py-1">회원관리</button>
-                <button onClick={() => router.push('/page5')} className="text-xs border rounded px-2 py-1">정산</button>
-              </>
-            )}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold">🎵 DBMUSIC 체험단</h1>
             <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
           </div>
+          {userRole === 'admin' && (
+            <div className="flex gap-1">
+              <button onClick={() => router.push('/page1')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
+              <button onClick={() => router.push('/page3')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
+              <button onClick={() => router.push('/page4')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
+              <button onClick={() => router.push('/page5')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
+            </div>
+          )}
         </div>
 
-        {/* 적립금 + 버튼들 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <p className="text-sm text-gray-500">나의 적립금</p>
           <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
@@ -174,7 +132,6 @@ export default function Page2() {
           </div>
         </div>
 
-        {/* 환전 신청 폼 */}
         {showExchange && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">💰 환전 신청</h2>
@@ -205,7 +162,6 @@ export default function Page2() {
           </div>
         )}
 
-        {/* 내 정보 수정 폼 */}
         {showMyInfo && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
@@ -238,7 +194,6 @@ export default function Page2() {
           </div>
         )}
 
-        {/* 미션 제출 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">📸 미션 제출</h2>
           <div className="space-y-3">

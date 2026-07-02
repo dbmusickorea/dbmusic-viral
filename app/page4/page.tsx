@@ -33,17 +33,11 @@ export default function Page4() {
 
   const handleSelect = (p: any) => {
     setSelected(p)
-    setName(p.name ?? '')
-    setMobile(p.mobile ?? '')
-    setEmail(p.email ?? '')
-    setBankName(p.bank_name ?? '')
-    setAccountHolder(p.account_holder ?? '')
-    setAccountNumber(p.account_number ?? '')
-    setInstagram(p.instagram_id ?? '')
-    setYoutube(p.youtube_id ?? '')
-    setTiktok(p.tiktok_id ?? '')
-    setFacebook(p.facebook_id ?? '')
-    setPassword('')
+    setName(p.name ?? ''); setMobile(p.mobile ?? ''); setEmail(p.email ?? '')
+    setBankName(p.bank_name ?? ''); setAccountHolder(p.account_holder ?? '')
+    setAccountNumber(p.account_number ?? ''); setInstagram(p.instagram_id ?? '')
+    setYoutube(p.youtube_id ?? ''); setTiktok(p.tiktok_id ?? '')
+    setFacebook(p.facebook_id ?? ''); setPassword('')
   }
 
   const clearForm = () => {
@@ -98,19 +92,19 @@ export default function Page4() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
-        {/* 헤더 */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">👥 체험단 회원 관리</h1>
-          <div className="flex gap-2 flex-wrap">
-            <button onClick={() => router.push('/page1')} className="text-xs border rounded px-2 py-1">프로젝트</button>
-            <button onClick={() => router.push('/page2')} className="text-xs border rounded px-2 py-1">체험단</button>
-            <button onClick={() => router.push('/page3')} className="text-xs border rounded px-2 py-1">의뢰인</button>
-            <button onClick={() => router.push('/page5')} className="text-xs border rounded px-2 py-1">정산</button>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold">👥 체험단 회원 관리</h1>
             <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+          </div>
+          <div className="flex gap-1">
+            <button onClick={() => router.push('/page1')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
+            <button onClick={() => router.push('/page2')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
+            <button onClick={() => router.push('/page3')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
+            <button onClick={() => router.push('/page5')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
           </div>
         </div>
 
-        {/* 회원 목록 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">체험단 목록</h2>
           {participants.length === 0 ? (
@@ -118,11 +112,7 @@ export default function Page4() {
           ) : (
             <div className="space-y-2">
               {participants.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => handleSelect(p)}
-                  className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}
-                >
+                <div key={p.id} onClick={() => handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium text-sm">{p.name}</p>
@@ -136,7 +126,6 @@ export default function Page4() {
           )}
         </div>
 
-        {/* 등록/수정 폼 */}
         <div className="bg-white rounded-2xl shadow p-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold">{selected ? '회원 수정' : '체험단 등록'}</h2>
@@ -164,7 +153,6 @@ export default function Page4() {
               <label className="text-sm font-medium">{selected ? '새 비밀번호 (변경시만)' : '비밀번호'}</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
             </div>
-
             <div className="flex gap-2">
               {selected ? (
                 <>
@@ -172,7 +160,7 @@ export default function Page4() {
                   <button onClick={handleDelete} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
                 </>
               ) : (
-                <button onClick={handleInsert} className="flex-1 bg-blue-600 text-white rounded-lg py-2 font-medium">체험단 등록</button>
+                <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">체험단 등록</button>
               )}
             </div>
           </div>

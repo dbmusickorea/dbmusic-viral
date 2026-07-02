@@ -18,28 +18,15 @@ export default function Page5() {
   }, [])
 
   const fetchSettlements = async () => {
-    const { data } = await supabase
-      .from('settlements')
-      .select('*')
-      .order('requested_at', { ascending: false })
+    const { data } = await supabase.from('settlements').select('*').order('requested_at', { ascending: false })
     setSettlements(data ?? [])
   }
 
   const handleSelect = async (s: any) => {
     setSelected(s)
-
-    const { data: participant } = await supabase
-      .from('participants')
-      .select('*')
-      .eq('id', s.member_id)
-      .maybeSingle()
+    const { data: participant } = await supabase.from('participants').select('*').eq('id', s.member_id).maybeSingle()
     setSelectedParticipant(participant)
-
-    const { data: posts } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('member_id', s.member_id)
-      .order('created_at', { ascending: false })
+    const { data: posts } = await supabase.from('posts').select('*').eq('member_id', s.member_id).order('created_at', { ascending: false })
     setMemberPosts(posts ?? [])
   }
 
@@ -83,14 +70,16 @@ export default function Page5() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">💰 정산 관리</h1>
-          <div className="flex gap-2 flex-wrap">
-            <button onClick={() => router.push('/page1')} className="text-xs border rounded px-2 py-1">프로젝트</button>
-            <button onClick={() => router.push('/page2')} className="text-xs border rounded px-2 py-1">체험단</button>
-            <button onClick={() => router.push('/page3')} className="text-xs border rounded px-2 py-1">의뢰인</button>
-            <button onClick={() => router.push('/page4')} className="text-xs border rounded px-2 py-1">회원관리</button>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold">💰 정산 관리</h1>
             <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+          </div>
+          <div className="flex gap-1">
+            <button onClick={() => router.push('/page1')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
+            <button onClick={() => router.push('/page2')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
+            <button onClick={() => router.push('/page3')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
+            <button onClick={() => router.push('/page4')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
           </div>
         </div>
 
@@ -101,11 +90,7 @@ export default function Page5() {
           ) : (
             <div className="space-y-2">
               {settlements.map((s) => (
-                <div
-                  key={s.id}
-                  onClick={() => handleSelect(s)}
-                  className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}
-                >
+                <div key={s.id} onClick={() => handleSelect(s)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium text-sm">회원 ID: {s.member_id}</p>
