@@ -33,8 +33,8 @@ export default function Page2() {
   const [balance, setBalance] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [myPosts, setMyPosts] = useState<any[]>([])
+  const [projectsMap, setProjectsMap] = useState<any>({})
   const [showPosts, setShowPosts] = useState(false)
-  const [rewardPerPost, setRewardPerPost] = useState(0)
   const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
   const router = useRouter()
 
@@ -46,7 +46,7 @@ export default function Page2() {
     setUserInfo(parsed)
     setUserRole(role ?? '')
     fetchBalance(parsed.id)
-    fetchMyPosts(parsed.id)
+    fetchMyPostsAndProjects(parsed.id)
   }, [])
 
   const fetchBalance = async (id: number) => {
@@ -54,9 +54,16 @@ export default function Page2() {
     setBalance(data?.balance ?? 0)
   }
 
-  const fetchMyPosts = async (id: number) => {
-    const { data } = await supabase.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false })
-    setMyPosts(data ?? [])
+  const fetchMyPostsAndProjects = async (id: number) => {
+    const { data: posts } = await supabase.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false })
+    setMyPosts(posts ?? [])
+    if (posts && posts.length > 0) {
+      const codes = [...new Set(posts.map(p => p.project_code))]
+      const { data: projects } = await supabase.from('projects').select('project_code, status, reward_per_post, start_date, end_date').in('project_code', codes)
+      const map: any = {}
+      projects?.forEach(p => { map[p.project_code] = p })
+      setProjectsMap(map)
+    }
   }
 
   const getRequirements = async (code: string) => {
@@ -68,7 +75,6 @@ export default function Page2() {
     setRequirements(data?.requirements ?? '')
     setProjectStatus(data?.status ?? '')
     setProjectInfo(data)
-    setRewardPerPost(data?.reward_per_post ?? 0)
   }
 
   const getInstagramStats = async (url: string) => {
@@ -105,7 +111,7 @@ export default function Page2() {
     setIsSubmitting(false)
     if (error) { alert('미션 제출 실패!'); return }
     alert('미션 제출 완료!')
-    fetchMyPosts(userInfo?.id)
+    fetchMyPostsAndProjects(userInfo?.id)
     setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl('')
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null)
   }
@@ -153,16 +159,20 @@ export default function Page2() {
     router.push('/')
   }
 
-  // 현재 프로젝트 게시물 vs 전체 게시물
-  const currentProjectPosts = projectCode
-    ? myPosts.filter(p => p.project_code === projectCode.toUpperCase())
-    : []
-  const displayPosts = postFilter === 'current' ? currentProjectPosts : myPosts
+  const activePosts = myPosts.filter(p => projectsMap[p.project_code]?.status === 'ONGOING')
+  const displayPosts = postFilter === 'current' ? activePosts : myPosts
 
   const instagramPosts = displayPosts.filter(p => p.platform === 'instagram')
   const youtubePosts = displayPosts.filter(p => p.platform === 'youtube')
   const tiktokPosts = displayPosts.filter(p => p.platform === 'tiktok')
   const facebookPosts = displayPosts.filter(p => p.platform === 'facebook')
+
+  const statusBadge = (code: string) => {
+    const s = projectsMap[code]?.status
+    if (s === 'ONGOING') return <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">진행중</span>
+    if (s === 'COMPLETED') return <span className="text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded">완료</span>
+    return <span className="text-xs bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded">대기중</span>
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -201,25 +211,10 @@ export default function Page2() {
             </button>
           </div>
 
-          {/* 진행 프로젝트 / 전체 내역 탭 */}
           <div className="flex gap-2 mb-3">
-            <button
-              onClick={() => setPostFilter('current')}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}
-            >
-              진행 프로젝트
-            </button>
-            <button
-              onClick={() => setPostFilter('all')}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}
-            >
-              전체 내역
-            </button>
+            <button onClick={() => setPostFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
+            <button onClick={() => setPostFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
           </div>
-
-          {postFilter === 'current' && !projectCode && (
-            <p className="text-xs text-gray-400 text-center mb-3">아래 미션 제출 폼에서 프로젝트 코드를 입력하면 해당 프로젝트 게시물이 표시돼요</p>
-          )}
 
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div className="bg-gray-50 rounded-lg p-3 col-span-2">
@@ -244,7 +239,6 @@ export default function Page2() {
             </div>
           </div>
 
-          {/* 금액 내역 */}
           {showPosts && (
             <div className="space-y-2">
               {displayPosts.length === 0 ? (
@@ -254,23 +248,20 @@ export default function Page2() {
                   <div key={post.id} className="border rounded-lg p-3">
                     <div className="flex justify-between items-start">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                        <div className="flex items-center gap-1 mb-1">
+                          <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                          {statusBadge(post.project_code)}
+                        </div>
                         <p className="text-xs text-gray-400">{post.project_code}</p>
                         <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                       </div>
                       <div className="text-right shrink-0 ml-2">
-                        <p className="text-sm font-medium text-blue-600">{rewardPerPost.toLocaleString()}원</p>
+                        <p className="text-sm font-medium text-blue-600">{(projectsMap[post.project_code]?.reward_per_post ?? 0).toLocaleString()}원</p>
                         <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
                 ))
-              )}
-              {displayPosts.length > 0 && (
-                <div className="bg-blue-50 rounded-lg p-3 text-sm">
-                  <p className="font-medium">총 예상 금액: {(displayPosts.length * rewardPerPost).toLocaleString()}원</p>
-                  <p className="text-xs text-gray-500">※ 실제 정산 금액과 다를 수 있어요</p>
-                </div>
               )}
             </div>
           )}
