@@ -16,6 +16,8 @@ export default function Page1() {
   const [endDate, setEndDate] = useState('')
   const [rewardPerPost, setRewardPerPost] = useState('')
   const [isUpdatingLikes, setIsUpdatingLikes] = useState(false)
+  const [posts, setPosts] = useState<any[]>([])
+  const [updatingPostId, setUpdatingPostId] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -29,6 +31,11 @@ export default function Page1() {
     setProjects(data ?? [])
   }
 
+  const fetchPosts = async (code: string) => {
+    const { data } = await supabase.from('posts').select('*').eq('project_code', code).order('created_at', { ascending: false })
+    setPosts(data ?? [])
+  }
+
   const handleSelectProject = (project: any) => {
     setSelectedProject(project)
     setClientName(project.client_name ?? '')
@@ -39,6 +46,7 @@ export default function Page1() {
     setStartDate(project.start_date ? project.start_date.substring(0, 10) : '')
     setEndDate(project.end_date ? project.end_date.substring(0, 10) : '')
     setRewardPerPost(project.reward_per_post ?? '')
+    fetchPosts(project.project_code)
   }
 
   const handleInsert = async () => {
@@ -75,45 +83,55 @@ export default function Page1() {
 
   const handleUpdateAllLikes = async () => {
     setIsUpdatingLikes(true)
-    
-    const { data: posts } = await supabase.from('posts').select('*')
-    if (!posts) { setIsUpdatingLikes(false); return }
+    const { data: allPosts } = await supabase.from('posts').select('*')
+    if (!allPosts) { setIsUpdatingLikes(false); return }
 
-    for (const post of posts) {
+    for (const post of allPosts) {
       if (post.platform !== 'instagram') continue
-      
       try {
         const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
         if (!shortcode) continue
-
         const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
         const data = await response.json()
-
         await supabase.from('posts').update({
           likes_count: data.like_count ?? post.likes_count,
           comments_count: data.comment_count ?? post.comments_count
         }).eq('id', post.id)
-
         await new Promise(resolve => setTimeout(resolve, 1000))
-      } catch {
-        continue
-      }
+      } catch { continue }
     }
 
     setIsUpdatingLikes(false)
     alert('좋아요 수 갱신 완료!')
+    if (selectedProject) fetchPosts(selectedProject.project_code)
+  }
+
+  const handleUpdateSingleLike = async (post: any) => {
+    if (post.platform !== 'instagram') { alert('인스타그램 게시물만 갱신 가능해요!'); return }
+    setUpdatingPostId(post.id)
+    try {
+      const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
+      if (!shortcode) { setUpdatingPostId(null); return }
+      const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
+      const data = await response.json()
+      await supabase.from('posts').update({
+        likes_count: data.like_count ?? post.likes_count,
+        comments_count: data.comment_count ?? post.comments_count
+      }).eq('id', post.id)
+      fetchPosts(selectedProject.project_code)
+      alert('갱신 완료!')
+    } catch {
+      alert('갱신 실패!')
+    }
+    setUpdatingPostId(null)
   }
 
   const clearForm = () => {
     setSelectedProject(null)
-    setClientName('')
-    setProjectCode('')
-    setProductContent('')
-    setRequirements('')
-    setStatus('ONGOING')
-    setStartDate('')
-    setEndDate('')
-    setRewardPerPost('')
+    setClientName(''); setProjectCode(''); setProductContent('')
+    setRequirements(''); setStatus('ONGOING'); setStartDate('')
+    setEndDate(''); setRewardPerPost('')
+    setPosts([])
   }
 
   const handleLogout = () => {
@@ -144,7 +162,7 @@ export default function Page1() {
             disabled={isUpdatingLikes}
             className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400"
           >
-            {isUpdatingLikes ? '갱신 중...' : '🔄 좋아요 수 갱신'}
+            {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신'}
           </button>
         </div>
 
@@ -171,7 +189,7 @@ export default function Page1() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-4">
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
             {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
@@ -222,6 +240,38 @@ export default function Page1() {
             </div>
           </div>
         </div>
+
+        {/* 게시물 목록 */}
+        {selectedProject && (
+          <div className="bg-white rounded-2xl shadow p-4">
+            <h2 className="font-bold mb-3">📋 게시물 목록 ({posts.length}개)</h2>
+            {posts.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {posts.map((post) => (
+                  <div key={post.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{post.influencer_name}</p>
+                        <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block truncate">{post.post_url}</a>
+                        <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
+                      </div>
+                      <button
+                        onClick={() => handleUpdateSingleLike(post)}
+                        disabled={updatingPostId === post.id}
+                        className="ml-2 text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0"
+                      >
+                        {updatingPostId === post.id ? '...' : '갱신'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
