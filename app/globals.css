@@ -24,11 +24,21 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 input, select, textarea {
   font-size: 16px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 input[type="date"] {
-  width: 100%;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  -webkit-appearance: none !important;
+  display: block !important;
 }
