@@ -15,6 +15,7 @@ export default function Page1() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [rewardPerPost, setRewardPerPost] = useState('')
+  const [isUpdatingLikes, setIsUpdatingLikes] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -72,6 +73,37 @@ export default function Page1() {
     fetchProjects()
   }
 
+  const handleUpdateAllLikes = async () => {
+    setIsUpdatingLikes(true)
+    
+    const { data: posts } = await supabase.from('posts').select('*')
+    if (!posts) { setIsUpdatingLikes(false); return }
+
+    for (const post of posts) {
+      if (post.platform !== 'instagram') continue
+      
+      try {
+        const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
+        if (!shortcode) continue
+
+        const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
+        const data = await response.json()
+
+        await supabase.from('posts').update({
+          likes_count: data.like_count ?? post.likes_count,
+          comments_count: data.comment_count ?? post.comments_count
+        }).eq('id', post.id)
+
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch {
+        continue
+      }
+    }
+
+    setIsUpdatingLikes(false)
+    alert('좋아요 수 갱신 완료!')
+  }
+
   const clearForm = () => {
     setSelectedProject(null)
     setClientName('')
@@ -101,12 +133,19 @@ export default function Page1() {
             <h1 className="text-xl font-bold">🎵 프로젝트 관리</h1>
             <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 mb-2">
             <button onClick={() => router.push('/page2')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
             <button onClick={() => router.push('/page3')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
             <button onClick={() => router.push('/page4')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
             <button onClick={() => router.push('/page5')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
           </div>
+          <button
+            onClick={handleUpdateAllLikes}
+            disabled={isUpdatingLikes}
+            className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400"
+          >
+            {isUpdatingLikes ? '갱신 중...' : '🔄 좋아요 수 갱신'}
+          </button>
         </div>
 
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
