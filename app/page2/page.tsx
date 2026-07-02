@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 
 export default function Page2() {
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [userRole, setUserRole] = useState('')
   const [projectCode, setProjectCode] = useState('')
   const [requirements, setRequirements] = useState('')
   const [influencerName, setInfluencerName] = useState('')
@@ -32,12 +33,14 @@ export default function Page2() {
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
+    const role = localStorage.getItem('userRole')
     if (!info) {
       router.push('/')
       return
     }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
+    setUserRole(role ?? '')
     fetchBalance(parsed.id)
   }, [])
 
@@ -148,7 +151,17 @@ export default function Page2() {
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold">🎵 DBMUSIC 체험단</h1>
-          <button onClick={handleLogout} className="text-sm text-gray-500 border rounded px-3 py-1">로그아웃</button>
+          <div className="flex gap-1 flex-wrap justify-end">
+            {userRole === 'admin' && (
+              <>
+                <button onClick={() => router.push('/page1')} className="text-xs border rounded px-2 py-1">프로젝트</button>
+                <button onClick={() => router.push('/page3')} className="text-xs border rounded px-2 py-1">의뢰인</button>
+                <button onClick={() => router.push('/page4')} className="text-xs border rounded px-2 py-1">회원관리</button>
+                <button onClick={() => router.push('/page5')} className="text-xs border rounded px-2 py-1">정산</button>
+              </>
+            )}
+            <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+          </div>
         </div>
 
         {/* 적립금 + 버튼들 */}
