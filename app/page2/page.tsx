@@ -10,6 +10,7 @@ export default function Page2() {
   const [projectCode, setProjectCode] = useState('')
   const [requirements, setRequirements] = useState('')
   const [projectStatus, setProjectStatus] = useState('')
+  const [projectInfo, setProjectInfo] = useState<any>(null)
   const [influencerName, setInfluencerName] = useState('')
   const [snsAccount, setSnsAccount] = useState('')
   const [postUrl, setPostUrl] = useState('')
@@ -31,6 +32,10 @@ export default function Page2() {
   const [myPassword, setMyPassword] = useState('')
   const [balance, setBalance] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [myPosts, setMyPosts] = useState<any[]>([])
+  const [showPosts, setShowPosts] = useState(false)
+  const [rewardPerPost, setRewardPerPost] = useState(0)
+  const [projectFilter, setProjectFilter] = useState<'active' | 'past'>('active')
   const router = useRouter()
 
   useEffect(() => {
@@ -41,6 +46,7 @@ export default function Page2() {
     setUserInfo(parsed)
     setUserRole(role ?? '')
     fetchBalance(parsed.id)
+    fetchMyPosts(parsed.id)
   }, [])
 
   const fetchBalance = async (id: number) => {
@@ -48,10 +54,21 @@ export default function Page2() {
     setBalance(data?.balance ?? 0)
   }
 
+  const fetchMyPosts = async (id: number) => {
+    const { data } = await supabase.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false })
+    setMyPosts(data ?? [])
+  }
+
   const getRequirements = async (code: string) => {
-    const { data } = await supabase.from('projects').select('requirements, status').ilike('project_code', code).maybeSingle()
+    const { data } = await supabase
+      .from('projects')
+      .select('requirements, status, start_date, end_date, reward_per_post')
+      .ilike('project_code', code)
+      .maybeSingle()
     setRequirements(data?.requirements ?? '')
     setProjectStatus(data?.status ?? '')
+    setProjectInfo(data)
+    setRewardPerPost(data?.reward_per_post ?? 0)
   }
 
   const getInstagramStats = async (url: string) => {
@@ -88,32 +105,17 @@ export default function Page2() {
     setIsSubmitting(false)
     if (error) { alert('미션 제출 실패!'); return }
     alert('미션 제출 완료!')
-    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl(''); setPlatform('instagram'); setRequirements(''); setProjectStatus('')
+    fetchMyPosts(userInfo?.id)
+    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl('')
+    setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null)
   }
 
   const handleExchange = async () => {
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
-    
     const amount = Number(exchangeAmount)
-    
-    // 1만원 이하 신청 불가
-    if (amount < 10000) {
-      alert('최소 10,000원 이상부터 환전 신청 가능합니다.')
-      return
-    }
-
-    // 잔액 초과 확인
-    if (amount > balance) {
-      alert('신청 금액이 잔액을 초과합니다.')
-      return
-    }
-
-    // 프로젝트 종료 확인
-    if (projectCode && projectStatus !== 'COMPLETED') {
-      alert('프로젝트가 종료된 후에만 환전 신청이 가능합니다.')
-      return
-    }
-
+    if (amount < 10000) { alert('최소 10,000원 이상부터 환전 신청 가능합니다.'); return }
+    if (amount > balance) { alert('신청 금액이 잔액을 초과합니다.'); return }
+    if (projectCode && projectStatus !== 'COMPLETED') { alert('프로젝트가 종료된 후에만 환전 신청이 가능합니다.'); return }
     const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
     const { error } = await supabase.from('settlements').insert({
@@ -151,6 +153,15 @@ export default function Page2() {
     router.push('/')
   }
 
+  const instagramPosts = myPosts.filter(p => p.platform === 'instagram')
+  const youtubePosts = myPosts.filter(p => p.platform === 'youtube')
+  const tiktokPosts = myPosts.filter(p => p.platform === 'tiktok')
+  const facebookPosts = myPosts.filter(p => p.platform === 'facebook')
+
+  // 진행/지난 프로젝트 필터링 (프로젝트 코드 기준)
+  const activePosts = myPosts.filter(p => p.project_code === projectCode?.toUpperCase())
+  const filteredPosts = projectFilter === 'active' ? activePosts : myPosts
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-lg mx-auto">
@@ -169,6 +180,7 @@ export default function Page2() {
           )}
         </div>
 
+        {/* 적립금 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <p className="text-sm text-gray-500">나의 적립금</p>
           <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
@@ -178,6 +190,91 @@ export default function Page2() {
           </div>
         </div>
 
+        {/* 게시물 현황 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-bold">📊 나의 게시물 현황</h2>
+            <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">
+              {showPosts ? '숨기기' : '금액 내역 보기'}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="bg-gray-50 rounded-lg p-3 col-span-2">
+              <p className="text-xs text-gray-500">총 게시물</p>
+              <p className="text-xl font-bold text-blue-600">{myPosts.length}개</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">인스타그램</p>
+              <p className="text-lg font-bold">{instagramPosts.length}개</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">유튜브</p>
+              <p className="text-lg font-bold">{youtubePosts.length}개</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">틱톡</p>
+              <p className="text-lg font-bold">{tiktokPosts.length}개</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">페이스북</p>
+              <p className="text-lg font-bold">{facebookPosts.length}개</p>
+            </div>
+          </div>
+
+          {/* 진행/지난 프로젝트 탭 */}
+          <div className="flex gap-2 mb-3">
+            <button onClick={() => setProjectFilter('active')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${projectFilter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
+            <button onClick={() => setProjectFilter('past')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${projectFilter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
+          </div>
+
+          {/* 게시물 금액 내역 */}
+          {showPosts && (
+            <div className="space-y-2">
+              {(projectFilter === 'active' && projectCode ? activePosts : myPosts).length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
+              ) : (
+                (projectFilter === 'active' && projectCode ? activePosts : myPosts).map((post) => (
+                  <div key={post.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                        <p className="text-xs text-gray-500">{post.project_code}</p>
+                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
+                      </div>
+                      <div className="text-right shrink-0 ml-2">
+                        <p className="text-sm font-medium text-blue-600">{rewardPerPost.toLocaleString()}원</p>
+                        <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+              {showPosts && myPosts.length > 0 && (
+                <div className="bg-blue-50 rounded-lg p-3 text-sm">
+                  <p className="font-medium">총 예상 금액: {(myPosts.length * rewardPerPost).toLocaleString()}원</p>
+                  <p className="text-xs text-gray-500">※ 실제 정산 금액과 다를 수 있어요</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 프로젝트 기간 */}
+        {projectInfo && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-2">📅 프로젝트 기간</h2>
+            <p className="text-sm">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+            <p className="text-sm">종료예정일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}</p>
+            {projectInfo.start_date && (
+              <p className="text-sm">진행일수: {Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24))}일째</p>
+            )}
+            <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
+              {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
+            </p>
+          </div>
+        )}
+
+        {/* 환전 신청 폼 */}
         {showExchange && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-1">💰 환전 신청</h2>
@@ -185,12 +282,7 @@ export default function Page2() {
             <div className="space-y-3">
               <div>
                 <label className="text-sm font-medium">프로젝트 코드 확인</label>
-                <input
-                  value={projectCode}
-                  onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }}
-                  className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
-                  placeholder="프로젝트 코드 입력"
-                />
+                <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 코드 입력" />
                 {projectCode && (
                   <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
                     {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
@@ -223,6 +315,7 @@ export default function Page2() {
           </div>
         )}
 
+        {/* 내 정보 수정 폼 */}
         {showMyInfo && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
@@ -255,6 +348,7 @@ export default function Page2() {
           </div>
         )}
 
+        {/* 미션 제출 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">📸 미션 제출</h2>
           <div className="space-y-3">
