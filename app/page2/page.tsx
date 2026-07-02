@@ -9,6 +9,7 @@ export default function Page2() {
   const [userRole, setUserRole] = useState('')
   const [projectCode, setProjectCode] = useState('')
   const [requirements, setRequirements] = useState('')
+  const [projectStatus, setProjectStatus] = useState('')
   const [influencerName, setInfluencerName] = useState('')
   const [snsAccount, setSnsAccount] = useState('')
   const [postUrl, setPostUrl] = useState('')
@@ -48,22 +49,18 @@ export default function Page2() {
   }
 
   const getRequirements = async (code: string) => {
-    const { data } = await supabase.from('projects').select('requirements').ilike('project_code', code).maybeSingle()
+    const { data } = await supabase.from('projects').select('requirements, status').ilike('project_code', code).maybeSingle()
     setRequirements(data?.requirements ?? '')
+    setProjectStatus(data?.status ?? '')
   }
 
   const getInstagramStats = async (url: string) => {
     try {
       const shortcode = url.split('/p/')[1]?.split('/')[0]
       if (!shortcode) return { likes: 0, comments: 0 }
-      
       const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
       const data = await response.json()
-      
-      return {
-        likes: data.like_count ?? 0,
-        comments: data.comment_count ?? 0
-      }
+      return { likes: data.like_count ?? 0, comments: data.comment_count ?? 0 }
     } catch {
       return { likes: 0, comments: 0 }
     }
@@ -71,18 +68,14 @@ export default function Page2() {
 
   const handleSubmit = async () => {
     if (!projectCode || !postUrl) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
-    
     setIsSubmitting(true)
-    
     let likesCount = 0
     let commentsCount = 0
-
     if (platform === 'instagram') {
       const stats = await getInstagramStats(postUrl)
       likesCount = stats.likes
       commentsCount = stats.comments
     }
-
     const { error } = await supabase.from('posts').insert({
       project_code: projectCode.toUpperCase(),
       influencer_name: influencerName,
@@ -92,17 +85,35 @@ export default function Page2() {
       likes_count: likesCount,
       comments_count: commentsCount
     })
-    
     setIsSubmitting(false)
-    
     if (error) { alert('미션 제출 실패!'); return }
     alert('미션 제출 완료!')
-    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl(''); setPlatform('instagram'); setRequirements('')
+    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl(''); setPlatform('instagram'); setRequirements(''); setProjectStatus('')
   }
 
   const handleExchange = async () => {
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
+    
     const amount = Number(exchangeAmount)
+    
+    // 1만원 이하 신청 불가
+    if (amount < 10000) {
+      alert('최소 10,000원 이상부터 환전 신청 가능합니다.')
+      return
+    }
+
+    // 잔액 초과 확인
+    if (amount > balance) {
+      alert('신청 금액이 잔액을 초과합니다.')
+      return
+    }
+
+    // 프로젝트 종료 확인
+    if (projectCode && projectStatus !== 'COMPLETED') {
+      alert('프로젝트가 종료된 후에만 환전 신청이 가능합니다.')
+      return
+    }
+
     const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
     const { error } = await supabase.from('settlements').insert({
@@ -169,8 +180,23 @@ export default function Page2() {
 
         {showExchange && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">💰 환전 신청</h2>
+            <h2 className="font-bold mb-1">💰 환전 신청</h2>
+            <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상, 프로젝트 종료 후 신청 가능</p>
             <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">프로젝트 코드 확인</label>
+                <input
+                  value={projectCode}
+                  onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }}
+                  className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
+                  placeholder="프로젝트 코드 입력"
+                />
+                {projectCode && (
+                  <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
+                    {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
+                  </p>
+                )}
+              </div>
               <div>
                 <label className="text-sm font-medium">주민번호</label>
                 <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
@@ -181,7 +207,7 @@ export default function Page2() {
               </div>
               <div>
                 <label className="text-sm font-medium">신청 금액</label>
-                <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력" />
+                <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000원)" />
               </div>
               {exchangeAmount && (
                 <div className="bg-gray-50 rounded-lg p-3 text-sm">
@@ -263,8 +289,8 @@ export default function Page2() {
               <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
               <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
             </div>
-            <button 
-              onClick={handleSubmit} 
+            <button
+              onClick={handleSubmit}
               disabled={isSubmitting}
               className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
             >
