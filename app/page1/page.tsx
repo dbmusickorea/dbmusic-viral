@@ -90,6 +90,9 @@ export default function Page1() {
     router.push('/')
   }
 
+  const inputClass = "w-full border rounded-lg px-3 py-2 text-base mt-1 box-border"
+  const dateInputStyle = { maxWidth: '100%', boxSizing: 'border-box' as const }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
@@ -137,23 +140,23 @@ export default function Page1() {
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">프로젝트 코드</label>
-              <input value={projectCode} onChange={(e) => setProjectCode(e.target.value)} disabled={!!selectedProject} className="w-full border rounded-lg px-3 py-2 text-sm mt-1 disabled:bg-gray-100" placeholder="예: A_1" />
+              <input value={projectCode} onChange={(e) => setProjectCode(e.target.value)} disabled={!!selectedProject} className={`${inputClass} disabled:bg-gray-100`} placeholder="예: A_1" />
             </div>
             <div>
               <label className="text-sm font-medium">의뢰인명</label>
-              <input value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+              <input value={clientName} onChange={(e) => setClientName(e.target.value)} className={inputClass} />
             </div>
             <div>
               <label className="text-sm font-medium">상품내용</label>
-              <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+              <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} />
             </div>
             <div>
               <label className="text-sm font-medium">요청사항</label>
-              <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} />
+              <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className={inputClass} rows={3} />
             </div>
             <div>
               <label className="text-sm font-medium">프로젝트 상태</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
                 <option value="ONGOING">진행중</option>
                 <option value="PAUSED">대기중</option>
                 <option value="COMPLETED">완료</option>
@@ -161,15 +164,15 @@ export default function Page1() {
             </div>
             <div>
               <label className="text-sm font-medium">시작일</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} style={dateInputStyle} />
             </div>
             <div>
               <label className="text-sm font-medium">종료일</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
             </div>
             <div>
               <label className="text-sm font-medium">게시물당 금액</label>
-              <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+              <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} />
             </div>
             <div>
               {selectedProject ? (
