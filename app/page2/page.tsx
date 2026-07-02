@@ -29,6 +29,7 @@ export default function Page2() {
   const [myFacebook, setMyFacebook] = useState('')
   const [myPassword, setMyPassword] = useState('')
   const [balance, setBalance] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -51,15 +52,49 @@ export default function Page2() {
     setRequirements(data?.requirements ?? '')
   }
 
+  const getInstagramStats = async (url: string) => {
+    try {
+      const shortcode = url.split('/p/')[1]?.split('/')[0]
+      if (!shortcode) return { likes: 0, comments: 0 }
+      
+      const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
+      const data = await response.json()
+      
+      return {
+        likes: data.like_count ?? 0,
+        comments: data.comment_count ?? 0
+      }
+    } catch {
+      return { likes: 0, comments: 0 }
+    }
+  }
+
   const handleSubmit = async () => {
     if (!projectCode || !postUrl) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
+    
+    setIsSubmitting(true)
+    
+    let likesCount = 0
+    let commentsCount = 0
+
+    if (platform === 'instagram') {
+      const stats = await getInstagramStats(postUrl)
+      likesCount = stats.likes
+      commentsCount = stats.comments
+    }
+
     const { error } = await supabase.from('posts').insert({
       project_code: projectCode.toUpperCase(),
       influencer_name: influencerName,
       post_url: postUrl,
       platform,
-      member_id: userInfo?.id
+      member_id: userInfo?.id,
+      likes_count: likesCount,
+      comments_count: commentsCount
     })
+    
+    setIsSubmitting(false)
+    
     if (error) { alert('미션 제출 실패!'); return }
     alert('미션 제출 완료!')
     setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl(''); setPlatform('instagram'); setRequirements('')
@@ -228,7 +263,13 @@ export default function Page2() {
               <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
               <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
             </div>
-            <button onClick={handleSubmit} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">미션 제출하기</button>
+            <button 
+              onClick={handleSubmit} 
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+            >
+              {isSubmitting ? '제출 중... (Instagram 데이터 수집 중)' : '미션 제출하기'}
+            </button>
           </div>
         </div>
       </div>
