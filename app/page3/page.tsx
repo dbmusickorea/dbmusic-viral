@@ -21,16 +21,40 @@ export default function Page3() {
     setUserInfo(parsed)
     setUserRole(role ?? '')
 
-    // 의뢰인이면 본인 project_code 자동 로드
-    if (role === 'client' && parsed.project_code) {
-      setClientCode(parsed.project_code)
-      fetchData(parsed.project_code, 'active')
+    if (role === 'client') {
+      // client_id로 프로젝트 찾기
+      if (parsed.client_id) {
+        fetchDataByClientId(parsed.client_id, 'active')
+      } else if (parsed.project_code) {
+        // 기존 방식 fallback
+        setClientCode(parsed.project_code)
+        fetchData(parsed.project_code, 'active')
+      }
     }
   }, [])
 
+  const fetchDataByClientId = async (clientId: string, filterType: string) => {
+    let projectQuery = supabase.from('projects').select('*').eq('client_id', clientId)
+    if (filterType === 'active') projectQuery = projectQuery.eq('status', 'ONGOING')
+    if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
+    const { data: projectData } = await projectQuery.maybeSingle()
+    setProjectInfo(projectData)
+
+    if (projectData) {
+      setClientCode(projectData.project_code)
+      const { data: postsData } = await supabase
+        .from('posts')
+        .select('*')
+        .ilike('project_code', projectData.project_code)
+        .order('created_at', { ascending: false })
+      setPosts(postsData ?? [])
+    } else {
+      setPosts([])
+    }
+  }
+
   const fetchData = async (code: string, filterType: string) => {
     if (!code) return
-
     let projectQuery = supabase.from('projects').select('*').ilike('project_code', code)
     if (filterType === 'active') projectQuery = projectQuery.eq('status', 'ONGOING')
     if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
@@ -53,7 +77,11 @@ export default function Page3() {
 
   const handleFilter = (type: string) => {
     setFilter(type)
-    if (clientCode) fetchData(clientCode, type)
+    if (userRole === 'client' && userInfo?.client_id) {
+      fetchDataByClientId(userInfo.client_id, type)
+    } else if (clientCode) {
+      fetchData(clientCode, type)
+    }
   }
 
   const handleLogout = () => {
@@ -134,7 +162,7 @@ export default function Page3() {
         </div>
 
         {/* 프로젝트 없음 메시지 */}
-        {clientCode && !projectInfo && (
+        {!projectInfo && (isClient || clientCode) && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4 text-center">
             <p className="text-sm text-gray-400">
               {filter === 'active' ? '진행중인 프로젝트가 없습니다.' : '완료된 프로젝트가 없습니다.'}
