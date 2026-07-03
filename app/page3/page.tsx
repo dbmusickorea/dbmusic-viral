@@ -205,7 +205,7 @@ export default function Page3() {
             {filteredProjects.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
             ) : (
-              <div className="space-y-2 max-h-60 overflow-y-auto">
+              <div className="space-y-2 max-h-96 overflow-y-auto">
                 {filteredProjects.map((project) => (
                   <div
                     key={project.id}
