@@ -100,6 +100,16 @@ export default function Page2() {
     }
   }
 
+  const getYoutubeStats = async (url: string) => {
+    try {
+      const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+      const data = await response.json()
+      return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
+    } catch {
+      return { likes: 0, comments: 0 }
+    }
+  }
+
   const getLevelRate = (lv: number) => 1 + (lv - 1) * 0.05
   const getLevelAmount = (baseAmount: number, lv: number) => {
     const amount = Math.round(baseAmount * getLevelRate(lv))
@@ -111,11 +121,17 @@ export default function Page2() {
     setIsSubmitting(true)
     let likesCount = 0
     let commentsCount = 0
+
     if (platform === 'instagram') {
       const stats = await getInstagramStats(postUrl)
       likesCount = stats.likes
       commentsCount = stats.comments
+    } else if (platform === 'youtube') {
+      const stats = await getYoutubeStats(postUrl)
+      likesCount = stats.likes
+      commentsCount = stats.comments
     }
+
     const { error } = await supabase.from('posts').insert({
       project_code: projectCode.toUpperCase(),
       influencer_name: influencerName,
@@ -477,7 +493,7 @@ export default function Page2() {
               disabled={isSubmitting}
               className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
             >
-              {isSubmitting ? '제출 중... (Instagram 데이터 수집 중)' : '미션 제출하기'}
+              {isSubmitting ? `제출 중... (${platform === 'youtube' ? 'YouTube' : 'Instagram'} 데이터 수집 중)` : '미션 제출하기'}
             </button>
           </div>
         </div>
