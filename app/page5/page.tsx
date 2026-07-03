@@ -9,6 +9,7 @@ export default function Page5() {
   const [selected, setSelected] = useState<any>(null)
   const [selectedParticipant, setSelectedParticipant] = useState<any>(null)
   const [memberPosts, setMemberPosts] = useState<any[]>([])
+  const [memo, setMemo] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function Page5() {
 
   const handleSelect = async (s: any) => {
     setSelected(s)
+    setMemo(s.memo ?? '')
     const { data: participant } = await supabase.from('participants').select('*').eq('id', s.member_id).maybeSingle()
     setSelectedParticipant(participant)
     const { data: posts } = await supabase.from('posts').select('*').eq('member_id', s.member_id).order('created_at', { ascending: false })
@@ -32,7 +34,7 @@ export default function Page5() {
 
   const handleApprove = async () => {
     if (!selected) return
-    await supabase.from('settlements').update({ status: 'APPROVED' }).eq('id', selected.id)
+    await supabase.from('settlements').update({ status: 'APPROVED', memo }).eq('id', selected.id)
     if (selectedParticipant) {
       await supabase.from('participants').update({
         balance: (selectedParticipant.balance ?? 0) - (selected.net_amount ?? selected.amount ?? 0)
@@ -43,16 +45,25 @@ export default function Page5() {
     setSelected(null)
     setSelectedParticipant(null)
     setMemberPosts([])
+    setMemo('')
   }
 
   const handleReject = async () => {
     if (!selected) return
-    await supabase.from('settlements').update({ status: 'REJECTED' }).eq('id', selected.id)
+    await supabase.from('settlements').update({ status: 'REJECTED', memo }).eq('id', selected.id)
     alert('거절 완료!')
     fetchSettlements()
     setSelected(null)
     setSelectedParticipant(null)
     setMemberPosts([])
+    setMemo('')
+  }
+
+  const handleSaveMemo = async () => {
+    if (!selected) return
+    await supabase.from('settlements').update({ memo }).eq('id', selected.id)
+    alert('메모 저장 완료!')
+    fetchSettlements()
   }
 
   const handleLogout = () => {
@@ -95,6 +106,7 @@ export default function Page5() {
                     <div>
                       <p className="font-medium text-sm">회원 ID: {s.member_id}</p>
                       <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                      {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
@@ -118,6 +130,20 @@ export default function Page5() {
               <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}원</span></p>
               <p>상태: {statusLabel(selected.status)}</p>
             </div>
+
+            {/* 메모 */}
+            <div className="mt-4">
+              <label className="text-sm font-medium">📝 관리자 메모 (체험단에게 전달)</label>
+              <textarea
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
+                rows={3}
+                placeholder="승인/거절 사유 또는 전달 내용 입력"
+              />
+              <button onClick={handleSaveMemo} className="w-full border rounded-lg py-2 text-sm mt-1">메모 저장</button>
+            </div>
+
             {selected.status === 'PENDING' && (
               <div className="flex gap-2 mt-4">
                 <button onClick={handleApprove} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
@@ -143,7 +169,7 @@ export default function Page5() {
                       <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
                     </div>
                   </div>
-                  <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">{post.post_url}</a>
+                  <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
                 </div>
               ))}
             </div>

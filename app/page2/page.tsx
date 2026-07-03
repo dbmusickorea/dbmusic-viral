@@ -33,6 +33,7 @@ export default function Page2() {
   const [balance, setBalance] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [myPosts, setMyPosts] = useState<any[]>([])
+  const [mySettlements, setMySettlements] = useState<any[]>([])
   const [projectsMap, setProjectsMap] = useState<any>({})
   const [showPosts, setShowPosts] = useState(false)
   const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
@@ -47,11 +48,17 @@ export default function Page2() {
     setUserRole(role ?? '')
     fetchBalance(parsed.id)
     fetchMyPostsAndProjects(parsed.id)
+    fetchMySettlements(parsed.id)
   }, [])
 
   const fetchBalance = async (id: number) => {
     const { data } = await supabase.from('participants').select('balance').eq('id', id).maybeSingle()
     setBalance(data?.balance ?? 0)
+  }
+
+  const fetchMySettlements = async (id: number) => {
+    const { data } = await supabase.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false })
+    setMySettlements(data ?? [])
   }
 
   const fetchMyPostsAndProjects = async (id: number) => {
@@ -130,6 +137,7 @@ export default function Page2() {
     })
     if (error) { alert('환전 신청 실패!'); return }
     alert('환전 신청 완료!')
+    fetchMySettlements(userInfo?.id)
     setShowExchange(false); setResidentNumber(''); setAddress(''); setExchangeAmount('')
   }
 
@@ -174,6 +182,12 @@ export default function Page2() {
     return <span className="text-xs bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded">대기중</span>
   }
 
+  const settlementStatusLabel = (s: string) => {
+    if (s === 'APPROVED') return <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">승인</span>
+    if (s === 'REJECTED') return <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">거절</span>
+    return <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">대기</span>
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-lg mx-auto">
@@ -201,6 +215,35 @@ export default function Page2() {
             <button onClick={loadMyInfo} className="flex-1 bg-gray-500 text-white rounded-lg py-2 text-sm font-medium">내 정보 보기</button>
           </div>
         </div>
+
+        {/* 환전 신청 내역 */}
+        {mySettlements.length > 0 && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">💰 환전 신청 내역</h2>
+            <div className="space-y-2">
+              {mySettlements.map((s) => (
+                <div key={s.id} className="border rounded-lg p-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
+                      <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                      {s.memo && (
+                        <div className="mt-1 bg-blue-50 rounded p-2">
+                          <p className="text-xs text-blue-800 font-medium">📝 관리자 메모</p>
+                          <p className="text-xs text-blue-700 mt-0.5">{s.memo}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      {settlementStatusLabel(s.status)}
+                      <p className="text-xs text-gray-500 mt-1">실수령: {s.net_amount?.toLocaleString() ?? 0}원</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 게시물 현황 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
