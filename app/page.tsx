@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [signupType, setSignupType] = useState('')
   const router = useRouter()
 
-  // 체험단 회원가입 상태
   const [p_name, setPName] = useState('')
   const [p_mobile, setPMobile] = useState('')
   const [p_email, setPEmail] = useState('')
@@ -26,7 +25,6 @@ export default function LoginPage() {
   const [p_facebook, setPFacebook] = useState('')
   const [p_referral, setPReferral] = useState('')
 
-  // 의뢰인 회원가입 상태
   const [c_name, setCName] = useState('')
   const [c_company, setCCompany] = useState('')
   const [c_artist, setCArtist] = useState('')
@@ -44,6 +42,21 @@ export default function LoginPage() {
     return code
   }
 
+  const ensureReferralCode = async (participant: any) => {
+    if (participant.referral_code) return participant
+    
+    let referralCode = generateReferralCode()
+    let isUnique = false
+    while (!isUnique) {
+      const { data } = await supabase.from('participants').select('id').eq('referral_code', referralCode).maybeSingle()
+      if (!data) isUnique = true
+      else referralCode = generateReferralCode()
+    }
+    
+    await supabase.from('participants').update({ referral_code: referralCode }).eq('id', participant.id)
+    return { ...participant, referral_code: referralCode }
+  }
+
   const handleLogin = async () => {
     setError('')
     const { data: participant } = await supabase
@@ -54,7 +67,8 @@ export default function LoginPage() {
       .maybeSingle()
 
     if (participant) {
-      localStorage.setItem('userInfo', JSON.stringify(participant))
+      const updated = await ensureReferralCode(participant)
+      localStorage.setItem('userInfo', JSON.stringify(updated))
       localStorage.setItem('userRole', 'participant')
       router.push('/page2')
       return
@@ -81,7 +95,6 @@ export default function LoginPage() {
   const handleSignupParticipant = async () => {
     if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
 
-    // 추천인 코드 유효성 확인
     if (p_referral) {
       const { data: referrer } = await supabase
         .from('participants')
@@ -91,7 +104,6 @@ export default function LoginPage() {
       if (!referrer) { alert('유효하지 않은 추천인 코드입니다.'); return }
     }
 
-    // 고유 추천인 코드 생성
     let referralCode = generateReferralCode()
     let isUnique = false
     while (!isUnique) {
