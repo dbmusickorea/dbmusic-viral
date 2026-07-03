@@ -20,7 +20,8 @@ export default function Page3() {
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')
-    // 의뢰인이면 자동으로 프로젝트 코드 로드
+
+    // 의뢰인이면 본인 project_code 자동 로드
     if (role === 'client' && parsed.project_code) {
       setClientCode(parsed.project_code)
       fetchData(parsed.project_code, 'active')
@@ -30,14 +31,12 @@ export default function Page3() {
   const fetchData = async (code: string, filterType: string) => {
     if (!code) return
 
-    // 프로젝트 조회
     let projectQuery = supabase.from('projects').select('*').ilike('project_code', code)
     if (filterType === 'active') projectQuery = projectQuery.eq('status', 'ONGOING')
     if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
     const { data: projectData } = await projectQuery.maybeSingle()
     setProjectInfo(projectData)
 
-    // 게시물 조회 - 프로젝트 코드로만 필터링
     const { data: postsData } = await supabase
       .from('posts')
       .select('*')
@@ -78,6 +77,8 @@ export default function Page3() {
     { label: '페이스북', posts: facebookPosts, emoji: '👥' },
   ]
 
+  const isClient = userRole === 'client'
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
@@ -96,16 +97,27 @@ export default function Page3() {
           )}
         </div>
 
-        {/* 인증 코드 + 필터 */}
+        {/* 코드 입력 - 관리자만 */}
+        {!isClient && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <label className="text-sm font-medium">의뢰인 인증 코드</label>
+            <input
+              value={clientCode}
+              onChange={(e) => handleCodeChange(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
+              placeholder="프로젝트 코드 입력 (예: A_1)"
+            />
+          </div>
+        )}
+
+        {/* 필터 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <label className="text-sm font-medium">의뢰인 인증 코드</label>
-          <input
-            value={clientCode}
-            onChange={(e) => handleCodeChange(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
-            placeholder="프로젝트 코드 입력 (예: A_1)"
-          />
-          <div className="flex gap-2 mt-3">
+          {isClient && (
+            <p className="text-sm font-medium mb-3">
+              안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님의 프로젝트예요
+            </p>
+          )}
+          <div className="flex gap-2">
             <button
               onClick={() => handleFilter('active')}
               className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}
