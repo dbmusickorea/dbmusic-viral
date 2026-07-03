@@ -52,10 +52,19 @@ export default function Page3() {
   }
 
   const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count ?? 0), 0)
+  const totalComments = posts.reduce((sum, p) => sum + (p.comments_count ?? 0), 0)
+
   const instagramPosts = posts.filter(p => p.platform === 'instagram')
   const youtubePosts = posts.filter(p => p.platform === 'youtube')
   const tiktokPosts = posts.filter(p => p.platform === 'tiktok')
   const facebookPosts = posts.filter(p => p.platform === 'facebook')
+
+  const snsList = [
+    { label: '인스타그램', posts: instagramPosts, emoji: '📸' },
+    { label: '유튜브', posts: youtubePosts, emoji: '🎬' },
+    { label: '틱톡', posts: tiktokPosts, emoji: '🎵' },
+    { label: '페이스북', posts: facebookPosts, emoji: '👥' },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -75,6 +84,7 @@ export default function Page3() {
           )}
         </div>
 
+        {/* 인증 코드 + 필터 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <label className="text-sm font-medium">의뢰인 인증 코드</label>
           <input
@@ -89,6 +99,7 @@ export default function Page3() {
           </div>
         </div>
 
+        {/* 프로젝트 정보 */}
         {projectInfo && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white rounded-2xl shadow p-3">
@@ -106,34 +117,52 @@ export default function Page3() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white rounded-2xl shadow p-3 col-span-2">
-            <p className="text-xs text-gray-500">총 좋아요 수</p>
-            <p className="text-2xl font-bold text-blue-600">{totalLikes.toLocaleString()}</p>
-            <p className="text-xs text-gray-500 mt-1">총 게시물 {posts.length}개</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow p-3">
-            <p className="text-xs text-gray-500">인스타그램</p>
-            <p className="text-lg font-bold">{instagramPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-400">{instagramPosts.length}게시물</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow p-3">
-            <p className="text-xs text-gray-500">유튜브</p>
-            <p className="text-lg font-bold">{youtubePosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-400">{youtubePosts.length}게시물</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow p-3">
-            <p className="text-xs text-gray-500">틱톡</p>
-            <p className="text-lg font-bold">{tiktokPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-400">{tiktokPosts.length}게시물</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow p-3">
-            <p className="text-xs text-gray-500">페이스북</p>
-            <p className="text-lg font-bold">{facebookPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-400">{facebookPosts.length}게시물</p>
+        {/* 총 통계 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">📊 전체 통계</h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-gray-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-gray-500">총 게시물</p>
+              <p className="text-lg font-bold text-blue-600">{posts.length}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-gray-500">총 좋아요</p>
+              <p className="text-lg font-bold text-red-500">{totalLikes.toLocaleString()}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-gray-500">총 댓글</p>
+              <p className="text-lg font-bold text-green-600">{totalComments.toLocaleString()}</p>
+            </div>
           </div>
         </div>
 
+        {/* SNS별 통계 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">📱 SNS별 통계</h2>
+          <div className="space-y-2">
+            {snsList.map(({ label, posts: snsPosts, emoji }) => (
+              <div key={label} className="border rounded-lg p-3">
+                <p className="text-sm font-medium mb-2">{emoji} {label}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">게시물</p>
+                    <p className="text-sm font-bold">{snsPosts.length}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">좋아요</p>
+                    <p className="text-sm font-bold text-red-500">{snsPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">댓글</p>
+                    <p className="text-sm font-bold text-green-600">{snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0).toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 게시물 목록 */}
         <div className="bg-white rounded-2xl shadow p-4">
           <h2 className="font-bold mb-3">게시물 목록</h2>
           {posts.length === 0 ? (
@@ -152,7 +181,7 @@ export default function Page3() {
                       <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
                     </div>
                   </div>
-                  <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">{post.post_url}</a>
+                  <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
                 </div>
               ))}
             </div>
