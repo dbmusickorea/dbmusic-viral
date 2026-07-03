@@ -32,6 +32,7 @@ export default function Page2() {
   const [myPassword, setMyPassword] = useState('')
   const [balance, setBalance] = useState(0)
   const [level, setLevel] = useState(1)
+  const [referralCode, setReferralCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [myPosts, setMyPosts] = useState<any[]>([])
   const [mySettlements, setMySettlements] = useState<any[]>([])
@@ -53,9 +54,10 @@ export default function Page2() {
   }, [])
 
   const fetchParticipantInfo = async (id: number) => {
-    const { data } = await supabase.from('participants').select('balance, level').eq('id', id).maybeSingle()
+    const { data } = await supabase.from('participants').select('balance, level, referral_code').eq('id', id).maybeSingle()
     setBalance(data?.balance ?? 0)
     setLevel(data?.level ?? 1)
+    setReferralCode(data?.referral_code ?? '')
   }
 
   const fetchMySettlements = async (id: number) => {
@@ -214,18 +216,34 @@ export default function Page2() {
           )}
         </div>
 
-        {/* 적립금 + 레벨 */}
+        {/* 적립금 + 레벨 + 추천인 코드 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start mb-3">
             <div>
               <p className="text-sm text-gray-500">나의 적립금</p>
               <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
             </div>
-            <div className="text-right">
-              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({Math.round(getLevelRate(level) * 100)}%)</span>
-            </div>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({Math.round(getLevelRate(level) * 100)}%)</span>
           </div>
-          <div className="flex gap-2 mt-3">
+          {referralCode && (
+            <div className="bg-gray-50 rounded-lg p-3 mb-3">
+              <p className="text-xs text-gray-500">나의 추천인 코드</p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-lg font-bold text-blue-600">{referralCode}</p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(referralCode)
+                    alert('추천인 코드가 복사됐어요!')
+                  }}
+                  className="text-xs border rounded px-2 py-1 text-gray-600"
+                >
+                  복사
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+            </div>
+          )}
+          <div className="flex gap-2">
             <button onClick={() => setShowExchange(!showExchange)} className="flex-1 bg-green-500 text-white rounded-lg py-2 text-sm font-medium">환전 신청</button>
             <button onClick={loadMyInfo} className="flex-1 bg-gray-500 text-white rounded-lg py-2 text-sm font-medium">내 정보 보기</button>
           </div>
