@@ -10,39 +10,51 @@ export default function Page3() {
   const [clientCode, setClientCode] = useState('')
   const [posts, setPosts] = useState<any[]>([])
   const [projectInfo, setProjectInfo] = useState<any>(null)
-  const [filter, setFilter] = useState('')
+  const [filter, setFilter] = useState('active')
   const router = useRouter()
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
     if (!info) { router.push('/'); return }
-    setUserInfo(JSON.parse(info))
+    const parsed = JSON.parse(info)
+    setUserInfo(parsed)
     setUserRole(role ?? '')
+    // 의뢰인이면 자동으로 프로젝트 코드 로드
+    if (role === 'client' && parsed.project_code) {
+      setClientCode(parsed.project_code)
+      fetchData(parsed.project_code, 'active')
+    }
   }, [])
 
-  const fetchData = async (code: string, filterType: string = filter) => {
-    let projectQuery = supabase.from('projects').select('*')
-    if (code) projectQuery = projectQuery.ilike('project_code', code)
+  const fetchData = async (code: string, filterType: string) => {
+    if (!code) return
+
+    // 프로젝트 조회
+    let projectQuery = supabase.from('projects').select('*').ilike('project_code', code)
     if (filterType === 'active') projectQuery = projectQuery.eq('status', 'ONGOING')
     if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
     const { data: projectData } = await projectQuery.maybeSingle()
     setProjectInfo(projectData)
 
-    let postsQuery = supabase.from('posts').select('*').order('created_at', { ascending: false })
-    if (code) postsQuery = postsQuery.ilike('project_code', code)
-    const { data: postsData } = await postsQuery
+    // 게시물 조회 - 프로젝트 코드로만 필터링
+    const { data: postsData } = await supabase
+      .from('posts')
+      .select('*')
+      .ilike('project_code', code)
+      .order('created_at', { ascending: false })
     setPosts(postsData ?? [])
   }
 
   const handleCodeChange = (code: string) => {
     setClientCode(code)
-    fetchData(code)
+    if (code) fetchData(code, filter)
+    else { setProjectInfo(null); setPosts([]) }
   }
 
   const handleFilter = (type: string) => {
     setFilter(type)
-    fetchData(clientCode, type)
+    if (clientCode) fetchData(clientCode, type)
   }
 
   const handleLogout = () => {
@@ -94,10 +106,29 @@ export default function Page3() {
             placeholder="프로젝트 코드 입력 (예: A_1)"
           />
           <div className="flex gap-2 mt-3">
-            <button onClick={() => handleFilter('active')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-            <button onClick={() => handleFilter('past')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}>지난 프로젝트</button>
+            <button
+              onClick={() => handleFilter('active')}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}
+            >
+              진행 프로젝트
+            </button>
+            <button
+              onClick={() => handleFilter('past')}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}
+            >
+              지난 프로젝트
+            </button>
           </div>
         </div>
+
+        {/* 프로젝트 없음 메시지 */}
+        {clientCode && !projectInfo && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4 text-center">
+            <p className="text-sm text-gray-400">
+              {filter === 'active' ? '진행중인 프로젝트가 없습니다.' : '완료된 프로젝트가 없습니다.'}
+            </p>
+          </div>
+        )}
 
         {/* 프로젝트 정보 */}
         {projectInfo && (
@@ -118,49 +149,53 @@ export default function Page3() {
         )}
 
         {/* 총 통계 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📊 전체 통계</h2>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-gray-500">총 게시물</p>
-              <p className="text-lg font-bold text-blue-600">{posts.length}</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-gray-500">총 좋아요</p>
-              <p className="text-lg font-bold text-red-500">{totalLikes.toLocaleString()}</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-gray-500">총 댓글</p>
-              <p className="text-lg font-bold text-green-600">{totalComments.toLocaleString()}</p>
+        {posts.length > 0 && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">📊 전체 통계</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-gray-50 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500">총 게시물</p>
+                <p className="text-lg font-bold text-blue-600">{posts.length}</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500">총 좋아요</p>
+                <p className="text-lg font-bold text-red-500">{totalLikes.toLocaleString()}</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500">총 댓글</p>
+                <p className="text-lg font-bold text-green-600">{totalComments.toLocaleString()}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* SNS별 통계 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📱 SNS별 통계</h2>
-          <div className="space-y-2">
-            {snsList.map(({ label, posts: snsPosts, emoji }) => (
-              <div key={label} className="border rounded-lg p-3">
-                <p className="text-sm font-medium mb-2">{emoji} {label}</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500">게시물</p>
-                    <p className="text-sm font-bold">{snsPosts.length}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500">좋아요</p>
-                    <p className="text-sm font-bold text-red-500">{snsPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500">댓글</p>
-                    <p className="text-sm font-bold text-green-600">{snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0).toLocaleString()}</p>
+        {posts.length > 0 && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">📱 SNS별 통계</h2>
+            <div className="space-y-2">
+              {snsList.map(({ label, posts: snsPosts, emoji }) => (
+                <div key={label} className="border rounded-lg p-3">
+                  <p className="text-sm font-medium mb-2">{emoji} {label}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">게시물</p>
+                      <p className="text-sm font-bold">{snsPosts.length}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">좋아요</p>
+                      <p className="text-sm font-bold text-red-500">{snsPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">댓글</p>
+                      <p className="text-sm font-bold text-green-600">{snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0).toLocaleString()}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 게시물 목록 */}
         <div className="bg-white rounded-2xl shadow p-4">
