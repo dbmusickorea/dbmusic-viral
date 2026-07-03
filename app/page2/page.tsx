@@ -31,6 +31,7 @@ export default function Page2() {
   const [myFacebook, setMyFacebook] = useState('')
   const [myPassword, setMyPassword] = useState('')
   const [balance, setBalance] = useState(0)
+  const [level, setLevel] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [myPosts, setMyPosts] = useState<any[]>([])
   const [mySettlements, setMySettlements] = useState<any[]>([])
@@ -46,14 +47,15 @@ export default function Page2() {
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')
-    fetchBalance(parsed.id)
+    fetchParticipantInfo(parsed.id)
     fetchMyPostsAndProjects(parsed.id)
     fetchMySettlements(parsed.id)
   }, [])
 
-  const fetchBalance = async (id: number) => {
-    const { data } = await supabase.from('participants').select('balance').eq('id', id).maybeSingle()
+  const fetchParticipantInfo = async (id: number) => {
+    const { data } = await supabase.from('participants').select('balance, level').eq('id', id).maybeSingle()
     setBalance(data?.balance ?? 0)
+    setLevel(data?.level ?? 1)
   }
 
   const fetchMySettlements = async (id: number) => {
@@ -94,6 +96,12 @@ export default function Page2() {
     } catch {
       return { likes: 0, comments: 0 }
     }
+  }
+
+  const getLevelRate = (lv: number) => 1 + (lv - 1) * 0.05
+  const getLevelAmount = (baseAmount: number, lv: number) => {
+    const amount = Math.round(baseAmount * getLevelRate(lv))
+    return Math.min(amount, 20000)
   }
 
   const handleSubmit = async () => {
@@ -206,10 +214,17 @@ export default function Page2() {
           )}
         </div>
 
-        {/* 적립금 */}
+        {/* 적립금 + 레벨 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <p className="text-sm text-gray-500">나의 적립금</p>
-          <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm text-gray-500">나의 적립금</p>
+              <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
+            </div>
+            <div className="text-right">
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({Math.round(getLevelRate(level) * 100)}%)</span>
+            </div>
+          </div>
           <div className="flex gap-2 mt-3">
             <button onClick={() => setShowExchange(!showExchange)} className="flex-1 bg-green-500 text-white rounded-lg py-2 text-sm font-medium">환전 신청</button>
             <button onClick={loadMyInfo} className="flex-1 bg-gray-500 text-white rounded-lg py-2 text-sm font-medium">내 정보 보기</button>
@@ -287,24 +302,29 @@ export default function Page2() {
               {displayPosts.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
               ) : (
-                displayPosts.map((post) => (
-                  <div key={post.id} className="border rounded-lg p-3">
-                    <div className="flex justify-between items-start">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1 mb-1">
-                          <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                          {statusBadge(post.project_code)}
+                displayPosts.map((post) => {
+                  const baseAmount = projectsMap[post.project_code]?.reward_per_post ?? 0
+                  const myAmount = getLevelAmount(baseAmount, level)
+                  return (
+                    <div key={post.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1 mb-1">
+                            <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                            {statusBadge(post.project_code)}
+                          </div>
+                          <p className="text-xs text-gray-400">{post.project_code}</p>
+                          <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                         </div>
-                        <p className="text-xs text-gray-400">{post.project_code}</p>
-                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
-                      </div>
-                      <div className="text-right shrink-0 ml-2">
-                        <p className="text-sm font-medium text-blue-600">{(projectsMap[post.project_code]?.reward_per_post ?? 0).toLocaleString()}원</p>
-                        <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                        <div className="text-right shrink-0 ml-2">
+                          <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}원</p>
+                          <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}원</p>
+                          <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           )}

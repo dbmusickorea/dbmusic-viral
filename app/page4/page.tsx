@@ -18,6 +18,7 @@ export default function Page4() {
   const [tiktok, setTiktok] = useState('')
   const [facebook, setFacebook] = useState('')
   const [password, setPassword] = useState('')
+  const [level, setLevel] = useState(1)
   const router = useRouter()
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function Page4() {
     setAccountNumber(p.account_number ?? ''); setInstagram(p.instagram_id ?? '')
     setYoutube(p.youtube_id ?? ''); setTiktok(p.tiktok_id ?? '')
     setFacebook(p.facebook_id ?? ''); setPassword('')
+    setLevel(p.level ?? 1)
   }
 
   const clearForm = () => {
@@ -45,6 +47,7 @@ export default function Page4() {
     setName(''); setMobile(''); setEmail(''); setBankName('')
     setAccountHolder(''); setAccountNumber(''); setInstagram('')
     setYoutube(''); setTiktok(''); setFacebook(''); setPassword('')
+    setLevel(1)
   }
 
   const handleInsert = async () => {
@@ -52,7 +55,7 @@ export default function Page4() {
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, facebook_id: facebook, password
+      tiktok_id: tiktok, facebook_id: facebook, password, level
     })
     if (error) { alert('등록 실패!'); return }
     alert('등록 완료!')
@@ -65,7 +68,7 @@ export default function Page4() {
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, facebook_id: facebook
+      tiktok_id: tiktok, facebook_id: facebook, level
     }
     if (password) updateData.password = password
     const { error } = await supabase.from('participants').update(updateData).eq('id', selected.id)
@@ -87,6 +90,11 @@ export default function Page4() {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
     router.push('/')
+  }
+
+  const getLevelRate = (lv: number) => {
+    const rate = 1 + (lv - 1) * 0.05
+    return Math.round(rate * 100)
   }
 
   return (
@@ -115,7 +123,10 @@ export default function Page4() {
                 <div key={p.id} onClick={() => handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-sm">{p.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm">{p.name}</p>
+                        <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+                      </div>
                       <p className="text-xs text-gray-500">{p.email}</p>
                     </div>
                     <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}원</p>
@@ -149,10 +160,22 @@ export default function Page4() {
                 <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
               </div>
             ))}
+
+            {/* 레벨 설정 */}
+            <div>
+              <label className="text-sm font-medium">등급 (레벨)</label>
+              <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                {[1,2,3,4,5,6,7,8,9,10].map(lv => (
+                  <option key={lv} value={lv}>Lv.{lv} ({getLevelRate(lv)}% 지급)</option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="text-sm font-medium">{selected ? '새 비밀번호 (변경시만)' : '비밀번호'}</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
             </div>
+
             <div className="flex gap-2">
               {selected ? (
                 <>
