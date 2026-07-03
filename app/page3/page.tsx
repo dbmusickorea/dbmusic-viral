@@ -10,6 +10,7 @@ export default function Page3() {
   const [clientCode, setClientCode] = useState('')
   const [posts, setPosts] = useState<any[]>([])
   const [projectInfo, setProjectInfo] = useState<any>(null)
+  const [myProjects, setMyProjects] = useState<any[]>([])
   const [filter, setFilter] = useState('active')
   const router = useRouter()
 
@@ -21,36 +22,35 @@ export default function Page3() {
     setUserInfo(parsed)
     setUserRole(role ?? '')
 
-    if (role === 'client') {
-      // client_id로 프로젝트 찾기
-      if (parsed.client_id) {
-        fetchDataByClientId(parsed.client_id, 'active')
-      } else if (parsed.project_code) {
-        // 기존 방식 fallback
-        setClientCode(parsed.project_code)
-        fetchData(parsed.project_code, 'active')
-      }
+    if (role === 'client' && parsed.client_id) {
+      fetchMyProjects(parsed.client_id)
     }
   }, [])
 
-  const fetchDataByClientId = async (clientId: string, filterType: string) => {
-    let projectQuery = supabase.from('projects').select('*').eq('client_id', clientId)
-    if (filterType === 'active') projectQuery = projectQuery.eq('status', 'ONGOING')
-    if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
-    const { data: projectData } = await projectQuery.maybeSingle()
-    setProjectInfo(projectData)
+  const fetchMyProjects = async (clientId: string) => {
+    const { data } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false })
+    setMyProjects(data ?? [])
 
-    if (projectData) {
-      setClientCode(projectData.project_code)
-      const { data: postsData } = await supabase
-        .from('posts')
-        .select('*')
-        .ilike('project_code', projectData.project_code)
-        .order('created_at', { ascending: false })
-      setPosts(postsData ?? [])
-    } else {
-      setPosts([])
+    // 진행중 프로젝트 자동 선택
+    const active = data?.find(p => p.status === 'ONGOING')
+    if (active) {
+      setProjectInfo(active)
+      setClientCode(active.project_code)
+      fetchPosts(active.project_code)
     }
+  }
+
+  const fetchPosts = async (code: string) => {
+    const { data } = await supabase
+      .from('posts')
+      .select('*')
+      .ilike('project_code', code)
+      .order('created_at', { ascending: false })
+    setPosts(data ?? [])
   }
 
   const fetchData = async (code: string, filterType: string) => {
@@ -60,13 +60,13 @@ export default function Page3() {
     if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
     const { data: projectData } = await projectQuery.maybeSingle()
     setProjectInfo(projectData)
+    fetchPosts(code)
+  }
 
-    const { data: postsData } = await supabase
-      .from('posts')
-      .select('*')
-      .ilike('project_code', code)
-      .order('created_at', { ascending: false })
-    setPosts(postsData ?? [])
+  const handleSelectProject = (project: any) => {
+    setProjectInfo(project)
+    setClientCode(project.project_code)
+    fetchPosts(project.project_code)
   }
 
   const handleCodeChange = (code: string) => {
@@ -77,11 +77,7 @@ export default function Page3() {
 
   const handleFilter = (type: string) => {
     setFilter(type)
-    if (userRole === 'client' && userInfo?.client_id) {
-      fetchDataByClientId(userInfo.client_id, type)
-    } else if (clientCode) {
-      fetchData(clientCode, type)
-    }
+    if (clientCode) fetchData(clientCode, type)
   }
 
   const handleLogout = () => {
@@ -125,10 +121,42 @@ export default function Page3() {
           )}
         </div>
 
-        {/* 코드 입력 - 관리자만 */}
+        {/* 의뢰인 - 내 프로젝트 목록 */}
+        {isClient && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <p className="text-sm font-medium mb-3">
+              안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!
+            </p>
+            {myProjects.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {myProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => handleSelectProject(project)}
+                    className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-sm">{project.product_content}</p>
+                        <p className="text-xs text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                        {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 관리자 - 코드 입력 */}
         {!isClient && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <label className="text-sm font-medium">의뢰인 인증 코드</label>
+            <label className="text-sm font-medium">프로젝트 코드 검색</label>
             <input
               value={clientCode}
               onChange={(e) => handleCodeChange(e.target.value)}
@@ -139,38 +167,26 @@ export default function Page3() {
         )}
 
         {/* 필터 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          {isClient && (
-            <p className="text-sm font-medium mb-3">
-              안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님의 프로젝트예요
-            </p>
-          )}
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleFilter('active')}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}
-            >
-              진행 프로젝트
-            </button>
-            <button
-              onClick={() => handleFilter('past')}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}
-            >
-              지난 프로젝트
-            </button>
-          </div>
-        </div>
-
-        {/* 프로젝트 없음 메시지 */}
-        {!projectInfo && (isClient || clientCode) && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4 text-center">
-            <p className="text-sm text-gray-400">
-              {filter === 'active' ? '진행중인 프로젝트가 없습니다.' : '완료된 프로젝트가 없습니다.'}
-            </p>
+        {!isClient && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleFilter('active')}
+                className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}
+              >
+                진행 프로젝트
+              </button>
+              <button
+                onClick={() => handleFilter('past')}
+                className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}
+              >
+                지난 프로젝트
+              </button>
+            </div>
           </div>
         )}
 
-        {/* 프로젝트 정보 */}
+        {/* 선택된 프로젝트 정보 */}
         {projectInfo && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white rounded-2xl shadow p-3">
@@ -238,30 +254,32 @@ export default function Page3() {
         )}
 
         {/* 게시물 목록 */}
-        <div className="bg-white rounded-2xl shadow p-4">
-          <h2 className="font-bold mb-3">게시물 목록</h2>
-          {posts.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
-          ) : (
-            <div className="space-y-3">
-              {posts.map((post) => (
-                <div key={post.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-medium">{post.influencer_name}</p>
-                      <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+        {projectInfo && (
+          <div className="bg-white rounded-2xl shadow p-4">
+            <h2 className="font-bold mb-3">게시물 목록</h2>
+            {posts.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
+            ) : (
+              <div className="space-y-3">
+                {posts.map((post) => (
+                  <div key={post.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium">{post.influencer_name}</p>
+                        <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
-                    </div>
+                    <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
                   </div>
-                  <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
