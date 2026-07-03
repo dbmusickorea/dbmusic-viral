@@ -24,6 +24,9 @@ export default function Page1() {
   const [newProduct, setNewProduct] = useState('')
   const [newProductPrice, setNewProductPrice] = useState('')
   const [showProductManager, setShowProductManager] = useState(false)
+  const [clients, setClients] = useState<any[]>([])
+  const [selectedClientId, setSelectedClientId] = useState('')
+  const [clientSearch, setClientSearch] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -31,6 +34,7 @@ export default function Page1() {
     if (role !== 'admin') { router.push('/'); return }
     fetchProjects()
     fetchProducts()
+    fetchClients()
   }, [])
 
   const fetchProjects = async () => {
@@ -41,6 +45,11 @@ export default function Page1() {
   const fetchProducts = async () => {
     const { data } = await supabase.from('products').select('*').order('id', { ascending: true })
     setProducts(data ?? [])
+  }
+
+  const fetchClients = async () => {
+    const { data } = await supabase.from('users').select('*').eq('role', 'client').order('name', { ascending: true })
+    setClients(data ?? [])
   }
 
   const handleAddProduct = async () => {
@@ -75,6 +84,7 @@ export default function Page1() {
     setRewardPerPost(project.reward_per_post ?? '')
     setOptionName(project.option_name ?? '')
     setOptionPrice(project.option_price ?? '')
+    setSelectedClientId(project.client_id ?? '')
     fetchPosts(project.project_code)
   }
 
@@ -100,11 +110,19 @@ export default function Page1() {
       end_date: endDate || null,
       reward_per_post: Number(rewardPerPost),
       option_name: optionName || null,
-      option_price: Number(optionPrice) || null
+      option_price: Number(optionPrice) || null,
+      client_id: selectedClientId || null
     })
     if (error) { alert('등록 실패!'); return }
+
+    // 의뢰인 project_code 업데이트
+    if (selectedClientId) {
+      await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
+    }
+
     alert('등록 완료!')
     fetchProjects()
+    fetchClients()
     clearForm()
   }
 
@@ -118,11 +136,19 @@ export default function Page1() {
       end_date: endDate || null,
       reward_per_post: Number(rewardPerPost),
       option_name: optionName || null,
-      option_price: Number(optionPrice) || null
+      option_price: Number(optionPrice) || null,
+      client_id: selectedClientId || null
     }).eq('project_code', projectCode)
     if (error) { alert('수정 실패!'); return }
+
+    // 의뢰인 project_code 업데이트
+    if (selectedClientId) {
+      await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
+    }
+
     alert('수정 완료!')
     fetchProjects()
+    fetchClients()
   }
 
   const getInstagramStats = async (url: string) => {
@@ -157,7 +183,6 @@ export default function Page1() {
         } else if (post.platform === 'youtube') {
           stats = await getYoutubeStats(post.post_url)
         }
-
         if (stats) {
           await supabase.from('posts').update({
             likes_count: stats.likes,
@@ -180,11 +205,8 @@ export default function Page1() {
     setUpdatingPostId(post.id)
     try {
       let stats = null
-      if (post.platform === 'instagram') {
-        stats = await getInstagramStats(post.post_url)
-      } else if (post.platform === 'youtube') {
-        stats = await getYoutubeStats(post.post_url)
-      }
+      if (post.platform === 'instagram') stats = await getInstagramStats(post.post_url)
+      else if (post.platform === 'youtube') stats = await getYoutubeStats(post.post_url)
 
       if (stats) {
         await supabase.from('posts').update({
@@ -194,9 +216,7 @@ export default function Page1() {
         fetchPosts(selectedProject.project_code)
         alert('갱신 완료!')
       }
-    } catch {
-      alert('갱신 실패!')
-    }
+    } catch { alert('갱신 실패!') }
     setUpdatingPostId(null)
   }
 
@@ -205,6 +225,7 @@ export default function Page1() {
     setClientName(''); setProjectCode(''); setProductContent('')
     setRequirements(''); setStatus('ONGOING'); setStartDate('')
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
+    setSelectedClientId(''); setClientSearch('')
     setPosts([])
   }
 
@@ -216,6 +237,13 @@ export default function Page1() {
 
   const inputClass = "w-full border rounded-lg px-3 py-2 text-base mt-1 box-border"
   const dateInputStyle = { maxWidth: '100%', boxSizing: 'border-box' as const }
+
+  const filteredClients = clients.filter(c =>
+    c.name?.includes(clientSearch) ||
+    c.company?.includes(clientSearch) ||
+    c.artist?.includes(clientSearch) ||
+    c.client_id?.includes(clientSearch)
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -321,6 +349,39 @@ export default function Page1() {
               <label className="text-sm font-medium">프로젝트 코드</label>
               <input value={projectCode} onChange={(e) => setProjectCode(e.target.value)} disabled={!!selectedProject} className={`${inputClass} disabled:bg-gray-100`} placeholder="예: A_1" />
             </div>
+
+            {/* 의뢰인 선택 */}
+            <div>
+              <label className="text-sm font-medium">의뢰인 선택</label>
+              <input
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                className={inputClass}
+                placeholder="이름/소속사/아티스트 검색"
+              />
+              {clientSearch && filteredClients.length > 0 && (
+                <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
+                  {filteredClients.map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setSelectedClientId(c.client_id)
+                        setClientName(c.name)
+                        setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
+                      }}
+                      className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}
+                    >
+                      <p className="font-medium">{c.name}</p>
+                      <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {selectedClientId && (
+                <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>
+              )}
+            </div>
+
             <div>
               <label className="text-sm font-medium">의뢰인명</label>
               <input value={clientName} onChange={(e) => setClientName(e.target.value)} className={inputClass} />
