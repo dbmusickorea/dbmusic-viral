@@ -110,6 +110,16 @@ export default function Page2() {
     }
   }
 
+  const getTiktokStats = async (url: string) => {
+    try {
+      const response = await fetch(`/api/tiktok?url=${encodeURIComponent(url)}`)
+      const data = await response.json()
+      return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
+    } catch {
+      return { likes: 0, comments: 0 }
+    }
+  }
+
   const getLevelRate = (lv: number) => 1 + (lv - 1) * 0.05
   const getLevelAmount = (baseAmount: number, lv: number) => {
     const amount = Math.round(baseAmount * getLevelRate(lv))
@@ -128,6 +138,10 @@ export default function Page2() {
       commentsCount = stats.comments
     } else if (platform === 'youtube') {
       const stats = await getYoutubeStats(postUrl)
+      likesCount = stats.likes
+      commentsCount = stats.comments
+    } else if (platform === 'tiktok') {
+      const stats = await getTiktokStats(postUrl)
       likesCount = stats.likes
       commentsCount = stats.comments
     }
@@ -212,6 +226,13 @@ export default function Page2() {
     if (s === 'APPROVED') return <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">승인</span>
     if (s === 'REJECTED') return <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">거절</span>
     return <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">대기</span>
+  }
+
+  const getPlatformLabel = (p: string) => {
+    if (p === 'instagram') return '제출 중... (Instagram 데이터 수집 중)'
+    if (p === 'youtube') return '제출 중... (YouTube 데이터 수집 중)'
+    if (p === 'tiktok') return '제출 중... (TikTok 데이터 수집 중)'
+    return '제출 중...'
   }
 
   return (
@@ -493,7 +514,7 @@ export default function Page2() {
               disabled={isSubmitting}
               className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
             >
-              {isSubmitting ? `제출 중... (${platform === 'youtube' ? 'YouTube' : 'Instagram'} 데이터 수집 중)` : '미션 제출하기'}
+              {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
             </button>
           </div>
         </div>
