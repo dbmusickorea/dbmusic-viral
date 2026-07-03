@@ -18,17 +18,40 @@ export default function Page1() {
   const [isUpdatingLikes, setIsUpdatingLikes] = useState(false)
   const [posts, setPosts] = useState<any[]>([])
   const [updatingPostId, setUpdatingPostId] = useState<number | null>(null)
+  const [products, setProducts] = useState<any[]>([])
+  const [newProduct, setNewProduct] = useState('')
+  const [showProductManager, setShowProductManager] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (role !== 'admin') { router.push('/'); return }
     fetchProjects()
+    fetchProducts()
   }, [])
 
   const fetchProjects = async () => {
     const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
     setProjects(data ?? [])
+  }
+
+  const fetchProducts = async () => {
+    const { data } = await supabase.from('products').select('*').order('id', { ascending: true })
+    setProducts(data ?? [])
+  }
+
+  const handleAddProduct = async () => {
+    if (!newProduct) { alert('상품명을 입력해주세요.'); return }
+    const { error } = await supabase.from('products').insert({ name: newProduct })
+    if (error) { alert('등록 실패!'); return }
+    setNewProduct('')
+    fetchProducts()
+  }
+
+  const handleDeleteProduct = async (id: number) => {
+    if (!confirm('삭제하시겠습니까?')) return
+    await supabase.from('products').delete().eq('id', id)
+    fetchProducts()
   }
 
   const fetchPosts = async (code: string) => {
@@ -166,6 +189,41 @@ export default function Page1() {
           </button>
         </div>
 
+        {/* 상품 사전 등록 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-bold">📦 상품 사전 등록</h2>
+            <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border rounded px-2 py-1">
+              {showProductManager ? '닫기' : '관리'}
+            </button>
+          </div>
+          {showProductManager && (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  value={newProduct}
+                  onChange={(e) => setNewProduct(e.target.value)}
+                  className="flex-1 border rounded-lg px-3 py-2 text-sm"
+                  placeholder="상품명 입력 (예: A패키지)"
+                />
+                <button onClick={handleAddProduct} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+              </div>
+              {products.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-2">등록된 상품이 없습니다.</p>
+              ) : (
+                <div className="space-y-1">
+                  {products.map((p) => (
+                    <div key={p.id} className="flex justify-between items-center border rounded-lg px-3 py-2">
+                      <p className="text-sm">{p.name}</p>
+                      <button onClick={() => handleDeleteProduct(p.id)} className="text-xs text-red-500">삭제</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">프로젝트 목록</h2>
           {projects.length === 0 ? (
@@ -205,7 +263,30 @@ export default function Page1() {
             </div>
             <div>
               <label className="text-sm font-medium">상품내용</label>
-              <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} />
+              {products.length > 0 ? (
+                <select
+                  value={productContent}
+                  onChange={(e) => setProductContent(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">상품 선택</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.name}>{p.name}</option>
+                  ))}
+                  <option value="__direct__">직접 입력</option>
+                </select>
+              ) : (
+                <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} placeholder="상품내용 입력" />
+              )}
+              {productContent === '__direct__' && (
+                <input
+                  value=""
+                  onChange={(e) => setProductContent(e.target.value)}
+                  className={`${inputClass} mt-2`}
+                  placeholder="직접 입력"
+                  autoFocus
+                />
+              )}
             </div>
             <div>
               <label className="text-sm font-medium">요청사항</label>
