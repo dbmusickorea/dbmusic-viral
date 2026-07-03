@@ -114,12 +114,9 @@ export default function Page1() {
       client_id: selectedClientId || null
     })
     if (error) { alert('등록 실패!'); return }
-
-    // 의뢰인 project_code 업데이트
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
-
     alert('등록 완료!')
     fetchProjects()
     fetchClients()
@@ -140,12 +137,9 @@ export default function Page1() {
       client_id: selectedClientId || null
     }).eq('project_code', projectCode)
     if (error) { alert('수정 실패!'); return }
-
-    // 의뢰인 project_code 업데이트
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
-
     alert('수정 완료!')
     fetchProjects()
     fetchClients()
@@ -169,6 +163,14 @@ export default function Page1() {
     } catch { return null }
   }
 
+  const getTiktokStats = async (url: string) => {
+    try {
+      const response = await fetch(`/api/tiktok?url=${encodeURIComponent(url)}`)
+      const data = await response.json()
+      return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
+    } catch { return null }
+  }
+
   const handleUpdateAllLikes = async () => {
     setIsUpdatingLikes(true)
     const { data: allPosts } = await supabase.from('posts').select('*')
@@ -182,6 +184,8 @@ export default function Page1() {
           await new Promise(resolve => setTimeout(resolve, 1000))
         } else if (post.platform === 'youtube') {
           stats = await getYoutubeStats(post.post_url)
+        } else if (post.platform === 'tiktok') {
+          stats = await getTiktokStats(post.post_url)
         }
         if (stats) {
           await supabase.from('posts').update({
@@ -198,8 +202,8 @@ export default function Page1() {
   }
 
   const handleUpdateSingleLike = async (post: any) => {
-    if (post.platform !== 'instagram' && post.platform !== 'youtube') {
-      alert('인스타그램/유튜브 게시물만 갱신 가능해요!')
+    if (!['instagram', 'youtube', 'tiktok'].includes(post.platform)) {
+      alert('인스타그램/유튜브/틱톡 게시물만 갱신 가능해요!')
       return
     }
     setUpdatingPostId(post.id)
@@ -207,6 +211,7 @@ export default function Page1() {
       let stats = null
       if (post.platform === 'instagram') stats = await getInstagramStats(post.post_url)
       else if (post.platform === 'youtube') stats = await getYoutubeStats(post.post_url)
+      else if (post.platform === 'tiktok') stats = await getTiktokStats(post.post_url)
 
       if (stats) {
         await supabase.from('posts').update({
@@ -264,7 +269,7 @@ export default function Page1() {
             disabled={isUpdatingLikes}
             className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400"
           >
-            {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브)'}
+            {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브 + 틱톡)'}
           </button>
         </div>
 
@@ -350,7 +355,6 @@ export default function Page1() {
               <input value={projectCode} onChange={(e) => setProjectCode(e.target.value)} disabled={!!selectedProject} className={`${inputClass} disabled:bg-gray-100`} placeholder="예: A_1" />
             </div>
 
-            {/* 의뢰인 선택 */}
             <div>
               <label className="text-sm font-medium">의뢰인 선택</label>
               <input
