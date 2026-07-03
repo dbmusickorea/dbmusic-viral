@@ -36,18 +36,14 @@ export default function LoginPage() {
   const generateReferralCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let code = 'DB'
-    for (let i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
+    for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length))
     return code
   }
 
   const generateClientId = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let code = 'CL'
-    for (let i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
+    for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length))
     return code
   }
 
@@ -62,6 +58,19 @@ export default function LoginPage() {
     }
     await supabase.from('participants').update({ referral_code: referralCode }).eq('id', participant.id)
     return { ...participant, referral_code: referralCode }
+  }
+
+  const ensureClientId = async (user: any) => {
+    if (user.client_id) return user
+    let clientId = generateClientId()
+    let isUnique = false
+    while (!isUnique) {
+      const { data } = await supabase.from('users').select('id').eq('client_id', clientId).maybeSingle()
+      if (!data) isUnique = true
+      else clientId = generateClientId()
+    }
+    await supabase.from('users').update({ client_id: clientId }).eq('id', user.id)
+    return { ...user, client_id: clientId }
   }
 
   const handleLogin = async () => {
@@ -89,7 +98,11 @@ export default function LoginPage() {
       .maybeSingle()
 
     if (user) {
-      localStorage.setItem('userInfo', JSON.stringify(user))
+      let updated = user
+      if (user.role === 'client') {
+        updated = await ensureClientId(user)
+      }
+      localStorage.setItem('userInfo', JSON.stringify(updated))
       localStorage.setItem('userRole', user.role)
       if (user.role === 'admin') router.push('/page1')
       else if (user.role === 'client') router.push('/page3')
@@ -103,11 +116,7 @@ export default function LoginPage() {
     if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
 
     if (p_referral) {
-      const { data: referrer } = await supabase
-        .from('participants')
-        .select('id')
-        .eq('referral_code', p_referral)
-        .maybeSingle()
+      const { data: referrer } = await supabase.from('participants').select('id').eq('referral_code', p_referral).maybeSingle()
       if (!referrer) { alert('유효하지 않은 추천인 코드입니다.'); return }
     }
 
@@ -135,7 +144,6 @@ export default function LoginPage() {
   const handleSignupClient = async () => {
     if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
 
-    // 고유 client_id 생성
     let clientId = generateClientId()
     let isUnique = false
     while (!isUnique) {
