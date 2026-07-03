@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'
 export default function Page4() {
   const [tab, setTab] = useState<'participant' | 'client'>('participant')
   
-  // 체험단
   const [participants, setParticipants] = useState<any[]>([])
   const [selected, setSelected] = useState<any>(null)
   const [name, setName] = useState('')
@@ -19,11 +18,9 @@ export default function Page4() {
   const [instagram, setInstagram] = useState('')
   const [youtube, setYoutube] = useState('')
   const [tiktok, setTiktok] = useState('')
-  const [facebook, setFacebook] = useState('')
   const [password, setPassword] = useState('')
   const [level, setLevel] = useState(1)
 
-  // 의뢰인
   const [clients, setClients] = useState<any[]>([])
   const [selectedClient, setSelectedClient] = useState<any>(null)
   const [cName, setCName] = useState('')
@@ -54,21 +51,20 @@ export default function Page4() {
     setClients(data ?? [])
   }
 
-  // 체험단 핸들러
   const handleSelect = (p: any) => {
     setSelected(p)
     setName(p.name ?? ''); setMobile(p.mobile ?? ''); setEmail(p.email ?? '')
     setBankName(p.bank_name ?? ''); setAccountHolder(p.account_holder ?? '')
     setAccountNumber(p.account_number ?? ''); setInstagram(p.instagram_id ?? '')
     setYoutube(p.youtube_id ?? ''); setTiktok(p.tiktok_id ?? '')
-    setFacebook(p.facebook_id ?? ''); setPassword(''); setLevel(p.level ?? 1)
+    setPassword(''); setLevel(p.level ?? 1)
   }
 
   const clearForm = () => {
     setSelected(null)
     setName(''); setMobile(''); setEmail(''); setBankName('')
     setAccountHolder(''); setAccountNumber(''); setInstagram('')
-    setYoutube(''); setTiktok(''); setFacebook(''); setPassword(''); setLevel(1)
+    setYoutube(''); setTiktok(''); setPassword(''); setLevel(1)
   }
 
   const handleInsert = async () => {
@@ -76,7 +72,7 @@ export default function Page4() {
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, facebook_id: facebook, password, level
+      tiktok_id: tiktok, password, level
     })
     if (error) { alert('등록 실패!'); return }
     alert('등록 완료!')
@@ -89,7 +85,7 @@ export default function Page4() {
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, facebook_id: facebook, level
+      tiktok_id: tiktok, level
     }
     if (password) updateData.password = password
     const { error } = await supabase.from('participants').update(updateData).eq('id', selected.id)
@@ -107,7 +103,6 @@ export default function Page4() {
     clearForm()
   }
 
-  // 의뢰인 핸들러
   const handleSelectClient = (c: any) => {
     setSelectedClient(c)
     setCName(c.name ?? ''); setCCompany(c.company ?? ''); setCArtist(c.artist ?? '')
@@ -130,12 +125,9 @@ export default function Page4() {
     if (cPassword) updateData.password = cPassword
     const { error } = await supabase.from('users').update(updateData).eq('id', selectedClient.id)
     if (error) { alert('수정 실패!'); return }
-
-    // projects 테이블 client_id도 업데이트
     if (cProjectCode && selectedClient.client_id) {
       await supabase.from('projects').update({ client_id: selectedClient.client_id }).eq('project_code', cProjectCode.toUpperCase())
     }
-
     alert('수정 완료!')
     fetchClients()
   }
@@ -155,10 +147,7 @@ export default function Page4() {
     router.push('/')
   }
 
-  const getLevelRate = (lv: number) => {
-    const rate = 1 + (lv - 1) * 0.05
-    return Math.round(rate * 100)
-  }
+  const getLevelRate = (lv: number) => Math.round((1 + (lv - 1) * 0.05) * 100)
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -176,23 +165,11 @@ export default function Page4() {
           </div>
         </div>
 
-        {/* 탭 */}
         <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => { setTab('participant'); clearForm(); clearClientForm() }}
-            className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'participant' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
-          >
-            체험단
-          </button>
-          <button
-            onClick={() => { setTab('client'); clearForm(); clearClientForm() }}
-            className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'client' ? 'bg-green-600 text-white' : 'bg-white border'}`}
-          >
-            의뢰인
-          </button>
+          <button onClick={() => { setTab('participant'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'participant' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>체험단</button>
+          <button onClick={() => { setTab('client'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'client' ? 'bg-green-600 text-white' : 'bg-white border'}`}>의뢰인</button>
         </div>
 
-        {/* 체험단 탭 */}
         {tab === 'participant' && (
           <>
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
@@ -235,7 +212,6 @@ export default function Page4() {
                   { label: '인스타그램 ID', value: instagram, setter: setInstagram },
                   { label: '유튜브 ID', value: youtube, setter: setYoutube },
                   { label: '틱톡 ID', value: tiktok, setter: setTiktok },
-                  { label: '페이스북 ID', value: facebook, setter: setFacebook },
                 ].map(({ label, value, setter, type }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
@@ -269,7 +245,6 @@ export default function Page4() {
           </>
         )}
 
-        {/* 의뢰인 탭 */}
         {tab === 'client' && (
           <>
             <div className="bg-white rounded-2xl shadow p-4 mb-4">

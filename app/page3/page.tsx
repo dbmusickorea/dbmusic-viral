@@ -37,13 +37,8 @@ export default function Page3() {
   }
 
   const fetchMyProjects = async (clientId: string) => {
-    const { data } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('client_id', clientId)
-      .order('created_at', { ascending: false })
+    const { data } = await supabase.from('projects').select('*').eq('client_id', clientId).order('created_at', { ascending: false })
     setMyProjects(data ?? [])
-
     const active = data?.find(p => p.status === 'ONGOING')
     if (active) {
       setProjectInfo(active)
@@ -53,11 +48,7 @@ export default function Page3() {
   }
 
   const fetchPosts = async (code: string) => {
-    const { data } = await supabase
-      .from('posts')
-      .select('*')
-      .ilike('project_code', code)
-      .order('created_at', { ascending: false })
+    const { data } = await supabase.from('posts').select('*').ilike('project_code', code).order('created_at', { ascending: false })
     setPosts(data ?? [])
   }
 
@@ -71,17 +62,9 @@ export default function Page3() {
     setClientCode(code)
     if (code) {
       const found = allProjects.find(p => p.project_code.toLowerCase() === code.toLowerCase())
-      if (found) {
-        setProjectInfo(found)
-        fetchPosts(found.project_code)
-      } else {
-        setProjectInfo(null)
-        setPosts([])
-      }
-    } else {
-      setProjectInfo(null)
-      setPosts([])
-    }
+      if (found) { setProjectInfo(found); fetchPosts(found.project_code) }
+      else { setProjectInfo(null); setPosts([]) }
+    } else { setProjectInfo(null); setPosts([]) }
   }
 
   const handleLogout = () => {
@@ -96,18 +79,15 @@ export default function Page3() {
   const instagramPosts = posts.filter(p => p.platform === 'instagram')
   const youtubePosts = posts.filter(p => p.platform === 'youtube')
   const tiktokPosts = posts.filter(p => p.platform === 'tiktok')
-  const facebookPosts = posts.filter(p => p.platform === 'facebook')
 
   const snsList = [
     { label: '인스타그램', posts: instagramPosts, emoji: '📸' },
     { label: '유튜브', posts: youtubePosts, emoji: '🎬' },
     { label: '틱톡', posts: tiktokPosts, emoji: '🎵' },
-    { label: '페이스북', posts: facebookPosts, emoji: '👥' },
   ]
 
   const isClient = userRole === 'client'
 
-  // 관리자 프로젝트 필터/정렬
   const filteredProjects = allProjects
     .filter(p => statusFilter === 'ALL' ? true : p.status === statusFilter)
     .sort((a, b) => {
@@ -145,11 +125,7 @@ export default function Page3() {
             ) : (
               <div className="space-y-2">
                 {myProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    onClick={() => handleSelectProject(project)}
-                    className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}
-                  >
+                  <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium text-sm">{project.product_content}</p>
@@ -170,48 +146,25 @@ export default function Page3() {
         {!isClient && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">프로젝트 목록</h2>
-
-            {/* 검색 */}
-            <input
-              value={clientCode}
-              onChange={(e) => handleCodeChange(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm mb-3"
-              placeholder="프로젝트 코드 검색 (예: A_1)"
-            />
-
-            {/* 필터/정렬 */}
+            <input value={clientCode} onChange={(e) => handleCodeChange(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mb-3" placeholder="프로젝트 코드 검색 (예: A_1)" />
             <div className="flex gap-2 mb-3">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="flex-1 border rounded-lg px-2 py-1 text-xs"
-              >
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="flex-1 border rounded-lg px-2 py-1 text-xs">
                 <option value="ALL">전체</option>
                 <option value="ONGOING">진행중</option>
                 <option value="PAUSED">대기중</option>
                 <option value="COMPLETED">완료</option>
               </select>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-                className="flex-1 border rounded-lg px-2 py-1 text-xs"
-              >
+              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="flex-1 border rounded-lg px-2 py-1 text-xs">
                 <option value="desc">최신순</option>
                 <option value="asc">오래된순</option>
               </select>
             </div>
-
-            {/* 목록 */}
             {filteredProjects.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {filteredProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    onClick={() => handleSelectProject(project)}
-                    className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}
-                  >
+                  <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium text-sm">{project.project_code}</p>

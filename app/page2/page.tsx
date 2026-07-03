@@ -28,7 +28,6 @@ export default function Page2() {
   const [myInstagram, setMyInstagram] = useState('')
   const [myYoutube, setMyYoutube] = useState('')
   const [myTiktok, setMyTiktok] = useState('')
-  const [myFacebook, setMyFacebook] = useState('')
   const [myPassword, setMyPassword] = useState('')
   const [balance, setBalance] = useState(0)
   const [level, setLevel] = useState(1)
@@ -95,9 +94,7 @@ export default function Page2() {
       const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
       const data = await response.json()
       return { likes: data.like_count ?? 0, comments: data.comment_count ?? 0 }
-    } catch {
-      return { likes: 0, comments: 0 }
-    }
+    } catch { return { likes: 0, comments: 0 } }
   }
 
   const getYoutubeStats = async (url: string) => {
@@ -105,9 +102,7 @@ export default function Page2() {
       const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
       const data = await response.json()
       return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
-    } catch {
-      return { likes: 0, comments: 0 }
-    }
+    } catch { return { likes: 0, comments: 0 } }
   }
 
   const getTiktokStats = async (url: string) => {
@@ -115,9 +110,7 @@ export default function Page2() {
       const response = await fetch(`/api/tiktok?url=${encodeURIComponent(url)}`)
       const data = await response.json()
       return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
-    } catch {
-      return { likes: 0, comments: 0 }
-    }
+    } catch { return { likes: 0, comments: 0 } }
   }
 
   const getLevelRate = (lv: number) => 1 + (lv - 1) * 0.05
@@ -134,16 +127,13 @@ export default function Page2() {
 
     if (platform === 'instagram') {
       const stats = await getInstagramStats(postUrl)
-      likesCount = stats.likes
-      commentsCount = stats.comments
+      likesCount = stats.likes; commentsCount = stats.comments
     } else if (platform === 'youtube') {
       const stats = await getYoutubeStats(postUrl)
-      likesCount = stats.likes
-      commentsCount = stats.comments
+      likesCount = stats.likes; commentsCount = stats.comments
     } else if (platform === 'tiktok') {
       const stats = await getTiktokStats(postUrl)
-      likesCount = stats.likes
-      commentsCount = stats.comments
+      likesCount = stats.likes; commentsCount = stats.comments
     }
 
     const { error } = await supabase.from('posts').insert({
@@ -186,7 +176,7 @@ export default function Page2() {
     setMyBankName(userInfo?.bank_name ?? ''); setMyAccountHolder(userInfo?.account_holder ?? '')
     setMyAccountNumber(userInfo?.account_number ?? ''); setMyInstagram(userInfo?.instagram_id ?? '')
     setMyYoutube(userInfo?.youtube_id ?? ''); setMyTiktok(userInfo?.tiktok_id ?? '')
-    setMyFacebook(userInfo?.facebook_id ?? ''); setShowMyInfo(true)
+    setShowMyInfo(true)
   }
 
   const handleUpdateMyInfo = async () => {
@@ -194,7 +184,7 @@ export default function Page2() {
       name: myName, mobile: myMobile, bank_name: myBankName,
       account_holder: myAccountHolder, account_number: myAccountNumber,
       instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
-      facebook_id: myFacebook, password: myPassword || userInfo?.password
+      password: myPassword || userInfo?.password
     }).eq('id', userInfo?.id)
     if (error) { alert('수정 실패!'); return }
     alert('정보 수정 완료!')
@@ -213,7 +203,6 @@ export default function Page2() {
   const instagramPosts = displayPosts.filter(p => p.platform === 'instagram')
   const youtubePosts = displayPosts.filter(p => p.platform === 'youtube')
   const tiktokPosts = displayPosts.filter(p => p.platform === 'tiktok')
-  const facebookPosts = displayPosts.filter(p => p.platform === 'facebook')
 
   const statusBadge = (code: string) => {
     const s = projectsMap[code]?.status
@@ -253,7 +242,6 @@ export default function Page2() {
           )}
         </div>
 
-        {/* 적립금 + 레벨 + 추천인 코드 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-start mb-3">
             <div>
@@ -267,15 +255,7 @@ export default function Page2() {
               <p className="text-xs text-gray-500">나의 추천인 코드</p>
               <div className="flex items-center justify-between mt-1">
                 <p className="text-lg font-bold text-blue-600">{referralCode}</p>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(referralCode)
-                    alert('추천인 코드가 복사됐어요!')
-                  }}
-                  className="text-xs border rounded px-2 py-1 text-gray-600"
-                >
-                  복사
-                </button>
+                <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
               </div>
               <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
             </div>
@@ -286,7 +266,6 @@ export default function Page2() {
           </div>
         </div>
 
-        {/* 환전 신청 내역 */}
         {mySettlements.length > 0 && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">💰 환전 신청 내역</h2>
@@ -315,7 +294,6 @@ export default function Page2() {
           </div>
         )}
 
-        {/* 게시물 현황 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold">📊 나의 게시물 현황</h2>
@@ -323,14 +301,12 @@ export default function Page2() {
               {showPosts ? '숨기기' : '금액 내역 보기'}
             </button>
           </div>
-
           <div className="flex gap-2 mb-3">
             <button onClick={() => setPostFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
             <button onClick={() => setPostFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
           </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="bg-gray-50 rounded-lg p-3 col-span-2">
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="bg-gray-50 rounded-lg p-3 col-span-3">
               <p className="text-xs text-gray-500">총 게시물</p>
               <p className="text-xl font-bold text-blue-600">{displayPosts.length}개</p>
             </div>
@@ -346,12 +322,7 @@ export default function Page2() {
               <p className="text-xs text-gray-500">틱톡</p>
               <p className="text-lg font-bold">{tiktokPosts.length}개</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">페이스북</p>
-              <p className="text-lg font-bold">{facebookPosts.length}개</p>
-            </div>
           </div>
-
           {showPosts && (
             <div className="space-y-2">
               {displayPosts.length === 0 ? (
@@ -385,7 +356,6 @@ export default function Page2() {
           )}
         </div>
 
-        {/* 프로젝트 기간 */}
         {projectInfo && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-2">📅 프로젝트 기간</h2>
@@ -400,7 +370,6 @@ export default function Page2() {
           </div>
         )}
 
-        {/* 환전 신청 폼 */}
         {showExchange && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-1">💰 환전 신청</h2>
@@ -441,7 +410,6 @@ export default function Page2() {
           </div>
         )}
 
-        {/* 내 정보 수정 폼 */}
         {showMyInfo && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
@@ -455,7 +423,6 @@ export default function Page2() {
                 { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
                 { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
                 { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
-                { label: '페이스북 ID', value: myFacebook, setter: setMyFacebook },
               ].map(({ label, value, setter }) => (
                 <div key={label}>
                   <label className="text-sm font-medium">{label}</label>
@@ -474,7 +441,6 @@ export default function Page2() {
           </div>
         )}
 
-        {/* 미션 제출 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">📸 미션 제출</h2>
           <div className="space-y-3">
@@ -498,7 +464,6 @@ export default function Page2() {
                 <option value="instagram">인스타그램</option>
                 <option value="youtube">유튜브</option>
                 <option value="tiktok">틱톡</option>
-                <option value="facebook">페이스북</option>
               </select>
             </div>
             <div>

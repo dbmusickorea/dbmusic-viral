@@ -22,7 +22,6 @@ export default function LoginPage() {
   const [p_instagram, setPInstagram] = useState('')
   const [p_youtube, setPYoutube] = useState('')
   const [p_tiktok, setPTiktok] = useState('')
-  const [p_facebook, setPFacebook] = useState('')
   const [p_referral, setPReferral] = useState('')
 
   const [c_name, setCName] = useState('')
@@ -76,11 +75,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setError('')
     const { data: participant } = await supabase
-      .from('participants')
-      .select('*')
-      .eq('email', email)
-      .eq('password', password)
-      .maybeSingle()
+      .from('participants').select('*').eq('email', email).eq('password', password).maybeSingle()
 
     if (participant) {
       const updated = await ensureReferralCode(participant)
@@ -91,17 +86,11 @@ export default function LoginPage() {
     }
 
     const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .eq('password', password)
-      .maybeSingle()
+      .from('users').select('*').eq('email', email).eq('password', password).maybeSingle()
 
     if (user) {
       let updated = user
-      if (user.role === 'client') {
-        updated = await ensureClientId(user)
-      }
+      if (user.role === 'client') updated = await ensureClientId(user)
       localStorage.setItem('userInfo', JSON.stringify(updated))
       localStorage.setItem('userRole', user.role)
       if (user.role === 'admin') router.push('/page1')
@@ -132,8 +121,7 @@ export default function LoginPage() {
       name: p_name, mobile: p_mobile, email: p_email, password: p_password,
       bank_name: p_bank, account_holder: p_holder, account_number: p_account,
       instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
-      facebook_id: p_facebook, referral_code: referralCode,
-      referred_by: p_referral || null, level: 1
+      referral_code: referralCode, referred_by: p_referral || null, level: 1
     })
     if (error) { alert('회원가입 실패!'); return }
     alert(`회원가입 완료! 나의 추천인 코드: ${referralCode}`)
@@ -210,7 +198,6 @@ export default function LoginPage() {
                   { label: '인스타그램 ID', value: p_instagram, setter: setPInstagram },
                   { label: '유튜브 ID', value: p_youtube, setter: setPYoutube },
                   { label: '틱톡 ID', value: p_tiktok, setter: setPTiktok },
-                  { label: '페이스북 ID', value: p_facebook, setter: setPFacebook },
                 ].map(({ label, value, setter, type }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
