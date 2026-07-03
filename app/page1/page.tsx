@@ -125,23 +125,45 @@ export default function Page1() {
     fetchProjects()
   }
 
+  const getInstagramStats = async (url: string) => {
+    try {
+      const shortcode = url.split('/p/')[1]?.split('/')[0]
+      if (!shortcode) return null
+      const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
+      const data = await response.json()
+      return { likes: data.like_count ?? 0, comments: data.comment_count ?? 0 }
+    } catch { return null }
+  }
+
+  const getYoutubeStats = async (url: string) => {
+    try {
+      const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+      const data = await response.json()
+      return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
+    } catch { return null }
+  }
+
   const handleUpdateAllLikes = async () => {
     setIsUpdatingLikes(true)
     const { data: allPosts } = await supabase.from('posts').select('*')
     if (!allPosts) { setIsUpdatingLikes(false); return }
 
     for (const post of allPosts) {
-      if (post.platform !== 'instagram') continue
       try {
-        const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
-        if (!shortcode) continue
-        const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
-        const data = await response.json()
-        await supabase.from('posts').update({
-          likes_count: data.like_count ?? post.likes_count,
-          comments_count: data.comment_count ?? post.comments_count
-        }).eq('id', post.id)
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        let stats = null
+        if (post.platform === 'instagram') {
+          stats = await getInstagramStats(post.post_url)
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        } else if (post.platform === 'youtube') {
+          stats = await getYoutubeStats(post.post_url)
+        }
+
+        if (stats) {
+          await supabase.from('posts').update({
+            likes_count: stats.likes,
+            comments_count: stats.comments
+          }).eq('id', post.id)
+        }
       } catch { continue }
     }
 
@@ -151,19 +173,27 @@ export default function Page1() {
   }
 
   const handleUpdateSingleLike = async (post: any) => {
-    if (post.platform !== 'instagram') { alert('인스타그램 게시물만 갱신 가능해요!'); return }
+    if (post.platform !== 'instagram' && post.platform !== 'youtube') {
+      alert('인스타그램/유튜브 게시물만 갱신 가능해요!')
+      return
+    }
     setUpdatingPostId(post.id)
     try {
-      const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
-      if (!shortcode) { setUpdatingPostId(null); return }
-      const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
-      const data = await response.json()
-      await supabase.from('posts').update({
-        likes_count: data.like_count ?? post.likes_count,
-        comments_count: data.comment_count ?? post.comments_count
-      }).eq('id', post.id)
-      fetchPosts(selectedProject.project_code)
-      alert('갱신 완료!')
+      let stats = null
+      if (post.platform === 'instagram') {
+        stats = await getInstagramStats(post.post_url)
+      } else if (post.platform === 'youtube') {
+        stats = await getYoutubeStats(post.post_url)
+      }
+
+      if (stats) {
+        await supabase.from('posts').update({
+          likes_count: stats.likes,
+          comments_count: stats.comments
+        }).eq('id', post.id)
+        fetchPosts(selectedProject.project_code)
+        alert('갱신 완료!')
+      }
     } catch {
       alert('갱신 실패!')
     }
@@ -206,7 +236,7 @@ export default function Page1() {
             disabled={isUpdatingLikes}
             className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400"
           >
-            {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신'}
+            {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브)'}
           </button>
         </div>
 
@@ -258,11 +288,9 @@ export default function Page1() {
                       <p className="font-medium text-sm">{project.project_code}</p>
                       <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
                     </div>
-                    <div className="text-right">
-                      <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                        {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
-                      </span>
-                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                      {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -277,7 +305,6 @@ export default function Page1() {
             {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
           </div>
 
-          {/* 총비용 표시 */}
           {(productContent && productContent !== '__direct__') && (
             <div className="bg-blue-50 rounded-lg p-3 mb-3">
               <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
@@ -315,8 +342,6 @@ export default function Page1() {
                 <input value="" onChange={(e) => setProductContent(e.target.value)} className={`${inputClass} mt-2`} placeholder="직접 입력" autoFocus />
               )}
             </div>
-
-            {/* 추가 옵션 */}
             <div>
               <label className="text-sm font-medium">추가 옵션명 (선택)</label>
               <input value={optionName} onChange={(e) => setOptionName(e.target.value)} className={inputClass} placeholder="예: 숏츠 3개 추가" />
@@ -325,7 +350,6 @@ export default function Page1() {
               <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
               <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
             </div>
-
             <div>
               <label className="text-sm font-medium">요청사항</label>
               <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className={inputClass} rows={3} />
