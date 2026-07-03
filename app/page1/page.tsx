@@ -15,11 +15,14 @@ export default function Page1() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [rewardPerPost, setRewardPerPost] = useState('')
+  const [optionName, setOptionName] = useState('')
+  const [optionPrice, setOptionPrice] = useState('')
   const [isUpdatingLikes, setIsUpdatingLikes] = useState(false)
   const [posts, setPosts] = useState<any[]>([])
   const [updatingPostId, setUpdatingPostId] = useState<number | null>(null)
   const [products, setProducts] = useState<any[]>([])
   const [newProduct, setNewProduct] = useState('')
+  const [newProductPrice, setNewProductPrice] = useState('')
   const [showProductManager, setShowProductManager] = useState(false)
   const router = useRouter()
 
@@ -42,9 +45,10 @@ export default function Page1() {
 
   const handleAddProduct = async () => {
     if (!newProduct) { alert('상품명을 입력해주세요.'); return }
-    const { error } = await supabase.from('products').insert({ name: newProduct })
+    const { error } = await supabase.from('products').insert({ name: newProduct, price: Number(newProductPrice) || 0 })
     if (error) { alert('등록 실패!'); return }
     setNewProduct('')
+    setNewProductPrice('')
     fetchProducts()
   }
 
@@ -69,7 +73,20 @@ export default function Page1() {
     setStartDate(project.start_date ? project.start_date.substring(0, 10) : '')
     setEndDate(project.end_date ? project.end_date.substring(0, 10) : '')
     setRewardPerPost(project.reward_per_post ?? '')
+    setOptionName(project.option_name ?? '')
+    setOptionPrice(project.option_price ?? '')
     fetchPosts(project.project_code)
+  }
+
+  const getSelectedProductPrice = () => {
+    const product = products.find(p => p.name === productContent)
+    return product?.price ?? 0
+  }
+
+  const getTotalCost = () => {
+    const productPrice = getSelectedProductPrice()
+    const option = Number(optionPrice) || 0
+    return productPrice + option
   }
 
   const handleInsert = async () => {
@@ -81,7 +98,9 @@ export default function Page1() {
       status,
       start_date: startDate || null,
       end_date: endDate || null,
-      reward_per_post: Number(rewardPerPost)
+      reward_per_post: Number(rewardPerPost),
+      option_name: optionName || null,
+      option_price: Number(optionPrice) || null
     })
     if (error) { alert('등록 실패!'); return }
     alert('등록 완료!')
@@ -97,7 +116,9 @@ export default function Page1() {
       status,
       start_date: startDate || null,
       end_date: endDate || null,
-      reward_per_post: Number(rewardPerPost)
+      reward_per_post: Number(rewardPerPost),
+      option_name: optionName || null,
+      option_price: Number(optionPrice) || null
     }).eq('project_code', projectCode)
     if (error) { alert('수정 실패!'); return }
     alert('수정 완료!')
@@ -153,7 +174,7 @@ export default function Page1() {
     setSelectedProject(null)
     setClientName(''); setProjectCode(''); setProductContent('')
     setRequirements(''); setStatus('ONGOING'); setStartDate('')
-    setEndDate(''); setRewardPerPost('')
+    setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setPosts([])
   }
 
@@ -200,12 +221,8 @@ export default function Page1() {
           {showProductManager && (
             <div className="space-y-3">
               <div className="flex gap-2">
-                <input
-                  value={newProduct}
-                  onChange={(e) => setNewProduct(e.target.value)}
-                  className="flex-1 border rounded-lg px-3 py-2 text-sm"
-                  placeholder="상품명 입력 (예: A패키지)"
-                />
+                <input value={newProduct} onChange={(e) => setNewProduct(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="상품명" />
+                <input type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} className="w-28 border rounded-lg px-3 py-2 text-sm" placeholder="가격" />
                 <button onClick={handleAddProduct} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
               </div>
               {products.length === 0 ? (
@@ -215,7 +232,10 @@ export default function Page1() {
                   {products.map((p) => (
                     <div key={p.id} className="flex justify-between items-center border rounded-lg px-3 py-2">
                       <p className="text-sm">{p.name}</p>
-                      <button onClick={() => handleDeleteProduct(p.id)} className="text-xs text-red-500">삭제</button>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
+                        <button onClick={() => handleDeleteProduct(p.id)} className="text-xs text-red-500">삭제</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -224,6 +244,7 @@ export default function Page1() {
           )}
         </div>
 
+        {/* 프로젝트 목록 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">프로젝트 목록</h2>
           {projects.length === 0 ? (
@@ -237,9 +258,11 @@ export default function Page1() {
                       <p className="font-medium text-sm">{project.project_code}</p>
                       <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                      {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
-                    </span>
+                    <div className="text-right">
+                      <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                        {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -247,11 +270,25 @@ export default function Page1() {
           )}
         </div>
 
+        {/* 등록/수정 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
             {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
           </div>
+
+          {/* 총비용 표시 */}
+          {(productContent && productContent !== '__direct__') && (
+            <div className="bg-blue-50 rounded-lg p-3 mb-3">
+              <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
+              <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
+              <div className="text-xs text-gray-500 mt-1">
+                <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
+                {optionPrice && <p>옵션: +{Number(optionPrice).toLocaleString()}원</p>}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">프로젝트 코드</label>
@@ -264,14 +301,10 @@ export default function Page1() {
             <div>
               <label className="text-sm font-medium">상품내용</label>
               {products.length > 0 ? (
-                <select
-                  value={productContent}
-                  onChange={(e) => setProductContent(e.target.value)}
-                  className={inputClass}
-                >
+                <select value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass}>
                   <option value="">상품 선택</option>
                   {products.map((p) => (
-                    <option key={p.id} value={p.name}>{p.name}</option>
+                    <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}원)</option>
                   ))}
                   <option value="__direct__">직접 입력</option>
                 </select>
@@ -279,15 +312,20 @@ export default function Page1() {
                 <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} placeholder="상품내용 입력" />
               )}
               {productContent === '__direct__' && (
-                <input
-                  value=""
-                  onChange={(e) => setProductContent(e.target.value)}
-                  className={`${inputClass} mt-2`}
-                  placeholder="직접 입력"
-                  autoFocus
-                />
+                <input value="" onChange={(e) => setProductContent(e.target.value)} className={`${inputClass} mt-2`} placeholder="직접 입력" autoFocus />
               )}
             </div>
+
+            {/* 추가 옵션 */}
+            <div>
+              <label className="text-sm font-medium">추가 옵션명 (선택)</label>
+              <input value={optionName} onChange={(e) => setOptionName(e.target.value)} className={inputClass} placeholder="예: 숏츠 3개 추가" />
+            </div>
+            <div>
+              <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
+              <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
+            </div>
+
             <div>
               <label className="text-sm font-medium">요청사항</label>
               <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className={inputClass} rows={3} />
@@ -309,7 +347,7 @@ export default function Page1() {
               <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
             </div>
             <div>
-              <label className="text-sm font-medium">게시물당 금액</label>
+              <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
               <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} />
             </div>
             <div>
@@ -322,6 +360,7 @@ export default function Page1() {
           </div>
         </div>
 
+        {/* 게시물 목록 */}
         {selectedProject && (
           <div className="bg-white rounded-2xl shadow p-4">
             <h2 className="font-bold mb-3">📋 게시물 목록 ({posts.length}개)</h2>
