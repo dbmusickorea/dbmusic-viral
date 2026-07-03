@@ -11,7 +11,9 @@ export default function Page3() {
   const [posts, setPosts] = useState<any[]>([])
   const [projectInfo, setProjectInfo] = useState<any>(null)
   const [myProjects, setMyProjects] = useState<any[]>([])
-  const [filter, setFilter] = useState('active')
+  const [allProjects, setAllProjects] = useState<any[]>([])
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [sortOrder, setSortOrder] = useState('desc')
   const router = useRouter()
 
   useEffect(() => {
@@ -24,8 +26,15 @@ export default function Page3() {
 
     if (role === 'client' && parsed.client_id) {
       fetchMyProjects(parsed.client_id)
+    } else if (role === 'admin') {
+      fetchAllProjects()
     }
   }, [])
+
+  const fetchAllProjects = async () => {
+    const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
+    setAllProjects(data ?? [])
+  }
 
   const fetchMyProjects = async (clientId: string) => {
     const { data } = await supabase
@@ -35,7 +44,6 @@ export default function Page3() {
       .order('created_at', { ascending: false })
     setMyProjects(data ?? [])
 
-    // 진행중 프로젝트 자동 선택
     const active = data?.find(p => p.status === 'ONGOING')
     if (active) {
       setProjectInfo(active)
@@ -53,16 +61,6 @@ export default function Page3() {
     setPosts(data ?? [])
   }
 
-  const fetchData = async (code: string, filterType: string) => {
-    if (!code) return
-    let projectQuery = supabase.from('projects').select('*').ilike('project_code', code)
-    if (filterType === 'active') projectQuery = projectQuery.eq('status', 'ONGOING')
-    if (filterType === 'past') projectQuery = projectQuery.eq('status', 'COMPLETED')
-    const { data: projectData } = await projectQuery.maybeSingle()
-    setProjectInfo(projectData)
-    fetchPosts(code)
-  }
-
   const handleSelectProject = (project: any) => {
     setProjectInfo(project)
     setClientCode(project.project_code)
@@ -71,13 +69,19 @@ export default function Page3() {
 
   const handleCodeChange = (code: string) => {
     setClientCode(code)
-    if (code) fetchData(code, filter)
-    else { setProjectInfo(null); setPosts([]) }
-  }
-
-  const handleFilter = (type: string) => {
-    setFilter(type)
-    if (clientCode) fetchData(clientCode, type)
+    if (code) {
+      const found = allProjects.find(p => p.project_code.toLowerCase() === code.toLowerCase())
+      if (found) {
+        setProjectInfo(found)
+        fetchPosts(found.project_code)
+      } else {
+        setProjectInfo(null)
+        setPosts([])
+      }
+    } else {
+      setProjectInfo(null)
+      setPosts([])
+    }
   }
 
   const handleLogout = () => {
@@ -102,6 +106,15 @@ export default function Page3() {
   ]
 
   const isClient = userRole === 'client'
+
+  // 관리자 프로젝트 필터/정렬
+  const filteredProjects = allProjects
+    .filter(p => statusFilter === 'ALL' ? true : p.status === statusFilter)
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime()
+      const dateB = new Date(b.created_at).getTime()
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+    })
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -128,7 +141,7 @@ export default function Page3() {
               안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!
             </p>
             {myProjects.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
+              <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
             ) : (
               <div className="space-y-2">
                 {myProjects.map((project) => (
@@ -153,36 +166,65 @@ export default function Page3() {
           </div>
         )}
 
-        {/* 관리자 - 코드 입력 */}
+        {/* 관리자 - 프로젝트 목록 + 검색 + 필터 */}
         {!isClient && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <label className="text-sm font-medium">프로젝트 코드 검색</label>
+            <h2 className="font-bold mb-3">프로젝트 목록</h2>
+
+            {/* 검색 */}
             <input
               value={clientCode}
               onChange={(e) => handleCodeChange(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
-              placeholder="프로젝트 코드 입력 (예: A_1)"
+              className="w-full border rounded-lg px-3 py-2 text-sm mb-3"
+              placeholder="프로젝트 코드 검색 (예: A_1)"
             />
-          </div>
-        )}
 
-        {/* 필터 */}
-        {!isClient && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleFilter('active')}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'border'}`}
+            {/* 필터/정렬 */}
+            <div className="flex gap-2 mb-3">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="flex-1 border rounded-lg px-2 py-1 text-xs"
               >
-                진행 프로젝트
-              </button>
-              <button
-                onClick={() => handleFilter('past')}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium ${filter === 'past' ? 'bg-blue-600 text-white' : 'border'}`}
+                <option value="ALL">전체</option>
+                <option value="ONGOING">진행중</option>
+                <option value="PAUSED">대기중</option>
+                <option value="COMPLETED">완료</option>
+              </select>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="flex-1 border rounded-lg px-2 py-1 text-xs"
               >
-                지난 프로젝트
-              </button>
+                <option value="desc">최신순</option>
+                <option value="asc">오래된순</option>
+              </select>
             </div>
+
+            {/* 목록 */}
+            {filteredProjects.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {filteredProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => handleSelectProject(project)}
+                    className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-sm">{project.project_code}</p>
+                        <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                        {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
