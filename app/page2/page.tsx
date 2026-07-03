@@ -145,9 +145,27 @@ export default function Page2() {
       likes_count: likesCount,
       comments_count: commentsCount
     })
+
+    if (error) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
+
+    // 적립금 자동 추가
+    const { data: projectData } = await supabase
+      .from('projects')
+      .select('reward_per_post')
+      .ilike('project_code', projectCode)
+      .maybeSingle()
+
+    if (projectData?.reward_per_post) {
+      const earnAmount = getLevelAmount(projectData.reward_per_post, level)
+      const newBalance = balance + earnAmount
+      await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
+      setBalance(newBalance)
+      alert(`미션 제출 완료! +${earnAmount.toLocaleString()}원 적립됐어요 🎉`)
+    } else {
+      alert('미션 제출 완료!')
+    }
+
     setIsSubmitting(false)
-    if (error) { alert('미션 제출 실패!'); return }
-    alert('미션 제출 완료!')
     fetchMyPostsAndProjects(userInfo?.id)
     setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl('')
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null)
@@ -242,6 +260,7 @@ export default function Page2() {
           )}
         </div>
 
+        {/* 적립금 + 레벨 + 추천인 코드 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-start mb-3">
             <div>
@@ -266,6 +285,7 @@ export default function Page2() {
           </div>
         </div>
 
+        {/* 환전 신청 내역 */}
         {mySettlements.length > 0 && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">💰 환전 신청 내역</h2>
@@ -294,6 +314,7 @@ export default function Page2() {
           </div>
         )}
 
+        {/* 게시물 현황 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold">📊 나의 게시물 현황</h2>
@@ -356,6 +377,7 @@ export default function Page2() {
           )}
         </div>
 
+        {/* 프로젝트 기간 */}
         {projectInfo && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-2">📅 프로젝트 기간</h2>
@@ -370,6 +392,7 @@ export default function Page2() {
           </div>
         )}
 
+        {/* 환전 신청 폼 */}
         {showExchange && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-1">💰 환전 신청</h2>
@@ -410,6 +433,7 @@ export default function Page2() {
           </div>
         )}
 
+        {/* 내 정보 수정 폼 */}
         {showMyInfo && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
@@ -441,6 +465,7 @@ export default function Page2() {
           </div>
         )}
 
+        {/* 미션 제출 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">📸 미션 제출</h2>
           <div className="space-y-3">

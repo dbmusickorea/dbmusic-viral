@@ -42,10 +42,7 @@ export default function Page5() {
     }
     alert('승인 완료!')
     fetchSettlements()
-    setSelected(null)
-    setSelectedParticipant(null)
-    setMemberPosts([])
-    setMemo('')
+    setSelected(null); setSelectedParticipant(null); setMemberPosts([]); setMemo('')
   }
 
   const handleReject = async () => {
@@ -53,10 +50,7 @@ export default function Page5() {
     await supabase.from('settlements').update({ status: 'REJECTED', memo }).eq('id', selected.id)
     alert('거절 완료!')
     fetchSettlements()
-    setSelected(null)
-    setSelectedParticipant(null)
-    setMemberPosts([])
-    setMemo('')
+    setSelected(null); setSelectedParticipant(null); setMemberPosts([]); setMemo('')
   }
 
   const handleSaveMemo = async () => {
@@ -104,7 +98,7 @@ export default function Page5() {
                 <div key={s.id} onClick={() => handleSelect(s)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-sm">회원 ID: {s.member_id}</p>
+                      <p className="font-medium text-sm">{s.participant_name ?? `회원 ID: ${s.member_id}`}</p>
                       <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                       {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
                     </div>
@@ -123,24 +117,25 @@ export default function Page5() {
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">💰 환전 신청 상세</h2>
             <div className="space-y-2 text-sm">
-              <p>체험단명: <span className="font-medium">{selectedParticipant?.name ?? '-'}</span></p>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="font-medium text-base">{selectedParticipant?.name ?? '-'}</p>
+                {selectedParticipant?.referral_code && (
+                  <p className="text-xs text-blue-600 mt-1">추천인 코드: {selectedParticipant.referral_code}</p>
+                )}
+              </div>
               <p>현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}원</span></p>
               <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}원</span></p>
               <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}원</span></p>
               <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}원</span></p>
+              <p>주민번호: <span className="font-medium">{selected.resident_number ?? '-'}</span></p>
+              <p>주소: <span className="font-medium">{selected.address ?? '-'}</span></p>
+              <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {selectedParticipant?.account_number} ({selectedParticipant?.account_holder})</span></p>
               <p>상태: {statusLabel(selected.status)}</p>
             </div>
 
-            {/* 메모 */}
             <div className="mt-4">
               <label className="text-sm font-medium">📝 관리자 메모 (체험단에게 전달)</label>
-              <textarea
-                value={memo}
-                onChange={(e) => setMemo(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
-                rows={3}
-                placeholder="승인/거절 사유 또는 전달 내용 입력"
-              />
+              <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
               <button onClick={handleSaveMemo} className="w-full border rounded-lg py-2 text-sm mt-1">메모 저장</button>
             </div>
 
