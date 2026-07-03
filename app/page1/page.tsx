@@ -9,6 +9,7 @@ export default function Page1() {
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [clientName, setClientName] = useState('')
   const [projectCode, setProjectCode] = useState('')
+  const [projectPrefix, setProjectPrefix] = useState('')
   const [productContent, setProductContent] = useState('')
   const [requirements, setRequirements] = useState('')
   const [status, setStatus] = useState('ONGOING')
@@ -56,8 +57,7 @@ export default function Page1() {
     if (!newProduct) { alert('상품명을 입력해주세요.'); return }
     const { error } = await supabase.from('products').insert({ name: newProduct, price: Number(newProductPrice) || 0 })
     if (error) { alert('등록 실패!'); return }
-    setNewProduct('')
-    setNewProductPrice('')
+    setNewProduct(''); setNewProductPrice('')
     fetchProducts()
   }
 
@@ -72,10 +72,27 @@ export default function Page1() {
     setPosts(data ?? [])
   }
 
+  // 알파벳 입력 시 자동으로 프로젝트 코드 생성
+  const handlePrefixChange = async (prefix: string) => {
+    const upper = prefix.toUpperCase().replace(/[^A-Z]/g, '')
+    setProjectPrefix(upper)
+    if (!upper) { setProjectCode(''); return }
+
+    // 해당 알파벳으로 시작하는 프로젝트 수 조회
+    const { data } = await supabase
+      .from('projects')
+      .select('project_code')
+      .ilike('project_code', `${upper}_%`)
+
+    const nextNum = (data?.length ?? 0) + 1
+    setProjectCode(`${upper}_${nextNum}`)
+  }
+
   const handleSelectProject = (project: any) => {
     setSelectedProject(project)
     setClientName(project.client_name ?? '')
     setProjectCode(project.project_code ?? '')
+    setProjectPrefix(project.project_code?.split('_')[0] ?? '')
     setProductContent(project.product_content ?? '')
     setRequirements(project.requirements ?? '')
     setStatus(project.status ?? 'ONGOING')
@@ -100,6 +117,7 @@ export default function Page1() {
   }
 
   const handleInsert = async () => {
+    if (!projectCode) { alert('프로젝트 코드를 입력해주세요.'); return }
     const { error } = await supabase.from('projects').insert({
       project_code: projectCode.toUpperCase(),
       client_name: clientName,
@@ -135,7 +153,7 @@ export default function Page1() {
       option_name: optionName || null,
       option_price: Number(optionPrice) || null,
       client_id: selectedClientId || null
-    }).eq('project_code', projectCode)
+    }).eq('project_code', selectedProject.project_code)
     if (error) { alert('수정 실패!'); return }
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
@@ -227,7 +245,7 @@ export default function Page1() {
 
   const clearForm = () => {
     setSelectedProject(null)
-    setClientName(''); setProjectCode(''); setProductContent('')
+    setClientName(''); setProjectCode(''); setProjectPrefix(''); setProductContent('')
     setRequirements(''); setStatus('ONGOING'); setStartDate('')
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setSelectedClientId(''); setClientSearch('')
@@ -350,40 +368,45 @@ export default function Page1() {
           )}
 
           <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">프로젝트 코드</label>
-              <input value={projectCode} onChange={(e) => setProjectCode(e.target.value)} disabled={!!selectedProject} className={`${inputClass} disabled:bg-gray-100`} placeholder="예: A_1" />
-            </div>
+            {/* 프로젝트 코드 자동생성 */}
+            {!selectedProject ? (
+              <div>
+                <label className="text-sm font-medium">프로젝트 코드 자동생성</label>
+                <div className="flex gap-2 mt-1">
+                  <input
+                    value={projectPrefix}
+                    onChange={(e) => handlePrefixChange(e.target.value)}
+                    className="w-20 border rounded-lg px-3 py-2 text-base"
+                    placeholder="A"
+                    maxLength={3}
+                  />
+                  <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600">
+                    {projectCode || '코드 자동생성'}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">알파벳 입력 시 자동으로 코드가 생성돼요</p>
+              </div>
+            ) : (
+              <div>
+                <label className="text-sm font-medium">프로젝트 코드</label>
+                <input value={projectCode} className={`${inputClass} bg-gray-100`} disabled />
+              </div>
+            )}
 
             <div>
               <label className="text-sm font-medium">의뢰인 선택</label>
-              <input
-                value={clientSearch}
-                onChange={(e) => setClientSearch(e.target.value)}
-                className={inputClass}
-                placeholder="이름/소속사/아티스트 검색"
-              />
+              <input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className={inputClass} placeholder="이름/소속사/아티스트 검색" />
               {clientSearch && filteredClients.length > 0 && (
                 <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
                   {filteredClients.map((c) => (
-                    <div
-                      key={c.id}
-                      onClick={() => {
-                        setSelectedClientId(c.client_id)
-                        setClientName(c.name)
-                        setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
-                      }}
-                      className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}
-                    >
+                    <div key={c.id} onClick={() => { setSelectedClientId(c.client_id); setClientName(c.name); setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`) }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                       <p className="font-medium">{c.name}</p>
                       <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
                     </div>
                   ))}
                 </div>
               )}
-              {selectedClientId && (
-                <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>
-              )}
+              {selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>}
             </div>
 
             <div>
@@ -466,11 +489,7 @@ export default function Page1() {
                         <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
                         <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
                       </div>
-                      <button
-                        onClick={() => handleUpdateSingleLike(post)}
-                        disabled={updatingPostId === post.id}
-                        className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0"
-                      >
+                      <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
                         {updatingPostId === post.id ? '...' : '갱신'}
                       </button>
                     </div>
