@@ -42,9 +42,17 @@ export default function LoginPage() {
     return code
   }
 
+  const generateClientId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let code = 'CL'
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return code
+  }
+
   const ensureReferralCode = async (participant: any) => {
     if (participant.referral_code) return participant
-    
     let referralCode = generateReferralCode()
     let isUnique = false
     while (!isUnique) {
@@ -52,7 +60,6 @@ export default function LoginPage() {
       if (!data) isUnique = true
       else referralCode = generateReferralCode()
     }
-    
     await supabase.from('participants').update({ referral_code: referralCode }).eq('id', participant.id)
     return { ...participant, referral_code: referralCode }
   }
@@ -126,13 +133,24 @@ export default function LoginPage() {
   }
 
   const handleSignupClient = async () => {
+    if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
+
+    // 고유 client_id 생성
+    let clientId = generateClientId()
+    let isUnique = false
+    while (!isUnique) {
+      const { data } = await supabase.from('users').select('id').eq('client_id', clientId).maybeSingle()
+      if (!data) isUnique = true
+      else clientId = generateClientId()
+    }
+
     const { error } = await supabase.from('users').insert({
       name: c_name, company: c_company, artist: c_artist,
       phone: c_phone, mobile: c_mobile, email: c_email,
-      password: c_password, role: 'client'
+      password: c_password, role: 'client', client_id: clientId
     })
     if (error) { alert('회원가입 실패!'); return }
-    alert('회원가입 완료! 로그인해주세요.')
+    alert(`회원가입 완료! 의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
   }
@@ -193,12 +211,7 @@ export default function LoginPage() {
                 ))}
                 <div>
                   <label className="text-sm font-medium">추천인 코드 (선택)</label>
-                  <input
-                    value={p_referral}
-                    onChange={(e) => setPReferral(e.target.value.toUpperCase())}
-                    className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
-                    placeholder="추천인 코드 입력 (예: DB1234)"
-                  />
+                  <input value={p_referral} onChange={(e) => setPReferral(e.target.value.toUpperCase())} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="추천인 코드 입력 (예: DB1234)" />
                 </div>
                 <button onClick={handleSignupParticipant} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">회원가입</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
@@ -209,13 +222,13 @@ export default function LoginPage() {
               <div className="space-y-3">
                 <h2 className="font-bold">의뢰인 회원가입</h2>
                 {[
-                  { label: '대표자명', value: c_name, setter: setCName },
+                  { label: '대표자명 *', value: c_name, setter: setCName },
                   { label: '소속사명', value: c_company, setter: setCCompany },
                   { label: '아티스트명', value: c_artist, setter: setCArtist },
                   { label: '전화번호', value: c_phone, setter: setCPhone },
                   { label: '휴대전화', value: c_mobile, setter: setCMobile },
-                  { label: '이메일', value: c_email, setter: setCEmail, type: 'email' },
-                  { label: '비밀번호', value: c_password, setter: setCPassword, type: 'password' },
+                  { label: '이메일 *', value: c_email, setter: setCEmail, type: 'email' },
+                  { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password' },
                 ].map(({ label, value, setter, type }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
