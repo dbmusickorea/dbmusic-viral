@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [p_youtube, setPYoutube] = useState('')
   const [p_tiktok, setPTiktok] = useState('')
   const [p_facebook, setPFacebook] = useState('')
+  const [p_referral, setPReferral] = useState('')
 
   // 의뢰인 회원가입 상태
   const [c_name, setCName] = useState('')
@@ -33,6 +34,15 @@ export default function LoginPage() {
   const [c_mobile, setCMobile] = useState('')
   const [c_email, setCEmail] = useState('')
   const [c_password, setCPassword] = useState('')
+
+  const generateReferralCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let code = 'DB'
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return code
+  }
 
   const handleLogin = async () => {
     setError('')
@@ -69,13 +79,36 @@ export default function LoginPage() {
   }
 
   const handleSignupParticipant = async () => {
+    if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
+
+    // 추천인 코드 유효성 확인
+    if (p_referral) {
+      const { data: referrer } = await supabase
+        .from('participants')
+        .select('id')
+        .eq('referral_code', p_referral)
+        .maybeSingle()
+      if (!referrer) { alert('유효하지 않은 추천인 코드입니다.'); return }
+    }
+
+    // 고유 추천인 코드 생성
+    let referralCode = generateReferralCode()
+    let isUnique = false
+    while (!isUnique) {
+      const { data } = await supabase.from('participants').select('id').eq('referral_code', referralCode).maybeSingle()
+      if (!data) isUnique = true
+      else referralCode = generateReferralCode()
+    }
+
     const { error } = await supabase.from('participants').insert({
       name: p_name, mobile: p_mobile, email: p_email, password: p_password,
       bank_name: p_bank, account_holder: p_holder, account_number: p_account,
-      instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok, facebook_id: p_facebook
+      instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
+      facebook_id: p_facebook, referral_code: referralCode,
+      referred_by: p_referral || null, level: 1
     })
     if (error) { alert('회원가입 실패!'); return }
-    alert('회원가입 완료! 로그인해주세요.')
+    alert(`회원가입 완료! 나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
   }
@@ -115,7 +148,7 @@ export default function LoginPage() {
         ) : (
           <div className="bg-white rounded-2xl shadow p-6">
             <h1 className="text-xl font-bold text-center mb-4">회원가입</h1>
-            
+
             {!signupType && (
               <div className="space-y-3">
                 <p className="text-sm text-center text-gray-500">회원 유형을 선택해주세요</p>
@@ -129,10 +162,10 @@ export default function LoginPage() {
               <div className="space-y-3">
                 <h2 className="font-bold">체험단 회원가입</h2>
                 {[
-                  { label: '이름', value: p_name, setter: setPName },
+                  { label: '이름 *', value: p_name, setter: setPName },
                   { label: '휴대전화', value: p_mobile, setter: setPMobile },
-                  { label: '이메일', value: p_email, setter: setPEmail, type: 'email' },
-                  { label: '비밀번호', value: p_password, setter: setPPassword, type: 'password' },
+                  { label: '이메일 *', value: p_email, setter: setPEmail, type: 'email' },
+                  { label: '비밀번호 *', value: p_password, setter: setPPassword, type: 'password' },
                   { label: '은행명', value: p_bank, setter: setPBank },
                   { label: '예금주', value: p_holder, setter: setPHolder },
                   { label: '계좌번호', value: p_account, setter: setPAccount },
@@ -146,6 +179,15 @@ export default function LoginPage() {
                     <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
+                <div>
+                  <label className="text-sm font-medium">추천인 코드 (선택)</label>
+                  <input
+                    value={p_referral}
+                    onChange={(e) => setPReferral(e.target.value.toUpperCase())}
+                    className="w-full border rounded-lg px-3 py-2 text-sm mt-1"
+                    placeholder="추천인 코드 입력 (예: DB1234)"
+                  />
+                </div>
                 <button onClick={handleSignupParticipant} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">회원가입</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
               </div>
