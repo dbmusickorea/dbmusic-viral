@@ -7,6 +7,10 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://dbmusic-viral.vercel.app',
     cleartext: true
+  },
+  ios: {
+    contentInset: 'automatic',
+    scrollEnabled: true
   }
 };
 

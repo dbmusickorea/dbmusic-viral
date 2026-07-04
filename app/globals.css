@@ -42,3 +42,14 @@ input[type="date"] {
   -webkit-appearance: none !important;
   display: block !important;
 }
+
+body {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
