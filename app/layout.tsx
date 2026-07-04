@@ -22,6 +22,14 @@ export const metadata: Metadata = {
     siteName: "DBMUSIC",
     locale: "ko_KR",
     type: "website",
+    images: [
+      {
+        url: "https://app.doubleb.kr/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "DBMUSIC 바이럴 관리",
+      }
+    ],
   },
 };
 
