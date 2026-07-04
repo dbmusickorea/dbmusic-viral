@@ -42,3 +42,9 @@ input[type="date"] {
   -webkit-appearance: none !important;
   display: block !important;
 }
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+}
