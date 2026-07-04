@@ -148,7 +148,6 @@ export default function Page2() {
 
     if (error) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
 
-    // 적립금 자동 추가
     const { data: projectData } = await supabase
       .from('projects')
       .select('reward_per_post')
@@ -279,10 +278,95 @@ export default function Page2() {
               <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
             </div>
           )}
+
+          {/* 버튼들 */}
           <div className="flex gap-2">
-            <button onClick={() => setShowExchange(!showExchange)} className="flex-1 bg-green-500 text-white rounded-lg py-2 text-sm font-medium">환전 신청</button>
-            <button onClick={loadMyInfo} className="flex-1 bg-gray-500 text-white rounded-lg py-2 text-sm font-medium">내 정보 보기</button>
+            <button
+              onClick={() => { setShowExchange(!showExchange); setShowMyInfo(false) }}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium ${showExchange ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}
+            >
+              환전 신청
+            </button>
+            <button
+              onClick={() => { loadMyInfo(); setShowExchange(false) }}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}
+            >
+              내 정보 보기
+            </button>
           </div>
+
+          {/* 환전 신청 폼 - 버튼 바로 아래 */}
+          {showExchange && (
+            <div className="mt-4 border-t pt-4">
+              <h2 className="font-bold mb-1">💰 환전 신청</h2>
+              <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상, 프로젝트 종료 후 신청 가능</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium">프로젝트 코드 확인</label>
+                  <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 코드 입력" />
+                  {projectCode && (
+                    <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
+                      {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-medium">주민번호</label>
+                  <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">주소</label>
+                  <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주소 입력" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">신청 금액</label>
+                  <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000원)" />
+                </div>
+                {exchangeAmount && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-sm">
+                    <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}원</p>
+                    <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}원</p>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <button onClick={handleExchange} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">환전 신청하기</button>
+                  <button onClick={() => setShowExchange(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 내 정보 수정 폼 - 버튼 바로 아래 */}
+          {showMyInfo && (
+            <div className="mt-4 border-t pt-4">
+              <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
+              <div className="space-y-3">
+                {[
+                  { label: '이름', value: myName, setter: setMyName },
+                  { label: '휴대전화', value: myMobile, setter: setMyMobile },
+                  { label: '은행명', value: myBankName, setter: setMyBankName },
+                  { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
+                  { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
+                  { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
+                  { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
+                  { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
+                ].map(({ label, value, setter }) => (
+                  <div key={label}>
+                    <label className="text-sm font-medium">{label}</label>
+                    <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                  </div>
+                ))}
+                <div>
+                  <label className="text-sm font-medium">새 비밀번호</label>
+                  <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
+                  <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 환전 신청 내역 */}
@@ -389,79 +473,6 @@ export default function Page2() {
             <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
               {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
             </p>
-          </div>
-        )}
-
-        {/* 환전 신청 폼 */}
-        {showExchange && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-1">💰 환전 신청</h2>
-            <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상, 프로젝트 종료 후 신청 가능</p>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">프로젝트 코드 확인</label>
-                <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 코드 입력" />
-                {projectCode && (
-                  <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
-                    {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium">주민번호</label>
-                <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">주소</label>
-                <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주소 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">신청 금액</label>
-                <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000원)" />
-              </div>
-              {exchangeAmount && (
-                <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                  <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}원</p>
-                  <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}원</p>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <button onClick={handleExchange} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">환전 신청하기</button>
-                <button onClick={() => setShowExchange(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 내 정보 수정 폼 */}
-        {showMyInfo && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
-            <div className="space-y-3">
-              {[
-                { label: '이름', value: myName, setter: setMyName },
-                { label: '휴대전화', value: myMobile, setter: setMyMobile },
-                { label: '은행명', value: myBankName, setter: setMyBankName },
-                { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
-                { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
-                { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
-                { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
-                { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
-              ].map(({ label, value, setter }) => (
-                <div key={label}>
-                  <label className="text-sm font-medium">{label}</label>
-                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                </div>
-              ))}
-              <div>
-                <label className="text-sm font-medium">새 비밀번호</label>
-                <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
-              </div>
-              <div className="flex gap-2">
-                <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
-                <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
-              </div>
-            </div>
           </div>
         )}
 
