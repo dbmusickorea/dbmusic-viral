@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { supabase } from './lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Capacitor } from '@capacitor/core'
+import { initPushNotifications } from './lib/push'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -52,7 +54,6 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setError('')
 
-    // Supabase Auth로 로그인
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -63,7 +64,6 @@ export default function LoginPage() {
       return
     }
 
-    // participants 테이블에서 먼저 확인
     const { data: participant } = await supabase
       .from('participants')
       .select('*')
@@ -71,7 +71,6 @@ export default function LoginPage() {
       .maybeSingle()
 
     if (participant) {
-      // referral_code 없으면 자동 생성
       if (!participant.referral_code) {
         let referralCode = generateReferralCode()
         let isUnique = false
@@ -85,11 +84,13 @@ export default function LoginPage() {
       }
       localStorage.setItem('userInfo', JSON.stringify(participant))
       localStorage.setItem('userRole', 'participant')
+      if (Capacitor.isNativePlatform()) {
+        await initPushNotifications(String(participant.id), 'participant')
+      }
       router.push('/participant')
       return
     }
 
-    // users 테이블에서 확인
     const { data: user } = await supabase
       .from('users')
       .select('*')
@@ -97,7 +98,6 @@ export default function LoginPage() {
       .maybeSingle()
 
     if (user) {
-      // client_id 없으면 자동 생성
       if (user.role === 'client' && !user.client_id) {
         let clientId = generateClientId()
         let isUnique = false
@@ -111,6 +111,9 @@ export default function LoginPage() {
       }
       localStorage.setItem('userInfo', JSON.stringify(user))
       localStorage.setItem('userRole', user.role)
+      if (Capacitor.isNativePlatform()) {
+        await initPushNotifications(String(user.id), user.role)
+      }
       if (user.role === 'admin') router.push('/admin')
       else if (user.role === 'client') router.push('/client')
       return
@@ -144,14 +147,12 @@ export default function LoginPage() {
       else referralCode = generateReferralCode()
     }
 
-    // Supabase Auth에 가입
     const { error: authError } = await supabase.auth.signUp({
       email: p_email,
       password: p_password
     })
     if (authError) { alert('회원가입 실패! ' + authError.message); return }
 
-    // participants 테이블에 추가
     const { error } = await supabase.from('participants').insert({
       name: p_name, mobile: p_mobile, email: p_email, password: p_password,
       bank_name: p_bank, account_holder: p_holder, account_number: p_account,
@@ -175,14 +176,12 @@ export default function LoginPage() {
       else clientId = generateClientId()
     }
 
-    // Supabase Auth에 가입
     const { error: authError } = await supabase.auth.signUp({
       email: c_email,
       password: c_password
     })
     if (authError) { alert('회원가입 실패! ' + authError.message); return }
 
-    // users 테이블에 추가
     const { error } = await supabase.from('users').insert({
       name: c_name, company: c_company, artist: c_artist,
       phone: c_phone, mobile: c_mobile, email: c_email,
