@@ -42,10 +42,3 @@ input[type="date"] {
   -webkit-appearance: none !important;
   display: block !important;
 }
-
-body {
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-}
