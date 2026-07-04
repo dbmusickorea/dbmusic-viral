@@ -194,7 +194,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       <div className="w-full max-w-sm">
         {!showSignup && !showForgotPassword ? (
           <div className="bg-white rounded-2xl shadow p-6">
