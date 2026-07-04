@@ -81,7 +81,7 @@ export default function LoginPage() {
       const updated = await ensureReferralCode(participant)
       localStorage.setItem('userInfo', JSON.stringify(updated))
       localStorage.setItem('userRole', 'participant')
-      router.push('/page2')
+      router.push('/participant')
       return
     }
 
@@ -93,8 +93,8 @@ export default function LoginPage() {
       if (user.role === 'client') updated = await ensureClientId(user)
       localStorage.setItem('userInfo', JSON.stringify(updated))
       localStorage.setItem('userRole', user.role)
-      if (user.role === 'admin') router.push('/page1')
-      else if (user.role === 'client') router.push('/page3')
+      if (user.role === 'admin') router.push('/admin')
+      else if (user.role === 'client') router.push('/client')
       return
     }
 
