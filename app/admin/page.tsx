@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
+  const [shortsUrl1, setShortsUrl1] = useState('')
+  const [shortsUrl2, setShortsUrl2] = useState('')
+  const [playlistUrl, setPlaylistUrl] = useState('')
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [clientName, setClientName] = useState('')
   const [projectCode, setProjectCode] = useState('')
@@ -102,7 +105,18 @@ export default function Page1() {
     setOptionName(project.option_name ?? '')
     setOptionPrice(project.option_price ?? '')
     setSelectedClientId(project.client_id ?? '')
+    setShortsUrl1('')
+    setShortsUrl2('')
+    setPlaylistUrl('')
     fetchPosts(project.project_code)
+    supabase.from('project_videos').select('*').eq('project_code', project.project_code).maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setShortsUrl1(data.shorts_url_1 ?? '')
+          setShortsUrl2(data.shorts_url_2 ?? '')
+          setPlaylistUrl(data.playlist_url ?? '')
+        }
+      })
   }
 
   const getSelectedProductPrice = () => {
@@ -114,6 +128,29 @@ export default function Page1() {
     const productPrice = getSelectedProductPrice()
     const option = Number(optionPrice) || 0
     return productPrice + option
+  }
+
+  const extractVideoId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)
+    return match?.[1] ?? ''
+  }
+
+  const saveProjectVideos = async (projectCode: string) => {
+    const existing = await supabase.from('project_videos').select('id').eq('project_code', projectCode).maybeSingle()
+    const data = {
+      project_code: projectCode,
+      shorts_url_1: shortsUrl1 || null,
+      shorts_video_id_1: shortsUrl1 ? extractVideoId(shortsUrl1) : null,
+      shorts_url_2: shortsUrl2 || null,
+      shorts_video_id_2: shortsUrl2 ? extractVideoId(shortsUrl2) : null,
+      playlist_url: playlistUrl || null,
+      playlist_video_id: playlistUrl ? extractVideoId(playlistUrl) : null,
+    }
+    if (existing.data) {
+      await supabase.from('project_videos').update(data).eq('project_code', projectCode)
+    } else {
+      await supabase.from('project_videos').insert(data)
+    }
   }
 
   const handleInsert = async () => {
@@ -135,6 +172,7 @@ export default function Page1() {
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
+    await saveProjectVideos(projectCode.toUpperCase())
     alert('등록 완료!')
     fetchProjects()
     fetchClients()
@@ -158,6 +196,7 @@ export default function Page1() {
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
+    await saveProjectVideos(projectCode.toUpperCase())
     alert('수정 완료!')
     fetchProjects()
     fetchClients()
@@ -250,6 +289,7 @@ export default function Page1() {
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setSelectedClientId(''); setClientSearch('')
     setPosts([])
+    setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
   }
 
   const handleLogout = () => {
@@ -437,6 +477,18 @@ export default function Page1() {
             <div>
               <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
               <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
+            </div>
+            <div>
+              <label className="text-sm font-medium">유튜브 쇼츠 1 URL</label>
+              <input value={shortsUrl1} onChange={(e) => setShortsUrl1(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium">유튜브 쇼츠 2 URL</label>
+              <input value={shortsUrl2} onChange={(e) => setShortsUrl2(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium">플레이리스트 URL</label>
+              <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
             </div>
             <div>
               <label className="text-sm font-medium">요청사항</label>
