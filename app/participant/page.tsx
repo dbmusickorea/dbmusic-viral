@@ -406,11 +406,27 @@ useEffect(() => {
                 <div>
                   <label className="text-sm font-medium">새 비밀번호</label>
                   <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
-                </div>
-                <div className="flex gap-2">
+                </div><div className="flex gap-2">
                   <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
                   <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
                 </div>
+                <button
+                  onClick={async () => {
+                    if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
+                    await supabase.from('posts').delete().eq('member_id', userInfo?.id)
+                    await supabase.from('settlements').delete().eq('member_id', userInfo?.id)
+                    await supabase.from('comment_missions').delete().eq('member_id', userInfo?.id)
+                    await supabase.from('participants').delete().eq('id', userInfo?.id)
+                    await supabase.auth.signOut()
+                    localStorage.removeItem('userInfo')
+                    localStorage.removeItem('userRole')
+                    alert('계정이 삭제됐습니다.')
+                    router.push('/')
+                  }}
+                  className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium mt-2"
+                >
+                  계정 삭제
+                </button>
               </div>
             </div>
           )}
