@@ -28,6 +28,10 @@ export default function LoginPage() {
   const [p_youtube, setPYoutube] = useState('')
   const [p_tiktok, setPTiktok] = useState('')
   const [p_referral, setPReferral] = useState('')
+  const [p_verifyCode, setPVerifyCode] = useState('')
+  const [p_sentCode, setPSentCode] = useState('')
+  const [p_verified, setPVerified] = useState(false)
+  const [p_sending, setPSending] = useState(false)
 
   const [c_name, setCName] = useState('')
   const [c_company, setCCompany] = useState('')
@@ -131,8 +135,41 @@ export default function LoginPage() {
     setForgotSent(true)
   }
 
+  const handleSendVerifyCode = async () => {
+    if (!p_mobile) { alert('휴대전화 번호를 입력해주세요.'); return }
+    setPSending(true)
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    setPSentCode(code)
+    
+    const response = await fetch('/api/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: p_mobile,
+        message: `[DBMUSIC] 인증번호는 ${code} 입니다.`
+      })
+    })
+    const data = await response.json()
+    if (data.success) {
+      alert('인증번호가 발송됐어요!')
+    } else {
+      alert('발송 실패! 번호를 확인해주세요.')
+    }
+    setPSending(false)
+  }
+
+  const handleVerifyCode = () => {
+    if (p_verifyCode === p_sentCode) {
+      setPVerified(true)
+      alert('✅ 인증 완료!')
+    } else {
+      alert('❌ 인증번호가 틀렸어요.')
+    }
+  }
   const handleSignupParticipant = async () => {
     if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
+
+    if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
     if (p_referral) {
       const { data: referrer } = await supabase.from('participants').select('id').eq('referral_code', p_referral).maybeSingle()
@@ -254,7 +291,6 @@ export default function LoginPage() {
                 <h2 className="font-bold">체험단 회원가입</h2>
                 {[
                   { label: '이름 *', value: p_name, setter: setPName },
-                  { label: '휴대전화', value: p_mobile, setter: setPMobile },
                   { label: '이메일 *', value: p_email, setter: setPEmail, type: 'email' },
                   { label: '비밀번호 *', value: p_password, setter: setPPassword, type: 'password' },
                   { label: '은행명', value: p_bank, setter: setPBank },
@@ -269,6 +305,21 @@ export default function LoginPage() {
                     <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
+                <div>
+                  <label className="text-sm font-medium">휴대전화 *</label>
+                  <div className="flex gap-2 mt-1">
+                    <input value={p_mobile} onChange={(e) => setPMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="010-0000-0000" disabled={p_verified} />
+                    <button onClick={handleSendVerifyCode} disabled={p_sending || p_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
+                      {p_verified ? '인증완료' : p_sending ? '발송중' : '인증'}
+                    </button>
+                  </div>
+                  {p_sentCode && !p_verified && (
+                    <div className="flex gap-2 mt-2">
+                      <input value={p_verifyCode} onChange={(e) => setPVerifyCode(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="인증번호 6자리" />
+                      <button onClick={handleVerifyCode} className="bg-green-600 text-white rounded-lg px-3 py-2 text-sm">확인</button>
+                    </div>
+                  )}
+                </div>
                 <div>
                   <label className="text-sm font-medium">추천인 코드 (선택)</label>
                   <input value={p_referral} onChange={(e) => setPReferral(e.target.value.toUpperCase())} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="추천인 코드 입력 (예: DB1234)" />
@@ -286,7 +337,7 @@ export default function LoginPage() {
                   { label: '소속사명', value: c_company, setter: setCCompany },
                   { label: '아티스트명', value: c_artist, setter: setCArtist },
                   { label: '전화번호', value: c_phone, setter: setCPhone },
-                  { label: '휴대전화', value: c_mobile, setter: setCMobile },
+                  { label: '휴대전화 *', value: p_mobile, setter: setPMobile },
                   { label: '이메일 *', value: c_email, setter: setCEmail, type: 'email' },
                   { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password' },
                 ].map(({ label, value, setter, type }) => (
