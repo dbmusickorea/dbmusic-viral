@@ -12,6 +12,10 @@ export default function Page2() {
   const [projectStatus, setProjectStatus] = useState('')
   const [projectInfo, setProjectInfo] = useState<any>(null)
   const [influencerName, setInfluencerName] = useState('')
+  const [commentMissions, setCommentMissions] = useState<any[]>([])
+  const [youtubeHandle, setYoutubeHandle] = useState('')
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [selectedVideoId, setSelectedVideoId] = useState('')
   const [snsAccount, setSnsAccount] = useState('')
   const [postUrl, setPostUrl] = useState('')
   const [platform, setPlatform] = useState('instagram')
@@ -40,7 +44,7 @@ export default function Page2() {
   const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
   const router = useRouter()
 
-  useEffect(() => {
+useEffect(() => {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
     if (!info) { router.push('/'); return }
@@ -50,7 +54,50 @@ export default function Page2() {
     fetchParticipantInfo(parsed.id)
     fetchMyPostsAndProjects(parsed.id)
     fetchMySettlements(parsed.id)
+    fetchCommentMissions(parsed.id)
   }, [])
+
+  const handleCommentVerify = async (videoId: string, projectCode: string) => {
+    if (!youtubeHandle) { alert('유튜브 계정명을 입력해주세요.'); return }
+    
+    // 중복 체크
+    const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
+    if (already) { alert('이미 이 영상으로 보상을 받으셨습니다.'); return }
+    
+    setIsVerifying(true)
+    try {
+      const response = await fetch(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle)}`)
+      const data = await response.json()
+      
+      if (data.found) {
+        // 미션 저장 + 적립금 추가
+        await supabase.from('comment_missions').insert({
+          project_code: projectCode,
+          member_id: userInfo?.id,
+          video_id: videoId,
+          youtube_handle: youtubeHandle,
+          status: 'APPROVED',
+          reward_amount: 300
+        })
+        const newBalance = balance + 300
+        await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
+        setBalance(newBalance)
+        fetchCommentMissions(userInfo?.id)
+        alert('✅ 댓글 인증 완료! 300원이 적립됐어요!')
+      } else {
+        alert('❌ 댓글을 찾을 수 없어요. 유튜브 계정명을 다시 확인해주세요.')
+      }
+    } catch {
+      alert('인증 실패! 다시 시도해주세요.')
+    }
+    setIsVerifying(false)
+    setYoutubeHandle('')
+  }
+  
+  const fetchCommentMissions = async (id: number) => {
+    const { data } = await supabase.from('comment_missions').select('*').eq('member_id', id)
+    setCommentMissions(data ?? [])
+  }
 
   const fetchParticipantInfo = async (id: number) => {
     const { data } = await supabase.from('participants').select('balance, level, referral_code').eq('id', id).maybeSingle()
@@ -528,9 +575,37 @@ export default function Page2() {
               className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
             >
               {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
-            </button>
+           </button>
           </div>
         </div>
+
+        {/* 댓글 미션 */}
+        {projectCode && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">💬 댓글 미션</h2>
+            <p className="text-xs text-gray-500 mb-3">유튜브 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">유튜브 계정명</label>
+                <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
+              </div>
+              <button
+                onClick={async () => {
+                  const { data: videos } = await supabase.from('project_videos').select('*').eq('project_code', projectCode).maybeSingle()
+                  if (!videos) { alert('등록된 영상이 없어요.'); return }
+                  if (videos.shorts_video_id_1) await handleCommentVerify(videos.shorts_video_id_1, projectCode)
+                  else if (videos.shorts_video_id_2) await handleCommentVerify(videos.shorts_video_id_2, projectCode)
+                  else if (videos.playlist_video_id) await handleCommentVerify(videos.playlist_video_id, projectCode)
+                  else alert('등록된 영상이 없어요.')
+                }}
+                disabled={isVerifying}
+                className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+              >
+                {isVerifying ? '인증 중...' : '댓글 인증 및 보상 받기'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
