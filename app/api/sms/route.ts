@@ -7,20 +7,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'phone and message required' }, { status: 400 })
   }
 
-  const params = new URLSearchParams({
-    key: process.env.ALIGO_API_KEY!,
-    user_id: process.env.ALIGO_USER_ID!,
-    sender: process.env.ALIGO_SENDER!,
-    receiver: phone,
-    msg: message,
-    msg_type: 'SMS'
-  })
-
-  const response = await fetch('https://apis.aligo.in/send/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
-  })
+  const response = await fetch(
+    `https://tbohdflubypnvlgwjxtp.supabase.co/functions/v1/send-sms`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ phone, message })
+    }
+  )
 
   const data = await response.json()
 
