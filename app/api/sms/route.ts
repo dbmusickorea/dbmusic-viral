@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   }
 
   const response = await fetch(
-    `https://tbohdflubypnvlgwjxtp.supabase.co/functions/v1/send-sms`,
+    `https://tbohdflubypnvlgwjxtp.supabase.co/functions/v1/smooth-responder`,
     {
       method: 'POST',
       headers: {
