@@ -487,6 +487,18 @@ export default function Page1() {
                         <p className="text-sm font-medium">{post.influencer_name}</p>
                         <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                         <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
+                        <button
+                          onClick={() => {
+                            const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                            if (newUrl) {
+                              supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id)
+                                .then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) })
+                            }
+                          }}
+                          className="text-xs text-orange-500 mt-1 block"
+                        >
+                          URL 수정
+                        </button>
                         <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
                       </div>
                       <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">

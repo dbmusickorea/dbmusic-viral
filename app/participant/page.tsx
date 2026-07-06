@@ -446,6 +446,18 @@ export default function Page2() {
                           </div>
                           <p className="text-xs text-gray-400">{post.project_code}</p>
                           <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
+                        <button
+                          onClick={() => {
+                            const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                            if (newUrl) {
+                              supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id)
+                                .then(() => { alert('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) })
+                            }
+                          }}
+                          className="text-xs text-orange-500 mt-1 block"
+                        >
+                          URL 수정
+                        </button>
                         </div>
                         <div className="text-right shrink-0 ml-2">
                           <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}원</p>
