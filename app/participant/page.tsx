@@ -19,7 +19,7 @@ export default function Page2() {
   const [selectedVideoId, setSelectedVideoId] = useState('')
   const [snsAccount, setSnsAccount] = useState('')
   const [postUrl, setPostUrl] = useState('')
-  const [platform, setPlatform] = useState('instagram')
+  const [platform, setPlatform] = useState('')
   const [showExchange, setShowExchange] = useState(false)
   const [residentNumber, setResidentNumber] = useState('')
   const [address, setAddress] = useState('')
@@ -684,7 +684,9 @@ useEffect(() => {
                     if (e.target.value === 'instagram') setSnsAccount(accounts.instagram ?? '')
                     else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
                     else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
+                    else setSnsAccount('')
                   }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                    <option value="">플랫폼을 선택해주세요</option>
                     <option value="instagram">인스타그램</option>
                     <option value="youtube">유튜브</option>
                     <option value="tiktok">틱톡</option>
