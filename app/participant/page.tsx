@@ -129,7 +129,7 @@ useEffect(() => {
   const getRequirements = async (code: string) => {
     const { data } = await supabase
       .from('projects')
-      .select('requirements, status, start_date, end_date, reward_per_post')
+      .select('requirements, status, start_date, end_date, reward_per_post, max_participants, mission_date, mission_time')
       .ilike('project_code', code)
       .maybeSingle()
     setRequirements(data?.requirements ?? '')
