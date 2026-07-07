@@ -665,11 +665,10 @@ useEffect(() => {
               </div>
               <button
                 onClick={async () => {
-                  const { data: videos } = await supabase.from('project_videos').select('*').eq('project_code', projectCode).maybeSingle()
-                  if (!videos) { alert('등록된 영상이 없어요.'); return }
-                  if (videos.shorts_video_id_1) await handleCommentVerify(videos.shorts_video_id_1, projectCode)
-                  else if (videos.shorts_video_id_2) await handleCommentVerify(videos.shorts_video_id_2, projectCode)
-                  else if (videos.playlist_video_id) await handleCommentVerify(videos.playlist_video_id, projectCode)
+                  if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
+                  if (projectVideos.shorts_video_id_1) await handleCommentVerify(projectVideos.shorts_video_id_1, projectCode)
+                  else if (projectVideos.shorts_video_id_2) await handleCommentVerify(projectVideos.shorts_video_id_2, projectCode)
+                  else if (projectVideos.playlist_video_id) await handleCommentVerify(projectVideos.playlist_video_id, projectCode)
                   else alert('등록된 영상이 없어요.')
                 }}
                 disabled={isVerifying}
