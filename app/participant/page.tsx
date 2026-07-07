@@ -601,6 +601,18 @@ useEffect(() => {
             <h2 className="font-bold mb-3">💬 댓글 미션</h2>
             <p className="text-xs text-gray-500 mb-3">유튜브 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
             <div className="space-y-3">
+              <button
+                onClick={async () => {
+                  const { data: videos } = await supabase.from('project_videos').select('*').eq('project_code', projectCode).maybeSingle()
+                  if (!videos) { alert('등록된 영상이 없어요.'); return }
+                  const url = videos.shorts_url_1 || videos.shorts_url_2 || videos.playlist_url
+                  if (url) window.open(url, '_blank')
+                  else alert('등록된 영상이 없어요.')
+                }}
+                className="w-full bg-red-600 text-white rounded-lg py-2 font-medium"
+              >
+                🎬 댓글 쓰러 가기
+              </button>
               <div>
                 <label className="text-sm font-medium">유튜브 계정명</label>
                 <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
@@ -615,7 +627,7 @@ useEffect(() => {
                   else alert('등록된 영상이 없어요.')
                 }}
                 disabled={isVerifying}
-                className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+                className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
               >
                 {isVerifying ? '인증 중...' : '댓글 인증 및 보상 받기'}
               </button>
