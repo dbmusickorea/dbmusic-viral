@@ -139,12 +139,11 @@ useEffect(() => {
     setProjectVideos(videos)
     // 참여 여부 및 인원 수 확인
     const { data: joinData } = await supabase.from('project_participants')
-      .select('id').eq('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
+      .select('id').ilike('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
     setIsJoined(!!joinData)
-    console.log('isJoined:', joinData)
     
     const { count } = await supabase.from('project_participants')
-      .select('*', { count: 'exact', head: true }).eq('project_code', code)
+      .select('*', { count: 'exact', head: true }).ilike('project_code', code)
     setParticipantCount(count ?? 0)
   }
 
