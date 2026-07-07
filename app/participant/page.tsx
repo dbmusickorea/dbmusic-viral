@@ -650,7 +650,7 @@ useEffect(() => {
             <div className="space-y-3">
               <button
                 onClick={async () => {
-                  const { data: videos } = await supabase.from('project_videos').select('*').eq('project_code', projectCode).maybeSingle()
+                  const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', projectCode).maybeSingle()
                   if (!videos) { alert('등록된 영상이 없어요.'); return }
                   const url = videos.shorts_url_1 || videos.shorts_url_2 || videos.playlist_url
                   if (url) window.open(url, '_blank')
