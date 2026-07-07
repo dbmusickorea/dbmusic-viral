@@ -625,7 +625,7 @@ useEffect(() => {
                         isStarted ? 'bg-green-100 text-green-700' :
                         'bg-gray-100 text-gray-500'
                       }`}>
-                        {isFull ? '모집완료' : isStarted ? '참여중' : '예정'}
+                        {isStarted ? '진행중' : '예정'}
                       </span>
                     </div>
                   </div>
