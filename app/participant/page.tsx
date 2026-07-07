@@ -141,6 +141,7 @@ useEffect(() => {
     const { data: joinData } = await supabase.from('project_participants')
       .select('id').eq('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
     setIsJoined(!!joinData)
+    console.log('isJoined:', joinData)
     
     const { count } = await supabase.from('project_participants')
       .select('*', { count: 'exact', head: true }).eq('project_code', code)
