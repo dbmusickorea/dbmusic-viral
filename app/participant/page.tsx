@@ -137,6 +137,7 @@ useEffect(() => {
     setProjectInfo(data)
     const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', code).maybeSingle()
     setProjectVideos(videos)
+    console.log('videos:', videos)
     // 참여 여부 및 인원 수 확인
     const { data: joinData } = await supabase.from('project_participants')
       .select('id').eq('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
