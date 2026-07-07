@@ -14,6 +14,7 @@ export default function Page3() {
   const [allProjects, setAllProjects] = useState<any[]>([])
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [sortOrder, setSortOrder] = useState('desc')
+  const [commentMissionData, setCommentMissionData] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function Page3() {
       setProjectInfo(active)
       setClientCode(active.project_code)
       fetchPosts(active.project_code)
+      fetchCommentMissionData(active.project_code)
     }
   }
 
@@ -52,10 +54,26 @@ export default function Page3() {
     setPosts(data ?? [])
   }
 
+  const fetchCommentMissionData = async (code: string) => {
+    const [videosRes, missionsRes] = await Promise.all([
+      supabase.from('project_videos').select('*').eq('project_code', code).maybeSingle(),
+      supabase.from('comment_missions').select('*').eq('project_code', code).eq('status', 'APPROVED')
+    ])
+    if (videosRes.data) {
+      setCommentMissionData({
+        videos: videosRes.data,
+        missions: missionsRes.data ?? []
+      })
+    } else {
+      setCommentMissionData(null)
+    }
+  }
+
   const handleSelectProject = (project: any) => {
     setProjectInfo(project)
     setClientCode(project.project_code)
     fetchPosts(project.project_code)
+    fetchCommentMissionData(project.project_code)
   }
 
   const handleCodeChange = (code: string) => {
@@ -244,6 +262,50 @@ export default function Page3() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* 댓글 미션 현황 */}
+        {commentMissionData && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">💬 댓글 부스팅 현황</h2>
+            <div className="text-center mb-4">
+              <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
+              <p className="text-3xl font-bold text-red-500">{commentMissionData.missions.length}건</p>
+              <p className="text-xs text-gray-400">/ {commentMissionData.videos.target_count ?? 300}건 목표</p>
+            </div>
+            <div className="mb-4">
+              <div className="flex justify-between text-xs text-gray-500 mb-1">
+                <span>달성률</span>
+                <span>{Math.min(100, Math.round((commentMissionData.missions.length / (commentMissionData.videos.target_count ?? 300)) * 100))}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-4">
+                <div
+                  className="bg-red-500 h-4 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, Math.round((commentMissionData.missions.length / (commentMissionData.videos.target_count ?? 300)) * 100))}%` }}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              {commentMissionData.videos.shorts_url_1 && (
+                <div className="flex justify-between items-center border rounded-lg p-2">
+                  <p className="text-xs font-medium">🎬 유튜브 쇼츠 1</p>
+                  <p className="text-sm font-bold text-red-500">{commentMissionData.missions.filter((m: any) => m.video_id === commentMissionData.videos.shorts_video_id_1).length}건</p>
+                </div>
+              )}
+              {commentMissionData.videos.shorts_url_2 && (
+                <div className="flex justify-between items-center border rounded-lg p-2">
+                  <p className="text-xs font-medium">🎬 유튜브 쇼츠 2</p>
+                  <p className="text-sm font-bold text-red-500">{commentMissionData.missions.filter((m: any) => m.video_id === commentMissionData.videos.shorts_video_id_2).length}건</p>
+                </div>
+              )}
+              {commentMissionData.videos.playlist_url && (
+                <div className="flex justify-between items-center border rounded-lg p-2">
+                  <p className="text-xs font-medium">🎵 플레이리스트</p>
+                  <p className="text-sm font-bold text-red-500">{commentMissionData.missions.filter((m: any) => m.video_id === commentMissionData.videos.playlist_video_id).length}건</p>
+                </div>
+              )}
             </div>
           </div>
         )}
