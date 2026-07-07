@@ -15,6 +15,10 @@ export default function Page3() {
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [sortOrder, setSortOrder] = useState('desc')
   const [commentMissionData, setCommentMissionData] = useState<any>(null)
+  const [requests, setRequests] = useState<any[]>([])
+  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [requestTitle, setRequestTitle] = useState('')
+  const [requestContent, setRequestContent] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -27,10 +31,32 @@ export default function Page3() {
 
     if (role === 'client' && parsed.client_id) {
       fetchMyProjects(parsed.client_id)
+      fetchRequests(parsed.client_id)
     } else if (role === 'admin') {
       fetchAllProjects()
     }
   }, [])
+
+  const fetchRequests = async (clientId: string) => {
+    const { data } = await supabase.from('client_requests').select('*').eq('client_id', clientId).order('created_at', { ascending: false })
+    setRequests(data ?? [])
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
+    const { error } = await supabase.from('client_requests').insert({
+      client_id: userInfo?.client_id,
+      client_name: userInfo?.name,
+      title: requestTitle,
+      content: requestContent
+    })
+    if (error) { alert('등록 실패!'); return }
+    alert('✅ 프로젝트 요청이 등록됐어요!')
+    setRequestTitle('')
+    setRequestContent('')
+    setShowRequestForm(false)
+    fetchRequests(userInfo?.client_id)
+  }
 
   const fetchAllProjects = async () => {
     const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
@@ -345,6 +371,49 @@ export default function Page3() {
                       </div>
                     </div>
                     <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 프로젝트 요청 게시판 */}
+        {isClient && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold">📋 프로젝트 요청</h2>
+              <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
+                {showRequestForm ? '취소' : '+ 요청하기'}
+              </button>
+            </div>
+            {showRequestForm && (
+              <div className="space-y-3 mb-4 border-b pb-4">
+                <div>
+                  <label className="text-sm font-medium">제목</label>
+                  <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 요청 제목" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">내용</label>
+                  <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청 내용을 입력해주세요" />
+                </div>
+                <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">요청 등록</button>
+              </div>
+            )}
+            {requests.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-2">요청 내역이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {requests.map((req) => (
+                  <div key={req.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <p className="text-sm font-medium">{req.title}</p>
+                      <span className={`text-xs px-2 py-1 rounded-full ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '승인' : '거절'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{req.content}</p>
+                    <p className="text-xs text-gray-400 mt-1">{new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                   </div>
                 ))}
               </div>
