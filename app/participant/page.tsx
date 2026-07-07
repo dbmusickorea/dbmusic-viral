@@ -617,8 +617,13 @@ useEffect(() => {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm font-medium">{project.product_content}</p>
-                        <p className="text-xs text-gray-500">모집일: {project.start_date ?? '미정'}</p>
-                        <p className="text-xs text-gray-500">미션일: {project.mission_date ?? '미정'}</p>
+                        <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
+                        {project.start_date && (
+                          <p className="text-xs text-gray-500">
+                            미션일: {project.start_date} 
+                            {` (D-${Math.max(0, Math.ceil((new Date(project.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))})`}
+                          </p>
+                        )}
                       </div>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         isFull ? 'bg-red-100 text-red-700' :
