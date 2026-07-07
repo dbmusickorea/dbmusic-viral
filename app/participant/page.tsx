@@ -45,6 +45,7 @@ export default function Page2() {
   const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
   const [isJoined, setIsJoined] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
+  const [allProjects, setAllProjects] = useState<any[]>([])
   const router = useRouter()
 
 useEffect(() => {
@@ -58,6 +59,7 @@ useEffect(() => {
     fetchMyPostsAndProjects(parsed.id)
     fetchMySettlements(parsed.id)
     fetchCommentMissions(parsed.id)
+    fetchAllProjects()
   }, [])
 
   const handleCommentVerify = async (videoId: string, projectCode: string) => {
@@ -102,11 +104,25 @@ useEffect(() => {
     setCommentMissions(data ?? [])
   }
 
+  const fetchAllProjects = async () => {
+    const { data } = await supabase.from('projects').select('*').eq('status', 'ONGOING').order('created_at', { ascending: false })
+    setAllProjects(data ?? [])
+  }
+
   const fetchParticipantInfo = async (id: number) => {
-    const { data } = await supabase.from('participants').select('balance, level, referral_code').eq('id', id).maybeSingle()
+    const { data } = await supabase.from('participants').select('balance, level, referral_code, name, instagram_id, youtube_id, tiktok_id').eq('id', id).maybeSingle()
     setBalance(data?.balance ?? 0)
     setLevel(data?.level ?? 1)
     setReferralCode(data?.referral_code ?? '')
+    setInfluencerName(data?.name ?? '')
+    // SNS 계정 저장용 (플랫폼 선택 시 자동 설정)
+    if (data) {
+      localStorage.setItem('snsAccounts', JSON.stringify({
+        instagram: data.instagram_id ?? '',
+        youtube: data.youtube_id ?? '',
+        tiktok: data.tiktok_id ?? ''
+      }))
+    }
   }
 
   const fetchMySettlements = async (id: number) => {
@@ -581,6 +597,44 @@ useEffect(() => {
           </div>
         )}
 
+        {/* 프로젝트 리스트 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">📋 프로젝트 목록</h2>
+          {allProjects.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
+          ) : (
+            <div className="space-y-2">
+              {allProjects.map((project) => {
+                const isSelected = projectCode.toLowerCase() === project.project_code.toLowerCase()
+                const isStarted = !project.start_date || new Date().toISOString().split('T')[0] >= project.start_date
+                const isFull = project.max_participants > 0 && participantCount >= project.max_participants
+                return (
+                  <div
+                    key={project.id}
+                    onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }}
+                    className={`border rounded-lg p-3 cursor-pointer ${isSelected ? 'border-blue-500 bg-blue-50' : ''}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm font-medium">{project.product_content}</p>
+                        <p className="text-xs text-gray-500">모집일: {project.start_date ?? '미정'}</p>
+                        <p className="text-xs text-gray-500">미션일: {project.mission_date ?? '미정'}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        isFull ? 'bg-red-100 text-red-700' :
+                        isStarted ? 'bg-green-100 text-green-700' :
+                        'bg-gray-100 text-gray-500'
+                      }`}>
+                        {isFull ? '모집완료' : isStarted ? '참여중' : '예정'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
         {/* 미션 제출 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-3">📸 미션 제출</h2>
@@ -624,7 +678,13 @@ useEffect(() => {
                 </div>
                 <div>
                   <label className="text-sm font-medium">플랫폼 선택</label>
-                  <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                  <select value={platform} onChange={(e) => {
+                    setPlatform(e.target.value)
+                    const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
+                    if (e.target.value === 'instagram') setSnsAccount(accounts.instagram ?? '')
+                    else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
+                    else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
+                  }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
                     <option value="instagram">인스타그램</option>
                     <option value="youtube">유튜브</option>
                     <option value="tiktok">틱톡</option>
