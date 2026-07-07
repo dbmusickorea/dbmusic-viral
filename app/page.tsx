@@ -227,7 +227,7 @@ export default function LoginPage() {
     if (authError) { alert('회원가입 실패! ' + authError.message); return }
 
     const { error } = await supabase.from('participants').insert({
-      name: p_name, mobile: p_mobile, email: p_email, password: p_password,
+      name: p_name, mobile: p_mobile, email: p_email, password: '',
       bank_name: p_bank, account_holder: p_holder, account_number: p_account,
       instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
       referral_code: referralCode, referred_by: p_referral || null, level: 1
@@ -259,7 +259,7 @@ export default function LoginPage() {
     const { error } = await supabase.from('users').insert({
       name: c_name, company: c_company, artist: c_artist,
       phone: c_phone, mobile: c_mobile, email: c_email,
-      password: c_password, role: 'client', client_id: clientId
+      password: '', role: 'client', client_id: clientId
     })
     if (error) { alert('회원가입 실패!'); return }
     alert(`회원가입 완료! 이메일 인증 후 로그인해주세요.\n의뢰인 코드: ${clientId}`)
