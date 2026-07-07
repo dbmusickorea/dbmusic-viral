@@ -612,33 +612,57 @@ useEffect(() => {
                 </div>
               </div>
             )}
-            <div>
-              <label className="text-sm font-medium">참여자 이름</label>
-              <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">플랫폼 선택</label>
-              <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
-                <option value="instagram">인스타그램</option>
-                <option value="youtube">유튜브</option>
-                <option value="tiktok">틱톡</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">본인 SNS 계정</label>
-              <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
-              <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
-            </div>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
-            >
-              {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
-           </button>
+            {projectInfo && (
+              <div className="bg-gray-50 rounded-lg p-3 mt-2">
+                {projectInfo.mission_date && (
+                  <p className="text-sm text-gray-700">📅 미션 수행일: {projectInfo.mission_date} {projectInfo.mission_time && `${projectInfo.mission_time}`}</p>
+                )}
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                  {isJoined ? (
+                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                  ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
+                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
+                  ) : (
+                    <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
+                  )}
+                </div>
+              </div>
+            )}
+            {/* 미션 제출 폼 - 모집종료 아닐 때 + 미션 수행일 이후에만 표시 */}
+            {projectInfo && isJoined && 
+              !(projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants) &&
+              (!projectInfo.mission_date || new Date() >= new Date(projectInfo.mission_date)) && (
+              <>
+                <div>
+                  <label className="text-sm font-medium">참여자 이름</label>
+                  <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">플랫폼 선택</label>
+                  <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                    <option value="instagram">인스타그램</option>
+                    <option value="youtube">유튜브</option>
+                    <option value="tiktok">틱톡</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">본인 SNS 계정</label>
+                  <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
+                  <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
+                </div>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+                >
+                  {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
+                </button>
+              </>
+            )}
           </div>
         </div>
 
