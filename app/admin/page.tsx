@@ -37,6 +37,7 @@ export default function Page1() {
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
   const [isSendingPush, setIsSendingPush] = useState(false)
+  const [clientRequests, setClientRequests] = useState<any[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function Page1() {
     fetchProjects()
     fetchProducts()
     fetchClients()
+    fetchClientRequests()
   }, [])
 
   const fetchProjects = async () => {
@@ -60,6 +62,11 @@ export default function Page1() {
   const fetchClients = async () => {
     const { data } = await supabase.from('users').select('*').eq('role', 'client').order('name', { ascending: true })
     setClients(data ?? [])
+  }
+
+  const fetchClientRequests = async () => {
+    const { data } = await supabase.from('client_requests').select('*').order('created_at', { ascending: false })
+    setClientRequests(data ?? [])
   }
 
   const handleAddProduct = async () => {
@@ -577,6 +584,45 @@ export default function Page1() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* 의뢰인 프로젝트 요청 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">📋 의뢰인 프로젝트 요청</h2>
+          {clientRequests.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-2">요청 내역이 없습니다.</p>
+          ) : (
+            <div className="space-y-2">
+              {clientRequests.map((req) => (
+                <div key={req.id} className="border rounded-lg p-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium">{req.title}</p>
+                      <p className="text-xs text-gray-500">{req.client_name} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                      <p className="text-xs text-gray-600 mt-1">{req.content}</p>
+                    </div>
+                    <div className="flex flex-col gap-1 shrink-0 ml-2">
+                      <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '승인' : '거절'}
+                      </span>
+                      {req.status === 'PENDING' && (
+                        <>
+                          <button onClick={async () => {
+                            await supabase.from('client_requests').update({ status: 'APPROVED' }).eq('id', req.id)
+                            fetchClientRequests()
+                          }} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
+                          <button onClick={async () => {
+                            await supabase.from('client_requests').update({ status: 'REJECTED' }).eq('id', req.id)
+                            fetchClientRequests()
+                          }} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 푸시 알림 발송 */}
