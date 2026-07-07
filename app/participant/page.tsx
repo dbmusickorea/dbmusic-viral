@@ -46,6 +46,7 @@ export default function Page2() {
   const [isJoined, setIsJoined] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
   const [allProjects, setAllProjects] = useState<any[]>([])
+  const [myParticipations, setMyParticipations] = useState<any[]>([])
   const router = useRouter()
 
 useEffect(() => {
@@ -60,6 +61,7 @@ useEffect(() => {
     fetchMySettlements(parsed.id)
     fetchCommentMissions(parsed.id)
     fetchAllProjects()
+    fetchMyParticipations(parsed.id)
   }, [])
 
   const handleCommentVerify = async (videoId: string, projectCode: string) => {
@@ -107,6 +109,15 @@ useEffect(() => {
   const fetchAllProjects = async () => {
     const { data } = await supabase.from('projects').select('*').eq('status', 'ONGOING').order('created_at', { ascending: false })
     setAllProjects(data ?? [])
+  }
+
+  const fetchMyParticipations = async (id: number) => {
+    const { data } = await supabase
+      .from('project_participants')
+      .select('*, projects(product_content, start_date, mission_date, status)')
+      .eq('member_id', id)
+      .order('joined_at', { ascending: false })
+    setMyParticipations(data ?? [])
   }
 
   const fetchParticipantInfo = async (id: number) => {
@@ -594,6 +605,27 @@ useEffect(() => {
             <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
               {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
             </p>
+          </div>
+        )}
+
+        {/* 내 참여 현황 */}
+        {myParticipations.length > 0 && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
+            <div className="space-y-2">
+              {myParticipations.map((p) => (
+                <div key={p.id} className="border rounded-lg p-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-medium">{p.projects?.product_content}</p>
+                      <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
+                      <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">참여중 ✅</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
