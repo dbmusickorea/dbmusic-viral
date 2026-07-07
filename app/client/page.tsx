@@ -47,11 +47,12 @@ export default function Page3() {
     const { error } = await supabase.from('client_requests').insert({
       client_id: userInfo?.client_id,
       client_name: userInfo?.name,
+      client_mobile: userInfo?.mobile,
       title: requestTitle,
       content: requestContent
     })
     if (error) { alert('등록 실패!'); return }
-    alert('✅ 프로젝트 요청이 등록됐어요!')
+    alert('✅ 프로젝트 문의가 등록됐어요!')
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
@@ -378,30 +379,30 @@ export default function Page3() {
           </div>
         )}
 
-        {/* 프로젝트 요청 게시판 */}
+        {/* 프로젝트 문의 게시판 */}
         {isClient && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">📋 프로젝트 요청</h2>
+              <h2 className="font-bold">📋 프로젝트 문의</h2>
               <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
-                {showRequestForm ? '취소' : '+ 요청하기'}
+                {showRequestForm ? '취소' : '+ 문의하기'}
               </button>
             </div>
             {showRequestForm && (
               <div className="space-y-3 mb-4 border-b pb-4">
                 <div>
                   <label className="text-sm font-medium">제목</label>
-                  <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 요청 제목" />
+                  <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 문의 제목" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">내용</label>
-                  <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청 내용을 입력해주세요" />
+                  <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="문의 내용을 입력해주세요" />
                 </div>
-                <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">요청 등록</button>
+                <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록</button>
               </div>
             )}
             {requests.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-2">요청 내역이 없습니다.</p>
+              <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
             ) : (
               <div className="space-y-2">
                 {requests.map((req) => (

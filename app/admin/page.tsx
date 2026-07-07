@@ -586,11 +586,11 @@ export default function Page1() {
           </div>
         </div>
 
-        {/* 의뢰인 프로젝트 요청 */}
+        {/* 의뢰인 프로젝트 문의 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📋 의뢰인 프로젝트 요청</h2>
+          <h2 className="font-bold mb-3">📋 의뢰인 프로젝트 문의</h2>
           {clientRequests.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-2">요청 내역이 없습니다.</p>
+            <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
           ) : (
             <div className="space-y-2">
               {clientRequests.map((req) => (
@@ -598,7 +598,7 @@ export default function Page1() {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-sm font-medium">{req.title}</p>
-                      <p className="text-xs text-gray-500">{req.client_name} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                      <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                       <p className="text-xs text-gray-600 mt-1">{req.content}</p>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0 ml-2">
