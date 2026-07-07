@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation'
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
   const [shortsUrl1, setShortsUrl1] = useState('')
+  const [maxParticipants, setMaxParticipants] = useState('')
+  const [missionDate, setMissionDate] = useState('')
+  const [missionTime, setMissionTime] = useState('')
   const [shortsUrl2, setShortsUrl2] = useState('')
   const [playlistUrl, setPlaylistUrl] = useState('')
   const [selectedProject, setSelectedProject] = useState<any>(null)
@@ -108,6 +111,9 @@ export default function Page1() {
     setShortsUrl1('')
     setShortsUrl2('')
     setPlaylistUrl('')
+    setMaxParticipants(project.max_participants ?? '')
+    setMissionDate(project.mission_date ?? '')
+    setMissionTime(project.mission_time ?? '')
     fetchPosts(project.project_code)
     supabase.from('project_videos').select('*').eq('project_code', project.project_code).maybeSingle()
       .then(({ data }) => {
@@ -164,6 +170,9 @@ export default function Page1() {
       start_date: startDate || null,
       end_date: endDate || null,
       reward_per_post: Number(rewardPerPost),
+      max_participants: Number(maxParticipants) || 0,
+      mission_date: missionDate || null,
+      mission_time: missionTime || null,
       option_name: optionName || null,
       option_price: Number(optionPrice) || null,
       client_id: selectedClientId || null
@@ -188,6 +197,9 @@ export default function Page1() {
       start_date: startDate || null,
       end_date: endDate || null,
       reward_per_post: Number(rewardPerPost),
+      max_participants: Number(maxParticipants) || 0,
+      mission_date: missionDate || null,
+      mission_time: missionTime || null,
       option_name: optionName || null,
       option_price: Number(optionPrice) || null,
       client_id: selectedClientId || null
@@ -289,6 +301,7 @@ export default function Page1() {
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setSelectedClientId(''); setClientSearch('')
     setPosts([])
+    setMaxParticipants(''); setMissionDate(''); setMissionTime('')
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
   }
 
@@ -489,6 +502,18 @@ export default function Page1() {
             <div>
               <label className="text-sm font-medium">플레이리스트 URL</label>
               <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium">모집인원</label>
+              <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} className={inputClass} placeholder="모집 인원 수 입력" />
+            </div>
+            <div>
+              <label className="text-sm font-medium">미션 수행일</label>
+              <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} />
+            </div>
+            <div>
+              <label className="text-sm font-medium">미션 수행 시간</label>
+              <input type="time" value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass} />
             </div>
             <div>
               <label className="text-sm font-medium">요청사항</label>
