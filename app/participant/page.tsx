@@ -612,23 +612,6 @@ useEffect(() => {
                 </div>
               </div>
             )}
-            {projectInfo && (
-              <div className="bg-gray-50 rounded-lg p-3 mt-2">
-                {projectInfo.mission_date && (
-                  <p className="text-sm text-gray-700">📅 미션 수행일: {projectInfo.mission_date} {projectInfo.mission_time && `${projectInfo.mission_time}`}</p>
-                )}
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
-                  {isJoined ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
-                  ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
-                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
-                  ) : (
-                    <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
-                  )}
-                </div>
-              </div>
-            )}
             {/* 미션 제출 폼 - 모집종료 아닐 때 + 미션 수행일 이후에만 표시 */}
             {projectInfo && isJoined && 
               !(projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants) &&
