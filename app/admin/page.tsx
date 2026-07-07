@@ -38,6 +38,7 @@ export default function Page1() {
   const [pushBody, setPushBody] = useState('')
   const [isSendingPush, setIsSendingPush] = useState(false)
   const [clientRequests, setClientRequests] = useState<any[]>([])
+  const [participants, setParticipants] = useState<any[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -88,6 +89,15 @@ export default function Page1() {
     setPosts(data ?? [])
   }
 
+  const fetchParticipants = async (code: string) => {
+    const { data } = await supabase
+      .from('project_participants')
+      .select('*, participants(name, mobile, instagram_id, youtube_id, tiktok_id)')
+      .ilike('project_code', code)
+      .order('joined_at', { ascending: false })
+    setParticipants(data ?? [])
+  }
+
   // 알파벳 입력 시 자동으로 프로젝트 코드 생성
   const handlePrefixChange = async (prefix: string) => {
     const upper = prefix.toUpperCase().replace(/[^A-Z]/g, '')
@@ -133,6 +143,7 @@ export default function Page1() {
           setPlaylistUrl(data.playlist_url ?? '')
         }
       })
+    fetchParticipants(project.project_code)
   }
 
   const getSelectedProductPrice = () => {
@@ -659,6 +670,29 @@ export default function Page1() {
             </button>
           </div>
         </div>
+
+        {/* 참여자 목록 */}
+        {selectedProject && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">👥 참여자 목록 ({participants.length}명)</h2>
+            {participants.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-2">참여자가 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {participants.map((p) => (
+                  <div key={p.id} className="border rounded-lg p-3">
+                    <p className="text-sm font-medium">{p.participants?.name}</p>
+                    <p className="text-xs text-gray-500">📱 {p.participants?.mobile}</p>
+                    {p.participants?.instagram_id && <p className="text-xs text-gray-500">📸 {p.participants?.instagram_id}</p>}
+                    {p.participants?.youtube_id && <p className="text-xs text-gray-500">🎬 {p.participants?.youtube_id}</p>}
+                    {p.participants?.tiktok_id && <p className="text-xs text-gray-500">🎵 {p.participants?.tiktok_id}</p>}
+                    <p className="text-xs text-gray-400">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 게시물 목록 */}
         {selectedProject && (
