@@ -34,6 +34,9 @@ export default function Page1() {
   const [clients, setClients] = useState<any[]>([])
   const [selectedClientId, setSelectedClientId] = useState('')
   const [clientSearch, setClientSearch] = useState('')
+  const [pushTitle, setPushTitle] = useState('')
+  const [pushBody, setPushBody] = useState('')
+  const [isSendingPush, setIsSendingPush] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -212,6 +215,33 @@ export default function Page1() {
     alert('수정 완료!')
     fetchProjects()
     fetchClients()
+  }
+
+  const handleSendPush = async () => {
+    if (!pushTitle || !pushBody) { alert('제목과 내용을 입력해주세요.'); return }
+    setIsSendingPush(true)
+    
+    const { data: tokens } = await supabase.from('push_tokens').select('token')
+    if (!tokens || tokens.length === 0) { alert('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
+    
+    const response = await fetch('/api/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: pushTitle,
+        body: pushBody,
+        tokens: tokens.map(t => t.token)
+      })
+    })
+    const data = await response.json()
+    if (data.success) {
+      alert(`✅ 푸시 알림 발송 완료! ${tokens.length}명에게 발송됐어요.`)
+      setPushTitle('')
+      setPushBody('')
+    } else {
+      alert('발송 실패!')
+    }
+    setIsSendingPush(false)
   }
 
   const getInstagramStats = async (url: string) => {
@@ -546,6 +576,28 @@ export default function Page1() {
                 <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* 푸시 알림 발송 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">🔔 푸시 알림 발송</h2>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium">제목</label>
+              <input value={pushTitle} onChange={(e) => setPushTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="알림 제목" />
+            </div>
+            <div>
+              <label className="text-sm font-medium">내용</label>
+              <textarea value={pushBody} onChange={(e) => setPushBody(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="알림 내용" />
+            </div>
+            <button
+              onClick={handleSendPush}
+              disabled={isSendingPush}
+              className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+            >
+              {isSendingPush ? '발송 중...' : '전체 발송'}
+            </button>
           </div>
         </div>
 
