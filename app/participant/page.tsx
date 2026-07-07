@@ -392,7 +392,7 @@ useEffect(() => {
               환전 신청
             </button>
             <button
-              onClick={() => { loadMyInfo(); setShowExchange(false) }}
+              onClick={() => { if (!showMyInfo) loadMyInfo(); setShowMyInfo(!showMyInfo); setShowExchange(false) }}
               className={`flex-1 rounded-lg py-2 text-sm font-medium ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}
             >
               내 정보 보기
