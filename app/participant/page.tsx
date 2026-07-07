@@ -606,7 +606,7 @@ useEffect(() => {
             <div className="space-y-2">
               {allProjects.map((project) => {
                 const isSelected = projectCode.toLowerCase() === project.project_code.toLowerCase()
-                const isStarted = !project.start_date || new Date().toISOString().split('T')[0] >= project.start_date
+                const isStarted = !project.mission_date || new Date().toISOString().split('T')[0] >= project.mission_date
                 const isFull = project.max_participants > 0 && participantCount >= project.max_participants
                 return (
                   <div
