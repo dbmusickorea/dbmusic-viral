@@ -656,8 +656,8 @@ useEffect(() => {
             )}
             {projectInfo && (
               <div className="bg-gray-50 rounded-lg p-3 mt-2">
-                {projectInfo.mission_date && (
-                  <p className="text-sm text-gray-700">📅 미션 수행일: {projectInfo.mission_date} {projectInfo.mission_time && `${projectInfo.mission_time}`}</p>
+                {projectInfo.start_date && (
+                  <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date} {projectInfo.mission_date && `(모집일: ${projectInfo.mission_date})`}</p>
                 )}
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
