@@ -43,6 +43,8 @@ export default function Page2() {
   const [projectsMap, setProjectsMap] = useState<any>({})
   const [showPosts, setShowPosts] = useState(false)
   const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
+  const [isJoined, setIsJoined] = useState(false)
+  const [participantCount, setParticipantCount] = useState(0)
   const router = useRouter()
 
 useEffect(() => {
@@ -135,6 +137,31 @@ useEffect(() => {
     setProjectInfo(data)
     const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', code).maybeSingle()
     setProjectVideos(videos)
+    // 참여 여부 및 인원 수 확인
+    const { data: joinData } = await supabase.from('project_participants')
+      .select('id').eq('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
+    setIsJoined(!!joinData)
+    
+    const { count } = await supabase.from('project_participants')
+      .select('*', { count: 'exact', head: true }).eq('project_code', code)
+    setParticipantCount(count ?? 0)
+  }
+
+  const handleJoin = async () => {
+    if (!projectCode || !userInfo) return
+    const maxP = projectInfo?.max_participants ?? 0
+    if (maxP > 0 && participantCount >= maxP) {
+      alert('모집이 마감됐어요.')
+      return
+    }
+    const { error } = await supabase.from('project_participants').insert({
+      project_code: projectCode,
+      member_id: userInfo.id
+    })
+    if (error) { alert('이미 참여하셨거나 오류가 발생했어요.'); return }
+    setIsJoined(true)
+    setParticipantCount(prev => prev + 1)
+    alert('✅ 참여 완료!')
   }
 
   const getInstagramStats = async (url: string) => {
@@ -566,6 +593,23 @@ useEffect(() => {
               <div className="bg-blue-50 rounded-lg p-3">
                 <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
                 <p className="text-sm text-blue-700 mt-1">{requirements}</p>
+              </div>
+            )}
+            {projectInfo && (
+              <div className="bg-gray-50 rounded-lg p-3 mt-2">
+                {projectInfo.mission_date && (
+                  <p className="text-sm text-gray-700">📅 미션 수행일: {projectInfo.mission_date} {projectInfo.mission_time && `${projectInfo.mission_time}`}</p>
+                )}
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                  {isJoined ? (
+                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                  ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
+                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
+                  ) : (
+                    <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
+                  )}
+                </div>
               </div>
             )}
             <div>
