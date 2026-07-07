@@ -40,6 +40,10 @@ export default function LoginPage() {
   const [c_mobile, setCMobile] = useState('')
   const [c_email, setCEmail] = useState('')
   const [c_password, setCPassword] = useState('')
+  const [c_verifyCode, setCVerifyCode] = useState('')
+  const [c_sentCode, setCSentCode] = useState('')
+  const [c_verified, setCVerified] = useState(false)
+  const [c_sending, setCSending] = useState(false)
 
   const generateReferralCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -158,6 +162,38 @@ export default function LoginPage() {
     setPSending(false)
   }
 
+  const handleSendVerifyCodeClient = async () => {
+    if (!c_mobile) { alert('휴대전화 번호를 입력해주세요.'); return }
+    setCSending(true)
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    setCSentCode(code)
+    
+    const response = await fetch('/api/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: c_mobile,
+        message: `[DBMUSIC] 인증번호는 ${code} 입니다.`
+      })
+    })
+    const data = await response.json()
+    if (data.success) {
+      alert('인증번호가 발송됐어요!')
+    } else {
+      alert('발송 실패! 번호를 확인해주세요.')
+    }
+    setCSending(false)
+  }
+
+  const handleVerifyCodeClient = () => {
+    if (c_verifyCode === c_sentCode) {
+      setCVerified(true)
+      alert('✅ 인증 완료!')
+    } else {
+      alert('❌ 인증번호가 틀렸어요.')
+    }
+  }
+
   const handleVerifyCode = () => {
     if (p_verifyCode === p_sentCode) {
       setPVerified(true)
@@ -203,6 +239,7 @@ export default function LoginPage() {
   }
 
   const handleSignupClient = async () => {
+    if (!c_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
     if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
 
     let clientId = generateClientId()
@@ -337,7 +374,6 @@ export default function LoginPage() {
                   { label: '소속사명', value: c_company, setter: setCCompany },
                   { label: '아티스트명', value: c_artist, setter: setCArtist },
                   { label: '전화번호', value: c_phone, setter: setCPhone },
-                  { label: '휴대전화 *', value: p_mobile, setter: setPMobile },
                   { label: '이메일 *', value: c_email, setter: setCEmail, type: 'email' },
                   { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password' },
                 ].map(({ label, value, setter, type }) => (
@@ -346,6 +382,21 @@ export default function LoginPage() {
                     <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
+                <div>
+                  <label className="text-sm font-medium">휴대전화 *</label>
+                  <div className="flex gap-2 mt-1">
+                    <input value={c_mobile} onChange={(e) => setCMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="010-0000-0000" disabled={c_verified} />
+                    <button onClick={handleSendVerifyCodeClient} disabled={c_sending || c_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
+                      {c_verified ? '인증완료' : c_sending ? '발송중' : '인증'}
+                    </button>
+                  </div>
+                  {c_sentCode && !c_verified && (
+                    <div className="flex gap-2 mt-2">
+                      <input value={c_verifyCode} onChange={(e) => setCVerifyCode(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="인증번호 6자리" />
+                      <button onClick={handleVerifyCodeClient} className="bg-green-600 text-white rounded-lg px-3 py-2 text-sm">확인</button>
+                    </div>
+                  )}
+                </div>
                 <button onClick={handleSignupClient} className="w-full bg-green-600 text-white rounded-lg py-2 font-medium">회원가입</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
               </div>
