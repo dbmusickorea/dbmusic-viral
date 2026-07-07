@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 
 export default function Page2() {
+  const [projectVideos, setProjectVideos] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
   const [userRole, setUserRole] = useState('')
   const [projectCode, setProjectCode] = useState('')
@@ -132,6 +133,8 @@ useEffect(() => {
     setRequirements(data?.requirements ?? '')
     setProjectStatus(data?.status ?? '')
     setProjectInfo(data)
+    const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', code).maybeSingle()
+    setProjectVideos(videos)
   }
 
   const getInstagramStats = async (url: string) => {
@@ -596,7 +599,7 @@ useEffect(() => {
         </div>
 
         {/* 댓글 미션 */}
-        {projectCode && (
+        {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3">💬 댓글 미션</h2>
             <p className="text-xs text-gray-500 mb-3">유튜브 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
