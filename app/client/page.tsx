@@ -121,6 +121,20 @@ export default function Page3() {
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 DBMUSIC 의뢰인</h1>
             <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            <button
+            onClick={async () => {
+              if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
+              await supabase.from('users').delete().eq('id', userInfo?.id)
+              await supabase.auth.signOut()
+              localStorage.removeItem('userInfo')
+              localStorage.removeItem('userRole')
+              alert('계정이 삭제됐습니다.')
+              router.push('/')
+            }}
+            className="text-xs text-red-500 border border-red-300 rounded px-2 py-1 mt-1"
+          >
+            계정 삭제
+          </button>
           </div>
           {userRole === 'admin' && (
             <div className="flex gap-1">
