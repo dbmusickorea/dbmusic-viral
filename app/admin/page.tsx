@@ -538,11 +538,11 @@ export default function Page1() {
               <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} className={inputClass} placeholder="모집 인원 수 입력" />
             </div>
             <div>
-              <label className="text-sm font-medium">미션 수행일</label>
+              <label className="text-sm font-medium">모집일</label>
               <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className="text-sm font-medium">미션 수행 시간</label>
+              <label className="text-sm font-medium">모집 시간</label>
               <input type="time" value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass} />
             </div>
             <div>
