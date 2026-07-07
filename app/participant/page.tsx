@@ -616,7 +616,7 @@ useEffect(() => {
             )}
             {/* 미션 제출 폼 - 모집종료 아닐 때 + 미션 수행일 이후에만 표시 */}
             {projectInfo && isJoined && 
-              !(projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants) &&
+              (!(projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants) || isJoined) &&
               (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
               <>
                 <div>
