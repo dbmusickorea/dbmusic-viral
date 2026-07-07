@@ -92,10 +92,25 @@ export default function Page1() {
   const fetchParticipants = async (code: string) => {
     const { data } = await supabase
       .from('project_participants')
-      .select('*, participants(name, mobile, instagram_id, youtube_id, tiktok_id)')
+      .select('*')
       .ilike('project_code', code)
       .order('joined_at', { ascending: false })
-    setParticipants(data ?? [])
+    
+    if (data && data.length > 0) {
+      const memberIds = data.map(p => p.member_id)
+      const { data: participantData } = await supabase
+        .from('participants')
+        .select('id, name, mobile, instagram_id, youtube_id, tiktok_id')
+        .in('id', memberIds)
+      
+      const merged = data.map(p => ({
+        ...p,
+        participants: participantData?.find(pd => pd.id === p.member_id)
+      }))
+      setParticipants(merged)
+    } else {
+      setParticipants([])
+    }
   }
 
   // 알파벳 입력 시 자동으로 프로젝트 코드 생성

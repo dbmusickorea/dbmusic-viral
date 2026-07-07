@@ -114,10 +114,25 @@ useEffect(() => {
   const fetchMyParticipations = async (id: number) => {
     const { data } = await supabase
       .from('project_participants')
-      .select('*, projects(product_content, start_date, mission_date, status)')
+      .select('*')
       .eq('member_id', id)
       .order('joined_at', { ascending: false })
-    setMyParticipations(data ?? [])
+    
+    if (data && data.length > 0) {
+      const codes = data.map(p => p.project_code)
+      const { data: projectData } = await supabase
+        .from('projects')
+        .select('project_code, product_content, start_date, mission_date, status')
+        .in('project_code', codes)
+      
+      const merged = data.map(p => ({
+        ...p,
+        projects: projectData?.find(pd => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
+      }))
+      setMyParticipations(merged)
+    } else {
+      setMyParticipations([])
+    }
   }
 
   const fetchParticipantInfo = async (id: number) => {
