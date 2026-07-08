@@ -233,7 +233,7 @@ export default function LoginPage() {
       referral_code: referralCode, referred_by: p_referral || null, level: 1
     })
     if (error) { alert('회원가입 실패!'); return }
-    alert(`회원가입 완료! 이메일 인증 후 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
+    alert(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
   }
@@ -262,7 +262,7 @@ export default function LoginPage() {
       password: '', role: 'client', client_id: clientId
     })
     if (error) { alert('회원가입 실패!'); return }
-    alert(`회원가입 완료! 이메일 인증 후 로그인해주세요.\n의뢰인 코드: ${clientId}`)
+    alert(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
   }
