@@ -383,7 +383,7 @@ useEffect(() => {
               <p className="text-sm text-gray-500">나의 적립금</p>
               <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
             </div>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({Math.round(getLevelRate(level) * 100)}%)</span>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}원)</span>
           </div>
           {referralCode && (
             <div className="bg-gray-50 rounded-lg p-3 mb-3">
