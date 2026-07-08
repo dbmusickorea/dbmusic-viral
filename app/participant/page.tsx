@@ -90,6 +90,27 @@ useEffect(() => {
         await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
         setBalance(newBalance)
         fetchCommentMissions(userInfo?.id)
+        // 락 해제 카운트 증가
+        const { data: pData } = await supabase
+          .from('participants')
+          .select('is_locked, comment_count_for_unlock')
+          .eq('id', userInfo?.id)
+          .maybeSingle()
+        
+        if (pData?.is_locked) {
+          const newCount = (pData.comment_count_for_unlock ?? 0) + 1
+          if (newCount >= 10) {
+            await supabase.from('participants').update({ 
+              is_locked: false, 
+              comment_count_for_unlock: 0 
+            }).eq('id', userInfo?.id)
+            alert('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
+          } else {
+            await supabase.from('participants').update({ 
+              comment_count_for_unlock: newCount 
+            }).eq('id', userInfo?.id)
+          }
+        }
         alert('✅ 댓글 인증 완료! 300원이 적립됐어요!')
       } else {
         alert('❌ 댓글을 찾을 수 없어요. 유튜브 계정명을 다시 확인해주세요.')
