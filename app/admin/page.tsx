@@ -764,6 +764,74 @@ export default function Page1() {
             >
               {isSendingPush ? '발송 중...' : '전체 발송'}
             </button>
+            <button
+              onClick={async () => {
+                setIsSendingPush(true)
+                // 미참여자 (어떤 프로젝트도 참여 안 한 체험단)
+                const { data: allParticipants } = await supabase.from('participants').select('id')
+                const { data: joinedIds } = await supabase.from('project_participants').select('member_id')
+                const joinedSet = new Set(joinedIds?.map(j => j.member_id))
+                const notJoined = allParticipants?.filter(p => !joinedSet.has(p.id)) ?? []
+                
+                if (notJoined.length === 0) { alert('미참여자가 없어요.'); setIsSendingPush(false); return }
+                
+                const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', notJoined.map(p => String(p.id)))
+                if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
+                
+                await fetch('/api/push', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '🎵 새 프로젝트가 기다리고 있어요!',
+                    body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!',
+                    tokens: tokens.map(t => t.token)
+                  })
+                })
+                alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
+                setIsSendingPush(false)
+              }}
+              disabled={isSendingPush}
+              className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+            >
+              {isSendingPush ? '발송 중...' : '미참여자에게 발송'}
+            </button>
+            <button
+              onClick={async () => {
+                setIsSendingPush(true)
+                const oneMonthAgo = new Date()
+                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+                
+                const { data: allParticipants } = await supabase.from('participants').select('id')
+                const inactive = []
+                
+                for (const p of allParticipants ?? []) {
+                  const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
+                  const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
+                  if (!recentPost && !currentJoin) inactive.push(p.id)
+                }
+                
+                if (inactive.length === 0) { alert('미활동자가 없어요.'); setIsSendingPush(false); return }
+                
+                const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', inactive.map(id => String(id)))
+                if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
+                
+                await fetch('/api/push', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '💪 오랫동안 활동이 없었어요!',
+                    body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!',
+                    tokens: tokens.map(t => t.token)
+                  })
+                })
+                alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
+                setIsSendingPush(false)
+              }}
+              disabled={isSendingPush}
+              className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
+            >
+              {isSendingPush ? '발송 중...' : '미활동자에게 발송'}
+            </button>
           </div>
         </div>
 
