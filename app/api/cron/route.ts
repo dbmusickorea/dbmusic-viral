@@ -127,8 +127,8 @@ export async function GET() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: '📅 오늘은 미션 수행일이에요!',
-                body: `${project.product_content} 미션을 완료하고 적립금을 받으세요!`,
+                title: '📅 미션이 시작됐어요!',
+                body: `${project.product_content} 미션이 시작됐어요! 24시간 안에 게시물을 올려주세요.`,
                 tokens: tokens.map((t: any) => t.token)
               })
             })
@@ -150,9 +150,9 @@ export async function GET() {
         if (!project.mission_time) continue
         
         const missionDateTime = new Date(`${today}T${project.mission_time}:00`)
-        const twoHoursAfter = new Date(missionDateTime.getTime() + 2 * 60 * 60 * 1000)
-        
-        if (now < twoHoursAfter) continue
+        const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 24 * 60 * 60 * 1000)
+
+        if (now < twentyFourHoursAfter) continue
 
         // 참여자 목록
         const { data: joinedParticipants } = await supabase
