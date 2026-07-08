@@ -185,7 +185,7 @@ useEffect(() => {
     setIsJoined(!!joinData)
     
     const { count } = await supabase.from('project_participants')
-      .select('*', { count: 'exact', head: true }).ilike('project_code', code)
+      .select('*', { count: 'exact', head: true }).ilike('project_code', code).eq('status', 'ACTIVE')
     setParticipantCount(count ?? 0)
   }
 
