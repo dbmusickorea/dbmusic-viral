@@ -203,7 +203,7 @@ useEffect(() => {
   const getRequirements = async (code: string) => {
     const { data } = await supabase
       .from('projects')
-      .select('requirements, status, start_date, end_date, reward_per_post, max_participants, mission_date, mission_time')
+      .select('requirements, status, start_date, end_date, reward_per_post, max_participants, mission_date, mission_time, required_posts')
       .ilike('project_code', code)
       .maybeSingle()
     setRequirements(data?.requirements ?? '')
@@ -290,6 +290,19 @@ useEffect(() => {
   }
 
   const handleSubmit = async () => {
+    // 게시물 수 제한 체크
+    const { count: postCount } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .ilike('project_code', projectCode)
+      .eq('member_id', userInfo?.id)
+    
+    const maxPosts = projectInfo?.required_posts ?? 1
+    if ((postCount ?? 0) >= maxPosts) {
+      alert(`이미 ${maxPosts}개의 게시물을 제출했어요. 더 이상 제출할 수 없어요.`)
+      setIsSubmitting(false)
+      return
+    }
     if (!projectCode || !postUrl) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     setIsSubmitting(true)
     let likesCount = 0
