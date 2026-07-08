@@ -50,6 +50,7 @@ export default function Page2() {
   const [isLocked, setIsLocked] = useState(false)
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [unlockCommentCount, setUnlockCommentCount] = useState(0)
+  const [showLevelGuide, setShowLevelGuide] = useState(false)
   const router = useRouter()
 
 useEffect(() => {
@@ -445,6 +446,31 @@ useEffect(() => {
                 <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
               </div>
               <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+            </div>
+          )}
+          <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="w-full text-xs text-gray-500 border rounded-lg py-2 mt-2">
+            {showLevelGuide ? '레벨 안내 접기 ▲' : '레벨별 적립금 안내 ▼'}
+          </button>
+          {showLevelGuide && (
+            <div className="mt-3 border rounded-lg overflow-hidden">
+              <table className="w-full text-xs">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="py-2 px-3 text-left">레벨</th>
+                    <th className="py-2 px-3 text-right">게시물당 적립금</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((lv) => (
+                    <tr key={lv} className={`border-t ${level === lv ? 'bg-blue-50 font-bold' : ''}`}>
+                      <td className="py-2 px-3">Lv.{lv} {level === lv ? '← 현재' : ''}</td>
+                      <td className="py-2 px-3 text-right text-blue-600">
+                        {lv === 50 ? '10,000원' : `${(2500 + (lv - 1) * 150).toLocaleString()}원`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
 
