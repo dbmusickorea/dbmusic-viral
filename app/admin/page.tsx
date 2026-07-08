@@ -156,6 +156,10 @@ export default function Page1() {
   }
 
   const handleSelectProject = (project: any) => {
+    if (selectedProject?.id === project.id) {
+      clearForm()
+      return
+    }
     setSelectedProject(project)
     setClientName(project.client_name ?? '')
     setProjectCode(project.project_code ?? '')
