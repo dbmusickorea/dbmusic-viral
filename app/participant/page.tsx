@@ -452,7 +452,7 @@ useEffect(() => {
             {showLevelGuide ? '레벨 안내 접기 ▲' : '레벨별 적립금 안내 ▼'}
           </button>
           {showLevelGuide && (
-            <div className="mt-3 border rounded-lg overflow-hidden">
+            <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
               <table className="w-full text-xs">
                 <thead className="bg-gray-50">
                   <tr>
