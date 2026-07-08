@@ -191,6 +191,20 @@ useEffect(() => {
 
   const handleJoin = async () => {
     if (!projectCode || !userInfo) return
+    
+    // 밴 여부 체크
+    const { data: participantData } = await supabase
+      .from('participants')
+      .select('banned_until')
+      .eq('id', userInfo.id)
+      .maybeSingle()
+    
+    if (participantData?.banned_until && new Date(participantData.banned_until) > new Date()) {
+      const banDate = new Date(participantData.banned_until).toLocaleDateString('ko-KR')
+      alert(`참여 제한 중이에요. ${banDate}까지 참여할 수 없어요.`)
+      return
+    }
+
     const maxP = projectInfo?.max_participants ?? 0
     if (maxP > 0 && participantCount >= maxP) {
       alert('모집이 마감됐어요.')

@@ -137,6 +137,61 @@ export async function GET() {
       }
     }
 
+    // 미션 불이행 체크
+    const now = new Date()
+    const { data: missionDayProjects } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('start_date', today)
+      .eq('status', 'ONGOING')
+
+    if (missionDayProjects && missionDayProjects.length > 0) {
+      for (const project of missionDayProjects) {
+        if (!project.mission_time) continue
+        
+        const missionDateTime = new Date(`${today}T${project.mission_time}:00`)
+        const twoHoursAfter = new Date(missionDateTime.getTime() + 2 * 60 * 60 * 1000)
+        
+        if (now < twoHoursAfter) continue
+
+        // 참여자 목록
+        const { data: joinedParticipants } = await supabase
+          .from('project_participants')
+          .select('member_id')
+          .ilike('project_code', project.project_code)
+
+        if (!joinedParticipants) continue
+
+        for (const jp of joinedParticipants) {
+          // 미션 제출 여부 확인
+          const { data: post } = await supabase
+            .from('posts')
+            .select('id')
+            .ilike('project_code', project.project_code)
+            .eq('member_id', jp.member_id)
+            .maybeSingle()
+
+          if (!post) {
+            // 미션 미제출 → 벌칙 적용
+            const { data: participant } = await supabase
+              .from('participants')
+              .select('id, level')
+              .eq('id', jp.member_id)
+              .maybeSingle()
+
+            if (participant) {
+              const newLevel = Math.max(1, (participant.level ?? 1) - 10)
+              const bannedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+              await supabase.from('participants').update({
+                level: newLevel,
+                banned_until: bannedUntil.toISOString()
+              }).eq('id', participant.id)
+            }
+          }
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, updated })
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) })
