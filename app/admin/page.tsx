@@ -685,7 +685,7 @@ export default function Page1() {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-sm font-medium">{req.title}</p>
-                      <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                      <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · 게시물 {req.requested_posts ?? 1}개 · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                       <p className="text-xs text-gray-600 mt-1">{req.content}</p>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0 ml-2">

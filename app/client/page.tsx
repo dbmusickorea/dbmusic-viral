@@ -19,6 +19,7 @@ export default function Page3() {
   const [showRequestForm, setShowRequestForm] = useState(false)
   const [requestTitle, setRequestTitle] = useState('')
   const [requestContent, setRequestContent] = useState('')
+  const [requestedPosts, setRequestedPosts] = useState('1')
   const router = useRouter()
 
   useEffect(() => {
@@ -49,7 +50,8 @@ export default function Page3() {
       client_name: userInfo?.name,
       client_mobile: userInfo?.mobile,
       title: requestTitle,
-      content: requestContent
+      content: requestContent,
+      requested_posts: Number(requestedPosts)
     })
     if (error) { alert('등록 실패!'); return }
     alert('✅ 프로젝트 문의가 등록됐어요!')
@@ -410,6 +412,14 @@ export default function Page3() {
                 <div>
                   <label className="text-sm font-medium">내용</label>
                   <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="문의 내용을 입력해주세요" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">요청 게시물 수</label>
+                  <select value={requestedPosts} onChange={(e) => setRequestedPosts(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                    <option value="1">1개</option>
+                    <option value="2">2개</option>
+                    <option value="3">3개</option>
+                  </select>
                 </div>
                 <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록</button>
               </div>
