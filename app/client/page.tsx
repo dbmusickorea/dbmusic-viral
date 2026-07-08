@@ -216,6 +216,13 @@ export default function Page3() {
           </div>
         )}
 
+        {/* 요청 게시물 수 메모 */}
+        {projectInfo && isClient && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
+            <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {projectInfo.required_posts ?? 1}개</p>
+          </div>
+        )}
+
         {/* 관리자 - 프로젝트 목록 + 검색 + 필터 */}
         {!isClient && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">

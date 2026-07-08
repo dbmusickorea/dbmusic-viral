@@ -508,6 +508,13 @@ export default function Page1() {
           )}
         </div>
 
+        {/* 요청 게시물 수 메모 */}
+        {selectedProject && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
+            <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {selectedProject.required_posts ?? 1}개</p>
+          </div>
+        )}
+
         {/* 등록/수정 폼 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
