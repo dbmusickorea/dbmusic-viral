@@ -47,6 +47,9 @@ export default function Page2() {
   const [participantCount, setParticipantCount] = useState(0)
   const [allProjects, setAllProjects] = useState<any[]>([])
   const [myParticipations, setMyParticipations] = useState<any[]>([])
+  const [isLocked, setIsLocked] = useState(false)
+  const [unlockVideos, setUnlockVideos] = useState<any[]>([])
+  const [unlockCommentCount, setUnlockCommentCount] = useState(0)
   const router = useRouter()
 
 useEffect(() => {
@@ -61,6 +64,7 @@ useEffect(() => {
     fetchMySettlements(parsed.id)
     fetchCommentMissions(parsed.id)
     fetchAllProjects()
+    fetchUnlockVideos()
     fetchMyParticipations(parsed.id)
   }, [])
 
@@ -132,6 +136,11 @@ useEffect(() => {
     setAllProjects(data ?? [])
   }
 
+  const fetchUnlockVideos = async () => {
+    const { data } = await supabase.from('unlock_videos').select('*')
+    setUnlockVideos(data ?? [])
+  }
+
   const fetchMyParticipations = async (id: number) => {
     const { data } = await supabase
       .from('project_participants')
@@ -157,12 +166,13 @@ useEffect(() => {
   }
 
   const fetchParticipantInfo = async (id: number) => {
-    const { data } = await supabase.from('participants').select('balance, level, referral_code, name, instagram_id, youtube_id, tiktok_id').eq('id', id).maybeSingle()
+    const { data } = await supabase.from('participants').select('balance, level, referral_code, name, instagram_id, youtube_id, tiktok_id, is_locked, comment_count_for_unlock').eq('id', id).maybeSingle()
     setBalance(data?.balance ?? 0)
     setLevel(data?.level ?? 1)
     setReferralCode(data?.referral_code ?? '')
     setInfluencerName(data?.name ?? '')
-    // SNS 계정 저장용 (플랫폼 선택 시 자동 설정)
+    setIsLocked(data?.is_locked ?? false)
+    setUnlockCommentCount(data?.comment_count_for_unlock ?? 0)
     if (data) {
       localStorage.setItem('snsAccounts', JSON.stringify({
         instagram: data.instagram_id ?? '',
@@ -437,6 +447,29 @@ useEffect(() => {
               <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
             </div>
           )}
+
+          {/* 락 상태 안내 */}
+        {isLocked && (
+          <div className="bg-red-50 rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-2 text-red-600">⚠️ 계정 잠금 상태</h2>
+            <p className="text-xs text-red-500 mb-3">1개월간 미션 참여가 없어서 계정이 잠겼어요. 아래 영상에 댓글을 달아 잠금을 해제하세요!</p>
+            <p className="text-xs text-gray-500 mb-3">댓글 인증 현황: {unlockCommentCount}/10</p>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+              <div className="bg-red-500 h-2 rounded-full" style={{ width: `${(unlockCommentCount / 10) * 100}%` }} />
+            </div>
+            {unlockVideos.length === 0 ? (
+              <p className="text-xs text-gray-400">등록된 락 해제 영상이 없어요. 관리자에게 문의하세요.</p>
+            ) : (
+              <div className="space-y-2">
+                {unlockVideos.map((v) => (
+                  <a key={v.id} href={v.video_url} target="_blank" className="block text-xs text-blue-500 border rounded-lg p-2">
+                    🎬 댓글 달러 가기 →
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
           {/* 버튼들 */}
           <div className="flex gap-2">
