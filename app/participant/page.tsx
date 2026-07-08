@@ -232,10 +232,8 @@ useEffect(() => {
     } catch { return { likes: 0, comments: 0 } }
   }
 
-  const getLevelRate = (lv: number) => 1 + (lv - 1) * 0.05
   const getLevelAmount = (baseAmount: number, lv: number) => {
-    const amount = Math.round(baseAmount * getLevelRate(lv))
-    return Math.min(amount, 20000)
+    return lv === 50 ? 10000 : 2500 + (lv - 1) * 150
   }
 
   const handleSubmit = async () => {
