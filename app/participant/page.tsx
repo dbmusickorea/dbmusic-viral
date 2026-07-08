@@ -448,7 +448,7 @@ useEffect(() => {
               <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
             </div>
           )}
-          <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="w-full text-xs text-gray-500 border rounded-lg py-2 mt-2">
+          <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="w-full text-xs text-gray-500 border rounded-lg py-2 mt-2 mb-3">
             {showLevelGuide ? '레벨 안내 접기 ▲' : '레벨별 적립금 안내 ▼'}
           </button>
           {showLevelGuide && (
