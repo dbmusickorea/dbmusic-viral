@@ -40,6 +40,8 @@ export default function Page1() {
   const [clientRequests, setClientRequests] = useState<any[]>([])
   const [participants, setParticipants] = useState<any[]>([])
   const [showProjectForm, setShowProjectForm] = useState(false)
+  const [unlockVideos, setUnlockVideos] = useState<any[]>([])
+  const [newUnlockUrl, setNewUnlockUrl] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export default function Page1() {
     fetchProducts()
     fetchClients()
     fetchClientRequests()
+    fetchUnlockVideos()
   }, [])
 
   const fetchProjects = async () => {
@@ -69,6 +72,27 @@ export default function Page1() {
   const fetchClientRequests = async () => {
     const { data } = await supabase.from('client_requests').select('*').order('created_at', { ascending: false })
     setClientRequests(data ?? [])
+  }
+
+  const fetchUnlockVideos = async () => {
+    const { data } = await supabase.from('unlock_videos').select('*').order('created_at', { ascending: false })
+    setUnlockVideos(data ?? [])
+  }
+
+  const handleAddUnlockVideo = async () => {
+    if (!newUnlockUrl) { alert('URL을 입력해주세요.'); return }
+    const match = newUnlockUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)
+    const videoId = match?.[1] ?? ''
+    if (!videoId) { alert('유효한 유튜브 URL을 입력해주세요.'); return }
+    const { error } = await supabase.from('unlock_videos').insert({
+      video_url: newUnlockUrl,
+      video_id: videoId,
+      title: '락 해제용 영상'
+    })
+    if (error) { alert('등록 실패!'); return }
+    setNewUnlockUrl('')
+    fetchUnlockVideos()
+    alert('등록 완료!')
   }
 
   const handleAddProduct = async () => {
@@ -673,6 +697,32 @@ export default function Page1() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* 락 해제 영상 관리 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">🔓 락 해제 영상 관리</h2>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <input value={newUnlockUrl} onChange={(e) => setNewUnlockUrl(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="유튜브 URL 입력" />
+              <button onClick={handleAddUnlockVideo} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+            </div>
+            {unlockVideos.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-2">등록된 영상이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {unlockVideos.map((v) => (
+                  <div key={v.id} className="flex justify-between items-center border rounded-lg p-2">
+                    <a href={v.video_url} target="_blank" className="text-xs text-blue-500 truncate flex-1">🎬 {v.video_url}</a>
+                    <button onClick={async () => {
+                      await supabase.from('unlock_videos').delete().eq('id', v.id)
+                      fetchUnlockVideos()
+                    }} className="text-xs text-red-500 ml-2">삭제</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 푸시 알림 발송 */}

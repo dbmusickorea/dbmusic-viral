@@ -192,13 +192,20 @@ useEffect(() => {
   const handleJoin = async () => {
     if (!projectCode || !userInfo) return
     
-    // 밴 여부 체크
+    // 밴/락 여부 체크
     const { data: participantData } = await supabase
       .from('participants')
-      .select('banned_until')
+      .select('banned_until, is_locked')
       .eq('id', userInfo.id)
       .maybeSingle()
     
+    // 락 여부 체크
+    if (participantData?.is_locked) {
+      alert('계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!')
+      return
+    }
+
+    // 밴 여부 체크
     if (participantData?.banned_until && new Date(participantData.banned_until) > new Date()) {
       const banDate = new Date(participantData.banned_until).toLocaleDateString('ko-KR')
       alert(`참여 제한 중이에요. ${banDate}까지 참여할 수 없어요.`)
