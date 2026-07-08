@@ -39,6 +39,7 @@ export default function Page1() {
   const [isSendingPush, setIsSendingPush] = useState(false)
   const [clientRequests, setClientRequests] = useState<any[]>([])
   const [participants, setParticipants] = useState<any[]>([])
+  const [showProjectForm, setShowProjectForm] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -482,8 +483,16 @@ export default function Page1() {
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
-            {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
+            <div className="flex gap-2">
+              {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
+              <button onClick={() => setShowProjectForm(!showProjectForm)} className="text-xs text-gray-500 border rounded px-2 py-1">
+                {showProjectForm ? '접기 ▲' : '펼치기 ▼'}
+              </button>
+            </div>
           </div>
+
+          {showProjectForm && (
+            <>
 
           {(productContent && productContent !== '__direct__') && (
             <div className="bg-blue-50 rounded-lg p-3 mb-3">
@@ -622,7 +631,8 @@ export default function Page1() {
                 <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
               )}
             </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* 의뢰인 프로젝트 문의 */}
