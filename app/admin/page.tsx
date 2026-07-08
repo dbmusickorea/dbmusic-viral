@@ -631,7 +631,8 @@ export default function Page1() {
                 <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
               )}
             </div>
-            </>
+          </div>
+          </>
           )}
         </div>
 
