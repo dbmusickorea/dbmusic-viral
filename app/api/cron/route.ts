@@ -186,6 +186,29 @@ export async function GET() {
                 level: newLevel,
                 banned_until: bannedUntil.toISOString()
               }).eq('id', participant.id)
+              
+              // 참여자 상태 BANNED로 변경
+              await supabase.from('project_participants').update({
+                status: 'BANNED'
+              }).ilike('project_code', project.project_code).eq('member_id', participant.id)
+              
+              // 추가모집 푸시 발송
+              const { data: allTokens } = await supabase
+                .from('push_tokens')
+                .select('token')
+                .eq('user_role', 'participant')
+              
+              if (allTokens && allTokens.length > 0) {
+                await fetch(`https://app.doubleb.kr/api/push`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '🔔 추가 모집 공고!',
+                    body: `${project.product_content} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
+                    tokens: allTokens.map((t: any) => t.token)
+                  })
+                })
+              }
             }
           }
         }
