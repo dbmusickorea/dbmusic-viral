@@ -44,6 +44,10 @@ export default function LoginPage() {
   const [c_sentCode, setCSentCode] = useState('')
   const [c_verified, setCVerified] = useState(false)
   const [c_sending, setCSending] = useState(false)
+  const [p_codeExpiry, setPCodeExpiry] = useState<number | null>(null)
+  const [c_codeExpiry, setCCodeExpiry] = useState<number | null>(null)
+  const [p_passwordConfirm, setPPasswordConfirm] = useState('')
+  const [c_passwordConfirm, setCPasswordConfirm] = useState('')
 
   const generateReferralCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -144,6 +148,7 @@ export default function LoginPage() {
     setPSending(true)
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     setPSentCode(code)
+    setPCodeExpiry(Date.now() + 5 * 60 * 1000) // 5분 유효
     
     const response = await fetch('/api/sms', {
       method: 'POST',
@@ -167,6 +172,7 @@ export default function LoginPage() {
     setCSending(true)
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     setCSentCode(code)
+    setCCodeExpiry(Date.now() + 5 * 60 * 1000) // 5분 유효
     
     const response = await fetch('/api/sms', {
       method: 'POST',
@@ -186,6 +192,10 @@ export default function LoginPage() {
   }
 
   const handleVerifyCodeClient = () => {
+    if (c_codeExpiry && Date.now() > c_codeExpiry) {
+      alert('인증번호가 만료됐어요. 다시 발송해주세요.')
+      return
+    }
     if (c_verifyCode === c_sentCode) {
       setCVerified(true)
       alert('✅ 인증 완료!')
@@ -195,6 +205,10 @@ export default function LoginPage() {
   }
 
   const handleVerifyCode = () => {
+    if (p_codeExpiry && Date.now() > p_codeExpiry) {
+      alert('인증번호가 만료됐어요. 다시 발송해주세요.')
+      return
+    }
     if (p_verifyCode === p_sentCode) {
       setPVerified(true)
       alert('✅ 인증 완료!')
@@ -204,6 +218,7 @@ export default function LoginPage() {
   }
   const handleSignupParticipant = async () => {
     if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
+    if (p_password !== p_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
 
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
@@ -256,6 +271,7 @@ export default function LoginPage() {
   const handleSignupClient = async () => {
     if (!c_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
     if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
+    if (c_password !== c_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
 
     let clientId = generateClientId()
     let isUnique = false
@@ -345,6 +361,7 @@ export default function LoginPage() {
                   { label: '이름 *', value: p_name, setter: setPName },
                   { label: '이메일 *', value: p_email, setter: setPEmail, type: 'email' },
                   { label: '비밀번호 *', value: p_password, setter: setPPassword, type: 'password' },
+                  { label: '비밀번호 확인 *', value: p_passwordConfirm, setter: setPPasswordConfirm, type: 'password' },
                   { label: '은행명', value: p_bank, setter: setPBank },
                   { label: '예금주', value: p_holder, setter: setPHolder },
                   { label: '계좌번호', value: p_account, setter: setPAccount },
@@ -357,6 +374,7 @@ export default function LoginPage() {
                     <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
+                <p className="text-xs text-gray-400">* 비밀번호는 6자 이상이어야 해요.</p>
                 <div>
                   <label className="text-sm font-medium">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
@@ -391,12 +409,14 @@ export default function LoginPage() {
                   { label: '전화번호', value: c_phone, setter: setCPhone },
                   { label: '이메일 *', value: c_email, setter: setCEmail, type: 'email' },
                   { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password' },
+                  { label: '비밀번호 확인 *', value: c_passwordConfirm, setter: setCPasswordConfirm, type: 'password' },
                 ].map(({ label, value, setter, type }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
                     <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
+                <p className="text-xs text-gray-400">* 비밀번호는 6자 이상이어야 해요.</p>
                 <div>
                   <label className="text-sm font-medium">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
