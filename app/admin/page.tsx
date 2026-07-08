@@ -43,6 +43,7 @@ export default function Page1() {
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [newUnlockUrl, setNewUnlockUrl] = useState('')
   const [requiredPosts, setRequiredPosts] = useState('1')
+  const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -433,7 +434,7 @@ export default function Page1() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 프로젝트 관리</h1>
@@ -820,13 +821,22 @@ export default function Page1() {
         {/* 참여자 목록 */}
         {selectedProject && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">👥 참여자 목록 ({participants.length}명)</h2>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold">👥 참여자 목록 ({participants.length}명)</h2>
+              {selectedParticipantId && (
+                <button onClick={() => setSelectedParticipantId(null)} className="text-xs text-gray-500 border rounded px-2 py-1">전체보기</button>
+              )}
+            </div>
             {participants.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-2">참여자가 없습니다.</p>
             ) : (
               <div className="space-y-2">
                 {participants.map((p) => (
-                  <div key={p.id} className="border rounded-lg p-3">
+                  <div
+                    key={p.id}
+                    onClick={() => setSelectedParticipantId(selectedParticipantId === p.member_id ? null : p.member_id)}
+                    className={`border rounded-lg p-3 cursor-pointer ${selectedParticipantId === p.member_id ? 'border-blue-500 bg-blue-50' : ''}`}
+                  >
                     <p className="text-sm font-medium">{p.participants?.name}</p>
                     <p className="text-xs text-gray-500">📱 {p.participants?.mobile}</p>
                     {p.participants?.instagram_id && <p className="text-xs text-gray-500">📸 {p.participants?.instagram_id}</p>}
@@ -843,12 +853,12 @@ export default function Page1() {
         {/* 게시물 목록 */}
         {selectedProject && (
           <div className="bg-white rounded-2xl shadow p-4">
-            <h2 className="font-bold mb-3">📋 게시물 목록 ({posts.length}개)</h2>
+            <h2 className="font-bold mb-3">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
             {posts.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
             ) : (
               <div className="space-y-2">
-                {posts.map((post) => (
+                {(selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId) : posts).map((post) => (
                   <div key={post.id} className="border rounded-lg p-3">
                     <div className="flex justify-between items-start gap-2">
                       <div className="min-w-0 flex-1">
