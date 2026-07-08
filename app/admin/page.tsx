@@ -42,6 +42,7 @@ export default function Page1() {
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [newUnlockUrl, setNewUnlockUrl] = useState('')
+  const [requiredPosts, setRequiredPosts] = useState('1')
   const router = useRouter()
 
   useEffect(() => {
@@ -174,6 +175,7 @@ export default function Page1() {
     setMaxParticipants(project.max_participants ?? '')
     setMissionDate(project.mission_date ?? '')
     setMissionTime(project.mission_time ?? '')
+    setRequiredPosts(String(project.required_posts ?? 1))
     fetchPosts(project.project_code)
     supabase.from('project_videos').select('*').eq('project_code', project.project_code).maybeSingle()
       .then(({ data }) => {
@@ -236,7 +238,8 @@ export default function Page1() {
       mission_time: missionTime || null,
       option_name: optionName || null,
       option_price: Number(optionPrice) || null,
-      client_id: selectedClientId || null
+      client_id: selectedClientId || null,
+      required_posts: Number(requiredPosts) || 1,
     })
     if (error) { alert('등록 실패!'); return }
     if (selectedClientId) {
@@ -276,7 +279,8 @@ export default function Page1() {
       mission_time: missionTime || null,
       option_name: optionName || null,
       option_price: Number(optionPrice) || null,
-      client_id: selectedClientId || null
+      client_id: selectedClientId || null,
+      required_posts: Number(requiredPosts) || 1,
     }).eq('project_code', selectedProject.project_code)
     if (error) { alert('수정 실패!'); return }
     if (selectedClientId) {
@@ -404,6 +408,7 @@ export default function Page1() {
     setPosts([])
     setMaxParticipants(''); setMissionDate(''); setMissionTime('')
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
+    setRequiredPosts('1')
   }
 
   const handleLogout = () => {
@@ -611,6 +616,14 @@ export default function Page1() {
             <div>
               <label className="text-sm font-medium">플레이리스트 URL</label>
               <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium">요청 게시물 수</label>
+              <select value={requiredPosts} onChange={(e) => setRequiredPosts(e.target.value)} className={inputClass}>
+                <option value="1">1개</option>
+                <option value="2">2개</option>
+                <option value="3">3개</option>
+              </select>
             </div>
             <div>
               <label className="text-sm font-medium">모집인원</label>
