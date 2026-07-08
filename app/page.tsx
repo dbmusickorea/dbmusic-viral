@@ -224,7 +224,7 @@ export default function LoginPage() {
       email: p_email,
       password: p_password
     })
-    if (authError) { alert('회원가입 실패! ' + authError.message); return }
+    if (authError) { alert('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
     const { error } = await supabase.from('participants').insert({
       name: p_name, mobile: p_mobile, email: p_email, password: '',
@@ -254,7 +254,7 @@ export default function LoginPage() {
       email: c_email,
       password: c_password
     })
-    if (authError) { alert('회원가입 실패! ' + authError.message); return }
+    if (authError) { alert('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
     const { error } = await supabase.from('users').insert({
       name: c_name, company: c_company, artist: c_artist,
