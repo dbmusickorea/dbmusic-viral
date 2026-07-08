@@ -70,6 +70,73 @@ export async function GET() {
       } catch { continue }
     }
 
+    // 날짜별 자동 푸시 알림
+    const today = new Date().toISOString().split('T')[0]
+    
+    // 모집 시작일 푸시 (mission_date가 오늘인 프로젝트)
+    const { data: recruitProjects } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('mission_date', today)
+      .eq('status', 'ONGOING')
+    
+    if (recruitProjects && recruitProjects.length > 0) {
+      const { data: participantTokens } = await supabase
+        .from('push_tokens')
+        .select('token')
+        .eq('user_role', 'participant')
+      
+      if (participantTokens && participantTokens.length > 0) {
+        for (const project of recruitProjects) {
+          await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('supabase.co', 'vercel.app')}/api/push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🎵 모집이 시작됐어요!',
+              body: `${project.product_content} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
+              tokens: participantTokens.map((t: any) => t.token)
+            })
+          })
+        }
+      }
+    }
+
+    // 미션 수행일 푸시 (start_date가 오늘인 프로젝트)
+    const { data: missionProjects } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('start_date', today)
+      .eq('status', 'ONGOING')
+    
+    if (missionProjects && missionProjects.length > 0) {
+      for (const project of missionProjects) {
+        const { data: joinedTokens } = await supabase
+          .from('project_participants')
+          .select('member_id')
+          .ilike('project_code', project.project_code)
+        
+        if (joinedTokens && joinedTokens.length > 0) {
+          const memberIds = joinedTokens.map((j: any) => String(j.member_id))
+          const { data: tokens } = await supabase
+            .from('push_tokens')
+            .select('token')
+            .in('user_id', memberIds)
+          
+          if (tokens && tokens.length > 0) {
+            await fetch(`https://app.doubleb.kr/api/push`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: '📅 오늘은 미션 수행일이에요!',
+                body: `${project.product_content} 미션을 완료하고 적립금을 받으세요!`,
+                tokens: tokens.map((t: any) => t.token)
+              })
+            })
+          }
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, updated })
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) })
