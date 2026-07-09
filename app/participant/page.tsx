@@ -867,64 +867,53 @@ useEffect(() => {
             {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">💬 댓글 미션</h2>
-                <p className="text-xs text-gray-500 mb-3">영상을 30초 이상 시청 후 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
+                <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300원을 받으세요!</p>
                 <div className="space-y-3">
                   {/* 영상 선택 버튼 */}
                   <div className="space-y-2">
                     {projectVideos.shorts_url_1 && (
-                      <button onClick={() => { setSelectedVideoIndex(1); setVideoWatched(false); setWatchProgress(0); setShowPlayer(true) }}
-                        className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        🎬 쇼츠 영상 1
+                      <button onClick={() => {
+                        setSelectedVideoIndex(1)
+                        setVideoWatched(false)
+                        window.open(projectVideos.shorts_url_1, '_blank')
+                        setTimeout(() => { setVideoWatched(true) }, 15000)
+                      }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
+                        🎬 쇼츠 영상 1 보러가기
                       </button>
                     )}
                     {projectVideos.shorts_url_2 && (
-                      <button onClick={() => { setSelectedVideoIndex(2); setVideoWatched(false); setWatchProgress(0); setShowPlayer(true) }}
-                        className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 2 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        🎬 쇼츠 영상 2
+                      <button onClick={() => {
+                        setSelectedVideoIndex(2)
+                        setVideoWatched(false)
+                        window.open(projectVideos.shorts_url_2, '_blank')
+                        setTimeout(() => { setVideoWatched(true) }, 15000)
+                      }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 2 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
+                        🎬 쇼츠 영상 2 보러가기
                       </button>
                     )}
                     {projectVideos.playlist_url && (
-                      <button onClick={() => { setSelectedVideoIndex(3); setVideoWatched(false); setWatchProgress(0); setShowPlayer(true) }}
-                        className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 3 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        🎵 플레이리스트
+                      <button onClick={() => {
+                        setSelectedVideoIndex(3)
+                        setVideoWatched(false)
+                        window.open(projectVideos.playlist_url, '_blank')
+                        setTimeout(() => { setVideoWatched(true) }, 30000)
+                      }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 3 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
+                        🎵 플레이리스트 보러가기
                       </button>
                     )}
                   </div>
 
-                  {/* 선택된 영상 플레이어 */}
-                  {showPlayer && selectedVideoIndex && (
-                    <div>
-                      <div className="relative w-full" style={{paddingBottom: '56.25%'}}>
-                        <iframe
-                          key={selectedVideoIndex}
-                          src={`https://www.youtube.com/embed/${
-                            selectedVideoIndex === 1 ? projectVideos.shorts_video_id_1 :
-                            selectedVideoIndex === 2 ? projectVideos.shorts_video_id_2 :
-                            projectVideos.playlist_video_id
-                          }?enablejsapi=1`}
-                          className="absolute top-0 left-0 w-full h-full rounded-lg"
-                          allowFullScreen
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          onLoad={() => {
-                            const isShorts = selectedVideoIndex === 1 || selectedVideoIndex === 2
-                            setTimeout(() => { setVideoWatched(true) }, isShorts ? 15000 : 30000)
-                          }}
-                        />
-                      </div>
-                      {!videoWatched ? (
-                        <p className="text-xs text-gray-500 text-center mt-2">30초 이상 시청 후 댓글 작성이 가능해요</p>
-                      ) : (
-                        <div className="mt-2 space-y-2">
-                          <p className="text-xs text-green-600 text-center font-medium">✅ 시청 완료! 이제 댓글을 작성해주세요.</p>
-                          <button onClick={() => {
-                            const url = selectedVideoIndex === 1 ? projectVideos.shorts_url_1 :
-                              selectedVideoIndex === 2 ? projectVideos.shorts_url_2 :
-                              projectVideos.playlist_url
-                            if (url) window.open(url, '_blank')
-                          }} className="w-full bg-red-600 text-white rounded-lg py-2 font-medium">💬 댓글 쓰러 가기</button>
-                        </div>
-                      )}
+                  {selectedVideoIndex && !videoWatched && (
+                    <div className="bg-yellow-50 rounded-lg p-3">
+                      <p className="text-xs text-yellow-700 text-center">
+                        ⏱ {selectedVideoIndex === 3 ? '30초' : '15초'} 이상 시청하셔야 인증창이 활성화 됩니다.
+                        시청 후 댓글을 작성하고 돌아오세요!
+                      </p>
                     </div>
+                  )}
+
+                  {selectedVideoIndex && videoWatched && (
+                    <p className="text-xs text-green-600 text-center font-medium">✅ 시청 완료! 아래에서 인증해주세요.</p>
                   )}
 
                   <div>
@@ -932,7 +921,7 @@ useEffect(() => {
                     <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
                   </div>
                   <button onClick={async () => {
-                    if (!videoWatched) { alert('먼저 영상을 30초 이상 시청해주세요!'); return }
+                    if (!videoWatched) { alert('먼저 영상을 시청해주세요!'); return }
                     if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
                     const videoId = selectedVideoIndex === 1 ? projectVideos.shorts_video_id_1 :
                       selectedVideoIndex === 2 ? projectVideos.shorts_video_id_2 :
