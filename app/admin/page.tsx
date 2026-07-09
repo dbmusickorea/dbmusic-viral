@@ -446,449 +446,398 @@ export default function Page1() {
             <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
             <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
           </div>
-          <button
-            onClick={handleUpdateAllLikes}
-            disabled={isUpdatingLikes}
-            className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400"
-          >
+          <button onClick={handleUpdateAllLikes} disabled={isUpdatingLikes} className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400">
             {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브 + 틱톡)'}
           </button>
         </div>
 
-        {/* 상품 사전 등록 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold">📦 상품 사전 등록</h2>
-            <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border rounded px-2 py-1">
-              {showProductManager ? '닫기' : '관리'}
-            </button>
-          </div>
-          {showProductManager && (
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <input value={newProduct} onChange={(e) => setNewProduct(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="상품명" />
-                <input type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} className="w-28 border rounded-lg px-3 py-2 text-sm" placeholder="가격" />
-                <button onClick={handleAddProduct} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
-              </div>
-              {products.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-2">등록된 상품이 없습니다.</p>
-              ) : (
-                <div className="space-y-1">
-                  {products.map((p) => (
-                    <div key={p.id} className="flex justify-between items-center border rounded-lg px-3 py-2">
-                      <p className="text-sm">{p.name}</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
-                        <button onClick={() => handleDeleteProduct(p.id)} className="text-xs text-red-500">삭제</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* 프로젝트 목록 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">프로젝트 목록</h2>
-          {projects.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">프로젝트가 없습니다.</p>
-          ) : (
-            <div className="space-y-2">
-              {projects.map((project) => (
-                <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium text-sm">{project.project_code}</p>
-                      <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                      {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* 요청 게시물 수 메모 */}
         {selectedProject && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
             <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {selectedProject.required_posts ?? 1}개</p>
           </div>
         )}
 
-        {/* 등록/수정 폼 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
-            <div className="flex gap-2">
-              {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
-              <button onClick={() => setShowProjectForm(!showProjectForm)} className="text-xs text-gray-500 border rounded px-2 py-1">
-                {showProjectForm ? '접기 ▲' : '펼치기 ▼'}
-              </button>
-            </div>
-          </div>
-
-          {showProjectForm && (
-            <>
-
-          {(productContent && productContent !== '__direct__') && (
-            <div className="bg-blue-50 rounded-lg p-3 mb-3">
-              <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
-              <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
-              <div className="text-xs text-gray-500 mt-1">
-                <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
-                {optionPrice && <p>옵션: +{Number(optionPrice).toLocaleString()}원</p>}
+        <div className="md:grid md:grid-cols-2 md:gap-4">
+          {/* 왼쪽 컬럼 */}
+          <div>
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-bold">📦 상품 사전 등록</h2>
+                <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border rounded px-2 py-1">{showProductManager ? '닫기' : '관리'}</button>
               </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {/* 프로젝트 코드 자동생성 */}
-            {!selectedProject ? (
-              <div>
-                <label className="text-sm font-medium">프로젝트 코드 자동생성</label>
-                <div className="flex gap-2 mt-1">
-                  <input
-                    value={projectPrefix}
-                    onChange={(e) => handlePrefixChange(e.target.value)}
-                    className="w-20 border rounded-lg px-3 py-2 text-base"
-                    placeholder="A"
-                    maxLength={3}
-                  />
-                  <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600">
-                    {projectCode || '코드 자동생성'}
+              {showProductManager && (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input value={newProduct} onChange={(e) => setNewProduct(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="상품명" />
+                    <input type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} className="w-28 border rounded-lg px-3 py-2 text-sm" placeholder="가격" />
+                    <button onClick={handleAddProduct} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
                   </div>
+                  {products.length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-2">등록된 상품이 없습니다.</p>
+                  ) : (
+                    <div className="space-y-1">
+                      {products.map((p) => (
+                        <div key={p.id} className="flex justify-between items-center border rounded-lg px-3 py-2">
+                          <p className="text-sm">{p.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
+                            <button onClick={() => handleDeleteProduct(p.id)} className="text-xs text-red-500">삭제</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-gray-400 mt-1">알파벳 입력 시 자동으로 코드가 생성돼요</p>
-              </div>
-            ) : (
-              <div>
-                <label className="text-sm font-medium">프로젝트 코드</label>
-                <input value={projectCode} className={`${inputClass} bg-gray-100`} disabled />
-              </div>
-            )}
+              )}
+            </div>
 
-            <div>
-              <label className="text-sm font-medium">의뢰인 선택</label>
-              <input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className={inputClass} placeholder="이름/소속사/아티스트 검색" />
-              {clientSearch && filteredClients.length > 0 && (
-                <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
-                  {filteredClients.map((c) => (
-                    <div key={c.id} onClick={() => { setSelectedClientId(c.client_id); setClientName(c.name); setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`) }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
-                      <p className="font-medium">{c.name}</p>
-                      <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">프로젝트 목록</h2>
+              {projects.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">프로젝트가 없습니다.</p>
+              ) : (
+                <div className="space-y-2">
+                  {projects.map((project) => (
+                    <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium text-sm">{project.project_code}</p>
+                          <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                          {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
-              {selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>}
             </div>
 
-            <div>
-              <label className="text-sm font-medium">의뢰인명</label>
-              <input value={clientName} onChange={(e) => setClientName(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">상품내용</label>
-              {products.length > 0 ? (
-                <select value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass}>
-                  <option value="">상품 선택</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}원)</option>
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">📋 의뢰인 프로젝트 문의</h2>
+              {clientRequests.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
+              ) : (
+                <div className="space-y-2">
+                  {clientRequests.map((req) => (
+                    <div key={req.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium">{req.title}</p>
+                          <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · 게시물 {req.requested_posts ?? 1}개 · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                          <p className="text-xs text-gray-600 mt-1">{req.content}</p>
+                        </div>
+                        <div className="flex flex-col gap-1 shrink-0 ml-2">
+                          <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '승인' : '거절'}
+                          </span>
+                          {req.status === 'PENDING' && (
+                            <>
+                              <button onClick={async () => { await supabase.from('client_requests').update({ status: 'APPROVED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
+                              <button onClick={async () => { await supabase.from('client_requests').update({ status: 'REJECTED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                  <option value="__direct__">직접 입력</option>
-                </select>
-              ) : (
-                <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} placeholder="상품내용 입력" />
-              )}
-              {productContent === '__direct__' && (
-                <input value="" onChange={(e) => setProductContent(e.target.value)} className={`${inputClass} mt-2`} placeholder="직접 입력" autoFocus />
+                </div>
               )}
             </div>
-            <div>
-              <label className="text-sm font-medium">추가 옵션명 (선택)</label>
-              <input value={optionName} onChange={(e) => setOptionName(e.target.value)} className={inputClass} placeholder="예: 숏츠 3개 추가" />
+
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">🔓 락 해제 영상 관리</h2>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input value={newUnlockUrl} onChange={(e) => setNewUnlockUrl(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="유튜브 URL 입력" />
+                  <button onClick={handleAddUnlockVideo} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+                </div>
+                {unlockVideos.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-2">등록된 영상이 없습니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {unlockVideos.map((v) => (
+                      <div key={v.id} className="flex justify-between items-center border rounded-lg p-2">
+                        <a href={v.video_url} target="_blank" className="text-xs text-blue-500 truncate flex-1">🎬 {v.video_url}</a>
+                        <button onClick={async () => { await supabase.from('unlock_videos').delete().eq('id', v.id); fetchUnlockVideos() }} className="text-xs text-red-500 ml-2">삭제</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
-              <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
+
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">🔔 푸시 알림 발송</h2>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium">제목</label>
+                  <input value={pushTitle} onChange={(e) => setPushTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="알림 제목" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">내용</label>
+                  <textarea value={pushBody} onChange={(e) => setPushBody(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="알림 내용" />
+                </div>
+                <button onClick={handleSendPush} disabled={isSendingPush} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                  {isSendingPush ? '발송 중...' : '전체 발송'}
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium">유튜브 쇼츠 1 URL</label>
-              <input value={shortsUrl1} onChange={(e) => setShortsUrl1(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
-            </div>
-            <div>
-              <label className="text-sm font-medium">유튜브 쇼츠 2 URL</label>
-              <input value={shortsUrl2} onChange={(e) => setShortsUrl2(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
-            </div>
-            <div>
-              <label className="text-sm font-medium">플레이리스트 URL</label>
-              <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
-            </div>
-            <div>
-              <label className="text-sm font-medium">요청 게시물 수</label>
-              <select value={requiredPosts} onChange={(e) => setRequiredPosts(e.target.value)} className={inputClass}>
-                <option value="1">1개</option>
-                <option value="2">2개</option>
-                <option value="3">3개</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">모집인원</label>
-              <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} className={inputClass} placeholder="모집 인원 수 입력" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">모집일</label>
-              <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">모집 시간</label>
-              <input type="time" value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">요청사항</label>
-              <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className={inputClass} rows={3} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">프로젝트 상태</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
-                <option value="ONGOING">진행중</option>
-                <option value="PAUSED">대기중</option>
-                <option value="COMPLETED">완료</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">시작일</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} style={dateInputStyle} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">종료일</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
-              <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              {selectedProject ? (
-                <button onClick={handleUpdate} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">정보 수정하기</button>
-              ) : (
-                <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
-              )}
+
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">📣 활동 요청 푸시</h2>
+              <div className="space-y-3">
+                <button onClick={async () => {
+                  setIsSendingPush(true)
+                  const { data: allParticipants } = await supabase.from('participants').select('id')
+                  const { data: joinedIds } = await supabase.from('project_participants').select('member_id')
+                  const joinedSet = new Set(joinedIds?.map(j => j.member_id))
+                  const notJoined = allParticipants?.filter(p => !joinedSet.has(p.id)) ?? []
+                  if (notJoined.length === 0) { alert('미참여자가 없어요.'); setIsSendingPush(false); return }
+                  const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', notJoined.map(p => String(p.id)))
+                  if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
+                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map(t => t.token) }) })
+                  alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
+                  setIsSendingPush(false)
+                }} disabled={isSendingPush} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                  {isSendingPush ? '발송 중...' : '미참여자에게 발송'}
+                </button>
+                <button onClick={async () => {
+                  setIsSendingPush(true)
+                  const oneMonthAgo = new Date()
+                  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+                  const { data: allParticipants } = await supabase.from('participants').select('id')
+                  const inactive: number[] = []
+                  for (const p of allParticipants ?? []) {
+                    const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
+                    const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
+                    if (!recentPost && !currentJoin) inactive.push(p.id)
+                  }
+                  if (inactive.length === 0) { alert('미활동자가 없어요.'); setIsSendingPush(false); return }
+                  const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', inactive.map(id => String(id)))
+                  if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
+                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map(t => t.token) }) })
+                  alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
+                  setIsSendingPush(false)
+                }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                  {isSendingPush ? '발송 중...' : '미활동자에게 발송'}
+                </button>
+              </div>
             </div>
           </div>
-          </>
-          )}
-        </div>
 
-        {/* 의뢰인 프로젝트 문의 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📋 의뢰인 프로젝트 문의</h2>
-          {clientRequests.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
-          ) : (
-            <div className="space-y-2">
-              {clientRequests.map((req) => (
-                <div key={req.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-medium">{req.title}</p>
-                      <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · 게시물 {req.requested_posts ?? 1}개 · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                      <p className="text-xs text-gray-600 mt-1">{req.content}</p>
+          {/* 오른쪽 컬럼 */}
+          <div>
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
+                <div className="flex gap-2">
+                  {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
+                  <button onClick={() => setShowProjectForm(!showProjectForm)} className="text-xs text-gray-500 border rounded px-2 py-1">
+                    {showProjectForm ? '접기 ▲' : '펼치기 ▼'}
+                  </button>
+                </div>
+              </div>
+              {showProjectForm && (
+                <>
+                  {(productContent && productContent !== '__direct__') && (
+                    <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
+                      <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
+                      <div className="text-xs text-gray-500 mt-1">
+                        <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
+                        {optionPrice && <p>옵션: +{Number(optionPrice).toLocaleString()}원</p>}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1 shrink-0 ml-2">
-                      <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '승인' : '거절'}
-                      </span>
-                      {req.status === 'PENDING' && (
-                        <>
-                          <button onClick={async () => {
-                            await supabase.from('client_requests').update({ status: 'APPROVED' }).eq('id', req.id)
-                            fetchClientRequests()
-                          }} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
-                          <button onClick={async () => {
-                            await supabase.from('client_requests').update({ status: 'REJECTED' }).eq('id', req.id)
-                            fetchClientRequests()
-                          }} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
-                        </>
+                  )}
+                  <div className="space-y-3">
+                    {!selectedProject ? (
+                      <div>
+                        <label className="text-sm font-medium">프로젝트 코드 자동생성</label>
+                        <div className="flex gap-2 mt-1">
+                          <input value={projectPrefix} onChange={(e) => handlePrefixChange(e.target.value)} className="w-20 border rounded-lg px-3 py-2 text-base" placeholder="A" maxLength={3} />
+                          <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600">{projectCode || '코드 자동생성'}</div>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">알파벳 입력 시 자동으로 코드가 생성돼요</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="text-sm font-medium">프로젝트 코드</label>
+                        <input value={projectCode} className={`${inputClass} bg-gray-100`} disabled />
+                      </div>
+                    )}
+                    <div>
+                      <label className="text-sm font-medium">의뢰인 선택</label>
+                      <input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className={inputClass} placeholder="이름/소속사/아티스트 검색" />
+                      {clientSearch && filteredClients.length > 0 && (
+                        <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
+                          {filteredClients.map((c) => (
+                            <div key={c.id} onClick={() => { setSelectedClientId(c.client_id); setClientName(c.name); setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`) }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
+                              <p className="font-medium">{c.name}</p>
+                              <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">의뢰인명</label>
+                      <input value={clientName} onChange={(e) => setClientName(e.target.value)} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">상품내용</label>
+                      {products.length > 0 ? (
+                        <select value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass}>
+                          <option value="">상품 선택</option>
+                          {products.map((p) => (
+                            <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}원)</option>
+                          ))}
+                          <option value="__direct__">직접 입력</option>
+                        </select>
+                      ) : (
+                        <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} placeholder="상품내용 입력" />
+                      )}
+                      {productContent === '__direct__' && (
+                        <input value="" onChange={(e) => setProductContent(e.target.value)} className={`${inputClass} mt-2`} placeholder="직접 입력" autoFocus />
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">추가 옵션명 (선택)</label>
+                      <input value={optionName} onChange={(e) => setOptionName(e.target.value)} className={inputClass} placeholder="예: 숏츠 3개 추가" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
+                      <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">유튜브 쇼츠 1 URL</label>
+                      <input value={shortsUrl1} onChange={(e) => setShortsUrl1(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">유튜브 쇼츠 2 URL</label>
+                      <input value={shortsUrl2} onChange={(e) => setShortsUrl2(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">플레이리스트 URL</label>
+                      <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">요청 게시물 수</label>
+                      <select value={requiredPosts} onChange={(e) => setRequiredPosts(e.target.value)} className={inputClass}>
+                        <option value="1">1개</option>
+                        <option value="2">2개</option>
+                        <option value="3">3개</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">모집인원</label>
+                      <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} className={inputClass} placeholder="모집 인원 수 입력" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">모집일</label>
+                      <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">모집 시간</label>
+                      <input type="time" value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">요청사항</label>
+                      <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className={inputClass} rows={3} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">프로젝트 상태</label>
+                      <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
+                        <option value="ONGOING">진행중</option>
+                        <option value="PAUSED">대기중</option>
+                        <option value="COMPLETED">완료</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">시작일</label>
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">종료일</label>
+                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
+                      <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} />
+                    </div>
+                    <div>
+                      {selectedProject ? (
+                        <button onClick={handleUpdate} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">정보 수정하기</button>
+                      ) : (
+                        <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* 락 해제 영상 관리 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">🔓 락 해제 영상 관리</h2>
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <input value={newUnlockUrl} onChange={(e) => setNewUnlockUrl(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="유튜브 URL 입력" />
-              <button onClick={handleAddUnlockVideo} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
-            </div>
-            {unlockVideos.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-2">등록된 영상이 없습니다.</p>
-            ) : (
-              <div className="space-y-2">
-                {unlockVideos.map((v) => (
-                  <div key={v.id} className="flex justify-between items-center border rounded-lg p-2">
-                    <a href={v.video_url} target="_blank" className="text-xs text-blue-500 truncate flex-1">🎬 {v.video_url}</a>
-                    <button onClick={async () => {
-                      await supabase.from('unlock_videos').delete().eq('id', v.id)
-                      fetchUnlockVideos()
-                    }} className="text-xs text-red-500 ml-2">삭제</button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 푸시 알림 발송 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">🔔 푸시 알림 발송</h2>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">제목</label>
-              <input value={pushTitle} onChange={(e) => setPushTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="알림 제목" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">내용</label>
-              <textarea value={pushBody} onChange={(e) => setPushBody(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="알림 내용" />
-            </div>
-            <button onClick={handleSendPush} disabled={isSendingPush} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
-              {isSendingPush ? '발송 중...' : '전체 발송'}
-            </button>
-          </div>
-        </div>
-
-        {/* 활동 요청 푸시 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📣 활동 요청 푸시</h2>
-          <div className="space-y-3">
-            <button
-              onClick={async () => {
-                setIsSendingPush(true)
-                const { data: allParticipants } = await supabase.from('participants').select('id')
-                const { data: joinedIds } = await supabase.from('project_participants').select('member_id')
-                const joinedSet = new Set(joinedIds?.map(j => j.member_id))
-                const notJoined = allParticipants?.filter(p => !joinedSet.has(p.id)) ?? []
-                if (notJoined.length === 0) { alert('미참여자가 없어요.'); setIsSendingPush(false); return }
-                const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', notJoined.map(p => String(p.id)))
-                if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-                await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map(t => t.token) }) })
-                alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
-                setIsSendingPush(false)
-              }}
-              disabled={isSendingPush}
-              className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
-            >
-              {isSendingPush ? '발송 중...' : '미참여자에게 발송'}
-            </button>
-            <button
-              onClick={async () => {
-                setIsSendingPush(true)
-                const oneMonthAgo = new Date()
-                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-                const { data: allParticipants } = await supabase.from('participants').select('id')
-                const inactive = []
-                for (const p of allParticipants ?? []) {
-                  const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
-                  const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
-                  if (!recentPost && !currentJoin) inactive.push(p.id)
-                }
-                if (inactive.length === 0) { alert('미활동자가 없어요.'); setIsSendingPush(false); return }
-                const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', inactive.map(id => String(id)))
-                if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-                await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map(t => t.token) }) })
-                alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
-                setIsSendingPush(false)
-              }}
-              disabled={isSendingPush}
-              className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
-            >
-              {isSendingPush ? '발송 중...' : '미활동자에게 발송'}
-            </button>
-          </div>
-        </div>
-
-        {/* 참여자 목록 */}
-        {selectedProject && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">👥 참여자 목록 ({participants.length}명)</h2>
-              {selectedParticipantId && (
-                <button onClick={() => setSelectedParticipantId(null)} className="text-xs text-gray-500 border rounded px-2 py-1">전체보기</button>
+                </>
               )}
             </div>
-            {participants.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-2">참여자가 없습니다.</p>
-            ) : (
-              <div className="space-y-2">
-                {participants.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => setSelectedParticipantId(selectedParticipantId === p.member_id ? null : p.member_id)}
-                    className={`border rounded-lg p-3 cursor-pointer ${selectedParticipantId === p.member_id ? 'border-blue-500 bg-blue-50' : ''}`}
-                  >
-                    <p className="text-sm font-medium">{p.participants?.name}</p>
-                    <p className="text-xs text-gray-500">📱 {p.participants?.mobile}</p>
-                    {p.participants?.instagram_id && <p className="text-xs text-gray-500">📸 {p.participants?.instagram_id}</p>}
-                    {p.participants?.youtube_id && <p className="text-xs text-gray-500">🎬 {p.participants?.youtube_id}</p>}
-                    {p.participants?.tiktok_id && <p className="text-xs text-gray-500">🎵 {p.participants?.tiktok_id}</p>}
-                    <p className="text-xs text-gray-400">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* 게시물 목록 */}
-        {selectedProject && (
-          <div className="bg-white rounded-2xl shadow p-4">
-            <h2 className="font-bold mb-3">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
-            {posts.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
-            ) : (
-              <div className="space-y-2">
-                {(selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId) : posts).map((post) => (
-                  <div key={post.id} className="border rounded-lg p-3">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium">{post.influencer_name}</p>
-                        <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
-                        <button
-                          onClick={() => {
-                            const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                            if (newUrl) {
-                              supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id)
-                                .then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) })
-                            }
-                          }}
-                          className="text-xs text-orange-500 mt-1 block"
-                        >
-                          URL 수정
-                        </button>
-                        <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
+            {selectedProject && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="font-bold">👥 참여자 목록 ({participants.length}명)</h2>
+                  {selectedParticipantId && (
+                    <button onClick={() => setSelectedParticipantId(null)} className="text-xs text-gray-500 border rounded px-2 py-1">전체보기</button>
+                  )}
+                </div>
+                {participants.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-2">참여자가 없습니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {participants.map((p) => (
+                      <div key={p.id} onClick={() => setSelectedParticipantId(selectedParticipantId === p.member_id ? null : p.member_id)} className={`border rounded-lg p-3 cursor-pointer ${selectedParticipantId === p.member_id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                        <p className="text-sm font-medium">{p.participants?.name}</p>
+                        <p className="text-xs text-gray-500">📱 {p.participants?.mobile}</p>
+                        {p.participants?.instagram_id && <p className="text-xs text-gray-500">📸 {p.participants?.instagram_id}</p>}
+                        {p.participants?.youtube_id && <p className="text-xs text-gray-500">🎬 {p.participants?.youtube_id}</p>}
+                        {p.participants?.tiktok_id && <p className="text-xs text-gray-500">🎵 {p.participants?.tiktok_id}</p>}
+                        <p className="text-xs text-gray-400">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
                       </div>
-                      <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
-                        {updatingPostId === post.id ? '...' : '갱신'}
-                      </button>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
+              </div>
+            )}
+
+            {selectedProject && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
+                {posts.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId) : posts).map((post) => (
+                      <div key={post.id} className="border rounded-lg p-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium">{post.influencer_name}</p>
+                            <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                            <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
+                            <button onClick={() => {
+                              const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                              if (newUrl) { supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
+                            }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
+                            <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
+                          </div>
+                          <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
+                            {updatingPostId === post.id ? '...' : '갱신'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
