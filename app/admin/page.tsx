@@ -45,6 +45,9 @@ export default function Page1() {
   const [requiredPosts, setRequiredPosts] = useState('1')
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null)
   const [refreshInterval, setRefreshInterval] = useState<string>('')
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -55,6 +58,11 @@ export default function Page1() {
     fetchClients()
     fetchClientRequests()
     fetchUnlockVideos()
+    const userInfo = localStorage.getItem('userInfo')
+    if (userInfo) {
+      const parsed = JSON.parse(userInfo)
+      fetchNotifications(String(parsed.id))
+    }
   }, [])
 
   const fetchProjects = async () => {
@@ -429,6 +437,18 @@ export default function Page1() {
     router.push('/')
   }
 
+  const fetchNotifications = async (id: string) => {
+    const { data } = await supabase.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
+    setNotifications(data ?? [])
+    setUnreadCount(data?.filter(n => !n.is_read).length ?? 0)
+  }
+
+  const markAllRead = async (id: string) => {
+    await supabase.from('notifications').update({ is_read: true }).eq('user_id', id).eq('is_read', false)
+    setUnreadCount(0)
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+  }
+
   const inputClass = "w-full border rounded-lg px-3 py-2 text-base mt-1 box-border"
   const dateInputStyle = { maxWidth: '100%', boxSizing: 'border-box' as const }
 
@@ -445,7 +465,24 @@ export default function Page1() {
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 프로젝트 관리</h1>
-            <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => { 
+                if (showNotifications) {
+                  const userInfo = localStorage.getItem('userInfo')
+                  if (userInfo) markAllRead(String(JSON.parse(userInfo).id))
+                } else {
+                  const userInfo = localStorage.getItem('userInfo')
+                  if (userInfo) fetchNotifications(String(JSON.parse(userInfo).id))
+                }
+                setShowNotifications(!showNotifications)
+              }} className="relative text-gray-500">
+                🔔
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
+                )}
+              </button>
+              <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            </div>
           </div>
           <div className="flex gap-1 mb-2">
             <button onClick={() => router.push('/participant')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
@@ -457,6 +494,28 @@ export default function Page1() {
             {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브 + 틱톡)'}
           </button>
         </div>
+        
+        {showNotifications && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold">🔔 알림 내역</h2>
+              <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+            </div>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {notifications.map((n) => (
+                  <div key={n.id} className={`border rounded-lg p-3 ${!n.is_read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                    <p className="text-sm font-medium">{n.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">{n.body}</p>
+                    <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {selectedProject && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
