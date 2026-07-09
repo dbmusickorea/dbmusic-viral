@@ -303,7 +303,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={`min-h-screen flex justify-center bg-gray-50 ${showSignup || showForgotPassword ? 'items-start' : 'items-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+    <div className={`min-h-screen flex flex-col items-center bg-gray-50 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+      {(showSignup || showForgotPassword) && (
+        <div className="sticky top-0 z-10 bg-gray-50 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <h1 className="text-xl font-bold text-center">🎵 DBMUSIC</h1>
+        </div>
+      )}
       <div className="w-full max-w-sm">
         {!showSignup && !showForgotPassword ? (
           <div className="bg-white rounded-2xl shadow p-6">
