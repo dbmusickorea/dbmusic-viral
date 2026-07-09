@@ -371,12 +371,6 @@ export default function Page4() {
                         ))}
                       </select>
                     </div>
-                    {selected && (
-                      <div>
-                        <label className="text-sm font-medium">새 비밀번호 (변경시만)</label>
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                      </div>
-                    )}
                     <div className="flex gap-2">
                       {selected ? (
                         <>
@@ -497,10 +491,6 @@ export default function Page4() {
                   <div>
                     <label className="text-sm font-medium">프로젝트 코드 연결</label>
                     <input value={cProjectCode} onChange={(e) => setCProjectCode(e.target.value.toUpperCase())} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예: A_1" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">새 비밀번호 (변경시만)</label>
-                    <input type="password" value={cPassword} onChange={(e) => setCPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                   {selectedClient.client_id && (
                     <div className="bg-gray-50 rounded-lg p-3">
