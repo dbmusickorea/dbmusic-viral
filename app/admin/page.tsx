@@ -459,6 +459,9 @@ export default function Page1() {
         {selectedProject && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
             <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {selectedProject.required_posts ?? 1}개</p>
+            {selectedProject.refresh_interval && (
+              <p className="text-sm font-medium text-yellow-800 mt-1">🔄 새로고침 주기: {selectedProject.refresh_interval}시간마다</p>
+            )}
           </div>
         )}
 
