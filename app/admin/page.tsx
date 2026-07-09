@@ -44,6 +44,7 @@ export default function Page1() {
   const [newUnlockUrl, setNewUnlockUrl] = useState('')
   const [requiredPosts, setRequiredPosts] = useState('1')
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null)
+  const [refreshInterval, setRefreshInterval] = useState<string>('')
   const router = useRouter()
 
   useEffect(() => {
@@ -181,6 +182,7 @@ export default function Page1() {
     setMissionDate(project.mission_date ?? '')
     setMissionTime(project.mission_time ?? '')
     setRequiredPosts(String(project.required_posts ?? 1))
+    setRefreshInterval(String(project.refresh_interval ?? ''))
     fetchPosts(project.project_code)
     supabase.from('project_videos').select('*').eq('project_code', project.project_code).maybeSingle()
       .then(({ data }) => {
@@ -245,6 +247,7 @@ export default function Page1() {
       option_price: Number(optionPrice) || null,
       client_id: selectedClientId || null,
       required_posts: Number(requiredPosts) || 1,
+      refresh_interval: refreshInterval ? Number(refreshInterval) : null,
     })
     if (error) { alert('등록 실패!'); return }
     if (selectedClientId) {
@@ -286,6 +289,7 @@ export default function Page1() {
       option_price: Number(optionPrice) || null,
       client_id: selectedClientId || null,
       required_posts: Number(requiredPosts) || 1,
+      refresh_interval: refreshInterval ? Number(refreshInterval) : null,
     }).eq('project_code', selectedProject.project_code)
     if (error) { alert('수정 실패!'); return }
     if (selectedClientId) {
@@ -414,6 +418,7 @@ export default function Page1() {
     setMaxParticipants(''); setMissionDate(''); setMissionTime('')
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
     setRequiredPosts('1')
+    setRefreshInterval('')
   }
 
   const handleLogout = () => {
@@ -722,6 +727,16 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">플레이리스트 URL</label>
                       <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
+                      <select value={refreshInterval} onChange={(e) => setRefreshInterval(e.target.value)} className={inputClass}>
+                        <option value="">기본 (하루 1회)</option>
+                        <option value="1">1시간마다</option>
+                        <option value="3">3시간마다</option>
+                        <option value="6">6시간마다</option>
+                        <option value="12">12시간마다</option>
+                      </select>
                     </div>
                     <div>
                       <label className="text-sm font-medium">요청 게시물 수</label>
