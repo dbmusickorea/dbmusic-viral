@@ -306,13 +306,13 @@ export default function LoginPage() {
     <div className={`min-h-screen flex flex-col items-center bg-gray-50 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       {(showSignup || showForgotPassword) && (
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
-          <h1 className="text-xl font-bold text-center">🎵 DBMUSIC</h1>
+          <h1 className="text-xl font-bold text-center">🎵 더블비뮤직</h1>
         </div>
       )}
       <div className="w-full max-w-sm">
         {!showSignup && !showForgotPassword ? (
           <div className="bg-white rounded-2xl shadow p-6">
-            <h1 className="text-2xl font-bold text-center mb-6">🎵 DBMUSIC 로그인</h1>
+            <h1 className="text-2xl font-bold text-center mb-6">🎵 더블비뮤직 로그인</h1>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">이메일</label>
