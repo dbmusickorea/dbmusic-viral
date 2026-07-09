@@ -27,6 +27,7 @@ export default function Page3() {
   const [myPhone, setMyPhone] = useState('')
   const [myMobile, setMyMobile] = useState('')
   const [myPassword, setMyPassword] = useState('')
+  const [myCurrentPassword, setMyCurrentPassword] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -150,11 +151,19 @@ export default function Page3() {
   }
 
   const handleUpdateMyInfo = async () => {
+    // 비밀번호 변경 시 기존 비밀번호 확인
+    if (myPassword) {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: userInfo?.email,
+        password: myCurrentPassword
+      })
+      if (authError) { alert('기존 비밀번호가 틀렸어요.'); return }
+      await supabase.auth.updateUser({ password: myPassword })
+    }
     const updateData: any = {
       name: myName, company: myCompany, artist: myArtist,
       phone: myPhone, mobile: myMobile
     }
-    if (myPassword) updateData.password = myPassword
     const { error } = await supabase.from('users').update(updateData).eq('id', userInfo?.id)
     if (error) { alert('수정 실패!'); return }
     const updated = { ...userInfo, name: myName, company: myCompany, artist: myArtist, phone: myPhone, mobile: myMobile }
@@ -163,6 +172,7 @@ export default function Page3() {
     alert('정보 수정 완료!')
     setShowMyInfo(false)
     setMyPassword('')
+    setMyCurrentPassword('')
   }
 
   const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count ?? 0), 0)
@@ -233,8 +243,12 @@ export default function Page3() {
                       </div>
                     ))}
                     <div>
+                      <label className="text-sm font-medium">기존 비밀번호</label>
+                      <input type="password" value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="기존 비밀번호 (변경시만)" />
+                    </div>
+                    <div>
                       <label className="text-sm font-medium">새 비밀번호</label>
-                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
+                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="새 비밀번호 (변경시만)" />
                     </div>
                     <div className="flex gap-2">
                       <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>

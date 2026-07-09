@@ -51,6 +51,7 @@ export default function Page2() {
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [unlockCommentCount, setUnlockCommentCount] = useState(0)
   const [showLevelGuide, setShowLevelGuide] = useState(false)
+  const [myCurrentPassword, setMyCurrentPassword] = useState('')
   const router = useRouter()
 
 useEffect(() => {
@@ -380,15 +381,25 @@ useEffect(() => {
   }
 
   const handleUpdateMyInfo = async () => {
+    // 비밀번호 변경 시 기존 비밀번호 확인
+    if (myPassword) {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: userInfo?.email,
+        password: myCurrentPassword
+      })
+      if (authError) { alert('기존 비밀번호가 틀렸어요.'); return }
+      await supabase.auth.updateUser({ password: myPassword })
+    }
     const { error } = await supabase.from('participants').update({
       name: myName, mobile: myMobile, bank_name: myBankName,
       account_holder: myAccountHolder, account_number: myAccountNumber,
       instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
-      password: myPassword || userInfo?.password
     }).eq('id', userInfo?.id)
     if (error) { alert('수정 실패!'); return }
     alert('정보 수정 완료!')
     setShowMyInfo(false)
+    setMyCurrentPassword('')
+    setMyPassword('')
   }
 
   const handleLogout = () => {
@@ -581,8 +592,12 @@ useEffect(() => {
                       </div>
                     ))}
                     <div>
+                      <label className="text-sm font-medium">기존 비밀번호</label>
+                      <input type="password" value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="기존 비밀번호 (변경시만)" />
+                    </div>
+                    <div>
                       <label className="text-sm font-medium">새 비밀번호</label>
-                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
+                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="새 비밀번호 (변경시만)" />
                     </div>
                     <div className="flex gap-2">
                       <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
