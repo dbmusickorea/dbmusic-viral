@@ -876,7 +876,7 @@ useEffect(() => {
                         setSelectedVideoIndex(1)
                         setVideoWatched(false)
                         window.open(projectVideos.shorts_url_1, '_blank')
-                        setTimeout(() => { setVideoWatched(true) }, 15000)
+                        setTimeout(() => { setVideoWatched(true) }, 30000)
                       }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
                         🎬 쇼츠 영상 1 보러가기
                       </button>
@@ -886,7 +886,7 @@ useEffect(() => {
                         setSelectedVideoIndex(2)
                         setVideoWatched(false)
                         window.open(projectVideos.shorts_url_2, '_blank')
-                        setTimeout(() => { setVideoWatched(true) }, 15000)
+                        setTimeout(() => { setVideoWatched(true) }, 30000)
                       }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 2 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
                         🎬 쇼츠 영상 2 보러가기
                       </button>
@@ -906,7 +906,7 @@ useEffect(() => {
                   {selectedVideoIndex && !videoWatched && (
                     <div className="bg-yellow-50 rounded-lg p-3">
                       <p className="text-xs text-yellow-700 text-center">
-                        ⏱ {selectedVideoIndex === 3 ? '30초' : '15초'} 이상 시청하셔야 인증창이 활성화 됩니다.
+                        ⏱ 30초 이상 시청하셔야 인증창이 활성화 됩니다.
                         시청 후 댓글을 작성하고 돌아오세요!
                       </p>
                     </div>
