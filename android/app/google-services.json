@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "484773046265",
+    "project_id": "dbmusic-viral-5a628",
+    "storage_bucket": "dbmusic-viral-5a628.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484773046265:android:d30ec3c06371e400c77f28",
+        "android_client_info": {
+          "package_name": "com.dbmusic.viral"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVsOSIt9l9hHrDsfQnLmncJ1AVYHmoOPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
