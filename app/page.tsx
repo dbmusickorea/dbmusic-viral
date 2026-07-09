@@ -155,7 +155,9 @@ export default function LoginPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         phone: p_mobile,
-        message: `[DBMUSIC] 인증번호는 ${code} 입니다.`
+        name: p_name || '고객',
+        code: code,
+        expiry: '5분'
       })
     })
     const data = await response.json()
@@ -179,7 +181,9 @@ export default function LoginPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         phone: c_mobile,
-        message: `[DBMUSIC] 인증번호는 ${code} 입니다.`
+        name: c_name || '고객',
+        code: code,
+        expiry: '5분'
       })
     })
     const data = await response.json()
