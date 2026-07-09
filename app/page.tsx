@@ -224,6 +224,13 @@ export default function LoginPage() {
     if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
     if (p_password !== p_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
 
+    // 이메일/전화번호 중복 체크
+    const { data: existingEmail } = await supabase.from('participants').select('id').eq('email', p_email).maybeSingle()
+    if (existingEmail) { alert('이미 사용중인 이메일입니다.'); return }
+    
+    const { data: existingMobile } = await supabase.from('participants').select('id').eq('mobile', p_mobile).maybeSingle()
+    if (existingMobile) { alert('이미 사용중인 전화번호입니다.'); return }
+
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
     if (p_referral) {
@@ -276,6 +283,12 @@ export default function LoginPage() {
     if (!c_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
     if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
     if (c_password !== c_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
+    // 이메일/전화번호 중복 체크
+    const { data: existingEmail } = await supabase.from('users').select('id').eq('email', c_email).maybeSingle()
+    if (existingEmail) { alert('이미 사용중인 이메일입니다.'); return }
+    
+    const { data: existingMobile } = await supabase.from('users').select('id').eq('mobile', c_mobile).maybeSingle()
+    if (existingMobile) { alert('이미 사용중인 전화번호입니다.'); return }
 
     let clientId = generateClientId()
     let isUnique = false
