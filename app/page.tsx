@@ -230,6 +230,8 @@ export default function LoginPage() {
     
     const { data: existingMobile } = await supabase.from('participants').select('id').eq('mobile', p_mobile).maybeSingle()
     if (existingMobile) { alert('이미 사용중인 전화번호입니다.'); return }
+    const { data: existingMobileU } = await supabase.from('users').select('id').eq('mobile', p_mobile).maybeSingle()
+    if (existingMobileU) { alert('이미 사용중인 전화번호입니다.'); return }
 
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
@@ -289,6 +291,8 @@ export default function LoginPage() {
     
     const { data: existingMobile } = await supabase.from('users').select('id').eq('mobile', c_mobile).maybeSingle()
     if (existingMobile) { alert('이미 사용중인 전화번호입니다.'); return }
+    const { data: existingMobileP } = await supabase.from('participants').select('id').eq('mobile', c_mobile).maybeSingle()
+    if (existingMobileP) { alert('이미 사용중인 전화번호입니다.'); return }
 
     let clientId = generateClientId()
     let isUnique = false
