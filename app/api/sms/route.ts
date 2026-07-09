@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   if (message) {
     kakaoMessage.text = message
   } else {
-    kakaoMessage.text = `[DBMUSIC] 안녕하세요 ${name || '고객'}님, 인증번호는 ${code}입니다. 유효시간: ${expiry || '5분'}`
+    kakaoMessage.text = `[더블비뮤직] 안녕하세요 ${name || '고객'}님, 인증번호는 ${code}입니다. 유효시간: ${expiry || '5분'}`
   }
 
   const response = await fetch('https://api.solapi.com/messages/v4/send', {
