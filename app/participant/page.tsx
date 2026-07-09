@@ -671,6 +671,14 @@ useEffect(() => {
                       { label: '은행명', value: myBankName, setter: setMyBankName },
                       { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
                       { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
+                    ].map(({ label, value, setter }) => (
+                      <div key={label}>
+                        <label className="text-sm font-medium">{label}</label>
+                        <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      </div>
+                    ))}
+                    <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다. 예금주명은 가입자 이름과 동일해야 해요.</p>
+                    {[
                       { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
                       { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
                       { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
@@ -680,7 +688,6 @@ useEffect(() => {
                         <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                       </div>
                     ))}
-                    <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다. 예금주명은 가입자 이름과 동일해야 해요.</p>
                     <div>
                       <label className="text-sm font-medium">기존 비밀번호</label>
                       <input type="password" value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="기존 비밀번호 (변경시만)" />
