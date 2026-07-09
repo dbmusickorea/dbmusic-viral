@@ -399,6 +399,16 @@ export default function Page3() {
                 </div>
               </div>
             )}
+            
+            {/* 결과보고서 다운로드 */}
+            {projectInfo && projectInfo.status === 'COMPLETED' && (
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4">
+                <p className="text-sm font-medium text-blue-800 mb-2">📊 프로젝트 결과보고서</p>
+                <button onClick={() => window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">
+                  📥 결과보고서 다운로드 (엑셀)
+                </button>
+              </div>
+            )}
 
             {/* 총 통계 */}
             {posts.length > 0 && (
