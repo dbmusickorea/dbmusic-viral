@@ -38,6 +38,7 @@ export default function Page4() {
   const [newClientPhone, setNewClientPhone] = useState('')
   const [newClientMobile, setNewClientMobile] = useState('')
   const [newClientEmail, setNewClientEmail] = useState('')
+  const [showParticipantInsert, setShowParticipantInsert] = useState(false)
 
   const router = useRouter()
 
@@ -80,6 +81,16 @@ export default function Page4() {
     // 임시 비밀번호 생성
     const tempPassword = 'DB' + Math.random().toString(36).substring(2, 8).toUpperCase() + '!'
     
+    // 추천인 코드 생성
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let referralCode = 'DB' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    let isUnique = false
+    while (!isUnique) {
+      const { data } = await supabase.from('participants').select('id').eq('referral_code', referralCode).maybeSingle()
+      if (!data) isUnique = true
+      else referralCode = 'DB' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    }
+
     // Supabase Auth 계정 생성
     const { error: authError } = await supabase.auth.signUp({
       email,
@@ -92,7 +103,8 @@ export default function Page4() {
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, password: '', level
+      tiktok_id: tiktok, password: '', level,
+      referral_code: referralCode
     })
     if (error) { alert('등록 실패!'); return }
 
@@ -320,48 +332,55 @@ export default function Page4() {
                   <h2 className="font-bold">{selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2">
                     {selected && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
+                    {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs border rounded px-2 py-1">
+                      {showParticipantInsert ? '접기 ▲' : '펼치기 ▼'}
+                    </button>}
                   </div>
                 </div>
-                <div className="space-y-3">
-                  {[
-                    { label: '이름', value: name, setter: setName },
-                    { label: '휴대전화', value: mobile, setter: setMobile },
-                    { label: '이메일', value: email, setter: setEmail, type: 'email' },
-                    { label: '은행명', value: bankName, setter: setBankName },
-                    { label: '예금주', value: accountHolder, setter: setAccountHolder },
-                    { label: '계좌번호', value: accountNumber, setter: setAccountNumber },
-                    { label: '인스타그램 ID', value: instagram, setter: setInstagram },
-                    { label: '유튜브 ID', value: youtube, setter: setYoutube },
-                    { label: '틱톡 ID', value: tiktok, setter: setTiktok },
-                  ].map(({ label, value, setter, type }) => (
-                    <div key={label}>
-                      <label className="text-sm font-medium">{label}</label>
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                {(selected || showParticipantInsert) && (
+                  <div className="space-y-3">
+                    {[
+                      { label: '이름', value: name, setter: setName },
+                      { label: '휴대전화', value: mobile, setter: setMobile },
+                      { label: '이메일', value: email, setter: setEmail, type: 'email' },
+                      { label: '은행명', value: bankName, setter: setBankName },
+                      { label: '예금주', value: accountHolder, setter: setAccountHolder },
+                      { label: '계좌번호', value: accountNumber, setter: setAccountNumber },
+                      { label: '인스타그램 ID', value: instagram, setter: setInstagram },
+                      { label: '유튜브 ID', value: youtube, setter: setYoutube },
+                      { label: '틱톡 ID', value: tiktok, setter: setTiktok },
+                    ].map(({ label, value, setter, type }) => (
+                      <div key={label}>
+                        <label className="text-sm font-medium">{label}</label>
+                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      </div>
+                    ))}
+                    <div>
+                      <label className="text-sm font-medium">등급 (레벨)</label>
+                      <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                        {Array.from({length: 50}, (_, i) => i + 1).map(lv => (
+                          <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000원' : `${(2500 + (lv-1) * 150).toLocaleString()}원`})</option>
+                        ))}
+                      </select>
                     </div>
-                  ))}
-                  <div>
-                    <label className="text-sm font-medium">등급 (레벨)</label>
-                    <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
-                      {Array.from({length: 50}, (_, i) => i + 1).map(lv => (
-                        <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000원' : `${(2500 + (lv-1) * 150).toLocaleString()}원`})</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">{selected ? '새 비밀번호 (변경시만)' : '비밀번호'}</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                  </div>
-                  <div className="flex gap-2">
-                    {selected ? (
-                      <>
-                        <button onClick={handleUpdate} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정</button>
-                        <button onClick={handleDelete} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
-                      </>
-                    ) : (
-                      <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">체험단 등록</button>
+                    {selected && (
+                      <div>
+                        <label className="text-sm font-medium">새 비밀번호 (변경시만)</label>
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      </div>
                     )}
+                    <div className="flex gap-2">
+                      {selected ? (
+                        <>
+                          <button onClick={handleUpdate} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정</button>
+                          <button onClick={handleDelete} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
+                        </>
+                      ) : (
+                        <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">체험단 등록</button>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
