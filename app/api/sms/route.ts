@@ -15,12 +15,13 @@ export async function POST(request: NextRequest) {
   const signature = crypto.createHmac('sha256', apiSecret).update(date + salt).digest('hex')
 
   // 카카오 알림톡 발송 (대체발송 SMS 포함)
+  const isTemp = expiry === '로그인 후 변경해주세요'
   const kakaoMessage: any = {
     to: phone,
     from: process.env.SOLAPI_SENDER!,
     kakaoOptions: {
       pfId: process.env.SOLAPI_KAKAO_PFID!,
-      templateId: 'KA01TP2607080729444147DLp8YDtiD4',
+      templateId: isTemp ? 'KA01TP260709041453214iRFJWibnLFt' : 'KA01TP2607080729444147DLp8YDtiD4',
       variables: {
         '#{고객명}': name || '고객',
         '#{code}': code || '',
@@ -33,6 +34,8 @@ export async function POST(request: NextRequest) {
   // 대체발송용 SMS 내용
   if (message) {
     kakaoMessage.text = message
+  } else if (isTemp) {
+    kakaoMessage.text = `[더블비뮤직] 안녕하세요 ${name || '고객'}님, 임시 비밀번호: ${code} 로그인 후 변경해주세요.`
   } else {
     kakaoMessage.text = `[더블비뮤직] 안녕하세요 ${name || '고객'}님, 인증번호는 ${code}입니다. 유효시간: ${expiry || '5분'}`
   }
