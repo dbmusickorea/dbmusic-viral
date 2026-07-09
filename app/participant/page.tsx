@@ -57,6 +57,9 @@ export default function Page2() {
   const [showPlayer, setShowPlayer] = useState(false)
   const [selectedVideoIndex, setSelectedVideoIndex] = useState<number | null>(null)
   const [availableBalance, setAvailableBalance] = useState(0)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const router = useRouter()
 
 useEffect(() => {
@@ -74,6 +77,7 @@ useEffect(() => {
     fetchAllProjects()
     fetchUnlockVideos()
     fetchMyParticipations(parsed.id)
+    fetchNotifications(String(parsed.id))
   }, [])
 
   const handleCommentVerify = async (videoId: string, projectCode: string) => {
@@ -148,6 +152,18 @@ useEffect(() => {
   const fetchUnlockVideos = async () => {
     const { data } = await supabase.from('unlock_videos').select('*')
     setUnlockVideos(data ?? [])
+  }
+
+  const fetchNotifications = async (id: string) => {
+    const { data } = await supabase.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
+    setNotifications(data ?? [])
+    setUnreadCount(data?.filter(n => !n.is_read).length ?? 0)
+  }
+
+  const markAllRead = async (id: string) => {
+    await supabase.from('notifications').update({ is_read: true }).eq('user_id', id).eq('is_read', false)
+    setUnreadCount(0)
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
   const fetchMyParticipations = async (id: number) => {
@@ -471,7 +487,15 @@ useEffect(() => {
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 더블비뮤직 체험단</h1>
-            <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => { setShowNotifications(!showNotifications); if (!showNotifications) markAllRead(String(userInfo?.id)) }} className="relative text-gray-500">
+                🔔
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
+                )}
+              </button>
+              <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            </div>
           </div>
           {userRole === 'admin' && (
             <div className="flex gap-1">
@@ -482,6 +506,28 @@ useEffect(() => {
             </div>
           )}
         </div>
+        
+        {showNotifications && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold">🔔 알림 내역</h2>
+              <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+            </div>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {notifications.map((n) => (
+                  <div key={n.id} className={`border rounded-lg p-3 ${!n.is_read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                    <p className="text-sm font-medium">{n.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">{n.body}</p>
+                    <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
