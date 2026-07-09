@@ -31,6 +31,13 @@ export default function Page4() {
   const [cEmail, setCEmail] = useState('')
   const [cPassword, setCPassword] = useState('')
   const [cProjectCode, setCProjectCode] = useState('')
+  const [showClientInsert, setShowClientInsert] = useState(false)
+  const [newClientName, setNewClientName] = useState('')
+  const [newClientCompany, setNewClientCompany] = useState('')
+  const [newClientArtist, setNewClientArtist] = useState('')
+  const [newClientPhone, setNewClientPhone] = useState('')
+  const [newClientMobile, setNewClientMobile] = useState('')
+  const [newClientEmail, setNewClientEmail] = useState('')
 
   const router = useRouter()
 
@@ -68,14 +75,40 @@ export default function Page4() {
   }
 
   const handleInsert = async () => {
+    if (!name || !email || !mobile) { alert('이름, 이메일, 휴대전화는 필수입니다.'); return }
+    
+    // 임시 비밀번호 생성
+    const tempPassword = 'DB' + Math.random().toString(36).substring(2, 8).toUpperCase() + '!'
+    
+    // Supabase Auth 계정 생성
+    const { error: authError } = await supabase.auth.signUp({
+      email,
+      password: tempPassword
+    })
+    if (authError) { alert('계정 생성 실패! ' + authError.message); return }
+
+    // DB에 체험단 정보 저장
     const { error } = await supabase.from('participants').insert({
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, password, level
+      tiktok_id: tiktok, password: '', level
     })
     if (error) { alert('등록 실패!'); return }
-    alert('등록 완료!')
+
+    // 임시 비밀번호 SMS 발송
+    await fetch('/api/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: mobile,
+        name: name,
+        code: tempPassword,
+        expiry: '로그인 후 변경해주세요'
+      })
+    })
+
+    alert(`등록 완료! 임시 비밀번호(${tempPassword})가 ${mobile}로 전송됐어요.`)
     fetchParticipants()
     clearForm()
   }
@@ -114,6 +147,60 @@ export default function Page4() {
     setSelectedClient(null)
     setCName(''); setCCompany(''); setCArtist(''); setCPhone('')
     setCMobile(''); setCEmail(''); setCPassword(''); setCProjectCode('')
+  }
+
+  const generateClientId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    return 'CL' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  }
+
+  const handleInsertClient = async () => {
+    if (!newClientName || !newClientEmail || !newClientMobile) { alert('이름, 이메일, 휴대전화는 필수입니다.'); return }
+    
+    // 임시 비밀번호 생성
+    const tempPassword = 'DB' + Math.random().toString(36).substring(2, 8).toUpperCase() + '!'
+    
+    // 의뢰인 코드 생성
+    let clientId = generateClientId()
+    let isUnique = false
+    while (!isUnique) {
+      const { data } = await supabase.from('users').select('id').eq('client_id', clientId).maybeSingle()
+      if (!data) isUnique = true
+      else clientId = generateClientId()
+    }
+
+    // Supabase Auth 계정 생성
+    const { error: authError } = await supabase.auth.signUp({
+      email: newClientEmail,
+      password: tempPassword
+    })
+    if (authError) { alert('계정 생성 실패! ' + authError.message); return }
+
+    // DB에 의뢰인 정보 저장
+    const { error } = await supabase.from('users').insert({
+      name: newClientName, company: newClientCompany, artist: newClientArtist,
+      phone: newClientPhone, mobile: newClientMobile, email: newClientEmail,
+      password: '', role: 'client', client_id: clientId
+    })
+    if (error) { alert('등록 실패!'); return }
+
+    // 임시 비밀번호 SMS 발송
+    await fetch('/api/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: newClientMobile,
+        name: newClientName,
+        code: tempPassword,
+        expiry: '로그인 후 변경해주세요'
+      })
+    })
+
+    alert(`등록 완료! 의뢰인 코드: ${clientId}\n임시 비밀번호(${tempPassword})가 ${newClientMobile}로 전송됐어요.`)
+    setShowClientInsert(false)
+    setNewClientName(''); setNewClientCompany(''); setNewClientArtist('')
+    setNewClientPhone(''); setNewClientMobile(''); setNewClientEmail('')
+    fetchClients()
   }
 
   const handleUpdateClient = async () => {
@@ -275,6 +362,35 @@ export default function Page4() {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {tab === 'client' && !selectedClient && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="font-bold">의뢰인 등록</h2>
+                  <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs border rounded px-2 py-1">
+                    {showClientInsert ? '접기 ▲' : '펼치기 ▼'}
+                  </button>
+                </div>
+                {showClientInsert && (
+                  <div className="space-y-3">
+                    {[
+                      { label: '대표자명 *', value: newClientName, setter: setNewClientName },
+                      { label: '소속사명', value: newClientCompany, setter: setNewClientCompany },
+                      { label: '아티스트명', value: newClientArtist, setter: setNewClientArtist },
+                      { label: '전화번호', value: newClientPhone, setter: setNewClientPhone },
+                      { label: '휴대전화 *', value: newClientMobile, setter: setNewClientMobile },
+                      { label: '이메일 *', value: newClientEmail, setter: setNewClientEmail, type: 'email' },
+                    ].map(({ label, value, setter, type }) => (
+                      <div key={label}>
+                        <label className="text-sm font-medium">{label}</label>
+                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      </div>
+                    ))}
+                    <button onClick={handleInsertClient} className="w-full bg-green-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
+                  </div>
+                )}
               </div>
             )}
 
