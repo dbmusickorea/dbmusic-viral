@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.dbmusic.viral',
-  appName: 'DBMUSIC',
+  appName: '더블비뮤직',
   webDir: 'out',
   server: {
     url: 'https://dbmusic-viral.vercel.app',
