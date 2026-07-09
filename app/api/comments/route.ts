@@ -24,10 +24,14 @@ export async function GET(request: NextRequest) {
   // 작성자 이름 매칭
   const normalizedHandle = handle.toLowerCase().replace('@', '')
   
-  const found = data.items.some((item: any) => {
+  const foundItem = data.items.find((item: any) => {
     const authorName = item.snippet.topLevelComment.snippet.authorDisplayName.toLowerCase().replace('@', '')
     return authorName.includes(normalizedHandle) || normalizedHandle.includes(authorName)
   })
 
-  return NextResponse.json({ found, totalComments: data.items.length })
+  return NextResponse.json({ 
+    found: !!foundItem, 
+    totalComments: data.items.length,
+    commentId: foundItem?.snippet?.topLevelComment?.id ?? null
+  })
 }

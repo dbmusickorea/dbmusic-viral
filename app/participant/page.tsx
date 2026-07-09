@@ -94,7 +94,8 @@ useEffect(() => {
           video_id: videoId,
           youtube_handle: youtubeHandle,
           status: 'APPROVED',
-          reward_amount: 300
+          reward_amount: 300,
+          comment_id: data.commentId ?? null
         })
         const newBalance = balance + 300
         await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
@@ -868,6 +869,7 @@ useEffect(() => {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">💬 댓글 미션</h2>
                 <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300원을 받으세요!</p>
+                <p className="text-xs text-red-400 mb-3">⚠️ 댓글 삭제 시 적립금이 차감됩니다.</p>
                 <div className="space-y-3">
                   {/* 영상 선택 버튼 */}
                   <div className="space-y-2">
