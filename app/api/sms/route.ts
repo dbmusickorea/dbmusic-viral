@@ -22,9 +22,9 @@ export async function POST(request: NextRequest) {
       pfId: process.env.SOLAPI_KAKAO_PFID!,
       templateId: 'KA01TP2607080729444147DLp8YDtiD4',
       variables: {
-        '고객명': name || '고객',
-        'code': code || '',
-        '유효시간': expiry || '5분'
+        '#{고객명}': name || '고객',
+        '#{code}': code || '',
+        '#{유효시간}': expiry || '5분'
       },
       disableSms: false
     }
