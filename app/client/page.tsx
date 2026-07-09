@@ -28,6 +28,9 @@ export default function Page3() {
   const [myMobile, setMyMobile] = useState('')
   const [myPassword, setMyPassword] = useState('')
   const [myCurrentPassword, setMyCurrentPassword] = useState('')
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -37,6 +40,7 @@ export default function Page3() {
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')
+    fetchNotifications(String(parsed.id))
 
     if (role === 'client' && parsed.client_id) {
       fetchMyProjects(parsed.client_id)
@@ -175,6 +179,18 @@ export default function Page3() {
     setMyCurrentPassword('')
   }
 
+  const fetchNotifications = async (id: string) => {
+    const { data } = await supabase.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
+    setNotifications(data ?? [])
+    setUnreadCount(data?.filter(n => !n.is_read).length ?? 0)
+  }
+
+  const markAllRead = async (id: string) => {
+    await supabase.from('notifications').update({ is_read: true }).eq('user_id', id).eq('is_read', false)
+    setUnreadCount(0)
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+  }
+
   const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count ?? 0), 0)
   const totalComments = posts.reduce((sum, p) => sum + (p.comments_count ?? 0), 0)
 
@@ -204,7 +220,15 @@ export default function Page3() {
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 더블비뮤직 의뢰인</h1>
-            <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => { setShowNotifications(!showNotifications); if (!showNotifications) markAllRead(String(userInfo?.id)) }} className="relative text-gray-500">
+                🔔
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
+                )}
+              </button>
+              <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            </div>
           </div>
           {userRole === 'admin' && (
             <div className="flex gap-1">
@@ -215,6 +239,28 @@ export default function Page3() {
             </div>
           )}
         </div>
+        
+        {showNotifications && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold">🔔 알림 내역</h2>
+              <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+            </div>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {notifications.map((n) => (
+                  <div key={n.id} className={`border rounded-lg p-3 ${!n.is_read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                    <p className="text-sm font-medium">{n.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">{n.body}</p>
+                    <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {projectInfo && isClient && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
@@ -399,7 +445,7 @@ export default function Page3() {
                 </div>
               </div>
             )}
-            
+
             {/* 결과보고서 다운로드 */}
             {projectInfo && projectInfo.status === 'COMPLETED' && (
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4">
