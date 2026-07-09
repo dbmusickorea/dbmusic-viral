@@ -147,11 +147,9 @@ export default function Page4() {
     router.push('/')
   }
 
-  const getLevelRate = (lv: number) => Math.round((1 + (lv - 1) * 0.05) * 100)
-
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">👥 회원 관리</h1>
@@ -170,109 +168,117 @@ export default function Page4() {
           <button onClick={() => { setTab('client'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'client' ? 'bg-green-600 text-white' : 'bg-white border'}`}>의뢰인</button>
         </div>
 
-        {tab === 'participant' && (
-          <>
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">체험단 목록</h2>
-              {participants.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">회원이 없습니다.</p>
-              ) : (
-                <div className="space-y-2">
-                  {participants.map((p) => (
-                    <div key={p.id} onClick={() => handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-sm">{p.name}</p>
-                            <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+        <div className="md:grid md:grid-cols-2 md:gap-4">
+          {/* 왼쪽 - 목록 */}
+          <div>
+            {tab === 'participant' && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">체험단 목록</h2>
+                {participants.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">회원이 없습니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {participants.map((p) => (
+                      <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm">{p.name}</p>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+                            </div>
+                            <p className="text-xs text-gray-500">{p.email}</p>
                           </div>
-                          <p className="text-xs text-gray-500">{p.email}</p>
+                          <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}원</p>
                         </div>
-                        <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}원</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="bg-white rounded-2xl shadow p-4">
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold">{selected ? '회원 수정' : '체험단 등록'}</h2>
-                {selected && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
-              </div>
-              <div className="space-y-3">
-                {[
-                  { label: '이름', value: name, setter: setName },
-                  { label: '휴대전화', value: mobile, setter: setMobile },
-                  { label: '이메일', value: email, setter: setEmail, type: 'email' },
-                  { label: '은행명', value: bankName, setter: setBankName },
-                  { label: '예금주', value: accountHolder, setter: setAccountHolder },
-                  { label: '계좌번호', value: accountNumber, setter: setAccountNumber },
-                  { label: '인스타그램 ID', value: instagram, setter: setInstagram },
-                  { label: '유튜브 ID', value: youtube, setter: setYoutube },
-                  { label: '틱톡 ID', value: tiktok, setter: setTiktok },
-                ].map(({ label, value, setter, type }) => (
-                  <div key={label}>
-                    <label className="text-sm font-medium">{label}</label>
-                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-sm font-medium">등급 (레벨)</label>
-                  <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
-                    {[1,2,3,4,5,6,7,8,9,10].map(lv => (
-                      <option key={lv} value={lv}>Lv.{lv} ({getLevelRate(lv)}% 지급)</option>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">{selected ? '새 비밀번호 (변경시만)' : '비밀번호'}</label>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                </div>
-                <div className="flex gap-2">
-                  {selected ? (
-                    <>
-                      <button onClick={handleUpdate} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정</button>
-                      <button onClick={handleDelete} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
-                    </>
-                  ) : (
-                    <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">체험단 등록</button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </>
-        )}
+            )}
 
-        {tab === 'client' && (
-          <>
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">의뢰인 목록</h2>
-              {clients.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">의뢰인이 없습니다.</p>
-              ) : (
-                <div className="space-y-2">
-                  {clients.map((c) => (
-                    <div key={c.id} onClick={() => handleSelectClient(c)} className={`border rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50' : ''}`}>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium text-sm">{c.name}</p>
-                          <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''}</p>
-                          <p className="text-xs text-gray-400">{c.email}</p>
-                        </div>
-                        <div className="text-right">
-                          {c.client_id && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">{c.client_id}</span>}
-                          {c.project_code && <p className="text-xs text-gray-500 mt-1">{c.project_code}</p>}
+            {tab === 'client' && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">의뢰인 목록</h2>
+                {clients.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">의뢰인이 없습니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {clients.map((c) => (
+                      <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50' : ''}`}>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-sm">{c.name}</p>
+                            <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''}</p>
+                            <p className="text-xs text-gray-400">{c.email}</p>
+                          </div>
+                          <div className="text-right">
+                            {c.client_id && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">{c.client_id}</span>}
+                            {c.project_code && <p className="text-xs text-gray-500 mt-1">{c.project_code}</p>}
+                          </div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 오른쪽 - 등록/수정 */}
+          <div>
+            {tab === 'participant' && (
+              <div className="bg-white rounded-2xl shadow p-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="font-bold">{selected ? '체험단 수정' : '체험단 등록'}</h2>
+                  <div className="flex gap-2">
+                    {selected && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { label: '이름', value: name, setter: setName },
+                    { label: '휴대전화', value: mobile, setter: setMobile },
+                    { label: '이메일', value: email, setter: setEmail, type: 'email' },
+                    { label: '은행명', value: bankName, setter: setBankName },
+                    { label: '예금주', value: accountHolder, setter: setAccountHolder },
+                    { label: '계좌번호', value: accountNumber, setter: setAccountNumber },
+                    { label: '인스타그램 ID', value: instagram, setter: setInstagram },
+                    { label: '유튜브 ID', value: youtube, setter: setYoutube },
+                    { label: '틱톡 ID', value: tiktok, setter: setTiktok },
+                  ].map(({ label, value, setter, type }) => (
+                    <div key={label}>
+                      <label className="text-sm font-medium">{label}</label>
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                     </div>
                   ))}
+                  <div>
+                    <label className="text-sm font-medium">등급 (레벨)</label>
+                    <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                      {Array.from({length: 50}, (_, i) => i + 1).map(lv => (
+                        <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000원' : `${(2500 + (lv-1) * 150).toLocaleString()}원`})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">{selected ? '새 비밀번호 (변경시만)' : '비밀번호'}</label>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                  </div>
+                  <div className="flex gap-2">
+                    {selected ? (
+                      <>
+                        <button onClick={handleUpdate} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정</button>
+                        <button onClick={handleDelete} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
+                      </>
+                    ) : (
+                      <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">체험단 등록</button>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {selectedClient && (
+            {tab === 'client' && selectedClient && (
               <div className="bg-white rounded-2xl shadow p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold">의뢰인 수정</h2>
@@ -312,8 +318,8 @@ export default function Page4() {
                 </div>
               </div>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   )
