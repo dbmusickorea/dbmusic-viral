@@ -39,6 +39,8 @@ export default function Page4() {
   const [newClientMobile, setNewClientMobile] = useState('')
   const [newClientEmail, setNewClientEmail] = useState('')
   const [showParticipantInsert, setShowParticipantInsert] = useState(false)
+  const [memberPosts, setMemberPosts] = useState<any[]>([])
+  const [memberCommentMissions, setMemberCommentMissions] = useState<any[]>([])
 
   const router = useRouter()
 
@@ -66,6 +68,12 @@ export default function Page4() {
     setAccountNumber(p.account_number ?? ''); setInstagram(p.instagram_id ?? '')
     setYoutube(p.youtube_id ?? ''); setTiktok(p.tiktok_id ?? '')
     setPassword(''); setLevel(p.level ?? 1)
+    
+    // 게시물 + 댓글 미션 가져오기
+    supabase.from('posts').select('*, projects(reward_per_post)').eq('member_id', p.id).order('created_at', { ascending: false })
+      .then(({ data }) => setMemberPosts(data ?? []))
+    supabase.from('comment_missions').select('*').eq('member_id', p.id).eq('status', 'APPROVED')
+      .then(({ data }) => setMemberCommentMissions(data ?? []))
   }
 
   const clearForm = () => {
@@ -327,7 +335,7 @@ export default function Page4() {
           {/* 오른쪽 - 등록/수정 */}
           <div>
             {tab === 'participant' && (
-              <div className="bg-white rounded-2xl shadow p-4">
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold">{selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2">
@@ -381,6 +389,59 @@ export default function Page4() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* 수익 내역 */}
+            {tab === 'participant' && selected && (memberPosts.length > 0 || memberCommentMissions.length > 0) && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h3 className="font-bold mb-3">💰 수익 내역</h3>
+                
+                {memberPosts.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-gray-600 mb-1">📸 게시물 수익</p>
+                    <div className="space-y-1">
+                      {memberPosts.map((post) => {
+                        const levelReward = level === 50 ? 10000 : 2500 + (level - 1) * 150
+                        return (
+                          <div key={post.id} className="flex justify-between text-xs border rounded p-2">
+                            <span>{post.platform} · {post.project_code}</span>
+                            <span className="text-blue-600 font-medium">{levelReward.toLocaleString()}원</span>
+                          </div>
+                        )
+                      })}
+                      <div className="flex justify-between text-xs font-bold bg-blue-50 rounded p-2">
+                        <span>게시물 수익 합계</span>
+                        <span className="text-blue-600">{(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)).toLocaleString()}원</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {memberCommentMissions.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-gray-600 mb-1">💬 댓글 미션 수익</p>
+                    <div className="space-y-1">
+                      {memberCommentMissions.map((m) => (
+                        <div key={m.id} className="flex justify-between text-xs border rounded p-2">
+                          <span>{m.project_code} · {m.youtube_handle}</span>
+                          <span className="text-green-600 font-medium">300원</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-xs font-bold bg-green-50 rounded p-2">
+                        <span>댓글 수익 합계</span>
+                        <span className="text-green-600">{(memberCommentMissions.length * 300).toLocaleString()}원</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between text-sm font-bold bg-gray-100 rounded p-2">
+                  <span>총 수익</span>
+                  <span className="text-blue-600">
+                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300).toLocaleString()}원
+                  </span>
+                </div>
               </div>
             )}
 
