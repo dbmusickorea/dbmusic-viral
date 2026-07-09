@@ -51,7 +51,7 @@ export default function Page5() {
       }).eq('id', selected.member_id)
     }
     // 체험단에게 푸시 알림 발송
-    const { data: memberTokens } = await supabase.from('push_tokens').select('token').eq('user_id', String(selected.member_id))
+    const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(selected.member_id))
     if (memberTokens && memberTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -59,7 +59,8 @@ export default function Page5() {
         body: JSON.stringify({
           title: '💰 환전 신청이 승인됐어요!',
           body: `${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}원 환전이 승인됐어요.`,
-          tokens: memberTokens.map((t: any) => t.token)
+          tokens: memberTokens.map((t: any) => t.token),
+          userIds: memberTokens.map((t: any) => t.user_id)
         })
       })
     }
@@ -72,7 +73,7 @@ export default function Page5() {
     if (!selected) return
     await supabase.from('settlements').update({ status: 'REJECTED', memo }).eq('id', selected.id)
     // 체험단에게 푸시 알림 발송
-    const { data: memberTokens } = await supabase.from('push_tokens').select('token').eq('user_id', String(selected.member_id))
+    const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(selected.member_id))
     if (memberTokens && memberTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -80,7 +81,8 @@ export default function Page5() {
         body: JSON.stringify({
           title: '❌ 환전 신청이 거절됐어요.',
           body: `환전 신청이 거절됐어요. 사유: ${memo || '없음'}`,
-          tokens: memberTokens.map((t: any) => t.token)
+          tokens: memberTokens.map((t: any) => t.token),
+          userIds: memberTokens.map((t: any) => t.user_id)
         })
       })
     }

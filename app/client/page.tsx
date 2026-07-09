@@ -71,7 +71,7 @@ export default function Page3() {
     setRequestContent('')
     setShowRequestForm(false)
     // 관리자에게 푸시 알림 발송
-    const { data: adminTokens } = await supabase.from('push_tokens').select('token').eq('user_role', 'admin')
+    const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
     if (adminTokens && adminTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -79,7 +79,8 @@ export default function Page3() {
         body: JSON.stringify({
           title: '📋 새 프로젝트 문의',
           body: `${userInfo?.name}님이 문의를 등록했어요: ${requestTitle}`,
-          tokens: adminTokens.map((t: any) => t.token)
+          tokens: adminTokens.map((t: any) => t.token),
+          userIds: adminTokens.map((t: any) => t.user_id)
         })
       })
     }
