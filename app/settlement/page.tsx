@@ -100,7 +100,7 @@ export default function Page5() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">💰 정산 관리</h1>
@@ -114,88 +114,102 @@ export default function Page5() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">환전 신청 목록</h2>
-          {settlements.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">신청 내역이 없습니다.</p>
-          ) : (
-            <div className="space-y-2">
-              {settlements.map((s) => (
-                <div key={s.id} onClick={() => handleSelect(s)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium text-sm">{s.participant_name ?? `회원 ID: ${s.member_id}`}</p>
-                      <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
-                      {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
+        <div className="md:grid md:grid-cols-2 md:gap-4">
+          {/* 왼쪽 - 환전 신청 목록 */}
+          <div>
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">환전 신청 목록</h2>
+              {settlements.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">신청 내역이 없습니다.</p>
+              ) : (
+                <div className="space-y-2">
+                  {settlements.map((s) => (
+                    <div key={s.id} onClick={() => {
+                      if (selected?.id === s.id) {
+                        setSelected(null)
+                        setSelectedParticipant(null)
+                        setMemberPosts([])
+                      } else {
+                        handleSelect(s)
+                      }
+                    }} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium text-sm">{s.participant_name ?? `회원 ID: ${s.member_id}`}</p>
+                          <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                          {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
+                          {statusLabel(s.status)}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
-                      {statusLabel(s.status)}
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+          </div>
 
-        {selected && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">💰 환전 신청 상세</h2>
-            <div className="space-y-2 text-sm">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="font-medium text-base">{selectedParticipant?.name ?? '-'}</p>
-                {selectedParticipant?.referral_code && (
-                  <p className="text-xs text-blue-600 mt-1">추천인 코드: {selectedParticipant.referral_code}</p>
+          {/* 오른쪽 - 상세 정보 */}
+          <div>
+            {selected && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">💰 환전 신청 상세</h2>
+                <div className="space-y-2 text-sm">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="font-medium text-base">{selectedParticipant?.name ?? '-'}</p>
+                    {selectedParticipant?.referral_code && (
+                      <p className="text-xs text-blue-600 mt-1">추천인 코드: {selectedParticipant.referral_code}</p>
+                    )}
+                  </div>
+                  <p>현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}원</span></p>
+                  <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}원</span></p>
+                  <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}원</span></p>
+                  <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}원</span></p>
+                  <p>주민번호: <span className="font-medium">{selected.resident_number ?? '-'}</span></p>
+                  <p>주소: <span className="font-medium">{selected.address ?? '-'}</span></p>
+                  <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {selectedParticipant?.account_number} ({selectedParticipant?.account_holder})</span></p>
+                  <p>상태: {statusLabel(selected.status)}</p>
+                </div>
+                <div className="mt-4">
+                  <label className="text-sm font-medium">📝 관리자 메모 (체험단에게 전달)</label>
+                  <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
+                  <button onClick={handleSaveMemo} className="w-full border rounded-lg py-2 text-sm mt-1">메모 저장</button>
+                </div>
+                {selected.status === 'PENDING' && (
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={handleApprove} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
+                    <button onClick={handleReject} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">거절</button>
+                  </div>
                 )}
               </div>
-              <p>현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}원</span></p>
-              <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}원</span></p>
-              <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}원</span></p>
-              <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}원</span></p>
-              <p>주민번호: <span className="font-medium">{selected.resident_number ?? '-'}</span></p>
-              <p>주소: <span className="font-medium">{selected.address ?? '-'}</span></p>
-              <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {selectedParticipant?.account_number} ({selectedParticipant?.account_holder})</span></p>
-              <p>상태: {statusLabel(selected.status)}</p>
-            </div>
+            )}
 
-            <div className="mt-4">
-              <label className="text-sm font-medium">📝 관리자 메모 (체험단에게 전달)</label>
-              <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
-              <button onClick={handleSaveMemo} className="w-full border rounded-lg py-2 text-sm mt-1">메모 저장</button>
-            </div>
-
-            {selected.status === 'PENDING' && (
-              <div className="flex gap-2 mt-4">
-                <button onClick={handleApprove} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
-                <button onClick={handleReject} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">거절</button>
+            {memberPosts.length > 0 && (
+              <div className="bg-white rounded-2xl shadow p-4">
+                <h2 className="font-bold mb-3">📋 체험단 게시물 내역</h2>
+                <div className="space-y-2">
+                  {memberPosts.map((post) => (
+                    <div key={post.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium">{post.project_code}</p>
+                          <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        )}
-
-        {memberPosts.length > 0 && (
-          <div className="bg-white rounded-2xl shadow p-4">
-            <h2 className="font-bold mb-3">📋 체험단 게시물 내역</h2>
-            <div className="space-y-2">
-              {memberPosts.map((post) => (
-                <div key={post.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-medium">{post.project_code}</p>
-                      <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
-                    </div>
-                  </div>
-                  <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )
