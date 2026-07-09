@@ -405,6 +405,16 @@ useEffect(() => {
     const amount = Number(exchangeAmount)
     if (amount < 10000) { alert('최소 10,000원 이상부터 환전 신청 가능합니다.'); return }
     if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
+
+    // 예금주 이름 확인
+    const { data: participantData } = await supabase.from('participants').select('name, account_holder').eq('id', userInfo?.id).maybeSingle()
+    if (participantData?.account_holder && participantData?.name) {
+      if (participantData.account_holder !== participantData.name) {
+        alert('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
+        return
+      }
+    }
+
     const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
     const { error } = await supabase.from('settlements').insert({
@@ -670,6 +680,7 @@ useEffect(() => {
                         <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                       </div>
                     ))}
+                    <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다. 예금주명은 가입자 이름과 동일해야 해요.</p>
                     <div>
                       <label className="text-sm font-medium">기존 비밀번호</label>
                       <input type="password" value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="기존 비밀번호 (변경시만)" />
