@@ -426,7 +426,7 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 DBMUSIC 체험단</h1>
@@ -442,486 +442,438 @@ useEffect(() => {
           )}
         </div>
 
-        {/* 적립금 + 레벨 + 추천인 코드 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <div className="flex justify-between items-start mb-3">
-            <div>
-              <p className="text-sm text-gray-500">나의 적립금</p>
-              <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
-            </div>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}원)</span>
-          </div>
-          {referralCode && (
-            <div className="bg-gray-50 rounded-lg p-3 mb-3">
-              <p className="text-xs text-gray-500">나의 추천인 코드</p>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-lg font-bold text-blue-600">{referralCode}</p>
-                <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
-              </div>
-              <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
-            </div>
-          )}
-          <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="w-full text-xs text-gray-500 border rounded-lg py-2 mt-2 mb-3">
-            {showLevelGuide ? '레벨 안내 접기 ▲' : '레벨별 적립금 안내 ▼'}
-          </button>
-          {showLevelGuide && (
-            <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
-              <div className="bg-blue-50 p-3 text-xs text-blue-700 space-y-1">
-                <p>🎯 추천인 1명 가입 시: <span className="font-bold">+150원 + 레벨 1 상승</span></p>
-                <p>👥 추천인의 하위 가입자 발생 시: <span className="font-bold">+50원</span></p>
-                <p>💰 레벨이 높을수록 게시물당 적립금이 올라가요!</p>
-                <p>⭐ 최대 적립금은 <span className="font-bold">10,000원</span>입니다.</p>
-              </div>
-              <table className="w-full text-xs">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="py-2 px-3 text-left">레벨</th>
-                    <th className="py-2 px-3 text-right">게시물당 적립금</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((lv) => (
-                    <tr key={lv} className={`border-t ${level === lv ? 'bg-blue-50 font-bold' : ''}`}>
-                      <td className="py-2 px-3">Lv.{lv} {level === lv ? '← 현재' : ''}</td>
-                      <td className="py-2 px-3 text-right text-blue-600">
-                        {lv === 50 ? '10,000원' : `${(2500 + (lv - 1) * 150).toLocaleString()}원`}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* 락 상태 안내 */}
-        {isLocked && (
-          <div className="bg-red-50 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-2 text-red-600">⚠️ 계정 잠금 상태</h2>
-            <p className="text-xs text-red-500 mb-3">1개월간 미션 참여가 없어서 계정이 잠겼어요. 아래 영상에 댓글을 달아 잠금을 해제하세요!</p>
-            <p className="text-xs text-gray-500 mb-3">댓글 인증 현황: {unlockCommentCount}/10</p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-              <div className="bg-red-500 h-2 rounded-full" style={{ width: `${(unlockCommentCount / 10) * 100}%` }} />
-            </div>
-            {unlockVideos.length === 0 ? (
-              <p className="text-xs text-gray-400">등록된 락 해제 영상이 없어요. 관리자에게 문의하세요.</p>
-            ) : (
-              <div className="space-y-2">
-                {unlockVideos.map((v) => (
-                  <a key={v.id} href={v.video_url} target="_blank" className="block text-xs text-blue-500 border rounded-lg p-2">
-                    🎬 댓글 달러 가기 →
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-          {/* 버튼들 */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setShowExchange(!showExchange); setShowMyInfo(false) }}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium ${showExchange ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}
-            >
-              환전 신청
-            </button>
-            <button
-              onClick={() => { if (!showMyInfo) loadMyInfo(); setShowMyInfo(!showMyInfo); setShowExchange(false) }}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}
-            >
-              내 정보 보기
-            </button>
-          </div>
-
-          {/* 환전 신청 폼 - 버튼 바로 아래 */}
-          {showExchange && (
-            <div className="mt-4 border-t pt-4">
-              <h2 className="font-bold mb-1">💰 환전 신청</h2>
-              <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상, 프로젝트 종료 후 신청 가능</p>
-              <div className="space-y-3">
+        <div className="md:grid md:grid-cols-2 md:gap-4">
+          {/* 왼쪽 컬럼 */}
+          <div>
+            {/* 적립금 + 레벨 + 추천인 코드 */}
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="flex justify-between items-start mb-3">
                 <div>
-                  <label className="text-sm font-medium">프로젝트 코드 확인</label>
-                  <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 코드 입력" />
-                  {projectCode && (
-                    <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
-                      {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
-                    </p>
+                  <p className="text-sm text-gray-500">나의 적립금</p>
+                  <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
+                </div>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}원)</span>
+              </div>
+              {referralCode && (
+                <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                  <p className="text-xs text-gray-500">나의 추천인 코드</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-lg font-bold text-blue-600">{referralCode}</p>
+                    <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+                </div>
+              )}
+              <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="w-full text-xs text-gray-500 border rounded-lg py-2 mt-2 mb-3">
+                {showLevelGuide ? '레벨 안내 접기 ▲' : '레벨별 적립금 안내 ▼'}
+              </button>
+              {showLevelGuide && (
+                <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
+                  <div className="bg-blue-50 p-3 text-xs text-blue-700 space-y-1">
+                    <p>🎯 추천인 1명 가입 시: <span className="font-bold">+150원 + 레벨 1 상승</span></p>
+                    <p>👥 추천인의 하위 가입자 발생 시: <span className="font-bold">+50원</span></p>
+                    <p>💰 레벨이 높을수록 게시물당 적립금이 올라가요!</p>
+                    <p>⭐ 최대 적립금은 <span className="font-bold">10,000원</span>입니다.</p>
+                  </div>
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="py-2 px-3 text-left">레벨</th>
+                        <th className="py-2 px-3 text-right">게시물당 적립금</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((lv) => (
+                        <tr key={lv} className={`border-t ${level === lv ? 'bg-blue-50 font-bold' : ''}`}>
+                          <td className="py-2 px-3">Lv.{lv} {level === lv ? '← 현재' : ''}</td>
+                          <td className="py-2 px-3 text-right text-blue-600">
+                            {lv === 50 ? '10,000원' : `${(2500 + (lv - 1) * 150).toLocaleString()}원`}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {isLocked && (
+                <div className="bg-red-50 rounded-2xl p-4 mb-4">
+                  <h2 className="font-bold mb-2 text-red-600">⚠️ 계정 잠금 상태</h2>
+                  <p className="text-xs text-red-500 mb-3">1개월간 미션 참여가 없어서 계정이 잠겼어요. 아래 영상에 댓글을 달아 잠금을 해제하세요!</p>
+                  <p className="text-xs text-gray-500 mb-3">댓글 인증 현황: {unlockCommentCount}/10</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                    <div className="bg-red-500 h-2 rounded-full" style={{ width: `${(unlockCommentCount / 10) * 100}%` }} />
+                  </div>
+                  {unlockVideos.length === 0 ? (
+                    <p className="text-xs text-gray-400">등록된 락 해제 영상이 없어요. 관리자에게 문의하세요.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {unlockVideos.map((v) => (
+                        <a key={v.id} href={v.video_url} target="_blank" className="block text-xs text-blue-500 border rounded-lg p-2">🎬 댓글 달러 가기 →</a>
+                      ))}
+                    </div>
                   )}
                 </div>
-                <div>
-                  <label className="text-sm font-medium">주민번호</label>
-                  <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">주소</label>
-                  <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주소 입력" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">신청 금액</label>
-                  <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000원)" />
-                </div>
-                {exchangeAmount && (
-                  <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                    <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}원</p>
-                    <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}원</p>
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <button onClick={handleExchange} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">환전 신청하기</button>
-                  <button onClick={() => setShowExchange(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
-                </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* 내 정보 수정 폼 - 버튼 바로 아래 */}
-          {showMyInfo && (
-            <div className="mt-4 border-t pt-4">
-              <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
-              <div className="space-y-3">
-                {[
-                  { label: '이름', value: myName, setter: setMyName },
-                  { label: '휴대전화', value: myMobile, setter: setMyMobile },
-                  { label: '은행명', value: myBankName, setter: setMyBankName },
-                  { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
-                  { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
-                  { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
-                  { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
-                  { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
-                ].map(({ label, value, setter }) => (
-                  <div key={label}>
-                    <label className="text-sm font-medium">{label}</label>
-                    <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-sm font-medium">새 비밀번호</label>
-                  <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
-                </div><div className="flex gap-2">
-                  <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
-                  <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
-                </div>
-                <button
-                  onClick={async () => {
-                    if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
-                    await supabase.from('posts').delete().eq('member_id', userInfo?.id)
-                    await supabase.from('settlements').delete().eq('member_id', userInfo?.id)
-                    await supabase.from('comment_missions').delete().eq('member_id', userInfo?.id)
-                    await supabase.from('participants').delete().eq('id', userInfo?.id)
-                    await supabase.auth.signOut()
-                    localStorage.removeItem('userInfo')
-                    localStorage.removeItem('userRole')
-                    alert('계정이 삭제됐습니다.')
-                    router.push('/')
-                  }}
-                  className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium mt-2"
-                >
-                  계정 삭제
-                </button>
+              <div className="flex gap-2">
+                <button onClick={() => { setShowExchange(!showExchange); setShowMyInfo(false) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${showExchange ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}>환전 신청</button>
+                <button onClick={() => { if (!showMyInfo) loadMyInfo(); setShowMyInfo(!showMyInfo); setShowExchange(false) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}>내 정보 보기</button>
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* 환전 신청 내역 */}
-        {mySettlements.length > 0 && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">💰 환전 신청 내역</h2>
-            <div className="space-y-2">
-              {mySettlements.map((s) => (
-                <div key={s.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start">
+              {showExchange && (
+                <div className="mt-4 border-t pt-4">
+                  <h2 className="font-bold mb-1">💰 환전 신청</h2>
+                  <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상, 프로젝트 종료 후 신청 가능</p>
+                  <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
-                      <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
-                      {s.memo && (
-                        <div className="mt-1 bg-blue-50 rounded p-2">
-                          <p className="text-xs text-blue-800 font-medium">📝 관리자 메모</p>
-                          <p className="text-xs text-blue-700 mt-0.5">{s.memo}</p>
-                        </div>
+                      <label className="text-sm font-medium">프로젝트 코드 확인</label>
+                      <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 코드 입력" />
+                      {projectCode && (
+                        <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
+                          {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
+                        </p>
                       )}
                     </div>
-                    <div className="text-right shrink-0 ml-2">
-                      {settlementStatusLabel(s.status)}
-                      <p className="text-xs text-gray-500 mt-1">실수령: {s.net_amount?.toLocaleString() ?? 0}원</p>
+                    <div>
+                      <label className="text-sm font-medium">주민번호</label>
+                      <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">주소</label>
+                      <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주소 입력" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">신청 금액</label>
+                      <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000원)" />
+                    </div>
+                    {exchangeAmount && (
+                      <div className="bg-gray-50 rounded-lg p-3 text-sm">
+                        <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}원</p>
+                        <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}원</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <button onClick={handleExchange} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">환전 신청하기</button>
+                      <button onClick={() => setShowExchange(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              )}
 
-        {/* 게시물 현황 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold">📊 나의 게시물 현황</h2>
-            <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">
-              {showPosts ? '숨기기' : '금액 내역 보기'}
-            </button>
-          </div>
-          <div className="flex gap-2 mb-3">
-            <button onClick={() => setPostFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-            <button onClick={() => setPostFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
-          </div>
-          <div className="grid grid-cols-3 gap-3 mb-3">
-            <div className="bg-gray-50 rounded-lg p-3 col-span-3">
-              <p className="text-xs text-gray-500">총 게시물</p>
-              <p className="text-xl font-bold text-blue-600">{displayPosts.length}개</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">인스타그램</p>
-              <p className="text-lg font-bold">{instagramPosts.length}개</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">유튜브</p>
-              <p className="text-lg font-bold">{youtubePosts.length}개</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">틱톡</p>
-              <p className="text-lg font-bold">{tiktokPosts.length}개</p>
-            </div>
-          </div>
-          {showPosts && (
-            <div className="space-y-2">
-              {displayPosts.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
-              ) : (
-                displayPosts.map((post) => {
-                  const baseAmount = projectsMap[post.project_code]?.reward_per_post ?? 0
-                  const myAmount = getLevelAmount(baseAmount, level)
-                  return (
-                    <div key={post.id} className="border rounded-lg p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1 mb-1">
-                            <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                            {statusBadge(post.project_code)}
-                          </div>
-                          <p className="text-xs text-gray-400">{post.project_code}</p>
-                          <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
-                        <button
-                          onClick={() => {
-                            const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                            if (newUrl) {
-                              supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id)
-                                .then(() => { alert('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) })
-                            }
-                          }}
-                          className="text-xs text-orange-500 mt-1 block"
-                        >
-                          URL 수정
-                        </button>
-                        </div>
-                        <div className="text-right shrink-0 ml-2">
-                          <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}원</p>
-                          <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}원</p>
-                          <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
-                        </div>
+              {showMyInfo && (
+                <div className="mt-4 border-t pt-4">
+                  <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
+                  <div className="space-y-3">
+                    {[
+                      { label: '이름', value: myName, setter: setMyName },
+                      { label: '휴대전화', value: myMobile, setter: setMyMobile },
+                      { label: '은행명', value: myBankName, setter: setMyBankName },
+                      { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
+                      { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
+                      { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
+                      { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
+                      { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
+                    ].map(({ label, value, setter }) => (
+                      <div key={label}>
+                        <label className="text-sm font-medium">{label}</label>
+                        <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                       </div>
+                    ))}
+                    <div>
+                      <label className="text-sm font-medium">새 비밀번호</label>
+                      <input type="password" value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="변경할 경우만 입력" />
                     </div>
-                  )
-                })
+                    <div className="flex gap-2">
+                      <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
+                      <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
+                    </div>
+                    <button onClick={async () => {
+                      if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
+                      await supabase.from('posts').delete().eq('member_id', userInfo?.id)
+                      await supabase.from('settlements').delete().eq('member_id', userInfo?.id)
+                      await supabase.from('comment_missions').delete().eq('member_id', userInfo?.id)
+                      await supabase.from('participants').delete().eq('id', userInfo?.id)
+                      await supabase.auth.signOut()
+                      localStorage.removeItem('userInfo')
+                      localStorage.removeItem('userRole')
+                      alert('계정이 삭제됐습니다.')
+                      router.push('/')
+                    }} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium mt-2">계정 삭제</button>
+                  </div>
+                </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* 프로젝트 기간 */}
-        {projectInfo && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-2">📅 프로젝트 기간</h2>
-            <p className="text-sm">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
-            <p className="text-sm">종료예정일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}</p>
-            {projectInfo.start_date && (
-              <p className="text-sm">진행일수: {Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24))}일째</p>
-            )}
-            <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
-              {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
-            </p>
-          </div>
-        )}
-
-        {/* 내 참여 현황 */}
-        {myParticipations.length > 0 && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
-            <div className="space-y-2">
-              {myParticipations.map((p) => (
-                <div key={p.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm font-medium">{p.projects?.product_content}</p>
-                      <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
-                      <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
-                    </div>
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">참여중 ✅</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 프로젝트 리스트 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📋 프로젝트 목록</h2>
-          {allProjects.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
-          ) : (
-            <div className="space-y-2">
-              {allProjects.map((project) => {
-                const isSelected = projectCode.toLowerCase() === project.project_code.toLowerCase()
-                const isStarted = !project.mission_date || new Date().toISOString().split('T')[0] >= project.mission_date
-                const isFull = project.max_participants > 0 && participantCount >= project.max_participants
-                return (
-                  <div
-                    key={project.id}
-                    onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }}
-                    className={`border rounded-lg p-3 cursor-pointer ${isSelected ? 'border-blue-500 bg-blue-50' : ''}`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm font-medium">{project.product_content}</p>
-                        <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
-                        {project.start_date && (
-                          <p className="text-xs text-gray-500">
-                            미션일: {project.start_date} 
-                            {` (D-${Math.max(0, Math.ceil((new Date(project.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))})`}
-                          </p>
-                        )}
+            {/* 환전 신청 내역 */}
+            {mySettlements.length > 0 && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">💰 환전 신청 내역</h2>
+                <div className="space-y-2">
+                  {mySettlements.map((s) => (
+                    <div key={s.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
+                          <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                          {s.memo && (
+                            <div className="mt-1 bg-blue-50 rounded p-2">
+                              <p className="text-xs text-blue-800 font-medium">📝 관리자 메모</p>
+                              <p className="text-xs text-blue-700 mt-0.5">{s.memo}</p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0 ml-2">
+                          {settlementStatusLabel(s.status)}
+                          <p className="text-xs text-gray-500 mt-1">실수령: {s.net_amount?.toLocaleString() ?? 0}원</p>
+                        </div>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        isFull ? 'bg-red-100 text-red-700' :
-                        isStarted ? 'bg-green-100 text-green-700' :
-                        'bg-gray-100 text-gray-500'
-                      }`}>
-                        {isStarted ? '진행중' : '예정'}
-                      </span>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* 미션 제출 폼 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-3">📸 미션 제출</h2>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">의뢰인 식별 코드</label>
-              <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예: A_1" />
-            </div>
-            {requirements && (
-              <div className="bg-blue-50 rounded-lg p-3">
-                <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                <p className="text-sm text-blue-700 mt-1">{requirements}</p>
-                {projectInfo?.required_posts && (
-                  <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>
-                )}
+                  ))}
+                </div>
               </div>
             )}
-            {projectInfo && (
-              <div className="bg-gray-50 rounded-lg p-3 mt-2">
-                {projectInfo.start_date && (
-                  <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date} {projectInfo.mission_date && `(모집일: ${projectInfo.mission_date})`}</p>
-                )}
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
-                  {isJoined ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
-                  ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
-                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
-                  ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
+
+            {/* 게시물 현황 */}
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-bold">📊 나의 게시물 현황</h2>
+                <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
+              </div>
+              <div className="flex gap-2 mb-3">
+                <button onClick={() => setPostFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
+                <button onClick={() => setPostFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
+              </div>
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                <div className="bg-gray-50 rounded-lg p-3 col-span-3">
+                  <p className="text-xs text-gray-500">총 게시물</p>
+                  <p className="text-xl font-bold text-blue-600">{displayPosts.length}개</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">인스타그램</p>
+                  <p className="text-lg font-bold">{instagramPosts.length}개</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">유튜브</p>
+                  <p className="text-lg font-bold">{youtubePosts.length}개</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">틱톡</p>
+                  <p className="text-lg font-bold">{tiktokPosts.length}개</p>
+                </div>
+              </div>
+              {showPosts && (
+                <div className="space-y-2">
+                  {displayPosts.length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
                   ) : (
-                    <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
+                    displayPosts.map((post) => {
+                      const baseAmount = projectsMap[post.project_code]?.reward_per_post ?? 0
+                      const myAmount = getLevelAmount(baseAmount, level)
+                      return (
+                        <div key={post.id} className="border rounded-lg p-3">
+                          <div className="flex justify-between items-start">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1 mb-1">
+                                <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                                {statusBadge(post.project_code)}
+                              </div>
+                              <p className="text-xs text-gray-400">{post.project_code}</p>
+                              <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
+                              <button onClick={() => {
+                                const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                                if (newUrl) { supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id).then(() => { alert('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
+                              }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
+                            </div>
+                            <div className="text-right shrink-0 ml-2">
+                              <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}원</p>
+                              <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}원</p>
+                              <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
                   )}
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* 오른쪽 컬럼 */}
+          <div>
+            {/* 프로젝트 기간 */}
+            {projectInfo && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-2">📅 프로젝트 기간</h2>
+                <p className="text-sm">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                <p className="text-sm">종료예정일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                {projectInfo.start_date && (
+                  <p className="text-sm">진행일수: {Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24))}일째</p>
+                )}
+                <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
+                </p>
               </div>
             )}
-            {/* 미션 제출 폼 - 모집종료 아닐 때 + 미션 수행일 이후에만 표시 */}
-            {projectInfo && isJoined && 
-              (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
-              <>
-                <div>
-                  <label className="text-sm font-medium">참여자 이름</label>
-                  <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
+
+            {/* 내 참여 현황 */}
+            {myParticipations.length > 0 && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
+                <div className="space-y-2">
+                  {myParticipations.map((p) => (
+                    <div key={p.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-sm font-medium">{p.projects?.product_content}</p>
+                          <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
+                          <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                        </div>
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">참여중 ✅</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <label className="text-sm font-medium">플랫폼 선택</label>
-                  <select value={platform} onChange={(e) => {
-                    setPlatform(e.target.value)
-                    const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
-                    if (e.target.value === 'instagram') setSnsAccount(accounts.instagram ?? '')
-                    else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
-                    else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
-                    else setSnsAccount('')
-                  }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
-                    <option value="">플랫폼을 선택해주세요</option>
-                    <option value="instagram">인스타그램</option>
-                    <option value="youtube">유튜브</option>
-                    <option value="tiktok">틱톡</option>
-                  </select>
+              </div>
+            )}
+
+            {/* 프로젝트 리스트 */}
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">📋 프로젝트 목록</h2>
+              {allProjects.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
+              ) : (
+                <div className="space-y-2">
+                  {allProjects.map((project) => {
+                    const isSelected = projectCode.toLowerCase() === project.project_code.toLowerCase()
+                    const isStarted = !project.mission_date || new Date().toISOString().split('T')[0] >= project.mission_date
+                    const isFull = project.max_participants > 0 && participantCount >= project.max_participants
+                    return (
+                      <div key={project.id} onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }} className={`border rounded-lg p-3 cursor-pointer ${isSelected ? 'border-blue-500 bg-blue-50' : ''}`}>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-sm font-medium">{project.product_content}</p>
+                            <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
+                            {project.start_date && (
+                              <p className="text-xs text-gray-500">미션일: {project.start_date} {` (D-${Math.max(0, Math.ceil((new Date(project.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))})`}</p>
+                            )}
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full ${isFull ? 'bg-red-100 text-red-700' : isStarted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                            {isStarted ? '진행중' : '예정'}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
+              )}
+            </div>
+
+            {/* 미션 제출 폼 */}
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">📸 미션 제출</h2>
+              <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium">본인 SNS 계정</label>
-                  <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
+                  <label className="text-sm font-medium">의뢰인 식별 코드</label>
+                  <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예: A_1" />
                 </div>
-                <div>
-                  <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
-                  <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
+                {requirements && (
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
+                    <p className="text-sm text-blue-700 mt-1">{requirements}</p>
+                    {projectInfo?.required_posts && (
+                      <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>
+                    )}
+                  </div>
+                )}
+                {projectInfo && (
+                  <div className="bg-gray-50 rounded-lg p-3 mt-2">
+                    {projectInfo.start_date && (
+                      <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date} {projectInfo.mission_date && `(모집일: ${projectInfo.mission_date})`}</p>
+                    )}
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                      {isJoined ? (
+                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                      ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
+                        <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
+                      ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
+                        <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
+                      ) : (
+                        <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
+                  <>
+                    <div>
+                      <label className="text-sm font-medium">참여자 이름</label>
+                      <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">플랫폼 선택</label>
+                      <select value={platform} onChange={(e) => {
+                        setPlatform(e.target.value)
+                        const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
+                        if (e.target.value === 'instagram') setSnsAccount(accounts.instagram ?? '')
+                        else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
+                        else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
+                        else setSnsAccount('')
+                      }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                        <option value="">플랫폼을 선택해주세요</option>
+                        <option value="instagram">인스타그램</option>
+                        <option value="youtube">유튜브</option>
+                        <option value="tiktok">틱톡</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">본인 SNS 계정</label>
+                      <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
+                      <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
+                    </div>
+                    <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                      {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* 댓글 미션 */}
+            {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">💬 댓글 미션</h2>
+                <p className="text-xs text-gray-500 mb-3">유튜브 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
+                <div className="space-y-3">
+                  <button onClick={async () => {
+                    if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
+                    const url = projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url
+                    if (url) window.open(url, '_blank')
+                    else alert('등록된 영상이 없어요.')
+                  }} className="w-full bg-red-600 text-white rounded-lg py-2 font-medium">🎬 댓글 쓰러 가기</button>
+                  <div>
+                    <label className="text-sm font-medium">유튜브 계정명</label>
+                    <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
+                  </div>
+                  <button onClick={async () => {
+                    if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
+                    if (projectVideos.shorts_video_id_1) await handleCommentVerify(projectVideos.shorts_video_id_1, projectCode)
+                    else if (projectVideos.shorts_video_id_2) await handleCommentVerify(projectVideos.shorts_video_id_2, projectCode)
+                    else if (projectVideos.playlist_video_id) await handleCommentVerify(projectVideos.playlist_video_id, projectCode)
+                    else alert('등록된 영상이 없어요.')
+                  }} disabled={isVerifying} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                    {isVerifying ? '인증 중...' : '댓글 인증 및 보상 받기'}
+                  </button>
                 </div>
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
-                >
-                  {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
-                </button>
-              </>
+              </div>
             )}
           </div>
         </div>
-
-        {/* 댓글 미션 */}
-        {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">💬 댓글 미션</h2>
-            <p className="text-xs text-gray-500 mb-3">유튜브 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
-            <div className="space-y-3">
-              <button
-                onClick={async () => {
-                  if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
-                  const url = projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url
-                  if (url) window.open(url, '_blank')
-                  else alert('등록된 영상이 없어요.')
-                }}
-                className="w-full bg-red-600 text-white rounded-lg py-2 font-medium"
-              >
-                🎬 댓글 쓰러 가기
-              </button>
-              <div>
-                <label className="text-sm font-medium">유튜브 계정명</label>
-                <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
-              </div>
-              <button
-                onClick={async () => {
-                  if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
-                  if (projectVideos.shorts_video_id_1) await handleCommentVerify(projectVideos.shorts_video_id_1, projectCode)
-                  else if (projectVideos.shorts_video_id_2) await handleCommentVerify(projectVideos.shorts_video_id_2, projectCode)
-                  else if (projectVideos.playlist_video_id) await handleCommentVerify(projectVideos.playlist_video_id, projectCode)
-                  else alert('등록된 영상이 없어요.')
-                }}
-                disabled={isVerifying}
-                className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400"
-              >
-                {isVerifying ? '인증 중...' : '댓글 인증 및 보상 받기'}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
