@@ -19,7 +19,7 @@ export default function Page5() {
   }, [])
 
   const fetchSettlements = async () => {
-    const { data } = await supabase.from('settlements').select('*').order('requested_at', { ascending: false })
+    const { data } = await supabase.from('settlements').select('*, participants(name)').order('requested_at', { ascending: false })
     setSettlements(data ?? [])
   }
 
@@ -135,7 +135,7 @@ export default function Page5() {
                     }} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium text-sm">{s.participant_name ?? `회원 ID: ${s.member_id}`}</p>
+                          <p className="font-medium text-sm">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
                           <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                           {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
                         </div>
