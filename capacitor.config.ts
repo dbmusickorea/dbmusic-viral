@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
     cleartext: true
   },
   ios: {
-    contentInset: 'never'
+    contentInset: 'never',
   },
   plugins: {
     SplashScreen: {

@@ -255,7 +255,7 @@ export default function Page1() {
     }
     await saveProjectVideos(projectCode.toUpperCase())
     // 체험단 전체에게 푸시 알림 발송
-    const { data: participantTokens } = await supabase.from('push_tokens').select('token').eq('user_role', 'participant')
+    const { data: participantTokens } = await supabase.from('push_tokens').select('token').in('user_role', ['participant', 'client'])
     if (participantTokens && participantTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
