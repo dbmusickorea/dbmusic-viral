@@ -52,6 +52,9 @@ export default function Page2() {
   const [unlockCommentCount, setUnlockCommentCount] = useState(0)
   const [showLevelGuide, setShowLevelGuide] = useState(false)
   const [myCurrentPassword, setMyCurrentPassword] = useState('')
+  const [videoWatched, setVideoWatched] = useState(false)
+  const [watchProgress, setWatchProgress] = useState(0)
+  const [showPlayer, setShowPlayer] = useState(false)
   const router = useRouter()
 
 useEffect(() => {
@@ -863,26 +866,57 @@ useEffect(() => {
             {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">💬 댓글 미션</h2>
-                <p className="text-xs text-gray-500 mb-3">유튜브 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
+                <p className="text-xs text-gray-500 mb-3">영상을 시청 후 댓글을 작성하고 계정명을 입력해서 300원을 받으세요!</p>
                 <div className="space-y-3">
-                  <button onClick={async () => {
-                    if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
-                    const url = projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url
-                    if (url) window.open(url, '_blank')
-                    else alert('등록된 영상이 없어요.')
-                  }} className="w-full bg-red-600 text-white rounded-lg py-2 font-medium">🎬 댓글 쓰러 가기</button>
+                  {!showPlayer ? (
+                    <button onClick={() => { setShowPlayer(true); setVideoWatched(false); setWatchProgress(0) }} className="w-full bg-red-600 text-white rounded-lg py-2 font-medium">🎬 영상 시청하기</button>
+                  ) : (
+                    <div>
+                      <div className="relative w-full" style={{paddingBottom: '56.25%'}}>
+                        <iframe
+                          src={`https://www.youtube.com/embed/${projectVideos.shorts_video_id_1 || projectVideos.shorts_video_id_2 || projectVideos.playlist_video_id}?enablejsapi=1&origin=${window.location.origin}`}
+                          className="absolute top-0 left-0 w-full h-full rounded-lg"
+                          allowFullScreen
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          onLoad={() => {
+                            // 30초 후 시청 완료로 처리
+                            setTimeout(() => {
+                              setVideoWatched(true)
+                            }, 30000)
+                          }}
+                        />
+                      </div>
+                      {!videoWatched ? (
+                        <div className="mt-2">
+                          <p className="text-xs text-gray-500 text-center">30초 이상 시청 후 댓글 작성이 가능해요</p>
+                          <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                            <div className="bg-red-500 h-2 rounded-full transition-all" style={{width: `${watchProgress}%`}} />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-2 space-y-2">
+                          <p className="text-xs text-green-600 text-center font-medium">✅ 시청 완료! 이제 댓글을 작성해주세요.</p>
+                          <button onClick={() => {
+                            const url = projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url
+                            if (url) window.open(url, '_blank')
+                          }} className="w-full bg-red-600 text-white rounded-lg py-2 font-medium">💬 댓글 쓰러 가기</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div>
                     <label className="text-sm font-medium">유튜브 계정명</label>
                     <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
                   </div>
                   <button onClick={async () => {
+                    if (!videoWatched) { alert('먼저 영상을 30초 이상 시청해주세요!'); return }
                     if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
                     if (projectVideos.shorts_video_id_1) await handleCommentVerify(projectVideos.shorts_video_id_1, projectCode)
                     else if (projectVideos.shorts_video_id_2) await handleCommentVerify(projectVideos.shorts_video_id_2, projectCode)
                     else if (projectVideos.playlist_video_id) await handleCommentVerify(projectVideos.playlist_video_id, projectCode)
                     else alert('등록된 영상이 없어요.')
-                  }} disabled={isVerifying} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
-                    {isVerifying ? '인증 중...' : '댓글 인증 및 보상 받기'}
+                  }} disabled={isVerifying || !videoWatched} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                    {isVerifying ? '인증 중...' : !videoWatched ? '영상 시청 후 인증 가능' : '댓글 인증 및 보상 받기'}
                   </button>
                 </div>
               </div>
