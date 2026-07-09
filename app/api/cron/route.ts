@@ -190,6 +190,34 @@ export async function GET() {
         }
       }
     }
+    
+    // 매일 게시물 통계 스냅샷 저장 (UTC 3시 = 낮 12시)
+    if (currentHour === 3) {
+      const { data: allPosts } = await supabase.from('posts').select('*')
+      if (allPosts && allPosts.length > 0) {
+        for (const post of allPosts) {
+          // 오늘 이미 저장됐는지 확인
+          const { data: existing } = await supabase
+            .from('post_stats_history')
+            .select('id')
+            .eq('post_id', post.id)
+            .eq('recorded_at', today)
+            .maybeSingle()
+          
+          if (!existing) {
+            await supabase.from('post_stats_history').insert({
+              post_id: post.id,
+              project_code: post.project_code,
+              member_id: post.member_id,
+              platform: post.platform,
+              likes_count: post.likes_count ?? 0,
+              comments_count: post.comments_count ?? 0,
+              recorded_at: today
+            })
+          }
+        }
+      }
+    }
 
     return NextResponse.json({ success: true, updated })
   } catch (error) {
