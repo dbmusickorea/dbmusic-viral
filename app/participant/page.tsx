@@ -56,6 +56,7 @@ export default function Page2() {
   const [watchProgress, setWatchProgress] = useState(0)
   const [showPlayer, setShowPlayer] = useState(false)
   const [selectedVideoIndex, setSelectedVideoIndex] = useState<number | null>(null)
+  const [availableBalance, setAvailableBalance] = useState(0)
   const router = useRouter()
 
 useEffect(() => {
@@ -66,6 +67,7 @@ useEffect(() => {
     setUserInfo(parsed)
     setUserRole(role ?? '')
     fetchParticipantInfo(parsed.id)
+    fetchAvailableBalance(parsed.id)
     fetchMyPostsAndProjects(parsed.id)
     fetchMySettlements(parsed.id)
     fetchCommentMissions(parsed.id)
@@ -187,6 +189,29 @@ useEffect(() => {
         tiktok: data.tiktok_id ?? ''
       }))
     }
+  }
+
+  const fetchAvailableBalance = async (id: number) => {
+    // 종료된 프로젝트 게시물 수익
+    const { data: posts } = await supabase.from('posts').select('project_code').eq('member_id', id)
+    let postIncome = 0
+    if (posts && posts.length > 0) {
+      const codes = [...new Set(posts.map(p => p.project_code))]
+      const { data: completedProjects } = await supabase.from('projects').select('project_code, reward_per_post').in('project_code', codes).eq('status', 'COMPLETED')
+      const completedCodes = new Set(completedProjects?.map(p => p.project_code.toLowerCase()))
+      const completedPosts = posts.filter(p => completedCodes.has(p.project_code.toLowerCase()))
+      postIncome = completedPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)
+    }
+
+    // 댓글 미션 수익
+    const { data: missions } = await supabase.from('comment_missions').select('reward_amount').eq('member_id', id).eq('status', 'APPROVED')
+    const commentIncome = missions?.reduce((sum, m) => sum + (m.reward_amount ?? 300), 0) ?? 0
+
+    // 이미 환전 신청한 금액
+    const { data: settlements } = await supabase.from('settlements').select('amount').eq('member_id', id).in('status', ['PENDING', 'APPROVED'])
+    const settledAmount = settlements?.reduce((sum, s) => sum + (s.amount ?? 0), 0) ?? 0
+
+    setAvailableBalance(Math.max(0, postIncome + commentIncome - settledAmount))
   }
 
   const fetchMySettlements = async (id: number) => {
@@ -363,8 +388,7 @@ useEffect(() => {
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
     if (amount < 10000) { alert('최소 10,000원 이상부터 환전 신청 가능합니다.'); return }
-    if (amount > balance) { alert('신청 금액이 잔액을 초과합니다.'); return }
-    if (projectCode && projectStatus !== 'COMPLETED') { alert('프로젝트가 종료된 후에만 환전 신청이 가능합니다.'); return }
+    if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
     const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
     const { error } = await supabase.from('settlements').insert({
@@ -374,6 +398,7 @@ useEffect(() => {
     if (error) { alert('환전 신청 실패!'); return }
     alert('환전 신청 완료!')
     fetchMySettlements(userInfo?.id)
+    fetchAvailableBalance(userInfo?.id)
     setShowExchange(false); setResidentNumber(''); setAddress(''); setExchangeAmount('')
   }
 
@@ -540,17 +565,13 @@ useEffect(() => {
               {showExchange && (
                 <div className="mt-4 border-t pt-4">
                   <h2 className="font-bold mb-1">💰 환전 신청</h2>
-                  <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상, 프로젝트 종료 후 신청 가능</p>
+                  <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상 신청 가능</p>
+                  <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-gray-500">환전 가능 금액</p>
+                    <p className="text-xl font-bold text-blue-600">{availableBalance.toLocaleString()}원</p>
+                    <p className="text-xs text-gray-400 mt-1">종료된 프로젝트 수익 + 댓글 미션 수익</p>
+                  </div>
                   <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium">프로젝트 코드 확인</label>
-                      <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 코드 입력" />
-                      {projectCode && (
-                        <p className={`text-xs mt-1 ${projectStatus === 'COMPLETED' ? 'text-green-600' : 'text-red-500'}`}>
-                          {projectStatus === 'COMPLETED' ? '✅ 환전 신청 가능 (프로젝트 종료)' : '❌ 프로젝트 진행 중 - 환전 불가'}
-                        </p>
-                      )}
-                    </div>
                     <div>
                       <label className="text-sm font-medium">주민번호</label>
                       <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
