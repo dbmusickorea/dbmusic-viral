@@ -255,7 +255,7 @@ export default function Page1() {
     }
     await saveProjectVideos(projectCode.toUpperCase())
     // 체험단 전체에게 푸시 알림 발송
-    const { data: participantTokens } = await supabase.from('push_tokens').select('token').in('user_role', ['participant', 'client'])
+    const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').in('user_role', ['participant', 'client'])
     if (participantTokens && participantTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -263,7 +263,8 @@ export default function Page1() {
         body: JSON.stringify({
           title: '🎵 새 프로젝트가 등록됐어요!',
           body: `${productContent} 프로젝트가 등록됐어요. 모집일: ${startDate || '미정'}. 앱에서 확인해보세요!`,
-          tokens: participantTokens.map((t: any) => t.token)
+          tokens: participantTokens.map((t: any) => t.token),
+          userIds: participantTokens.map((t: any) => t.user_id)
         })
       })
     }
@@ -305,7 +306,7 @@ export default function Page1() {
     if (!pushTitle || !pushBody) { alert('제목과 내용을 입력해주세요.'); return }
     setIsSendingPush(true)
     
-    const { data: tokens } = await supabase.from('push_tokens').select('token')
+    const { data: tokens } = await supabase.from('push_tokens').select('token, user_id')
     if (!tokens || tokens.length === 0) { alert('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
     
     const response = await fetch('/api/push', {
@@ -314,7 +315,8 @@ export default function Page1() {
       body: JSON.stringify({
         title: pushTitle,
         body: pushBody,
-        tokens: tokens.map(t => t.token)
+        tokens: tokens.map(t => t.token),
+        userIds: tokens.map(t => t.user_id)
       })
     })
     const data = await response.json()
