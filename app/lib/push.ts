@@ -12,13 +12,21 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
 
     await PushNotifications.register()
 
+    // FCM 토큰 수신 (AppDelegate에서 전달)
+    window.addEventListener('FCMToken', async (event: any) => {
+      const token = event.detail?.token
+      if (token) {
+        console.log('FCM Token:', token)
+        await supabase.from('push_tokens').upsert({
+          user_id: userId,
+          user_role: userRole,
+          token: token
+        }, { onConflict: 'token' })
+      }
+    })
+
     PushNotifications.addListener('registration', async (token) => {
-      console.log('FCM Token:', token.value)
-      await supabase.from('push_tokens').upsert({
-        user_id: userId,
-        user_role: userRole,
-        token: token.value
-      }, { onConflict: 'token' })
+      console.log('APN Token:', token.value)
     })
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {

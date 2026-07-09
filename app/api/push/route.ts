@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import apn from 'node-apn'
+import path from 'path'
+import fs from 'fs'
 
 export async function POST(request: NextRequest) {
   const { title, body, tokens } = await request.json()
@@ -7,39 +10,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'title, body, tokens required' }, { status: 400 })
   }
 
-  // FCM V1 API 토큰 발급
-  const { GoogleAuth } = await import('google-auth-library')
-  const auth = new GoogleAuth({
-    credentials: {
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  const keyData = process.env.APN_KEY
+  if (!keyData) {
+    return NextResponse.json({ error: 'APN_KEY not configured' }, { status: 500 })
+  }
+
+  const provider = new apn.Provider({
+    token: {
+      key: Buffer.from(keyData, 'base64'),
+      keyId: process.env.APN_KEY_ID!,
+      teamId: process.env.APN_TEAM_ID!,
     },
-    scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
+    production: true
   })
 
-  const accessToken = await auth.getAccessToken()
+  const notification = new apn.Notification()
+  notification.alert = { title, body }
+  notification.sound = 'default'
+  notification.topic = 'com.dbmusic.viral'
 
   const results = []
   for (const token of tokens) {
-    const response = await fetch(
-      `https://fcm.googleapis.com/v1/projects/${process.env.FIREBASE_PROJECT_ID}/messages:send`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: {
-            token,
-            notification: { title, body },
-          }
-        })
-      }
-    )
-    const data = await response.json()
-    results.push(data)
+    const result = await provider.send(notification, token)
+    results.push(result)
   }
+
+  provider.shutdown()
 
   return NextResponse.json({ success: true, results })
 }
