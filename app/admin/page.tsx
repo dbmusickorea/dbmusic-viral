@@ -440,7 +440,7 @@ export default function Page1() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-4">
+        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 프로젝트 관리</h1>
             <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
