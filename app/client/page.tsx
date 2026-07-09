@@ -221,7 +221,14 @@ export default function Page3() {
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">🎵 더블비뮤직 의뢰인</h1>
             <div className="flex items-center gap-2">
-              <button onClick={() => { setShowNotifications(!showNotifications); if (!showNotifications) markAllRead(String(userInfo?.id)) }} className="relative text-gray-500">
+              <button onClick={() => { 
+                        if (showNotifications) {
+                          markAllRead(String(userInfo?.id))
+                        } else {
+                          fetchNotifications(String(userInfo?.id))
+                        }
+                        setShowNotifications(!showNotifications)
+                      }} className="relative text-gray-500">
                 🔔
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
@@ -239,7 +246,7 @@ export default function Page3() {
             </div>
           )}
         </div>
-        
+
         {showNotifications && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <div className="flex justify-between items-center mb-3">
