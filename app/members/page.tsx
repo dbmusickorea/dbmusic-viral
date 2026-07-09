@@ -70,7 +70,7 @@ export default function Page4() {
     setPassword(''); setLevel(p.level ?? 1)
     
     // 게시물 + 댓글 미션 가져오기
-    supabase.from('posts').select('*, projects(reward_per_post)').eq('member_id', p.id).order('created_at', { ascending: false })
+    supabase.from('posts').select('*').eq('member_id', p.id).order('created_at', { ascending: false })
       .then(({ data }) => setMemberPosts(data ?? []))
     supabase.from('comment_missions').select('*').eq('member_id', p.id).eq('status', 'APPROVED')
       .then(({ data }) => setMemberCommentMissions(data ?? []))
