@@ -906,7 +906,8 @@ useEffect(() => {
                           allowFullScreen
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           onLoad={() => {
-                            setTimeout(() => { setVideoWatched(true) }, 30000)
+                            const isShorts = selectedVideoIndex === 1 || selectedVideoIndex === 2
+                            setTimeout(() => { setVideoWatched(true) }, isShorts ? 15000 : 30000)
                           }}
                         />
                       </div>
