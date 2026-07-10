@@ -61,6 +61,7 @@ export default function Page2() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isCover, setIsCover] = useState(false)
   const router = useRouter()
 
 useEffect(() => {
@@ -385,7 +386,9 @@ useEffect(() => {
       platform,
       member_id: userInfo?.id,
       likes_count: likesCount,
-      comments_count: commentsCount
+      comments_count: commentsCount,
+      is_cover: isCover,
+      cover_status: isCover ? 'PENDING' : null
     })
 
     if (error) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
@@ -401,10 +404,15 @@ useEffect(() => {
       const newBalance = balance + earnAmount
       await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
       setBalance(newBalance)
-      alert(`미션 제출 완료! +${earnAmount.toLocaleString()}원 적립됐어요 🎉`)
+      if (isCover) {
+        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}원 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
+      } else {
+        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}원 적립됐어요 🎉`)
+      }
     } else {
-      alert('미션 제출 완료!')
+      alert(isCover ? '미션 제출 완료!\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.' : '미션 제출 완료!')
     }
+    setIsCover(false)
 
     setIsSubmitting(false)
     fetchMyPostsAndProjects(userInfo?.id)
@@ -965,6 +973,10 @@ useEffect(() => {
                       <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
                       <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
                     </div>
+                    <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                      <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
+                      커버영상 제출 (관리자 승인 후 별도 금액 지급)
+                    </label>
                     <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
                       {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
                     </button>
