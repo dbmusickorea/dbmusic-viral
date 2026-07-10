@@ -62,7 +62,7 @@ export default function Page2() {
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isCover, setIsCover] = useState(false)
-  const [myRank, setMyRank] = useState<any>(null)
+  const [myRankMap, setMyRankMap] = useState<{[key: string]: any}>({})
   const router = useRouter()
 
 useEffect(() => {
@@ -199,6 +199,10 @@ useEffect(() => {
         projects: projectData?.find(pd => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
       }))
       setMyParticipations(merged)
+      // 각 프로젝트 순위 가져오기
+      for (const p of data) {
+        fetchMyRank(p.project_code, id)
+      }
     } else {
       setMyParticipations([])
     }
@@ -271,18 +275,24 @@ useEffect(() => {
       .gt('likes_count', 0)
       .order('likes_count', { ascending: false })
     
-    if (!posts || posts.length === 0) { setMyRank(null); return }
+    if (!posts || posts.length === 0) {
+      setMyRankMap(prev => ({ ...prev, [projectCode]: null }))
+      return
+    }
     
     const myPost = posts.find(p => p.member_id === memberId)
-    if (!myPost) { setMyRank(null); return }
+    if (!myPost) {
+      setMyRankMap(prev => ({ ...prev, [projectCode]: null }))
+      return
+    }
     
     const rank = posts.findIndex(p => p.member_id === memberId) + 1
-    setMyRank({
+    setMyRankMap(prev => ({ ...prev, [projectCode]: {
       rank,
       likes: myPost.likes_count,
       total: posts.length,
       isEligible: myPost.likes_count >= 1000
-    })
+    }}))
   }
 
   const fetchMySettlements = async (id: number) => {
@@ -924,12 +934,12 @@ useEffect(() => {
                           <p className="text-sm font-medium">{p.projects?.product_content}</p>
                           <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
                           <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
-                          {myRank && projectCode.toLowerCase() === p.project_code.toLowerCase() && (
+                          {myRankMap[p.project_code] && (
                             <div className="mt-1">
                               <p className="text-xs font-medium text-blue-600">
-                                {myRank.isEligible ? `${myRank.rank === 1 ? '🥇' : myRank.rank === 2 ? '🥈' : myRank.rank === 3 ? '🥉' : `${myRank.rank}위`} 전체 ${myRank.total}명 중` : '⚠️ 좋아요 1,000건 미만 시상 제외'}
+                                {myRankMap[p.project_code].isEligible ? `${myRankMap[p.project_code].rank === 1 ? '🥇' : myRankMap[p.project_code].rank === 2 ? '🥈' : myRankMap[p.project_code].rank === 3 ? '🥉' : `${myRankMap[p.project_code].rank}위`} 전체 ${myRankMap[p.project_code].total}명 중` : '⚠️ 좋아요 1,000건 미만 시상 제외'}
                               </p>
-                              <p className="text-xs text-gray-500">❤️ {myRank.likes?.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
                             </div>
                           )}
                         </div>
