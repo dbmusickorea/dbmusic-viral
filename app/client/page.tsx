@@ -617,21 +617,37 @@ export default function Page3() {
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
                 ) : (
                   <div className="space-y-3">
-                    {posts.map((post) => (
-                      <div key={post.id} className="border rounded-lg p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-sm font-medium">{post.influencer_name}</p>
-                            <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                    {[...posts]
+                      .sort((a, b) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
+                      .map((post, index) => {
+                        const rank = index + 1
+                        const isEligible = (post.likes_count ?? 0) >= 1000
+                        return (
+                          <div key={post.id} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  {isEligible ? (
+                                    <span className={`text-xs font-bold ${rank === 1 ? 'text-yellow-500' : rank === 2 ? 'text-gray-400' : rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
+                                      {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`}
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-gray-300">-</span>
+                                  )}
+                                  <p className="text-sm font-medium">{post.influencer_name}</p>
+                                </div>
+                                <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                                {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
+                              </div>
+                            </div>
+                            <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
-                          </div>
-                        </div>
-                        <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
-                      </div>
-                    ))}
+                        )
+                      })}
                   </div>
                 )}
               </div>
