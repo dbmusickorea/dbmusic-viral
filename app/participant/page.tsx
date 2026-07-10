@@ -634,12 +634,12 @@ useEffect(() => {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        {(isPulling || isRefreshing) && (
-          <div className="text-center py-2 text-sm text-gray-500">
-            {isRefreshing ? '새로고침 중...' : '↓ 놓으면 새로고침'}
-          </div>
-        )}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          {(isPulling || isRefreshing) && (
+            <div className="text-center py-1 text-sm text-blue-500">
+              {isRefreshing ? '🔄 새로고침 중...' : '↓ 놓으면 새로고침'}
+            </div>
+          )}
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">더블비뮤직 체험단</h1>
             <button onClick={() => { 
