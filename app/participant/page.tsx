@@ -511,6 +511,22 @@ useEffect(() => {
       resident_number: residentNumber, address, status: 'PENDING'
     })
     if (error) { alert('환전 신청 실패!'); return }
+    
+    // 관리자에게 환전 신청 푸시
+    const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
+    if (adminTokens && adminTokens.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '💰 환전 신청이 들어왔어요!',
+          body: `${userInfo?.name}님이 ${amount.toLocaleString()}원 환전을 신청했어요.`,
+          tokens: adminTokens.map((t: any) => t.token),
+          userIds: adminTokens.map((t: any) => t.user_id)
+        })
+      })
+    }
+
     alert('환전 신청 완료!')
     fetchMySettlements(userInfo?.id)
     fetchAvailableBalance(userInfo?.id)
