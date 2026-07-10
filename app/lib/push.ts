@@ -14,11 +14,13 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
 
     PushNotifications.addListener('registration', async (token) => {
       console.log('FCM Token:', token.value)
-      await supabase.from('push_tokens').upsert({
+      // 기존 토큰 삭제 후 새 토큰 등록
+      await supabase.from('push_tokens').delete().eq('user_id', userId)
+      await supabase.from('push_tokens').insert({
         user_id: userId,
         user_role: userRole,
         token: token.value
-      }, { onConflict: 'token' })
+      })
     })
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
