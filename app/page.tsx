@@ -10,8 +10,15 @@ export default function LoginPage() {
   const router = useRouter()
 
   useEffect(() => {
+    // 저장된 아이디 불러오기
+    const savedEmail = localStorage.getItem('savedEmail')
+    const savedAutoLogin = localStorage.getItem('autoLogin')
+    if (savedEmail) { setEmail(savedEmail); setSaveId(true) }
+    if (savedAutoLogin === 'true') setAutoLogin(true)
+
     // 자동 로그인 체크
     const checkSession = async () => {
+      if (savedAutoLogin !== 'true') return
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
 
@@ -33,6 +40,8 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent] = useState(false)
+  const [saveId, setSaveId] = useState(false)
+  const [autoLogin, setAutoLogin] = useState(false)
 
   const [p_name, setPName] = useState('')
   const [p_mobile, setPMobile] = useState('')
@@ -82,6 +91,19 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setError('')
+    // 아이디 저장
+    if (saveId) {
+      localStorage.setItem('savedEmail', email)
+    } else {
+      localStorage.removeItem('savedEmail')
+    }
+    
+    // 자동 로그인 설정 저장
+    if (autoLogin) {
+      localStorage.setItem('autoLogin', 'true')
+    } else {
+      localStorage.setItem('autoLogin', 'false')
+    }
 
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
@@ -357,6 +379,16 @@ export default function LoginPage() {
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="비밀번호 입력" />
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                  <input type="checkbox" checked={saveId} onChange={(e) => setSaveId(e.target.checked)} />
+                  아이디 저장
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                  <input type="checkbox" checked={autoLogin} onChange={(e) => setAutoLogin(e.target.checked)} />
+                  자동 로그인
+                </label>
+              </div>
               <button onClick={handleLogin} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">로그인</button>
               <button onClick={() => setShowForgotPassword(true)} className="w-full text-sm text-gray-500 text-center">비밀번호를 잊으셨나요?</button>
               <button onClick={() => setShowSignup(true)} className="w-full border rounded-lg py-2 text-sm text-gray-600">회원가입</button>
