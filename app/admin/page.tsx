@@ -604,10 +604,21 @@ export default function Page1() {
 
         {selectedProject && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
-            <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {selectedProject.required_posts ?? 1}개</p>
-            {selectedProject.refresh_interval && (
-              <p className="text-sm font-medium text-yellow-800 mt-1">🔄 새로고침 주기: {selectedProject.refresh_interval}시간마다</p>
-            )}
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {selectedProject.required_posts ?? 1}개</p>
+                {selectedProject.refresh_interval && (
+                  <p className="text-sm font-medium text-yellow-800 mt-1">🔄 새로고침 주기: {selectedProject.refresh_interval}시간마다</p>
+                )}
+              </div>
+              {topRanker && (
+                <div className="text-right">
+                  <p className="text-sm font-medium text-yellow-800">🏆 1등: {topRanker.influencer_name}</p>
+                  <p className="text-xs text-yellow-700">❤️ {topRanker.likes_count?.toLocaleString()}</p>
+                  <a href={topRanker.post_url} target="_blank" className="text-xs text-blue-600">링크 →</a>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -980,17 +991,6 @@ export default function Page1() {
               )}
             </div>
 
-            {selectedProject && topRanker && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">🏆 현재 1등</h2>
-                <div className="text-center">
-                  <p className="text-lg font-bold text-yellow-600">{topRanker.influencer_name}</p>
-                  <p className="text-sm text-gray-500 mt-1">❤️ {topRanker.likes_count?.toLocaleString()} 좋아요</p>
-                  <a href={topRanker.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block">링크 보기 →</a>
-                </div>
-              </div>
-            )}
-
             {selectedProject && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
@@ -1025,25 +1025,41 @@ export default function Page1() {
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
                 ) : (
                   <div className="space-y-2">
-                    {(selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId) : posts).map((post) => (
-                      <div key={post.id} className="border rounded-lg p-3">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium">{post.influencer_name}</p>
-                            <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                            <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
-                            <button onClick={() => {
-                              const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                              if (newUrl) { supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
-                            }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
-                            <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
+                    {(selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId) : posts)
+                      .sort((a, b) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
+                      .map((post, index) => {
+                        const rank = index + 1
+                        const isEligible = (post.likes_count ?? 0) >= 1000
+                        return (
+                          <div key={post.id} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  {isEligible ? (
+                                    <span className={`text-xs font-bold ${rank === 1 ? 'text-yellow-500' : rank === 2 ? 'text-gray-400' : rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
+                                      {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`}
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-gray-300">-</span>
+                                  )}
+                                  <p className="text-sm font-medium">{post.influencer_name}</p>
+                                </div>
+                                <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                                <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
+                                <button onClick={() => {
+                                  const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                                  if (newUrl) { supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
+                                }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
+                                <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
+                                {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
+                              </div>
+                              <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
+                                {updatingPostId === post.id ? '...' : '갱신'}
+                              </button>
+                            </div>
                           </div>
-                          <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
-                            {updatingPostId === post.id ? '...' : '갱신'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                        )
+                      })}
                   </div>
                 )}
               </div>
