@@ -52,6 +52,8 @@ export default function Page1() {
   const [coverPosts, setCoverPosts] = useState<any[]>([])
   const [coverRewardAmount, setCoverRewardAmount] = useState('')
   const [topRanker, setTopRanker] = useState<any>(null)
+  const [monitoringExtension, setMonitoringExtension] = useState(0)
+  const [coverVideoCount, setCoverVideoCount] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -258,6 +260,8 @@ export default function Page1() {
     setRewardPerPost(project.reward_per_post ?? '')
     setOptionName(project.option_name ?? '')
     setOptionPrice(project.option_price ?? '')
+    setMonitoringExtension(project.monitoring_extension ?? 0)
+    setCoverVideoCount(project.cover_video_count ?? 0)
     setSelectedClientId(project.client_id ?? '')
     setShortsUrl1('')
     setShortsUrl2('')
@@ -333,6 +337,8 @@ export default function Page1() {
       client_id: selectedClientId || null,
       required_posts: Number(requiredPosts) || 1,
       refresh_interval: refreshInterval ? Number(refreshInterval) : null,
+      monitoring_extension: Number(monitoringExtension) || 0,
+      cover_video_count: Number(coverVideoCount) || 0,
     })
     if (error) { alert('등록 실패!'); return }
     if (selectedClientId) {
@@ -376,6 +382,8 @@ export default function Page1() {
       client_id: selectedClientId || null,
       required_posts: Number(requiredPosts) || 1,
       refresh_interval: refreshInterval ? Number(refreshInterval) : null,
+      monitoring_extension: Number(monitoringExtension) || 0,
+      cover_video_count: Number(coverVideoCount) || 0,
     }).eq('project_code', selectedProject.project_code)
     if (error) { alert('수정 실패!'); return }
     if (selectedClientId) {
@@ -943,6 +951,24 @@ export default function Page1() {
                         <option value="3">3시간마다</option>
                         <option value="6">6시간마다</option>
                         <option value="12">12시간마다</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">모니터링 기간 연장 (추가 옵션)</label>
+                      <select value={monitoringExtension} onChange={(e) => setMonitoringExtension(Number(e.target.value))} className={inputClass}>
+                        <option value="0">없음</option>
+                        <option value="15">15일 연장 (200,000원)</option>
+                        <option value="30">30일 연장 (400,000원)</option>
+                        <option value="45">45일 연장 (600,000원)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">커버영상 옵션 (추가 옵션)</label>
+                      <select value={coverVideoCount} onChange={(e) => setCoverVideoCount(Number(e.target.value))} className={inputClass}>
+                        <option value="0">없음</option>
+                        <option value="10">10개 (1,500,000원)</option>
+                        <option value="20">20개 (3,000,000원)</option>
+                        <option value="30">30개 (4,500,000원)</option>
                       </select>
                     </div>
                     <div>
