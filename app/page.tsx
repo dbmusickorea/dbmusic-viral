@@ -1,12 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { initPushNotifications } from './lib/push'
 
 export default function LoginPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // 자동 로그인 체크
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const userInfo = localStorage.getItem('userInfo')
+      const userRole = localStorage.getItem('userRole')
+      if (!userInfo || !userRole) return
+
+      if (userRole === 'admin') router.push('/admin')
+      else if (userRole === 'client') router.push('/client')
+      else router.push('/participant')
+    }
+    checkSession()
+  }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,7 +33,6 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent] = useState(false)
-  const router = useRouter()
 
   const [p_name, setPName] = useState('')
   const [p_mobile, setPMobile] = useState('')
