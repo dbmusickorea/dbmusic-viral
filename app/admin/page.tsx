@@ -51,6 +51,7 @@ export default function Page1() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [coverPosts, setCoverPosts] = useState<any[]>([])
   const [coverRewardAmount, setCoverRewardAmount] = useState('')
+  const [topRanker, setTopRanker] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -97,6 +98,20 @@ export default function Page1() {
   const fetchCoverPosts = async () => {
     const { data } = await supabase.from('posts').select('*, participants(name, mobile)').eq('is_cover', true).order('created_at', { ascending: false })
     setCoverPosts(data ?? [])
+  }
+
+  const fetchTopRanker = async (projectCode: string) => {
+    const { data: posts } = await supabase
+      .from('posts')
+      .select('member_id, likes_count, influencer_name, post_url')
+      .ilike('project_code', projectCode)
+      .not('likes_count', 'is', null)
+      .gte('likes_count', 1000)
+      .order('likes_count', { ascending: false })
+      .limit(1)
+    
+    if (!posts || posts.length === 0) { setTopRanker(null); return }
+    setTopRanker(posts[0])
   }
 
   const handleApproveCover = async (post: any) => {
@@ -252,6 +267,7 @@ export default function Page1() {
         }
       })
     fetchParticipants(project.project_code)
+    fetchTopRanker(project.project_code)
   }
 
   const getSelectedProductPrice = () => {
@@ -963,6 +979,17 @@ export default function Page1() {
                 </>
               )}
             </div>
+
+            {selectedProject && topRanker && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">🏆 현재 1등</h2>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-yellow-600">{topRanker.influencer_name}</p>
+                  <p className="text-sm text-gray-500 mt-1">❤️ {topRanker.likes_count?.toLocaleString()} 좋아요</p>
+                  <a href={topRanker.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block">링크 보기 →</a>
+                </div>
+              </div>
+            )}
 
             {selectedProject && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
