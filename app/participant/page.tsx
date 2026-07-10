@@ -63,6 +63,7 @@ export default function Page2() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [isCover, setIsCover] = useState(false)
   const [myRankMap, setMyRankMap] = useState<{[key: string]: any}>({})
+  const [coverReward, setCoverReward] = useState<number>(0)
   const router = useRouter()
 
 useEffect(() => {
@@ -209,7 +210,8 @@ useEffect(() => {
   }
 
   const fetchParticipantInfo = async (id: number) => {
-    const { data } = await supabase.from('participants').select('balance, level, referral_code, name, instagram_id, youtube_id, tiktok_id, is_locked, comment_count_for_unlock').eq('id', id).maybeSingle()
+    const { data } = await supabase.from('participants').select('balance, level, referral_code, name, instagram_id, youtube_id, tiktok_id, is_locked, comment_count_for_unlock, cover_reward').eq('id', id).maybeSingle()
+    setCoverReward(data?.cover_reward ?? 0)
     setBalance(data?.balance ?? 0)
     setLevel(data?.level ?? 1)
     setReferralCode(data?.referral_code ?? '')
@@ -726,6 +728,13 @@ useEffect(() => {
                     <p className="text-xl font-bold text-blue-600">{availableBalance.toLocaleString()}원</p>
                     <p className="text-xs text-gray-400 mt-1">종료된 프로젝트 수익 + 댓글 미션 수익</p>
                   </div>
+                  {coverReward > 0 && (
+                    <div className="bg-purple-50 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-gray-500">커버영상 수익</p>
+                      <p className="text-xl font-bold text-purple-600">{coverReward.toLocaleString()}원</p>
+                      <p className="text-xs text-gray-400 mt-1">프로젝트 종료 후 15일 이후 환전 가능</p>
+                    </div>
+                  )}
                   <div className="space-y-3">
                     <div>
                       <label className="text-sm font-medium">주민번호</label>
