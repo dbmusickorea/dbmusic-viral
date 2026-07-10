@@ -901,6 +901,9 @@ useEffect(() => {
                             <div className="text-right shrink-0 ml-2">
                               <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}원</p>
                               <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}원</p>
+                              {post.is_cover && (
+                                <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}원</p>
+                              )}
                               <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
                             </div>
                           </div>
