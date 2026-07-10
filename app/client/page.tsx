@@ -534,6 +534,7 @@ export default function Page3() {
                         <Line type="monotone" dataKey="comments" stroke="#22c55e" name="댓글" dot={false} />
                       </LineChart>
                     </ResponsiveContainer>
+                    <p className="text-xs text-gray-400 mt-1 text-center">※ 데이터는 매일 낮 12시에 갱신됩니다</p>
                   </div>
                 )}
               </div>
