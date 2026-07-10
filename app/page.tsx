@@ -282,6 +282,21 @@ export default function LoginPage() {
       const newBalance = (referrer.balance ?? 0) + 150
       const newLevel = Math.min(50, (referrer.level ?? 1) + 1)
       await supabase.from('participants').update({ balance: newBalance, level: newLevel }).eq('id', referrer.id)
+      
+      // 추천인에게 레벨 상승 푸시
+      const { data: referrerTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(referrer.id))
+      if (referrerTokens && referrerTokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '🎉 레벨이 올랐어요!',
+            body: `추천인 보상으로 Lv.${newLevel}이 됐어요! 150원도 적립됐어요.`,
+            tokens: referrerTokens.map((t: any) => t.token),
+            userIds: referrerTokens.map((t: any) => t.user_id)
+          })
+        })
+      }
 
     }
 

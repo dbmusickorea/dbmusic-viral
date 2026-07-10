@@ -169,6 +169,22 @@ export async function GET() {
                 const bannedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
                 await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString() }).eq('id', participant.id)
                 await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', project.project_code).eq('member_id', participant.id)
+                
+                // 해당 체험단에게 레벨 하락 푸시
+                const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
+                if (memberTokens && memberTokens.length > 0) {
+                  await fetch(`https://app.doubleb.kr/api/push`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      title: '⚠️ 미션 불이행으로 레벨이 하락했어요!',
+                      body: `미션을 완료하지 않아 Lv.${newLevel}으로 하락했어요. 7일간 활동이 제한됩니다.`,
+                      tokens: memberTokens.map((t: any) => t.token),
+                      userIds: memberTokens.map((t: any) => t.user_id)
+                    })
+                  })
+                }
+                
                 const { data: allTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
                 if (allTokens && allTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
