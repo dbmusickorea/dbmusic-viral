@@ -283,15 +283,6 @@ export default function LoginPage() {
       const newLevel = Math.min(50, (referrer.level ?? 1) + 1)
       await supabase.from('participants').update({ balance: newBalance, level: newLevel }).eq('id', referrer.id)
 
-      // 추천인의 추천인(상위)에게 50원 적립 + 0.5레벨 (레벨은 정수라 2명당 1레벨)
-      if (referrer.referred_by) {
-        const { data: superReferrer } = await supabase.from('participants').select('id, balance, level').eq('referral_code', referrer.referred_by).maybeSingle()
-        if (superReferrer) {
-          await supabase.from('participants').update({ 
-            balance: (superReferrer.balance ?? 0) + 50
-          }).eq('id', superReferrer.id)
-        }
-      }
     }
 
     let referralCode = generateReferralCode()
