@@ -49,6 +49,8 @@ export default function Page1() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [coverPosts, setCoverPosts] = useState<any[]>([])
+  const [coverRewardAmount, setCoverRewardAmount] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function Page1() {
     fetchClients()
     fetchClientRequests()
     fetchUnlockVideos()
+    fetchCoverPosts() 
     const userInfo = localStorage.getItem('userInfo')
     if (userInfo) {
       const parsed = JSON.parse(userInfo)
@@ -89,6 +92,53 @@ export default function Page1() {
   const fetchUnlockVideos = async () => {
     const { data } = await supabase.from('unlock_videos').select('*').order('created_at', { ascending: false })
     setUnlockVideos(data ?? [])
+  }
+
+  const fetchCoverPosts = async () => {
+    const { data } = await supabase.from('posts').select('*, participants(name, mobile)').eq('is_cover', true).order('created_at', { ascending: false })
+    setCoverPosts(data ?? [])
+  }
+
+  const handleApproveCover = async (post: any) => {
+    if (!coverRewardAmount) { alert('지급할 금액을 입력해주세요.'); return }
+    const reward = Number(coverRewardAmount)
+    
+    // 커버영상 승인 처리
+    await supabase.from('posts').update({ cover_status: 'APPROVED' }).eq('id', post.id)
+    
+    // 적립금 추가
+    const { data: participant } = await supabase.from('participants').select('balance').eq('id', post.member_id).maybeSingle()
+    if (participant) {
+      await supabase.from('participants').update({ 
+        balance: (participant.balance ?? 0) + reward,
+        cover_reward: reward
+      }).eq('id', post.member_id)
+    }
+
+    // 푸시 알림
+    const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
+    if (tokens && tokens.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '🎵 커버영상 승인됐어요!',
+          body: `커버영상이 승인되어 ${reward.toLocaleString()}원이 추가 지급됐어요.`,
+          tokens: tokens.map((t: any) => t.token),
+          userIds: tokens.map((t: any) => t.user_id)
+        })
+      })
+    }
+    
+    alert('승인 완료!')
+    setCoverRewardAmount('')
+    fetchCoverPosts()
+  }
+
+  const handleRejectCover = async (postId: number) => {
+    await supabase.from('posts').update({ cover_status: 'REJECTED' }).eq('id', postId)
+    alert('거절 완료!')
+    fetchCoverPosts()
   }
 
   const handleAddUnlockVideo = async () => {
@@ -624,6 +674,43 @@ export default function Page1() {
                             <>
                               <button onClick={async () => { await supabase.from('client_requests').update({ status: 'APPROVED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
                               <button onClick={async () => { await supabase.from('client_requests').update({ status: 'REJECTED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 커버영상 승인 목록 */}
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">🎵 커버영상 승인 목록</h2>
+              <div className="mb-3">
+                <label className="text-sm font-medium">지급 금액</label>
+                <input type="number" value={coverRewardAmount} onChange={(e) => setCoverRewardAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 지급 금액 입력" />
+              </div>
+              {coverPosts.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-2">커버영상 신청이 없습니다.</p>
+              ) : (
+                <div className="space-y-2">
+                  {coverPosts.map((post) => (
+                    <div key={post.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium">{post.participants?.name}</p>
+                          <p className="text-xs text-gray-500">{post.project_code} · {post.platform}</p>
+                          <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
+                        </div>
+                        <div className="flex flex-col gap-1 shrink-0 ml-2">
+                          <span className={`text-xs px-2 py-1 rounded-full text-center ${post.cover_status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : post.cover_status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {post.cover_status === 'PENDING' ? '검토중' : post.cover_status === 'APPROVED' ? '승인' : '거절'}
+                          </span>
+                          {post.cover_status === 'PENDING' && (
+                            <>
+                              <button onClick={() => handleApproveCover(post)} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
+                              <button onClick={() => handleRejectCover(post.id)} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
                             </>
                           )}
                         </div>
