@@ -62,6 +62,7 @@ export default function Page2() {
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isCover, setIsCover] = useState(false)
+  const [myRank, setMyRank] = useState<any>(null)
   const router = useRouter()
 
 useEffect(() => {
@@ -260,6 +261,30 @@ useEffect(() => {
     setAvailableBalance(Math.max(0, postIncome + commentIncome - settledAmount))
   }
 
+  const fetchMyRank = async (projectCode: string, memberId: number) => {
+    if (!projectCode) return
+    const { data: posts } = await supabase
+      .from('posts')
+      .select('member_id, likes_count, influencer_name')
+      .ilike('project_code', projectCode)
+      .not('likes_count', 'is', null)
+      .gt('likes_count', 0)
+      .order('likes_count', { ascending: false })
+    
+    if (!posts || posts.length === 0) { setMyRank(null); return }
+    
+    const myPost = posts.find(p => p.member_id === memberId)
+    if (!myPost) { setMyRank(null); return }
+    
+    const rank = posts.findIndex(p => p.member_id === memberId) + 1
+    setMyRank({
+      rank,
+      likes: myPost.likes_count,
+      total: posts.length,
+      isEligible: myPost.likes_count >= 1000
+    })
+  }
+
   const fetchMySettlements = async (id: number) => {
     const { data } = await supabase.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false })
     setMySettlements(data ?? [])
@@ -296,6 +321,7 @@ useEffect(() => {
     const { count } = await supabase.from('project_participants')
       .select('*', { count: 'exact', head: true }).ilike('project_code', code).eq('status', 'ACTIVE')
     setParticipantCount(count ?? 0)
+    if (userInfo?.id) fetchMyRank(code, userInfo.id)
   }
 
   const handleJoin = async () => {
@@ -883,6 +909,25 @@ useEffect(() => {
                 <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
                   {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
                 </p>
+              </div>
+            )}
+
+            {/* 내 순위 */}
+            {myRank && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-2">🏆 나의 순위</h2>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-blue-600">{myRank.rank}위</p>
+                  <p className="text-sm text-gray-500">전체 {myRank.total}명 중</p>
+                  <p className="text-sm mt-1">❤️ {myRank.likes?.toLocaleString()} 좋아요</p>
+                  {!myRank.isEligible && (
+                    <p className="text-xs text-red-500 mt-1">⚠️ 시상을 위해 좋아요 1,000건이 필요해요</p>
+                  )}
+                  {myRank.isEligible && myRank.rank === 1 && (
+                    <p className="text-xs text-yellow-600 mt-1">🥇 1등이에요! 시상 대상입니다</p>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 mt-2 text-center">※ 링크 미연동 시 순위에서 제외될 수 있어요</p>
               </div>
             )}
 
