@@ -435,10 +435,22 @@ export default function Page4() {
                   </div>
                 )}
 
+                {selected?.cover_reward && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-gray-600 mb-1">🎵 커버영상 수익</p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs border rounded p-2">
+                        <span>커버영상 별도 지급</span>
+                        <span className="text-purple-600 font-medium">{Number(selected.cover_reward).toLocaleString()}원</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-sm font-bold bg-gray-100 rounded p-2">
                   <span>총 수익</span>
                   <span className="text-blue-600">
-                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300).toLocaleString()}원
+                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0)).toLocaleString()}원
                   </span>
                 </div>
               </div>
