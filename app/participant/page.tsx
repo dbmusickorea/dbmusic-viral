@@ -221,15 +221,32 @@ useEffect(() => {
   }
 
   const fetchAvailableBalance = async (id: number) => {
-    // 종료된 프로젝트 게시물 수익
-    const { data: posts } = await supabase.from('posts').select('project_code').eq('member_id', id)
+    // 종료된 프로젝트 게시물 수익 (일반 게시물)
+    const { data: posts } = await supabase.from('posts').select('project_code, is_cover').eq('member_id', id)
     let postIncome = 0
     if (posts && posts.length > 0) {
       const codes = [...new Set(posts.map(p => p.project_code))]
-      const { data: completedProjects } = await supabase.from('projects').select('project_code, reward_per_post').in('project_code', codes).eq('status', 'COMPLETED')
-      const completedCodes = new Set(completedProjects?.map(p => p.project_code.toLowerCase()))
-      const completedPosts = posts.filter(p => completedCodes.has(p.project_code.toLowerCase()))
-      postIncome = completedPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)
+      const { data: completedProjects } = await supabase.from('projects').select('project_code, reward_per_post, end_date').in('project_code', codes).eq('status', 'COMPLETED')
+      
+      completedProjects?.forEach(project => {
+        const projectPosts = posts.filter(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
+        
+        projectPosts.forEach(post => {
+          if (post.is_cover) {
+            // 커버영상은 종료 후 15일 이후
+            if (project.end_date) {
+              const endDate = new Date(project.end_date)
+              const availableDate = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+              if (new Date() >= availableDate) {
+                postIncome += (level === 50 ? 10000 : 2500 + (level - 1) * 150)
+              }
+            }
+          } else {
+            // 일반 게시물은 프로젝트 종료 즉시
+            postIncome += (level === 50 ? 10000 : 2500 + (level - 1) * 150)
+          }
+        })
+      })
     }
 
     // 댓글 미션 수익
@@ -392,7 +409,7 @@ useEffect(() => {
     })
 
     if (error) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
-    
+
     // 관리자에게 푸시 알림
     const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
     if (adminTokens && adminTokens.length > 0) {
