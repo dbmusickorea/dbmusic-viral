@@ -213,6 +213,54 @@ export async function GET() {
           }
         }
       }
+
+      // 미참여자 자동 푸시
+      const { data: ongoingProjects } = await supabase.from('projects').select('project_code').eq('status', 'ONGOING')
+      if (ongoingProjects && ongoingProjects.length > 0) {
+        const { data: allParticipantsForPush } = await supabase.from('participants').select('id')
+        const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').eq('status', 'ACTIVE')
+        const joinedIds = new Set(joinedParticipants?.map(j => j.member_id) ?? [])
+        const notJoined = allParticipantsForPush?.filter(p => !joinedIds.has(p.id)) ?? []
+        if (notJoined.length > 0) {
+          const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', notJoined.map(p => String(p.id)))
+          if (tokens && tokens.length > 0) {
+            await fetch(`https://app.doubleb.kr/api/push`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: '🎵 새 프로젝트가 기다리고 있어요!',
+                body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!',
+                tokens: tokens.map((t: any) => t.token),
+                userIds: tokens.map((t: any) => t.user_id)
+              })
+            })
+          }
+        }
+      }
+
+      // 미활동자 자동 푸시
+      const { data: allParticipantsInactive } = await supabase.from('participants').select('id')
+      const inactive: number[] = []
+      for (const p of allParticipantsInactive ?? []) {
+        const { data: recentPostInactive } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
+        const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
+        if (!recentPostInactive && !currentJoin) inactive.push(p.id)
+      }
+      if (inactive.length > 0) {
+        const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', inactive.map(id => String(id)))
+        if (tokens && tokens.length > 0) {
+          await fetch(`https://app.doubleb.kr/api/push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '💪 오랫동안 활동이 없었어요!',
+              body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!',
+              tokens: tokens.map((t: any) => t.token),
+              userIds: tokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
     }
     
     // 매일 게시물 통계 스냅샷 저장 (UTC 3시 = 낮 12시)
