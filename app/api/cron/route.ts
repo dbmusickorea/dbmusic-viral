@@ -196,7 +196,7 @@ export async function GET() {
     }
     
     // 매일 게시물 통계 스냅샷 저장 (UTC 3시 = 낮 12시)
-    
+    if (currentHour === 3) {
       const { data: allPosts } = await supabase.from('posts').select('*')
       if (allPosts && allPosts.length > 0) {
         for (const post of allPosts) {
@@ -220,7 +220,7 @@ export async function GET() {
           }
         }
       }
-    
+    }
 
     return NextResponse.json({ success: true, updated })
   } catch (error) {
