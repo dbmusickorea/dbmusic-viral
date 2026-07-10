@@ -22,7 +22,7 @@ export default function Page1() {
   const [status, setStatus] = useState('ONGOING')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [rewardPerPost, setRewardPerPost] = useState('')
+  const [rewardPerPost, setRewardPerPost] = useState('2500')
   const [optionName, setOptionName] = useState('')
   const [optionPrice, setOptionPrice] = useState('')
   const [isUpdatingLikes, setIsUpdatingLikes] = useState(false)
