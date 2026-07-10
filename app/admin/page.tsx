@@ -96,8 +96,18 @@ export default function Page1() {
   }
 
   const fetchCoverPosts = async () => {
-    const { data } = await supabase.from('posts').select('*, participants(name, mobile)').eq('is_cover', true).order('created_at', { ascending: false })
-    setCoverPosts(data ?? [])
+    const { data } = await supabase.from('posts').select('*').eq('is_cover', true).order('created_at', { ascending: false })
+    if (data && data.length > 0) {
+      const memberIds = data.map(p => p.member_id)
+      const { data: participantData } = await supabase.from('participants').select('id, name, mobile').in('id', memberIds)
+      const merged = data.map(p => ({
+        ...p,
+        participants: participantData?.find(pd => pd.id === p.member_id)
+      }))
+      setCoverPosts(merged)
+    } else {
+      setCoverPosts([])
+    }
   }
 
   const fetchTopRanker = async (projectCode: string) => {
