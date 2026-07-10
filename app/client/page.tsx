@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react' 
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function Page3() {
   const [userInfo, setUserInfo] = useState<any>(null)
@@ -32,6 +33,7 @@ export default function Page3() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [dailyStats, setDailyStats] = useState<any[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -130,6 +132,7 @@ export default function Page3() {
     setClientCode(project.project_code)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
+    fetchDailyStats(project.project_code)
   }
 
   const handleCodeChange = (code: string) => {
@@ -185,6 +188,22 @@ export default function Page3() {
     const { data } = await supabase.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
     setNotifications(data ?? [])
     setUnreadCount(data?.filter(n => !n.is_read).length ?? 0)
+  }
+
+  const fetchDailyStats = async (projectCode: string) => {
+    const { data } = await supabase.from('post_stats_history').select('*').ilike('project_code', projectCode).order('recorded_at', { ascending: true })
+    if (data && data.length > 0) {
+      const dates = [...new Set(data.map(h => h.recorded_at))].sort()
+      const stats = dates.map(date => {
+        const dayData = data.filter(h => h.recorded_at === date)
+        return {
+          date,
+          likes: dayData.reduce((sum, h) => sum + (h.likes_count ?? 0), 0),
+          comments: dayData.reduce((sum, h) => sum + (h.comments_count ?? 0), 0)
+        }
+      })
+      setDailyStats(stats)
+    }
   }
 
   const markAllRead = async (id: string) => {
@@ -501,6 +520,22 @@ export default function Page3() {
                     <p className="text-lg font-bold text-green-600">{totalComments.toLocaleString()}</p>
                   </div>
                 </div>
+                {dailyStats.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium mb-2">📈 일별 변화 추이</p>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <LineChart data={dailyStats}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="likes" stroke="#ef4444" name="좋아요" dot={false} />
+                        <Line type="monotone" dataKey="comments" stroke="#22c55e" name="댓글" dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </div>
             )}
 
