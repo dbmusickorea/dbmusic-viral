@@ -619,7 +619,11 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4"
-      onTouchStart={(e) => setPullStartY(e.touches[0].clientY)}
+      onTouchStart={(e) => {
+        if (document.documentElement.scrollTop === 0) {
+          setPullStartY(e.touches[0].clientY)
+        }
+      }}
       onTouchMove={(e) => {
         const pullDistance = e.touches[0].clientY - pullStartY
         if (pullDistance > 70) setIsPulling(true)
