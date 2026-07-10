@@ -987,7 +987,8 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
-                      <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} />
+                      <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} placeholder="기본값: 2,500원" />
+                      <p className="text-xs text-gray-400 mt-1">※ 미입력 시 기본값 2,500원으로 등록됩니다</p>
                     </div>
                     <div>
                       {selectedProject ? (
