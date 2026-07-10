@@ -912,25 +912,6 @@ useEffect(() => {
               </div>
             )}
 
-            {/* 내 순위 */}
-            {myRank && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-2">🏆 나의 순위</h2>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-600">{myRank.rank}위</p>
-                  <p className="text-sm text-gray-500">전체 {myRank.total}명 중</p>
-                  <p className="text-sm mt-1">❤️ {myRank.likes?.toLocaleString()} 좋아요</p>
-                  {!myRank.isEligible && (
-                    <p className="text-xs text-red-500 mt-1">⚠️ 시상을 위해 좋아요 1,000건이 필요해요</p>
-                  )}
-                  {myRank.isEligible && myRank.rank === 1 && (
-                    <p className="text-xs text-yellow-600 mt-1">🥇 1등이에요! 시상 대상입니다</p>
-                  )}
-                </div>
-                <p className="text-xs text-gray-400 mt-2 text-center">※ 링크 미연동 시 순위에서 제외될 수 있어요</p>
-              </div>
-            )}
-
             {/* 내 참여 현황 */}
             {myParticipations.length > 0 && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
@@ -943,6 +924,14 @@ useEffect(() => {
                           <p className="text-sm font-medium">{p.projects?.product_content}</p>
                           <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
                           <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                          {myRank && projectCode.toLowerCase() === p.project_code.toLowerCase() && (
+                            <div className="mt-1">
+                              <p className="text-xs font-medium text-blue-600">
+                                {myRank.isEligible ? `${myRank.rank === 1 ? '🥇' : myRank.rank === 2 ? '🥈' : myRank.rank === 3 ? '🥉' : `${myRank.rank}위`} 전체 ${myRank.total}명 중` : '⚠️ 좋아요 1,000건 미만 시상 제외'}
+                              </p>
+                              <p className="text-xs text-gray-500">❤️ {myRank.likes?.toLocaleString()}</p>
+                            </div>
+                          )}
                         </div>
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">참여중 ✅</span>
                       </div>
