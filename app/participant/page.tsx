@@ -622,7 +622,7 @@ useEffect(() => {
       onTouchStart={(e) => setPullStartY(e.touches[0].clientY)}
       onTouchMove={(e) => {
         const pullDistance = e.touches[0].clientY - pullStartY
-        if (pullDistance > 70 && window.scrollY === 0) setIsPulling(true)
+        if (pullDistance > 70) setIsPulling(true)
       }}
       onTouchEnd={() => {
         if (isPulling) handleRefresh()
