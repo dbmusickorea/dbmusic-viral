@@ -64,6 +64,9 @@ export default function Page2() {
   const [isCover, setIsCover] = useState(false)
   const [myRankMap, setMyRankMap] = useState<{[key: string]: any}>({})
   const [coverReward, setCoverReward] = useState<number>(0)
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const router = useRouter()
 
 useEffect(() => {
@@ -207,6 +210,24 @@ useEffect(() => {
     } else {
       setMyParticipations([])
     }
+  }
+  
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    const info = localStorage.getItem('userInfo')
+    if (info) {
+      const parsed = JSON.parse(info)
+      await fetchParticipantInfo(parsed.id)
+      await fetchMyPostsAndProjects(parsed.id)
+      await fetchMySettlements(parsed.id)
+      await fetchCommentMissions(parsed.id)
+      await fetchAllProjects()
+      await fetchMyParticipations(parsed.id)
+      await fetchAvailableBalance(parsed.id)
+      await fetchNotifications(String(parsed.id))
+    }
+    setIsRefreshing(false)
   }
 
   const fetchParticipantInfo = async (id: number) => {
@@ -597,8 +618,23 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4"
+      onTouchStart={(e) => setPullStartY(e.touches[0].clientY)}
+      onTouchMove={(e) => {
+        const pullDistance = e.touches[0].clientY - pullStartY
+        if (pullDistance > 70 && window.scrollY === 0) setIsPulling(true)
+      }}
+      onTouchEnd={() => {
+        if (isPulling) handleRefresh()
+        setIsPulling(false)
+      }}
+    >
       <div className="max-w-7xl mx-auto">
+        {(isPulling || isRefreshing) && (
+          <div className="text-center py-2 text-sm text-gray-500">
+            {isRefreshing ? '새로고침 중...' : '↓ 놓으면 새로고침'}
+          </div>
+        )}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">더블비뮤직 체험단</h1>
