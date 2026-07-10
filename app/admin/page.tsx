@@ -749,11 +749,12 @@ export default function Page1() {
                           <p className="text-xs text-gray-600 mt-1">{req.content}</p>
                         </div>
                         <div className="flex flex-col gap-1 shrink-0 ml-2">
-                          <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '승인' : '거절'}
+                          <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {req.status === 'PENDING' ? '검토중' : req.status === 'CONFIRMED' ? '확인됨' : req.status === 'APPROVED' ? '승인' : '거절'}
                           </span>
                           {req.status === 'PENDING' && (
                             <>
+                              <button onClick={async () => { await supabase.from('client_requests').update({ status: 'CONFIRMED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">확인</button>
                               <button onClick={async () => { await supabase.from('client_requests').update({ status: 'APPROVED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
                               <button onClick={async () => { await supabase.from('client_requests').update({ status: 'REJECTED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
                             </>
