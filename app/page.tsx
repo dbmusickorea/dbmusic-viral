@@ -275,7 +275,7 @@ export default function LoginPage() {
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
     if (p_referral) {
-      const { data: referrer } = await supabase.from('participants').select('id, balance, level, referred_by').eq('referral_code', p_referral).maybeSingle()
+      const { data: referrer } = await supabase.from('participants').select('id, balance, level').eq('referral_code', p_referral).maybeSingle()
       if (!referrer) { alert('유효하지 않은 추천인 코드입니다.'); return }
       
       // 추천인에게 150원 적립 + 레벨 1 상승
@@ -303,7 +303,7 @@ export default function LoginPage() {
       name: p_name, mobile: p_mobile, email: p_email, password: '',
       bank_name: p_bank, account_holder: p_holder, account_number: p_account,
       instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
-      referral_code: referralCode, referred_by: p_referral || null, level: 1
+      referral_code: referralCode, level: 1
     })
     if (error) { alert('회원가입 실패!'); return }
     alert(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
