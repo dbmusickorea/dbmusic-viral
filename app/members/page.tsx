@@ -259,8 +259,7 @@ export default function Page4() {
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">👥 회원 관리</h1>
-            <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
+            <h1 className="text-xl font-bold">회원 관리</h1>
           </div>
           <div className="flex gap-1">
             <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
@@ -505,6 +504,9 @@ export default function Page4() {
               </div>
             )}
           </div>
+        </div>
+        <div className="mt-4 mb-2">
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
         </div>
       </div>
     </div>
