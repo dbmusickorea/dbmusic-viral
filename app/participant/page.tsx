@@ -392,6 +392,21 @@ useEffect(() => {
     })
 
     if (error) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
+    
+    // 관리자에게 푸시 알림
+    const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
+    if (adminTokens && adminTokens.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: isCover ? '🎵 커버영상 신청이 왔어요!' : '📸 새 게시물이 등록됐어요!',
+          body: `${influencerName}님이 ${projectCode} 프로젝트에 ${isCover ? '커버영상을' : '게시물을'} 등록했어요.`,
+          tokens: adminTokens.map((t: any) => t.token),
+          userIds: adminTokens.map((t: any) => t.user_id)
+        })
+      })
+    }
 
     const { data: projectData } = await supabase
       .from('projects')
