@@ -936,7 +936,7 @@ useEffect(() => {
                           {myRankMap[p.project_code] && (
                             <div className="mt-1">
                               <p className="text-xs font-medium text-blue-600">
-                                `${myRankMap[p.project_code].rank}위 / 전체 ${myRankMap[p.project_code].total}명 중 ${!myRankMap[p.project_code].isEligible ? '(좋아요 1,000건 미만 시상 제외)' : ''}`
+                                {myRankMap[p.project_code].rank}위 / 전체 {myRankMap[p.project_code].total}명 중 {!myRankMap[p.project_code].isEligible ? '(좋아요 1,000건 미만 시상 제외)' : ''}
                               </p>
                               <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
                             </div>
