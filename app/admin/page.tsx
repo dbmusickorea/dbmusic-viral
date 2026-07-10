@@ -390,6 +390,43 @@ export default function Page1() {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
     await saveProjectVideos(projectCode.toUpperCase())
+
+    // 프로젝트 상태 변경 시 푸시
+    if (status === 'COMPLETED') {
+      // 참여 체험단에게 종료 알림
+      const { data: joinedTokens } = await supabase.from('project_participants').select('member_id').ilike('project_code', projectCode)
+      if (joinedTokens && joinedTokens.length > 0) {
+        const memberIds = joinedTokens.map(j => String(j.member_id))
+        const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', memberIds)
+        if (tokens && tokens.length > 0) {
+          await fetch('/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '📢 프로젝트가 종료됐어요!',
+              body: `${productContent} 프로젝트가 종료됐어요. 환전 신청을 확인해보세요!`,
+              tokens: tokens.map((t: any) => t.token),
+              userIds: tokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
+      // 의뢰인에게 종료 알림
+      const { data: clientTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'client')
+      if (clientTokens && clientTokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '📢 프로젝트가 종료됐어요!',
+            body: `${productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
+            tokens: clientTokens.map((t: any) => t.token),
+            userIds: clientTokens.map((t: any) => t.user_id)
+          })
+        })
+      }
+    }
+
     alert('수정 완료!')
     fetchProjects()
     fetchClients()
