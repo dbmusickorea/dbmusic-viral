@@ -77,9 +77,29 @@ export async function GET() {
     // 기본 갱신 - 낮 12시(UTC 3시)에만 실행
     let updated = 0
     if (currentHour === 3) {
-      const { data: posts } = await supabase.from('posts').select('*').filter('project_code', 'not.in', 
-        `(${intervalProjects?.map(p => `"${p.project_code}"`).join(',') || '""'})`)
-      if (posts) updated = await updatePostStats(posts)
+      // ONGOING 프로젝트 게시물 갱신
+      const { data: ongoingPosts } = await supabase.from('posts').select('*')
+        .filter('project_code', 'not.in', `(${intervalProjects?.map(p => `"${p.project_code}"`).join(',') || '""'})`)
+      if (ongoingPosts) updated = await updatePostStats(ongoingPosts)
+
+      // 모니터링 연장 중인 종료 프로젝트 게시물 갱신
+      const { data: monitoringProjects } = await supabase
+        .from('projects')
+        .select('project_code, end_date, monitoring_extension')
+        .eq('status', 'COMPLETED')
+        .gt('monitoring_extension', 0)
+
+      if (monitoringProjects) {
+        for (const project of monitoringProjects) {
+          if (project.end_date) {
+            const monitoringEndDate = new Date(new Date(project.end_date).getTime() + project.monitoring_extension * 24 * 60 * 60 * 1000)
+            if (new Date() <= monitoringEndDate) {
+              const { data: monitoringPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
+              if (monitoringPosts) await updatePostStats(monitoringPosts)
+            }
+          }
+        }
+      }
     }
 
     // 날짜별 자동 푸시 알림 (하루 1회 - UTC 3시)
