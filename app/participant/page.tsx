@@ -272,7 +272,6 @@ useEffect(() => {
       .select('member_id, likes_count, influencer_name')
       .ilike('project_code', projectCode)
       .not('likes_count', 'is', null)
-      .gt('likes_count', 0)
       .order('likes_count', { ascending: false })
     
     if (!posts || posts.length === 0) {
