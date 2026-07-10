@@ -458,8 +458,8 @@ export default function Page3() {
                       <div key={req.id} className="border rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <p className="text-sm font-medium">{req.title}</p>
-                          <span className={`text-xs px-2 py-1 rounded-full ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '승인' : '거절'}
+                          <span className={`text-xs px-2 py-1 rounded-full ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {req.status === 'PENDING' ? '검토중' : req.status === 'CONFIRMED' ? '✅ 확인됨' : req.status === 'APPROVED' ? '승인' : '거절'}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{req.content}</p>
