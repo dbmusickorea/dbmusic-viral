@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Bell } from 'lucide-react'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -496,23 +497,20 @@ useEffect(() => {
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">🎵 더블비뮤직 체험단</h1>
-            <div className="flex items-center gap-2">
-              <button onClick={() => { 
-                        if (showNotifications) {
-                          markAllRead(String(userInfo?.id))
-                        } else {
-                          fetchNotifications(String(userInfo?.id))
-                        }
-                        setShowNotifications(!showNotifications)
-                      }} className="relative text-gray-500">
-                🔔
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
-                )}
-              </button>
-              <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
-            </div>
+            <h1 className="text-xl font-bold">더블비뮤직 체험단</h1>
+            <button onClick={() => { 
+              if (showNotifications) {
+                markAllRead(String(userInfo?.id))
+              } else {
+                fetchNotifications(String(userInfo?.id))
+              }
+              setShowNotifications(!showNotifications)
+            }} className="relative text-gray-500">
+              <Bell size={22} className="text-gray-600" strokeWidth={1.5} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
+              )}
+            </button>
           </div>
           {userRole === 'admin' && (
             <div className="flex gap-1">
@@ -527,7 +525,7 @@ useEffect(() => {
         {showNotifications && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">🔔 알림 내역</h2>
+              <h2 className="font-bold">알림 내역</h2>
               <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
             </div>
             {notifications.length === 0 ? (
@@ -535,7 +533,7 @@ useEffect(() => {
             ) : (
               <div className="space-y-2">
                 {notifications.map((n) => (
-                  <div key={n.id} className={`border rounded-lg p-3 ${!n.is_read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                  <div key={n.id} className={`py-2 border-b border-gray-100 ${!n.is_read ? 'bg-blue-50' : ''}`}>
                     <p className="text-sm font-medium">{n.title}</p>
                     <p className="text-xs text-gray-500 mt-1">{n.body}</p>
                     <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
@@ -1029,6 +1027,9 @@ useEffect(() => {
               </div>
             )}
           </div>
+        </div>
+        <div className="mt-4 mb-2">
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
         </div>
       </div>
     </div>

@@ -506,7 +506,7 @@ export default function Page1() {
             ) : (
               <div className="space-y-2">
                 {notifications.map((n) => (
-                  <div key={n.id} className={`border rounded-lg p-3 ${!n.is_read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                  <div key={n.id} className={`py-2 border-b border-gray-100 ${!n.is_read ? 'bg-blue-50' : ''}`}>
                     <p className="text-sm font-medium">{n.title}</p>
                     <p className="text-xs text-gray-500 mt-1">{n.body}</p>
                     <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
