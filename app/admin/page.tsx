@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Bell } from 'lucide-react'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
@@ -464,7 +465,7 @@ export default function Page1() {
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">🎵 프로젝트 관리</h1>
+            <h1 className="text-xl font-bold">프로젝트 관리</h1>
             <div className="flex items-center gap-2">
               <button onClick={() => { 
                 if (showNotifications) {
@@ -476,12 +477,11 @@ export default function Page1() {
                 }
                 setShowNotifications(!showNotifications)
               }} className="relative text-gray-500">
-                🔔
+                <Bell size={22} className="text-gray-600" strokeWidth={1.5} /> 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
                 )}
               </button>
-              <button onClick={handleLogout} className="text-xs text-gray-500 border rounded px-2 py-1">로그아웃</button>
             </div>
           </div>
           <div className="flex gap-1 mb-2">
@@ -498,7 +498,7 @@ export default function Page1() {
         {showNotifications && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">🔔 알림 내역</h2>
+              <h2 className="font-bold">알림 내역</h2>
               <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
             </div>
             {notifications.length === 0 ? (
@@ -916,6 +916,9 @@ export default function Page1() {
               </div>
             )}
           </div>
+        </div>
+        <div className="mt-4 mb-2">
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
         </div>
       </div>
     </div>
