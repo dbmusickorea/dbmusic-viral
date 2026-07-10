@@ -20,6 +20,7 @@ export default function Page4() {
   const [tiktok, setTiktok] = useState('')
   const [password, setPassword] = useState('')
   const [level, setLevel] = useState(1)
+  const [coverReward, setCoverReward] = useState<number | ''>('')
 
   const [clients, setClients] = useState<any[]>([])
   const [selectedClient, setSelectedClient] = useState<any>(null)
@@ -67,7 +68,7 @@ export default function Page4() {
     setBankName(p.bank_name ?? ''); setAccountHolder(p.account_holder ?? '')
     setAccountNumber(p.account_number ?? ''); setInstagram(p.instagram_id ?? '')
     setYoutube(p.youtube_id ?? ''); setTiktok(p.tiktok_id ?? '')
-    setPassword(''); setLevel(p.level ?? 1)
+    setPassword(''); setLevel(p.level ?? 1); setCoverReward(p.cover_reward ?? '')
     
     // 게시물 + 댓글 미션 가져오기
     supabase.from('posts').select('*').eq('member_id', p.id).order('created_at', { ascending: false })
@@ -138,7 +139,8 @@ export default function Page4() {
       name, mobile, email, bank_name: bankName,
       account_holder: accountHolder, account_number: accountNumber,
       instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, level
+      tiktok_id: tiktok, level,
+      cover_reward: coverReward === '' ? null : Number(coverReward)
     }
     if (password) updateData.password = password
     const { error } = await supabase.from('participants').update(updateData).eq('id', selected.id)
@@ -369,6 +371,10 @@ export default function Page4() {
                           <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000원' : `${(2500 + (lv-1) * 150).toLocaleString()}원`})</option>
                         ))}
                       </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">커버가수 금액</label>
+                      <input type="number" value={coverReward} onChange={(e) => setCoverReward(e.target.value === '' ? '' : Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 별도 지급 금액" />
                     </div>
                     <div className="flex gap-2">
                       {selected ? (
