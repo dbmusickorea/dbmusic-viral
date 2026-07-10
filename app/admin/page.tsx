@@ -755,8 +755,6 @@ export default function Page1() {
                           {req.status === 'PENDING' && (
                             <>
                               <button onClick={async () => { await supabase.from('client_requests').update({ status: 'CONFIRMED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">확인</button>
-                              <button onClick={async () => { await supabase.from('client_requests').update({ status: 'APPROVED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
-                              <button onClick={async () => { await supabase.from('client_requests').update({ status: 'REJECTED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
                             </>
                           )}
                         </div>
