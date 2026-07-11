@@ -1147,7 +1147,7 @@ useEffect(() => {
                         window.open(projectVideos.shorts_url_1, '_blank')
                         setTimeout(() => { setVideoWatched(true) }, 30000)
                       }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        🎬 쇼츠 영상 1 보러가기
+                        {commentMissions.some(m => m.video_id === projectVideos.shorts_video_id_1) ? '✅ ' : '🎬 '}쇼츠 영상 1 보러가기
                       </button>
                     )}
                     {projectVideos.shorts_url_2 && (
@@ -1157,7 +1157,7 @@ useEffect(() => {
                         window.open(projectVideos.shorts_url_2, '_blank')
                         setTimeout(() => { setVideoWatched(true) }, 30000)
                       }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 2 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        🎬 쇼츠 영상 2 보러가기
+                        {commentMissions.some(m => m.video_id === projectVideos.shorts_video_id_2) ? '✅ ' : '🎬 '}쇼츠 영상 2 보러가기
                       </button>
                     )}
                     {projectVideos.playlist_url && (
@@ -1167,7 +1167,7 @@ useEffect(() => {
                         window.open(projectVideos.playlist_url, '_blank')
                         setTimeout(() => { setVideoWatched(true) }, 30000)
                       }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 3 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        🎵 플레이리스트 보러가기
+                        {commentMissions.some(m => m.video_id === projectVideos.playlist_video_id) ? '✅ ' : '🎵 '}플레이리스트 보러가기
                       </button>
                     )}
                   </div>
