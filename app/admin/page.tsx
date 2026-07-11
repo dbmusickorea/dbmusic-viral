@@ -54,6 +54,9 @@ export default function Page1() {
   const [topRanker, setTopRanker] = useState<any>(null)
   const [monitoringExtension, setMonitoringExtension] = useState(0)
   const [coverVideoCount, setCoverVideoCount] = useState(0)
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -559,6 +562,23 @@ export default function Page1() {
     router.push('/')
   }
 
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    await fetchProjects()
+    await fetchProducts()
+    await fetchClients()
+    await fetchClientRequests()
+    await fetchUnlockVideos()
+    await fetchCoverPosts()
+    const userInfo = localStorage.getItem('userInfo')
+    if (userInfo) {
+      const parsed = JSON.parse(userInfo)
+      await fetchNotifications(String(parsed.id))
+    }
+    setIsRefreshing(false)
+  }
+
   const fetchNotifications = async (id: string) => {
     const { data } = await supabase.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
     setNotifications(data ?? [])
@@ -593,9 +613,28 @@ export default function Page1() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4"
+      onTouchStart={(e) => {
+        if (document.documentElement.scrollTop === 0) {
+          setPullStartY(e.touches[0].clientY)
+        }
+      }}
+      onTouchMove={(e) => {
+        const pullDistance = e.touches[0].clientY - pullStartY
+        if (pullDistance > 70) setIsPulling(true)
+      }}
+      onTouchEnd={() => {
+        if (isPulling) handleRefresh()
+        setIsPulling(false)
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          {(isPulling || isRefreshing) && (
+            <div className="text-center py-1 text-sm text-blue-500">
+              {isRefreshing ? '🔄 새로고침 중...' : '↓ 놓으면 새로고침'}
+            </div>
+          )}
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">프로젝트 관리</h1>
             <div className="flex items-center gap-2">
