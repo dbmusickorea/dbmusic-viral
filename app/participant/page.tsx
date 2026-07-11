@@ -551,9 +551,13 @@ useEffect(() => {
 
     const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
+    
+    // 주민번호 암호화
+    const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
+    
     const { error } = await supabase.from('settlements').insert({
       member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
-      resident_number: residentNumber, address, status: 'PENDING'
+      resident_number: encryptedResident, address, status: 'PENDING'
     })
     if (error) { alert('환전 신청 실패!'); return }
     
