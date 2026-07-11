@@ -583,13 +583,14 @@ useEffect(() => {
   }
 
   const loadMyInfo = async () => {
-    setMyName(userInfo?.name ?? ''); setMyMobile(userInfo?.mobile ?? '')
-    setMyBankName(userInfo?.bank_name ?? ''); setMyAccountHolder(userInfo?.account_holder ?? '')
-    setMyInstagram(userInfo?.instagram_id ?? '')
-    setMyYoutube(userInfo?.youtube_id ?? ''); setMyTiktok(userInfo?.tiktok_id ?? '')
+    const { data } = await supabase.from('participants').select('*').eq('id', userInfo?.id).maybeSingle()
+    setMyName(data?.name ?? ''); setMyMobile(data?.mobile ?? '')
+    setMyBankName(data?.bank_name ?? ''); setMyAccountHolder(data?.account_holder ?? '')
+    setMyInstagram(data?.instagram_id ?? '')
+    setMyYoutube(data?.youtube_id ?? ''); setMyTiktok(data?.tiktok_id ?? '')
     
     // 계좌번호 복호화
-    const decrypted = userInfo?.account_number ? await decryptText(userInfo.account_number) : ''
+    const decrypted = data?.account_number ? await decryptText(data.account_number) : ''
     setMyAccountNumber(decrypted)
     
     setShowMyInfo(true)
