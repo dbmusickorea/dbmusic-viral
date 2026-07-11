@@ -92,53 +92,57 @@ useEffect(() => {
   const handleCommentVerify = async (videoId: string, projectCode: string) => {
     if (!youtubeHandle) { alert('유튜브 계정명을 입력해주세요.'); return }
     
-    // 중복 체크
-    const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
-    if (already) { alert('이미 이 영상으로 보상을 받으셨습니다.'); return }
-    
     setIsVerifying(true)
     try {
       const response = await fetch(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle.toLowerCase())}`)
       const data = await response.json()
       
       if (data.found) {
-        // 미션 저장 + 적립금 추가
-        await supabase.from('comment_missions').insert({
-          project_code: projectCode,
-          member_id: userInfo?.id,
-          video_id: videoId,
-          youtube_handle: youtubeHandle.toLowerCase(),
-          status: 'APPROVED',
-          reward_amount: 300,
-          comment_id: data.commentId ?? null
-        })
-        const newBalance = balance + 300
-        await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
-        setBalance(newBalance)
-        fetchCommentMissions(userInfo?.id)
-        // 락 해제 카운트 증가
-        const { data: pData } = await supabase
-          .from('participants')
-          .select('is_locked, comment_count_for_unlock')
-          .eq('id', userInfo?.id)
-          .maybeSingle()
-        
-        if (pData?.is_locked) {
-          const newCount = (pData.comment_count_for_unlock ?? 0) + 1
-          if (newCount >= 10) {
-            await supabase.from('participants').update({ 
-              is_locked: false, 
-              comment_count_for_unlock: 0 
-            }).eq('id', userInfo?.id)
-            alert('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
-          } else {
-            await supabase.from('participants').update({ 
-              comment_count_for_unlock: newCount 
-            }).eq('id', userInfo?.id)
-            setUnlockCommentCount(newCount)
+        if (projectCode === '') {
+          // 락 해제용 - 적립금 없이 카운트만 증가
+          const { data: pData } = await supabase
+            .from('participants')
+            .select('is_locked, comment_count_for_unlock')
+            .eq('id', userInfo?.id)
+            .maybeSingle()
+          
+          if (pData?.is_locked) {
+            const newCount = (pData.comment_count_for_unlock ?? 0) + 1
+            if (newCount >= 10) {
+              await supabase.from('participants').update({ 
+                is_locked: false, 
+                comment_count_for_unlock: 0 
+              }).eq('id', userInfo?.id)
+              setIsLocked(false)
+              alert('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
+            } else {
+              await supabase.from('participants').update({ 
+                comment_count_for_unlock: newCount 
+              }).eq('id', userInfo?.id)
+              setUnlockCommentCount(newCount)
+              alert(`✅ 댓글 인증 완료! (${newCount}/10)`)
+            }
           }
+        } else {
+          // 일반 댓글 미션 - 300원 적립
+          const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
+          if (already) { alert('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
+          
+          await supabase.from('comment_missions').insert({
+            project_code: projectCode,
+            member_id: userInfo?.id,
+            video_id: videoId,
+            youtube_handle: youtubeHandle.toLowerCase(),
+            status: 'APPROVED',
+            reward_amount: 300,
+            comment_id: data.commentId ?? null
+          })
+          const newBalance = balance + 300
+          await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
+          setBalance(newBalance)
+          fetchCommentMissions(userInfo?.id)
+          alert('✅ 댓글 인증 완료! 300원이 적립됐어요!')
         }
-        alert('✅ 댓글 인증 완료! 300원이 적립됐어요!')
       } else {
         alert('❌ 댓글을 찾을 수 없어요. 유튜브 계정명을 다시 확인해주세요.')
       }
