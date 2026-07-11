@@ -74,6 +74,8 @@ useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
+    const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
+    setYoutubeHandle(accounts.youtube ?? '')
     setUserInfo(parsed)
     setUserRole(role ?? '')
     fetchParticipantInfo(parsed.id)
