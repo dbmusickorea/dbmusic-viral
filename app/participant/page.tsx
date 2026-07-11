@@ -783,10 +783,10 @@ useEffect(() => {
                             />
                             <button 
                               onClick={() => handleCommentVerify(v.video_id, '')} 
-                              disabled={isVerifying}
+                              disabled={isVerifying || commentMissions.some(m => m.video_id === v.video_id)}
                               className="bg-red-500 text-white rounded px-2 py-1 text-xs disabled:bg-gray-400"
                             >
-                              {isVerifying ? '인증중...' : '인증'}
+                              {commentMissions.some(m => m.video_id === v.video_id) ? '✅ 완료' : isVerifying ? '인증중...' : '인증'}
                             </button>
                           </div>
                         </div>
