@@ -425,6 +425,7 @@ useEffect(() => {
   }
 
   const handleSubmit = async () => {
+    if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
     const { count: postCount } = await supabase
       .from('posts')
