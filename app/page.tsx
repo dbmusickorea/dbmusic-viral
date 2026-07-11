@@ -496,18 +496,17 @@ export default function LoginPage() {
                 {[
                   { label: '이름 *', value: p_name, setter: setPName },
                   { label: '이메일 *', value: p_email, setter: setPEmail, type: 'email' },
-                  { label: '비밀번호 *', value: p_password, setter: setPPassword, type: 'password' },
-                  { label: '비밀번호 확인 *', value: p_passwordConfirm, setter: setPPasswordConfirm, type: 'password' },
+                  { label: '비밀번호 *', value: p_password, setter: setPPassword, type: 'password', placeholder: '6자 이상 입력해주세요' },
+                  { label: '비밀번호 확인 *', value: p_passwordConfirm, setter: setPPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },
                   { label: '인스타그램 ID', value: p_instagram, setter: setPInstagram },
                   { label: '유튜브 ID', value: p_youtube, setter: setPYoutube },
                   { label: '틱톡 ID', value: p_tiktok, setter: setPTiktok },
-                ].map(({ label, value, setter, type }) => (
+                ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
-                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
-                <p className="text-xs text-gray-400">* 비밀번호는 6자 이상이어야 해요.</p>
                 <div>
                   <label className="text-sm font-medium">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
@@ -541,15 +540,14 @@ export default function LoginPage() {
                   { label: '아티스트명', value: c_artist, setter: setCArtist },
                   { label: '전화번호', value: c_phone, setter: setCPhone },
                   { label: '이메일 *', value: c_email, setter: setCEmail, type: 'email' },
-                  { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password' },
-                  { label: '비밀번호 확인 *', value: c_passwordConfirm, setter: setCPasswordConfirm, type: 'password' },
-                ].map(({ label, value, setter, type }) => (
+                  { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password', placeholder: '6자 이상 입력해주세요' },
+                  { label: '비밀번호 확인 *', value: c_passwordConfirm, setter: setCPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },
+                ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
-                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                   </div>
                 ))}
-                <p className="text-xs text-gray-400">* 비밀번호는 6자 이상이어야 해요.</p>
                 <div>
                   <label className="text-sm font-medium">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
