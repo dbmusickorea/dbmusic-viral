@@ -16,9 +16,10 @@ export async function GET(request: NextRequest) {
   )
 
   const data = await response.json()
+  console.log('YouTube API response:', JSON.stringify(data).substring(0, 500))
 
   if (!data.items) {
-    return NextResponse.json({ found: false, message: '댓글을 가져올 수 없습니다.' })
+    return NextResponse.json({ found: false, message: '댓글을 가져올 수 없습니다.', error: data.error })
   }
 
   // 작성자 이름 매칭
