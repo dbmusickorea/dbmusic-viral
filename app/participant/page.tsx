@@ -1063,6 +1063,9 @@ useEffect(() => {
                           <p className="text-sm font-medium">{p.projects?.product_content}</p>
                           <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
                           <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                          {p.projects?.end_date && (
+                            <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
+                          )}
                           {myRankMap[p.project_code] && (
                             <div className="mt-1">
                               <p className="text-xs font-medium text-blue-600">
@@ -1072,7 +1075,9 @@ useEffect(() => {
                             </div>
                           )}
                         </div>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">참여중 ✅</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
+                          {p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
+                        </span>
                       </div>
                     </div>
                   ))}
