@@ -498,9 +498,9 @@ export default function LoginPage() {
                   { label: '이메일 *', value: p_email, setter: setPEmail, type: 'email' },
                   { label: '비밀번호 *', value: p_password, setter: setPPassword, type: 'password', placeholder: '6자 이상 입력해주세요' },
                   { label: '비밀번호 확인 *', value: p_passwordConfirm, setter: setPPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },
-                  { label: '인스타그램 ID', value: p_instagram, setter: setPInstagram },
-                  { label: '유튜브 ID', value: p_youtube, setter: setPYoutube },
-                  { label: '틱톡 ID', value: p_tiktok, setter: setPTiktok },
+                  { label: '인스타그램 ID', value: p_instagram, setter: setPInstagram, placeholder: '@아이디' },
+                  { label: '유튜브 ID', value: p_youtube, setter: setPYoutube, placeholder: '@아이디' },
+                  { label: '틱톡 ID', value: p_tiktok, setter: setPTiktok, placeholder: '@아이디' },
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
