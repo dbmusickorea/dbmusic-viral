@@ -510,7 +510,7 @@ export default function LoginPage() {
                 <div>
                   <label className="text-sm font-medium">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
-                    <input value={p_mobile} onChange={(e) => setPMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="010-0000-0000" disabled={p_verified} />
+                    <input value={p_mobile} onChange={(e) => setPMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="01012345678" disabled={p_verified} />
                     <button onClick={handleSendVerifyCode} disabled={p_sending || p_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
                       {p_verified ? '인증완료' : p_sending ? '발송중' : '인증'}
                     </button>
@@ -551,7 +551,7 @@ export default function LoginPage() {
                 <div>
                   <label className="text-sm font-medium">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
-                    <input value={c_mobile} onChange={(e) => setCMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="010-0000-0000" disabled={c_verified} />
+                    <input value={c_mobile} onChange={(e) => setCMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="01012345678" disabled={c_verified} />
                     <button onClick={handleSendVerifyCodeClient} disabled={c_sending || c_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
                       {c_verified ? '인증완료' : c_sending ? '발송중' : '인증'}
                     </button>
