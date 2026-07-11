@@ -96,7 +96,7 @@ useEffect(() => {
     
     setIsVerifying(true)
     try {
-      const response = await fetch(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle)}`)
+      const response = await fetch(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle.toLowerCase())}`)
       const data = await response.json()
       
       if (data.found) {
@@ -105,7 +105,7 @@ useEffect(() => {
           project_code: projectCode,
           member_id: userInfo?.id,
           video_id: videoId,
-          youtube_handle: youtubeHandle,
+          youtube_handle: youtubeHandle.toLowerCase(),
           status: 'APPROVED',
           reward_amount: 300,
           comment_id: data.commentId ?? null
