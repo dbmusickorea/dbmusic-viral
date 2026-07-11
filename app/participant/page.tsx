@@ -512,6 +512,7 @@ useEffect(() => {
   }
 
   const handleExchange = async () => {
+    if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
     if (amount < 10000) { alert('최소 10,000원 이상부터 환전 신청 가능합니다.'); return }
