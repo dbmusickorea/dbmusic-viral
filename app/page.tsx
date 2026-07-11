@@ -74,6 +74,23 @@ export default function LoginPage() {
   const [c_codeExpiry, setCCodeExpiry] = useState<number | null>(null)
   const [p_passwordConfirm, setPPasswordConfirm] = useState('')
   const [c_passwordConfirm, setCPasswordConfirm] = useState('')
+  const [showTermsModal, setShowTermsModal] = useState(false)
+  const [pendingUserInfo, setPendingUserInfo] = useState<any>(null)
+  const [pendingRole, setPendingRole] = useState('')
+
+  const handleAgreeTerms = async () => {
+    if (!pendingUserInfo || !pendingRole) return
+    
+    if (pendingRole === 'participant') {
+      await supabase.from('participants').update({ agreed_terms: true }).eq('id', pendingUserInfo.id)
+      router.push('/participant')
+    } else {
+      await supabase.from('users').update({ agreed_terms: true }).eq('id', pendingUserInfo.id)
+      if (pendingRole === 'admin') router.push('/admin')
+      else if (pendingRole === 'client') router.push('/client')
+    }
+    setShowTermsModal(false)
+  }
 
   const generateReferralCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -138,6 +155,13 @@ export default function LoginPage() {
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(participant.id), 'participant')
       }
+      // 개인정보 동의 체크
+      if (!participant.agreed_terms) {
+        setPendingUserInfo(participant)
+        setPendingRole('participant')
+        setShowTermsModal(true)
+        return
+      }
       router.push('/participant')
       return
     }
@@ -164,6 +188,13 @@ export default function LoginPage() {
       localStorage.setItem('userRole', user.role)
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(user.id), user.role)
+      }
+      // 개인정보 동의 체크
+      if (!user.agreed_terms) {
+        setPendingUserInfo(user)
+        setPendingRole(user.role)
+        setShowTermsModal(true)
+        return
       }
       if (user.role === 'admin') router.push('/admin')
       else if (user.role === 'client') router.push('/client')
@@ -366,6 +397,30 @@ export default function LoginPage() {
 
   return (
     <div className={`min-h-screen flex flex-col items-center bg-gray-50 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+      
+      {/* 개인정보 동의 모달 */}
+      {showTermsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <h2 className="font-bold text-lg mb-3">개인정보 수집 및 이용 동의</h2>
+            <div className="bg-gray-50 rounded-lg p-3 mb-4 h-48 overflow-y-auto text-xs text-gray-600">
+              <p className="font-bold mb-2">수집 항목</p>
+              <p>이름, 연락처, 이메일, 계좌번호, 주민번호, SNS 계정</p>
+              <p className="font-bold mt-3 mb-2">수집 목적</p>
+              <p>바이럴 마케팅 서비스 제공, 정산 및 세금 처리</p>
+              <p className="font-bold mt-3 mb-2">보유 기간</p>
+              <p>서비스 이용 종료 후 5년</p>
+              <p className="font-bold mt-3 mb-2">제3자 제공</p>
+              <p>정산 처리를 위한 세무 목적 외 제3자 제공 없음</p>
+              <p className="font-bold mt-3 mb-2">동의 거부 권리</p>
+              <p>동의를 거부할 수 있으나, 거부 시 서비스 이용이 제한됩니다.</p>
+            </div>
+            <button onClick={handleAgreeTerms} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium mb-2">동의하고 시작하기</button>
+            <button onClick={() => { setShowTermsModal(false); supabase.auth.signOut() }} className="w-full text-sm text-gray-500 text-center py-2">동의하지 않음 (로그아웃)</button>
+          </div>
+        </div>
+      )}
+
       {(showSignup || showForgotPassword) && (
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <h1 className="text-xl font-bold text-center">🎵 더블비뮤직</h1>
