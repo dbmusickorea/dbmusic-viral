@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { decryptText, encryptText } from '../lib/crypto'
 
 export default function Page4() {
   const [tab, setTab] = useState<'participant' | 'client'>('participant')
@@ -65,14 +66,18 @@ export default function Page4() {
     setClients(data ?? [])
   }
 
-  const handleSelect = (p: any) => {
+  const handleSelect = async (p: any) => {
     setSelected(p)
     setName(p.name ?? ''); setMobile(p.mobile ?? ''); setEmail(p.email ?? '')
     setBankName(p.bank_name ?? ''); setAccountHolder(p.account_holder ?? '')
-    setAccountNumber(p.account_number ?? ''); setInstagram(p.instagram_id ?? '')
+    setInstagram(p.instagram_id ?? '')
     setYoutube(p.youtube_id ?? ''); setTiktok(p.tiktok_id ?? '')
     setPassword(''); setLevel(p.level ?? 1); setCoverReward(p.cover_reward ?? '')
     
+    // 계좌번호 복호화
+    const decrypted = p.account_number ? await decryptText(p.account_number) : ''
+    setAccountNumber(decrypted)
+
     // 게시물 + 댓글 미션 가져오기
     supabase.from('posts').select('*').eq('member_id', p.id).order('created_at', { ascending: false })
       .then(({ data }) => setMemberPosts(data ?? []))
@@ -139,8 +144,7 @@ export default function Page4() {
 
   const handleUpdate = async () => {
     const updateData: any = {
-      name, mobile, email, bank_name: bankName,
-      account_holder: accountHolder, account_number: accountNumber,
+      name, mobile, email,
       instagram_id: instagram, youtube_id: youtube,
       tiktok_id: tiktok, level,
       cover_reward: coverReward === '' ? null : Number(coverReward)
@@ -382,9 +386,6 @@ export default function Page4() {
                       { label: '이름', value: name, setter: setName },
                       { label: '휴대전화', value: mobile, setter: setMobile },
                       { label: '이메일', value: email, setter: setEmail, type: 'email' },
-                      { label: '은행명', value: bankName, setter: setBankName },
-                      { label: '예금주', value: accountHolder, setter: setAccountHolder },
-                      { label: '계좌번호', value: accountNumber, setter: setAccountNumber },
                       { label: '인스타그램 ID', value: instagram, setter: setInstagram },
                       { label: '유튜브 ID', value: youtube, setter: setYoutube },
                       { label: '틱톡 ID', value: tiktok, setter: setTiktok },
