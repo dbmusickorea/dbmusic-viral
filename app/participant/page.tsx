@@ -107,6 +107,20 @@ useEffect(() => {
             .maybeSingle()
           
           if (pData?.is_locked) {
+            // 락 해제용 미션 저장 (중복 방지)
+            const alreadyUnlock = commentMissions.find(m => m.video_id === videoId)
+            if (alreadyUnlock) { alert('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
+            
+            await supabase.from('comment_missions').insert({
+              project_code: 'UNLOCK',
+              member_id: userInfo?.id,
+              video_id: videoId,
+              youtube_handle: youtubeHandle.toLowerCase(),
+              status: 'APPROVED',
+              reward_amount: 0,
+              comment_id: data.commentId ?? null
+            })
+            fetchCommentMissions(userInfo?.id)
             const newCount = (pData.comment_count_for_unlock ?? 0) + 1
             if (newCount >= 10) {
               await supabase.from('participants').update({ 
