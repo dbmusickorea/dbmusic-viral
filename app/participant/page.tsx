@@ -766,7 +766,24 @@ useEffect(() => {
                   ) : (
                     <div className="space-y-2">
                       {unlockVideos.map((v) => (
-                        <a key={v.id} href={v.video_url} target="_blank" className="block text-xs text-blue-500 border rounded-lg p-2">🎬 댓글 달러 가기 →</a>
+                        <div key={v.id} className="border rounded-lg p-2">
+                          <a href={v.video_url} target="_blank" className="block text-xs text-blue-500 mb-2">🎬 {v.title} - 댓글 달러 가기 →</a>
+                          <div className="flex gap-2">
+                            <input 
+                              value={youtubeHandle} 
+                              onChange={(e) => setYoutubeHandle(e.target.value)} 
+                              className="flex-1 border rounded px-2 py-1 text-xs" 
+                              placeholder="@유튜브 계정명" 
+                            />
+                            <button 
+                              onClick={() => handleCommentVerify(v.video_id, '')} 
+                              disabled={isVerifying}
+                              className="bg-red-500 text-white rounded px-2 py-1 text-xs disabled:bg-gray-400"
+                            >
+                              {isVerifying ? '인증중...' : '인증'}
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
