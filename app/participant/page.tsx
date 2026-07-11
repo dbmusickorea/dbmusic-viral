@@ -601,6 +601,20 @@ useEffect(() => {
       instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
     }).eq('id', userInfo?.id)
     if (error) { alert('수정 실패!'); return }
+    
+    // localStorage userInfo 업데이트
+    const updated = { 
+      ...userInfo, 
+      name: myName, mobile: myMobile, bank_name: myBankName,
+      account_holder: myAccountHolder, account_number: myAccountNumber,
+      instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok
+    }
+    localStorage.setItem('userInfo', JSON.stringify(updated))
+    setUserInfo(updated)
+    localStorage.setItem('snsAccounts', JSON.stringify({
+      instagram: myInstagram, youtube: myYoutube, tiktok: myTiktok
+    }))
+    
     alert('정보 수정 완료!')
     setShowMyInfo(false)
     setMyCurrentPassword('')
