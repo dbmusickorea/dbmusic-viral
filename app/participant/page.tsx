@@ -133,6 +133,7 @@ useEffect(() => {
             await supabase.from('participants').update({ 
               comment_count_for_unlock: newCount 
             }).eq('id', userInfo?.id)
+            setUnlockCommentCount(newCount)
           }
         }
         alert('✅ 댓글 인증 완료! 300원이 적립됐어요!')
