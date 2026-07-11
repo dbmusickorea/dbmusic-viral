@@ -788,16 +788,11 @@ useEffect(() => {
                       {unlockVideos.map((v) => (
                         <div key={v.id} className="border rounded-lg p-2">
                           <a href={v.video_url} target="_blank" className="block text-xs text-blue-500 mb-2">🎬 {v.title} - 댓글 달러 가기 →</a>
-                          <div className="flex gap-2">
-                            <input 
-                              value={youtubeHandle} 
-                              onChange={(e) => setYoutubeHandle(e.target.value)} 
-                              className="flex-1 border rounded px-2 py-1 text-xs" 
-                              placeholder="@유튜브 계정명" 
-                            />
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-gray-500">인증 계정: {youtubeHandle || '유튜브 ID 미등록'}</p>
                             <button 
                               onClick={() => handleCommentVerify(v.video_id, '')} 
-                              disabled={isVerifying || commentMissions.some(m => m.video_id === v.video_id)}
+                              disabled={isVerifying || !youtubeHandle || commentMissions.some(m => m.video_id === v.video_id)}
                               className="bg-red-500 text-white rounded px-2 py-1 text-xs disabled:bg-gray-400"
                             >
                               {commentMissions.some(m => m.video_id === v.video_id) ? '✅ 완료' : isVerifying ? '인증중...' : '인증'}
