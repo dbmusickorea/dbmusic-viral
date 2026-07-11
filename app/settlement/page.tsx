@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { decryptText, maskResident } from '../lib/crypto'
 
 export default function Page5() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -14,6 +15,8 @@ export default function Page5() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [decryptedResident, setDecryptedResident] = useState('')
+  const [decryptedAccount, setDecryptedAccount] = useState('')
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
@@ -43,6 +46,12 @@ export default function Page5() {
     setSelectedParticipant(participant)
     const { data: posts } = await supabase.from('posts').select('*').eq('member_id', s.member_id).order('created_at', { ascending: false })
     setMemberPosts(posts ?? [])
+    const account = participant?.account_number ? await decryptText(participant.account_number) : ''
+    setDecryptedAccount(account)
+    
+    // 주민번호 복호화
+    const resident = s.resident_number ? await decryptText(s.resident_number) : ''
+    setDecryptedResident(resident)
   }
 
   const handleApprove = async () => {
@@ -207,9 +216,9 @@ export default function Page5() {
                   <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}원</span></p>
                   <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}원</span></p>
                   <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}원</span></p>
-                  <p>주민번호: <span className="font-medium">{selected.resident_number ?? '-'}</span></p>
+                  <p>주민번호: <span className="font-medium">{decryptedResident || '-'}</span></p>
                   <p>주소: <span className="font-medium">{selected.address ?? '-'}</span></p>
-                  <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {selectedParticipant?.account_number} ({selectedParticipant?.account_holder})</span></p>
+                  <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {decryptedAccount} ({selectedParticipant?.account_holder})</span></p>
                   <p>상태: {statusLabel(selected.status)}</p>
                 </div>
                 <div className="mt-4">
