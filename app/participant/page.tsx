@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
+import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -577,16 +578,20 @@ useEffect(() => {
     setShowExchange(false); setResidentNumber(''); setAddress(''); setExchangeAmount('')
   }
 
-  const loadMyInfo = () => {
+  const loadMyInfo = async () => {
     setMyName(userInfo?.name ?? ''); setMyMobile(userInfo?.mobile ?? '')
     setMyBankName(userInfo?.bank_name ?? ''); setMyAccountHolder(userInfo?.account_holder ?? '')
-    setMyAccountNumber(userInfo?.account_number ?? ''); setMyInstagram(userInfo?.instagram_id ?? '')
+    setMyInstagram(userInfo?.instagram_id ?? '')
     setMyYoutube(userInfo?.youtube_id ?? ''); setMyTiktok(userInfo?.tiktok_id ?? '')
+    
+    // 계좌번호 복호화
+    const decrypted = userInfo?.account_number ? await decryptText(userInfo.account_number) : ''
+    setMyAccountNumber(decrypted)
+    
     setShowMyInfo(true)
   }
 
   const handleUpdateMyInfo = async () => {
-    // 비밀번호 변경 시 기존 비밀번호 확인
     if (myPassword) {
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: userInfo?.email,
@@ -595,18 +600,21 @@ useEffect(() => {
       if (authError) { alert('기존 비밀번호가 틀렸어요.'); return }
       await supabase.auth.updateUser({ password: myPassword })
     }
+
+    // 계좌번호 암호화
+    const encryptedAccount = myAccountNumber ? await encryptText(myAccountNumber) : ''
+
     const { error } = await supabase.from('participants').update({
       name: myName, mobile: myMobile, bank_name: myBankName,
-      account_holder: myAccountHolder, account_number: myAccountNumber,
+      account_holder: myAccountHolder, account_number: encryptedAccount,
       instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
     }).eq('id', userInfo?.id)
     if (error) { alert('수정 실패!'); return }
     
-    // localStorage userInfo 업데이트
     const updated = { 
       ...userInfo, 
       name: myName, mobile: myMobile, bank_name: myBankName,
-      account_holder: myAccountHolder, account_number: myAccountNumber,
+      account_holder: myAccountHolder, account_number: encryptedAccount,
       instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok
     }
     localStorage.setItem('userInfo', JSON.stringify(updated))
