@@ -1,10 +1,14 @@
 'use client'
+import { useRouter } from 'next/navigation'
 
 export default function PrivacyPage() {
+  const router = useRouter()
+  
   return (
     <div className="min-h-screen bg-gray-50 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow p-6">
-        <h1 className="text-xl font-bold mb-6">개인정보처리방침</h1>
+        <button onClick={() => router.back()} className="text-sm text-blue-600 mb-4 block">← 뒤로가기</button>
+        <h1 className="text-xl font-bold mb-6">개인정보 처리방침</h1>
         
         <p className="text-xs text-gray-500 mb-6">시행일: 2026년 7월 12일</p>
 

@@ -453,7 +453,7 @@ export default function LoginPage() {
               <button onClick={handleLogin} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">로그인</button>
               <button onClick={() => setShowForgotPassword(true)} className="w-full text-sm text-gray-500 text-center">비밀번호를 잊으셨나요?</button>
               <button onClick={() => setShowSignup(true)} className="w-full border rounded-lg py-2 text-sm text-gray-600">회원가입</button>
-              <a href="/privacy" target="_blank" className="block text-xs text-gray-400 text-center mt-2">개인정보처리방침</a>
+              <a href="/privacy" className="block text-xs text-gray-400 text-center mt-2" onClick={(e) => { e.preventDefault(); router.push('/privacy') }}>개인정보처리방침</a>
             </div>
           </div>
         ) : showForgotPassword ? (
