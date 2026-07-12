@@ -6,12 +6,18 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
-  const { data, error } = await supabaseAdmin
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const memberId = searchParams.get('member_id')
+
+  let query = supabaseAdmin
     .from('settlements')
     .select('*')
     .order('requested_at', { ascending: false })
   
+  if (memberId) query = query.eq('member_id', memberId)
+
+  const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
 
   if (data && data.length > 0) {

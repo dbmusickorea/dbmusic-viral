@@ -169,7 +169,8 @@ useEffect(() => {
   }
   
   const fetchCommentMissions = async (id: number) => {
-    const { data } = await supabase.from('comment_missions').select('*').eq('member_id', id)
+    const res = await fetch(`/api/comment_missions?member_id=${id}`)
+    const data = await res.json()
     setCommentMissions(data ?? [])
   }
 
@@ -254,7 +255,9 @@ useEffect(() => {
   }
 
   const fetchParticipantInfo = async (id: number) => {
-    const { data } = await supabase.from('participants').select('balance, level, referral_code, name, instagram_id, youtube_id, tiktok_id, is_locked, comment_count_for_unlock, cover_reward').eq('id', id).maybeSingle()
+    const res = await fetch(`/api/participants?ids=${id}`)
+    const participants = await res.json()
+    const data = participants?.[0]
     setCoverReward(data?.cover_reward ?? 0)
     setBalance(data?.balance ?? 0)
     setLevel(data?.level ?? 1)
@@ -273,20 +276,20 @@ useEffect(() => {
 
   const fetchAvailableBalance = async (id: number) => {
     // 종료된 프로젝트 게시물 수익 (일반 게시물)
-    const { data: posts } = await supabase.from('posts').select('project_code, is_cover').eq('member_id', id)
+    const postsRes = await fetch(`/api/posts?member_id=${id}`)
+    const posts = await postsRes.json()
     let postIncome = 0
     if (posts && posts.length > 0) {
-      const codes = [...new Set(posts.map(p => p.project_code))]
+      const codes = [...new Set(posts.map((p: any) => p.project_code))]
       const codesParam = codes.join(',')
       const projectsRes = await fetch(`/api/projects?codes=${codesParam}&status=COMPLETED`)
       const completedProjects = await projectsRes.json()
       
       completedProjects?.forEach((project: any) => {
-        const projectPosts = posts.filter(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
+        const projectPosts = posts.filter((p: any) => p.project_code.toLowerCase() === project.project_code.toLowerCase())
         
         projectPosts.forEach((post: any) => {
           if (post.is_cover) {
-            // 커버영상은 종료 후 15일 이후
             if (project.end_date) {
               const endDate = new Date(project.end_date)
               const availableDate = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
@@ -295,7 +298,6 @@ useEffect(() => {
               }
             }
           } else {
-            // 일반 게시물은 프로젝트 종료 즉시
             postIncome += (level === 50 ? 10000 : 2500 + (level - 1) * 150)
           }
         })
@@ -303,12 +305,15 @@ useEffect(() => {
     }
 
     // 댓글 미션 수익
-    const { data: missions } = await supabase.from('comment_missions').select('reward_amount').eq('member_id', id).eq('status', 'APPROVED')
-    const commentIncome = missions?.reduce((sum, m) => sum + (m.reward_amount ?? 300), 0) ?? 0
+    const missionsRes = await fetch(`/api/comment_missions?member_id=${id}&status=APPROVED`)
+    const missions = await missionsRes.json()
+    const commentIncome = missions?.reduce((sum: number, m: any) => sum + (m.reward_amount ?? 300), 0) ?? 0
 
     // 이미 환전 신청한 금액
-    const { data: settlements } = await supabase.from('settlements').select('amount').eq('member_id', id).in('status', ['PENDING', 'APPROVED'])
-    const settledAmount = settlements?.reduce((sum, s) => sum + (s.amount ?? 0), 0) ?? 0
+    const settlementsRes = await fetch(`/api/settlements?member_id=${id}`)
+    const settlements = await settlementsRes.json()
+    const settledAmount = settlements?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
+      .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
 
     setAvailableBalance(Math.max(0, postIncome + commentIncome - settledAmount))
   }
@@ -343,15 +348,17 @@ useEffect(() => {
   }
 
   const fetchMySettlements = async (id: number) => {
-    const { data } = await supabase.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false })
+    const res = await fetch(`/api/settlements?member_id=${id}`)
+    const data = await res.json()
     setMySettlements(data ?? [])
   }
 
   const fetchMyPostsAndProjects = async (id: number) => {
-    const { data: posts } = await supabase.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false })
+    const res = await fetch(`/api/posts?member_id=${id}`)
+    const posts = await res.json()
     setMyPosts(posts ?? [])
     if (posts && posts.length > 0) {
-      const codes = [...new Set(posts.map(p => p.project_code))]
+      const codes = [...new Set(posts.map((p: any) => p.project_code))]
       const codesParam = codes.join(',')
       const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
       const projects = await projectsRes.json()
