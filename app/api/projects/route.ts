@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
   if (status) query = query.eq('status', status)
   if (projectCode) query = query.ilike('project_code', projectCode)
   if (codes) query = query.in('project_code', codes.split(','))
+  const prefix = searchParams.get('prefix')
+  if (prefix) query = query.ilike('project_code', `${prefix}_%`)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })

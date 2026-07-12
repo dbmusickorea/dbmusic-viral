@@ -240,12 +240,8 @@ export default function Page1() {
     setProjectPrefix(upper)
     if (!upper) { setProjectCode(''); return }
 
-    // 해당 알파벳으로 시작하는 프로젝트 수 조회
-    const { data } = await supabase
-      .from('projects')
-      .select('project_code')
-      .ilike('project_code', `${upper}_%`)
-
+    const res = await fetch(`/api/projects?prefix=${upper}`)
+    const data = await res.json()
     const nextNum = (data?.length ?? 0) + 1
     setProjectCode(`${upper}_${nextNum}`)
   }
