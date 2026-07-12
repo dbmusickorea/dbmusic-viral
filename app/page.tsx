@@ -415,6 +415,7 @@ export default function LoginPage() {
               <p className="font-bold mt-3 mb-2">동의 거부 권리</p>
               <p>동의를 거부할 수 있으나, 거부 시 서비스 이용이 제한됩니다.</p>
             </div>
+            <a href="/privacy" onClick={(e) => { e.preventDefault(); router.push('/privacy') }} className="block text-xs text-blue-500 text-center mb-3">개인정보처리방침 전문 보기 →</a>
             <button onClick={handleAgreeTerms} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium mb-2">동의하고 시작하기</button>
             <button onClick={() => { setShowTermsModal(false); supabase.auth.signOut() }} className="w-full text-sm text-gray-500 text-center py-2">동의하지 않음 (로그아웃)</button>
           </div>
