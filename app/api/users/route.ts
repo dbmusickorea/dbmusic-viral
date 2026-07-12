@@ -20,3 +20,17 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json(data ?? [])
 }
+
+export async function PATCH(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const clientId = searchParams.get('client_id')
+  const body = await request.json()
+
+  const { error } = await supabaseAdmin
+    .from('users')
+    .update(body)
+    .eq('client_id', clientId!)
+  
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}

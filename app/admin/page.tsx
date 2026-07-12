@@ -353,7 +353,11 @@ export default function Page1() {
     })
     if (!res.ok) { alert('등록 실패!'); return }
     if (selectedClientId) {
-      await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
+      await fetch(`/api/users?client_id=${selectedClientId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_code: projectCode.toUpperCase() })
+      })
     }
     await saveProjectVideos(projectCode.toUpperCase())
     // 체험단 전체에게 푸시 알림 발송
@@ -402,7 +406,11 @@ export default function Page1() {
     })
     if (!res.ok) { alert('수정 실패!'); return }
     if (selectedClientId) {
-      await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
+      await fetch(`/api/users?client_id=${selectedClientId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_code: projectCode.toUpperCase() })
+      })
     }
     await saveProjectVideos(projectCode.toUpperCase())
 
