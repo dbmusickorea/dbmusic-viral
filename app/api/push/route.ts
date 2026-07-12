@@ -4,9 +4,9 @@ import { createClient } from '@supabase/supabase-js'
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getMessaging } from 'firebase-admin/messaging'
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 // Firebase Admin 초기화
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       title,
       body
     }))
-    await supabase.from('notifications').insert(notificationRows)
+    await supabaseAdmin.from('notifications').insert(notificationRows)
   }
 
   return NextResponse.json({ success: true, results })
