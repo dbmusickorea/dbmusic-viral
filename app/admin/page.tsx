@@ -100,21 +100,6 @@ export default function Page1() {
     setUnlockVideos(data ?? [])
   }
 
-  const fetchCoverPosts = async () => {
-    const { data } = await supabase.from('posts').select('*').eq('is_cover', true).order('created_at', { ascending: false })
-    if (data && data.length > 0) {
-      const memberIds = data.map(p => p.member_id)
-      const { data: participantData } = await supabase.from('participants').select('id, name, mobile').in('id', memberIds)
-      const merged = data.map(p => ({
-        ...p,
-        participants: participantData?.find(pd => pd.id === p.member_id)
-      }))
-      setCoverPosts(merged)
-    } else {
-      setCoverPosts([])
-    }
-  }
-
   const fetchTopRanker = async (projectCode: string) => {
     const { data: posts } = await supabase
       .from('posts')
@@ -201,8 +186,26 @@ export default function Page1() {
     fetchProducts()
   }
 
+  const fetchCoverPosts = async () => {
+    const res = await fetch('/api/posts?is_cover=true')
+    const data = await res.json()
+    if (data && data.length > 0) {
+      const memberIds = data.map((p: any) => p.member_id).join(',')
+      const participantRes = await fetch(`/api/participants?ids=${memberIds}`)
+      const participantData = await participantRes.json()
+      const merged = data.map((p: any) => ({
+        ...p,
+        participants: participantData?.find((pd: any) => pd.id === p.member_id)
+      }))
+      setCoverPosts(merged)
+    } else {
+      setCoverPosts([])
+    }
+  }
+  
   const fetchPosts = async (code: string) => {
-    const { data } = await supabase.from('posts').select('*').eq('project_code', code).order('created_at', { ascending: false })
+    const res = await fetch(`/api/posts?project_code=${code}`)
+    const data = await res.json()
     setPosts(data ?? [])
   }
 
