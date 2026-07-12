@@ -99,7 +99,8 @@ export default function Page1() {
   }
 
   const fetchUnlockVideos = async () => {
-    const { data } = await supabase.from('unlock_videos').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/unlock_videos')
+    const data = await res.json()
     setUnlockVideos(data ?? [])
   }
 
@@ -164,12 +165,12 @@ export default function Page1() {
     const match = newUnlockUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)
     const videoId = match?.[1] ?? ''
     if (!videoId) { alert('유효한 유튜브 URL을 입력해주세요.'); return }
-    const { error } = await supabase.from('unlock_videos').insert({
-      video_url: newUnlockUrl,
-      video_id: videoId,
-      title: '락 해제용 영상'
+    const res = await fetch('/api/unlock_videos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_url: newUnlockUrl, video_id: extractVideoId(newUnlockUrl), title: '락 해제용 영상' })
     })
-    if (error) { alert('등록 실패!'); return }
+    if (!res.ok) { alert('등록 실패!'); return }
     setNewUnlockUrl('')
     fetchUnlockVideos()
     alert('등록 완료!')
@@ -893,7 +894,7 @@ export default function Page1() {
                     {unlockVideos.map((v) => (
                       <div key={v.id} className="flex justify-between items-center border rounded-lg p-2">
                         <a href={v.video_url} target="_blank" className="text-xs text-blue-500 truncate flex-1">🎬 {v.video_url}</a>
-                        <button onClick={async () => { await supabase.from('unlock_videos').delete().eq('id', v.id); fetchUnlockVideos() }} className="text-xs text-red-500 ml-2">삭제</button>
+                        <button onClick={async () => { await fetch(`/api/unlock_videos?id=${v.id}`, { method: 'DELETE' }); fetchUnlockVideos() }} className="text-xs text-red-500 ml-2">삭제</button>
                       </div>
                     ))}
                   </div>

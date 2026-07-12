@@ -181,7 +181,8 @@ useEffect(() => {
   }
 
   const fetchUnlockVideos = async () => {
-    const { data } = await supabase.from('unlock_videos').select('*')
+    const res = await fetch('/api/unlock_videos')
+    const data = await res.json()
     setUnlockVideos(data ?? [])
   }
 
