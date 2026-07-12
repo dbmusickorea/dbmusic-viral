@@ -205,31 +205,26 @@ useEffect(() => {
   }
 
   const deleteAllNotifications = async (userId: string) => {
-    await supabase.from('notifications').delete().eq('user_id', userId)
+    await fetch(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
     setNotifications([])
     setUnreadCount(0)
   }
 
   const fetchMyParticipations = async (id: number) => {
-    const { data } = await supabase
-      .from('project_participants')
-      .select('*')
-      .eq('member_id', id)
-      .order('joined_at', { ascending: false })
+    const res = await fetch(`/api/project_participants?member_id=${id}`)
+    const data = await res.json()
     
     if (data && data.length > 0) {
-      const codes = data.map(p => p.project_code)
-      const { data: projectData } = await supabase
-        .from('projects')
-        .select('project_code, product_content, start_date, mission_date, status')
-        .in('project_code', codes)
+      const codes = data.map((p: any) => p.project_code)
+      const codesParam = codes.join(',')
+      const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+      const projectData = await projectsRes.json()
       
-      const merged = data.map(p => ({
+      const merged = data.map((p: any) => ({
         ...p,
-        projects: projectData?.find(pd => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
+        projects: projectData?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
       }))
       setMyParticipations(merged)
-      // 각 프로젝트 순위 가져오기
       for (const p of data) {
         fetchMyRank(p.project_code, id)
       }
@@ -381,12 +376,14 @@ useEffect(() => {
     }
     const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', code).maybeSingle()
     setProjectVideos(videos)
-    const { data: joinData } = await supabase.from('project_participants')
-      .select('id, status').ilike('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
-    setIsJoined(!!joinData && joinData.status === 'ACTIVE')
-    const { count } = await supabase.from('project_participants')
-      .select('*', { count: 'exact', head: true }).ilike('project_code', code).eq('status', 'ACTIVE')
-    setParticipantCount(count ?? 0)
+    const joinRes = await fetch(`/api/project_participants?project_code=${code}&member_id=${userInfo?.id}`)
+    const joinData = await joinRes.json()
+    const joinItem = joinData?.[0]
+    setIsJoined(!!joinItem && joinItem.status === 'ACTIVE')
+    
+    const countRes = await fetch(`/api/project_participants?project_code=${code}&status=ACTIVE`)
+    const countData = await countRes.json()
+    setParticipantCount(countData?.length ?? 0)
     if (userInfo?.id) fetchMyRank(code, userInfo.id)
   }
 
@@ -394,11 +391,9 @@ useEffect(() => {
     if (!projectCode || !userInfo) return
     
     // 밴/락 여부 체크
-    const { data: participantData } = await supabase
-      .from('participants')
-      .select('banned_until, is_locked')
-      .eq('id', userInfo.id)
-      .maybeSingle()
+    const participantRes = await fetch(`/api/participants?ids=${userInfo.id}`)
+    const participants = await participantRes.json()
+    const participantData = participants?.[0]
     
     // 락 여부 체크
     if (participantData?.is_locked) {
@@ -418,11 +413,15 @@ useEffect(() => {
       alert('모집이 마감됐어요.')
       return
     }
-    const { error } = await supabase.from('project_participants').insert({
-      project_code: projectCode,
-      member_id: userInfo.id
+    const res = await fetch('/api/project_participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        project_code: projectCode,
+        member_id: userInfo.id
+      })
     })
-    if (error) { alert('이미 참여하셨거나 오류가 발생했어요.'); return }
+    if (!res.ok) { alert('이미 참여하셨거나 오류가 발생했어요.'); return }
     setIsJoined(true)
     setParticipantCount(prev => prev + 1)
     alert('✅ 참여 완료!')

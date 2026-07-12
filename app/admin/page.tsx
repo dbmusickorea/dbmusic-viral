@@ -211,22 +211,17 @@ export default function Page1() {
   }
 
   const fetchParticipants = async (code: string) => {
-    const { data } = await supabase
-      .from('project_participants')
-      .select('*')
-      .ilike('project_code', code)
-      .order('joined_at', { ascending: false })
+    const res = await fetch(`/api/project_participants?project_code=${code}`)
+    const data = await res.json()
     
     if (data && data.length > 0) {
-      const memberIds = data.map(p => p.member_id)
-      const { data: participantData } = await supabase
-        .from('participants')
-        .select('id, name, mobile, instagram_id, youtube_id, tiktok_id')
-        .in('id', memberIds)
+      const memberIds = data.map((p: any) => p.member_id).join(',')
+      const participantRes = await fetch(`/api/participants?ids=${memberIds}`)
+      const participantData = await participantRes.json()
       
-      const merged = data.map(p => ({
+      const merged = data.map((p: any) => ({
         ...p,
-        participants: participantData?.find(pd => pd.id === p.member_id)
+        participants: participantData?.find((pd: any) => pd.id === p.member_id)
       }))
       setParticipants(merged)
     } else {
@@ -412,11 +407,12 @@ export default function Page1() {
 
     // 프로젝트 상태 변경 시 푸시
     if (status === 'COMPLETED') {
-      // 참여 체험단에게 종료 알림
-      const { data: joinedTokens } = await supabase.from('project_participants').select('member_id').ilike('project_code', projectCode)
+      const joinedRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
+      const joinedTokens = await joinedRes.json()
       if (joinedTokens && joinedTokens.length > 0) {
-        const memberIds = joinedTokens.map(j => String(j.member_id))
-        const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', memberIds)
+        const memberIds = joinedTokens.map((j: any) => String(j.member_id))
+        const tokensRes = await fetch(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
+        const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
           await fetch('/api/push', {
             method: 'POST',
@@ -904,14 +900,17 @@ export default function Page1() {
               <div className="space-y-3">
                 <button onClick={async () => {
                   setIsSendingPush(true)
-                  const { data: allParticipants } = await supabase.from('participants').select('id')
-                  const { data: joinedIds } = await supabase.from('project_participants').select('member_id')
-                  const joinedSet = new Set(joinedIds?.map(j => j.member_id))
-                  const notJoined = allParticipants?.filter(p => !joinedSet.has(p.id)) ?? []
+                  const allRes = await fetch('/api/participants')
+                  const allParticipants = await allRes.json()
+                  const joinedRes = await fetch('/api/project_participants')
+                  const joinedIds = await joinedRes.json()
+                  const joinedSet = new Set(joinedIds?.map((j: any) => j.member_id))
+                  const notJoined = allParticipants?.filter((p: any) => !joinedSet.has(p.id)) ?? []
                   if (notJoined.length === 0) { alert('미참여자가 없어요.'); setIsSendingPush(false); return }
-                  const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', notJoined.map(p => String(p.id)))
+                  const tokensRes = await fetch(`/api/push_tokens?user_ids=${notJoined.map((p: any) => String(p.id)).join(',')}`)
+                  const tokens = await tokensRes.json()
                   if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map(t => t.token) }) })
+                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token) }) })
                   alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
                 }} disabled={isSendingPush} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
@@ -921,17 +920,22 @@ export default function Page1() {
                   setIsSendingPush(true)
                   const oneMonthAgo = new Date()
                   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-                  const { data: allParticipants } = await supabase.from('participants').select('id')
+                  const allRes = await fetch('/api/participants')
+                  const allParticipants = await allRes.json()
                   const inactive: number[] = []
                   for (const p of allParticipants ?? []) {
-                    const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
-                    const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
-                    if (!recentPost && !currentJoin) inactive.push(p.id)
+                    const postsRes = await fetch(`/api/posts?member_id=${p.id}`)
+                    const posts = await postsRes.json()
+                    const recentPost = posts?.find((post: any) => new Date(post.created_at) >= oneMonthAgo)
+                    const joinRes = await fetch(`/api/project_participants?member_id=${p.id}&status=ACTIVE`)
+                    const joins = await joinRes.json()
+                    if (!recentPost && joins.length === 0) inactive.push(p.id)
                   }
                   if (inactive.length === 0) { alert('미활동자가 없어요.'); setIsSendingPush(false); return }
-                  const { data: tokens } = await supabase.from('push_tokens').select('token').in('user_id', inactive.map(id => String(id)))
+                  const tokensRes = await fetch(`/api/push_tokens?user_ids=${inactive.map(id => String(id)).join(',')}`)
+                  const tokens = await tokensRes.json()
                   if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map(t => t.token) }) })
+                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token) }) })
                   alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
                 }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
