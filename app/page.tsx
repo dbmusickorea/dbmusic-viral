@@ -132,19 +132,18 @@ export default function LoginPage() {
       return
     }
 
-    const { data: participant } = await supabase
-      .from('participants')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle()
+    const res = await fetch(`/api/participants?email=${encodeURIComponent(email)}`)
+    const participants = await res.json()
+    const participant = participants?.[0]
 
     if (participant) {
       if (!participant.referral_code) {
         let referralCode = generateReferralCode()
         let isUnique = false
         while (!isUnique) {
-          const { data } = await supabase.from('participants').select('id').eq('referral_code', referralCode).maybeSingle()
-          if (!data) isUnique = true
+          const checkRes = await fetch(`/api/participants?referral_code=${referralCode}`)
+          const checkData = await checkRes.json()
+          if (!checkData?.[0]) isUnique = true
           else referralCode = generateReferralCode()
         }
         await supabase.from('participants').update({ referral_code: referralCode }).eq('id', participant.id)
@@ -155,7 +154,6 @@ export default function LoginPage() {
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(participant.id), 'participant')
       }
-      // 개인정보 동의 체크
       if (!participant.agreed_terms) {
         setPendingUserInfo(participant)
         setPendingRole('participant')
