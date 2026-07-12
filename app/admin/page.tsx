@@ -455,7 +455,8 @@ export default function Page1() {
     if (!pushTitle || !pushBody) { alert('제목과 내용을 입력해주세요.'); return }
     setIsSendingPush(true)
     
-    const { data: tokens } = await supabase.from('push_tokens').select('token, user_id')
+    const res = await fetch('/api/push_tokens')
+    const tokens = await res.json()
     if (!tokens || tokens.length === 0) { alert('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
     
     const response = await fetch('/api/push', {
@@ -464,8 +465,8 @@ export default function Page1() {
       body: JSON.stringify({
         title: pushTitle,
         body: pushBody,
-        tokens: tokens.map(t => t.token),
-        userIds: tokens.map(t => t.user_id)
+        tokens: tokens.map((t: any) => t.token),
+        userIds: tokens.map((t: any) => t.user_id)
       })
     })
     const data = await response.json()
