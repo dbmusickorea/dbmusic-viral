@@ -460,14 +460,12 @@ useEffect(() => {
   const handleSubmit = async () => {
     if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
-    const { count: postCount } = await supabase
-      .from('posts')
-      .select('*', { count: 'exact', head: true })
-      .ilike('project_code', projectCode)
-      .eq('member_id', userInfo?.id)
+    const postsRes = await fetch(`/api/posts?project_code=${projectCode}&member_id=${userInfo?.id}`)
+    const existingPosts = await postsRes.json()
+    const postCount = existingPosts?.length ?? 0
     
     const maxPosts = projectInfo?.required_posts ?? 1
-    if ((postCount ?? 0) >= maxPosts) {
+    if (postCount >= maxPosts) {
       alert(`이미 ${maxPosts}개의 게시물을 제출했어요. 더 이상 제출할 수 없어요.`)
       setIsSubmitting(false)
       return
@@ -488,22 +486,26 @@ useEffect(() => {
       likesCount = stats.likes; commentsCount = stats.comments
     }
 
-    const { error } = await supabase.from('posts').insert({
-      project_code: projectCode.toUpperCase(),
-      influencer_name: influencerName,
-      post_url: postUrl,
-      platform,
-      member_id: userInfo?.id,
-      likes_count: likesCount,
-      comments_count: commentsCount,
-      is_cover: isCover,
-      cover_status: isCover ? 'PENDING' : null
+    const postsInsertRes = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        project_code: projectCode.toUpperCase(),
+        influencer_name: influencerName,
+        post_url: postUrl,
+        platform,
+        member_id: userInfo?.id,
+        likes_count: likesCount,
+        comments_count: commentsCount,
+        is_cover: isCover,
+        cover_status: isCover ? 'PENDING' : null
+      })
     })
-
-    if (error) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
+    if (!postsInsertRes.ok) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
 
     // 관리자에게 푸시 알림
-    const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
+    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
