@@ -231,14 +231,15 @@ export default function Page3() {
   }
 
   const markAllRead = async (id: string) => {
-    await supabase.from('notifications').update({ is_read: true }).eq('user_id', id).eq('is_read', false)
+    await fetch(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
     setUnreadCount(0)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
   const deleteNotification = async (id: number) => {
-    await supabase.from('notifications').delete().eq('id', id)
+    await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' })
     setNotifications(prev => prev.filter(n => n.id !== id))
+    setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
   const deleteAllNotifications = async (userId: string) => {
