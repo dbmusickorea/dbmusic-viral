@@ -119,13 +119,15 @@ export default function Page3() {
 
   const fetchCommentMissionData = async (code: string) => {
     const [videosRes, missionsRes] = await Promise.all([
-      supabase.from('project_videos').select('*').eq('project_code', code).maybeSingle(),
-      supabase.from('comment_missions').select('*').eq('project_code', code).eq('status', 'APPROVED')
+      fetch(`/api/project_videos?project_code=${code}`),
+      fetch(`/api/comment_missions?project_code=${code}&status=APPROVED`)
     ])
-    if (videosRes.data) {
+    const videos = await videosRes.json()
+    const missions = await missionsRes.json()
+    if (videos) {
       setCommentMissionData({
-        videos: videosRes.data,
-        missions: missionsRes.data ?? []
+        videos,
+        missions: missions ?? []
       })
     } else {
       setCommentMissionData(null)

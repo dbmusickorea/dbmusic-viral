@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
   let query = supabaseAdmin.from('comment_missions').select('*')
   if (memberId) query = query.eq('member_id', memberId)
   if (status) query = query.eq('status', status)
+    const projectCode = searchParams.get('project_code')
+  if (projectCode) query = query.eq('project_code', projectCode)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })

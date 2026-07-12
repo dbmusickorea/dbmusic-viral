@@ -374,7 +374,8 @@ useEffect(() => {
       setProjectStatus(project.status ?? '')
       setProjectInfo(project)
     }
-    const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', code).maybeSingle()
+    const videosRes = await fetch(`/api/project_videos?project_code=${code}`)
+    const videos = await videosRes.json()
     setProjectVideos(videos)
     const joinRes = await fetch(`/api/project_participants?project_code=${code}&member_id=${userInfo?.id}`)
     const joinData = await joinRes.json()

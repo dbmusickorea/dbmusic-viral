@@ -270,8 +270,9 @@ export default function Page1() {
     setRequiredPosts(String(project.required_posts ?? 1))
     setRefreshInterval(String(project.refresh_interval ?? ''))
     fetchPosts(project.project_code)
-    supabase.from('project_videos').select('*').eq('project_code', project.project_code).maybeSingle()
-      .then(({ data }) => {
+    fetch(`/api/project_videos?project_code=${project.project_code}`)
+      .then(res => res.json())
+      .then(data => {
         if (data) {
           setShortsUrl1(data.shorts_url_1 ?? '')
           setShortsUrl2(data.shorts_url_2 ?? '')
@@ -299,7 +300,8 @@ export default function Page1() {
   }
 
   const saveProjectVideos = async (projectCode: string) => {
-    const existing = await supabase.from('project_videos').select('id').eq('project_code', projectCode).maybeSingle()
+    const existingRes = await fetch(`/api/project_videos?project_code=${projectCode}`)
+    const existing = await existingRes.json()
     const data = {
       project_code: projectCode,
       shorts_url_1: shortsUrl1 || null,
@@ -309,10 +311,18 @@ export default function Page1() {
       playlist_url: playlistUrl || null,
       playlist_video_id: playlistUrl ? extractVideoId(playlistUrl) : null,
     }
-    if (existing.data) {
-      await supabase.from('project_videos').update(data).eq('project_code', projectCode)
+    if (existing) {
+      await fetch(`/api/project_videos?project_code=${projectCode}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
     } else {
-      await supabase.from('project_videos').insert(data)
+      await fetch('/api/project_videos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
     }
   }
 
