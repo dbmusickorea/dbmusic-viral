@@ -25,18 +25,9 @@ export default function Page5() {
   }, [])
 
   const fetchSettlements = async () => {
-    const { data } = await supabase.from('settlements').select('*').order('requested_at', { ascending: false })
-    if (data && data.length > 0) {
-      const memberIds = data.map(s => s.member_id)
-      const { data: participantData } = await supabase.from('participants').select('id, name').in('id', memberIds)
-      const merged = data.map(s => ({
-        ...s,
-        participants: participantData?.find(p => p.id === s.member_id)
-      }))
-      setSettlements(merged)
-    } else {
-      setSettlements([])
-    }
+    const res = await fetch('/api/settlements')
+    const data = await res.json()
+    setSettlements(data ?? [])
   }
 
   const handleSelect = async (s: any) => {
