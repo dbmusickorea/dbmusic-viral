@@ -327,27 +327,31 @@ export default function Page1() {
 
   const handleInsert = async () => {
     if (!projectCode) { alert('프로젝트 코드를 입력해주세요.'); return }
-    const { error } = await supabase.from('projects').insert({
-      project_code: projectCode.toUpperCase(),
-      client_name: clientName,
-      product_content: productContent,
-      requirements,
-      status,
-      start_date: startDate || null,
-      end_date: endDate || null,
-      reward_per_post: Number(rewardPerPost) || 2500,
-      max_participants: Number(maxParticipants) || 0,
-      mission_date: missionDate || null,
-      mission_time: missionTime || null,
-      option_name: optionName || null,
-      option_price: Number(optionPrice) || null,
-      client_id: selectedClientId || null,
-      required_posts: Number(requiredPosts) || 1,
-      refresh_interval: refreshInterval ? Number(refreshInterval) : null,
-      monitoring_extension: Number(monitoringExtension) || 0,
-      cover_video_count: Number(coverVideoCount) || 0,
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        project_code: projectCode.toUpperCase(),
+        client_name: clientName,
+        product_content: productContent,
+        requirements,
+        status,
+        start_date: startDate || null,
+        end_date: endDate || null,
+        reward_per_post: Number(rewardPerPost) || 2500,
+        max_participants: Number(maxParticipants) || 0,
+        mission_date: missionDate || null,
+        mission_time: missionTime || null,
+        option_name: optionName || null,
+        option_price: Number(optionPrice) || null,
+        client_id: selectedClientId || null,
+        required_posts: Number(requiredPosts) || 1,
+        refresh_interval: refreshInterval ? Number(refreshInterval) : null,
+        monitoring_extension: Number(monitoringExtension) || 0,
+        cover_video_count: Number(coverVideoCount) || 0,
+      })
     })
-    if (error) { alert('등록 실패!'); return }
+    if (!res.ok) { alert('등록 실패!'); return }
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
@@ -373,26 +377,30 @@ export default function Page1() {
   }
 
   const handleUpdate = async () => {
-    const { error } = await supabase.from('projects').update({
-      client_name: clientName,
-      product_content: productContent,
-      requirements,
-      status,
-      start_date: startDate || null,
-      end_date: endDate || null,
-      reward_per_post: Number(rewardPerPost) || 2500,
-      max_participants: Number(maxParticipants) || 0,
-      mission_date: missionDate || null,
-      mission_time: missionTime || null,
-      option_name: optionName || null,
-      option_price: Number(optionPrice) || null,
-      client_id: selectedClientId || null,
-      required_posts: Number(requiredPosts) || 1,
-      refresh_interval: refreshInterval ? Number(refreshInterval) : null,
-      monitoring_extension: Number(monitoringExtension) || 0,
-      cover_video_count: Number(coverVideoCount) || 0,
-    }).eq('project_code', selectedProject.project_code)
-    if (error) { alert('수정 실패!'); return }
+    const res = await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_name: clientName,
+        product_content: productContent,
+        requirements,
+        status,
+        start_date: startDate || null,
+        end_date: endDate || null,
+        reward_per_post: Number(rewardPerPost) || 2500,
+        max_participants: Number(maxParticipants) || 0,
+        mission_date: missionDate || null,
+        mission_time: missionTime || null,
+        option_name: optionName || null,
+        option_price: Number(optionPrice) || null,
+        client_id: selectedClientId || null,
+        required_posts: Number(requiredPosts) || 1,
+        refresh_interval: refreshInterval ? Number(refreshInterval) : null,
+        monitoring_extension: Number(monitoringExtension) || 0,
+        cover_video_count: Number(coverVideoCount) || 0,
+      })
+    })
+    if (!res.ok) { alert('수정 실패!'); return }
     if (selectedClientId) {
       await supabase.from('users').update({ project_code: projectCode.toUpperCase() }).eq('client_id', selectedClientId)
     }
