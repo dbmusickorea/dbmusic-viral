@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import apn from 'node-apn'
 import { createClient } from '@supabase/supabase-js'
-import admin from 'firebase-admin'
+import { initializeApp, getApps, cert } from 'firebase-admin/app'
+import { getMessaging } from 'firebase-admin/messaging'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,12 +10,12 @@ const supabase = createClient(
 )
 
 // Firebase Admin 초기화
-if (!admin.apps.length) {
+if (!getApps().length) {
   const serviceAccount = JSON.parse(
     Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT!, 'base64').toString()
   )
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+  initializeApp({
+    credential: cert(serviceAccount)
   })
 }
 
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
   if (androidTokens.length > 0) {
     for (const token of androidTokens) {
       try {
-        const result = await admin.messaging().send({
+        const result = await getMessaging().send({
           token,
           notification: { title, body },
           android: {
