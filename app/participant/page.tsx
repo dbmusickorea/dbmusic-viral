@@ -174,7 +174,8 @@ useEffect(() => {
   }
 
   const fetchAllProjects = async () => {
-    const { data } = await supabase.from('projects').select('*').eq('status', 'ONGOING').order('created_at', { ascending: false })
+    const res = await fetch('/api/projects?status=ONGOING')
+    const data = await res.json()
     setAllProjects(data ?? [])
   }
 
@@ -276,12 +277,14 @@ useEffect(() => {
     let postIncome = 0
     if (posts && posts.length > 0) {
       const codes = [...new Set(posts.map(p => p.project_code))]
-      const { data: completedProjects } = await supabase.from('projects').select('project_code, reward_per_post, end_date').in('project_code', codes).eq('status', 'COMPLETED')
+      const codesParam = codes.join(',')
+      const projectsRes = await fetch(`/api/projects?codes=${codesParam}&status=COMPLETED`)
+      const completedProjects = await projectsRes.json()
       
-      completedProjects?.forEach(project => {
+      completedProjects?.forEach((project: any) => {
         const projectPosts = posts.filter(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
         
-        projectPosts.forEach(post => {
+        projectPosts.forEach((post: any) => {
           if (post.is_cover) {
             // 커버영상은 종료 후 15일 이후
             if (project.end_date) {
@@ -349,29 +352,29 @@ useEffect(() => {
     setMyPosts(posts ?? [])
     if (posts && posts.length > 0) {
       const codes = [...new Set(posts.map(p => p.project_code))]
-      const { data: projects } = await supabase.from('projects').select('project_code, status, reward_per_post, start_date, end_date').in('project_code', codes)
+      const codesParam = codes.join(',')
+      const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+      const projects = await projectsRes.json()
       const map: any = {}
-      projects?.forEach(p => { map[p.project_code] = p })
+      projects?.forEach((p: any) => { map[p.project_code] = p })
       setProjectsMap(map)
     }
   }
 
   const getRequirements = async (code: string) => {
-    const { data } = await supabase
-      .from('projects')
-      .select('requirements, status, start_date, end_date, reward_per_post, max_participants, mission_date, mission_time, required_posts')
-      .ilike('project_code', code)
-      .maybeSingle()
-    setRequirements(data?.requirements ?? '')
-    setProjectStatus(data?.status ?? '')
-    setProjectInfo(data)
+    const res = await fetch(`/api/projects?project_code=${code}`)
+    const data = await res.json()
+    const project = data?.[0]
+    if (project) {
+      setRequirements(project.requirements ?? '')
+      setProjectStatus(project.status ?? '')
+      setProjectInfo(project)
+    }
     const { data: videos } = await supabase.from('project_videos').select('*').ilike('project_code', code).maybeSingle()
     setProjectVideos(videos)
-    // 참여 여부 및 인원 수 확인
     const { data: joinData } = await supabase.from('project_participants')
       .select('id, status').ilike('project_code', code).eq('member_id', userInfo?.id).maybeSingle()
     setIsJoined(!!joinData && joinData.status === 'ACTIVE')
-    
     const { count } = await supabase.from('project_participants')
       .select('*', { count: 'exact', head: true }).ilike('project_code', code).eq('status', 'ACTIVE')
     setParticipantCount(count ?? 0)

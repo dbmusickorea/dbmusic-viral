@@ -94,24 +94,26 @@ export default function Page3() {
   }
 
   const fetchAllProjects = async () => {
-    const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/projects')
+    const data = await res.json()
     setAllProjects(data ?? [])
   }
 
   const fetchMyProjects = async (clientId: string) => {
-    const { data } = await supabase.from('projects').select('*').eq('client_id', clientId).order('created_at', { ascending: false })
+    const res = await fetch(`/api/projects?client_id=${clientId}`)
+    const data = await res.json()
     setMyProjects(data ?? [])
-    const active = data?.find(p => p.status === 'ONGOING')
+    const active = data?.find((p: any) => p.status === 'ONGOING')
     if (active) {
       setProjectInfo(active)
       setClientCode(active.project_code)
       fetchPosts(active.project_code)
-      fetchCommentMissionData(active.project_code)
     }
   }
 
   const fetchPosts = async (code: string) => {
-    const { data } = await supabase.from('posts').select('*').ilike('project_code', code).order('created_at', { ascending: false })
+    const res = await fetch(`/api/posts?project_code=${code}`)
+    const data = await res.json()
     setPosts(data ?? [])
   }
 

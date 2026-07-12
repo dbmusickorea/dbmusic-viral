@@ -76,7 +76,8 @@ export default function Page1() {
   }, [])
 
   const fetchProjects = async () => {
-    const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/projects')
+    const data = await res.json()
     setProjects(data ?? [])
   }
 
@@ -202,7 +203,7 @@ export default function Page1() {
       setCoverPosts([])
     }
   }
-  
+
   const fetchPosts = async (code: string) => {
     const res = await fetch(`/api/posts?project_code=${code}`)
     const data = await res.json()
