@@ -186,9 +186,10 @@ useEffect(() => {
   }
 
   const fetchNotifications = async (id: string) => {
-    const { data } = await supabase.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
+    const res = await fetch(`/api/notifications?user_id=${id}`)
+    const data = await res.json()
     setNotifications(data ?? [])
-    setUnreadCount(data?.filter(n => !n.is_read).length ?? 0)
+    setUnreadCount(data?.filter((n: any) => !n.is_read).length ?? 0)
   }
 
   const markAllRead = async (id: string) => {
