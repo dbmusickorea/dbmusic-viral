@@ -57,7 +57,8 @@ export default function Page4() {
   }, [])
 
   const fetchParticipants = async () => {
-    const { data } = await supabase.from('participants').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/participants')
+    const data = await res.json()
     setParticipants(data ?? [])
   }
 
