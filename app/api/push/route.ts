@@ -86,7 +86,8 @@ export async function POST(request: NextRequest) {
       title,
       body
     }))
-    await supabaseAdmin.from('notifications').insert(notificationRows)
+    const { error: notifError } = await supabaseAdmin.from('notifications').insert(notificationRows)
+    if (notifError) console.error('notifications insert error:', notifError)
   }
 
   return NextResponse.json({ success: true, results })
