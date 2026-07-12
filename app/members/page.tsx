@@ -63,7 +63,8 @@ export default function Page4() {
   }
 
   const fetchClients = async () => {
-    const { data } = await supabase.from('users').select('*').eq('role', 'client').order('name', { ascending: true })
+    const res = await fetch('/api/users')
+    const data = await res.json()
     setClients(data ?? [])
   }
 
