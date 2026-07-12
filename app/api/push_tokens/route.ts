@@ -22,3 +22,15 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json(data ?? [])
 }
+
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+  const { user_id, user_role, token } = body
+
+  await supabaseAdmin.from('push_tokens').delete().eq('token', token)
+  await supabaseAdmin.from('push_tokens').delete().eq('user_id', user_id)
+  
+  const { error } = await supabaseAdmin.from('push_tokens').insert({ user_id, user_role, token })
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
