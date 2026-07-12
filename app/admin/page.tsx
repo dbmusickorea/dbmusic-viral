@@ -82,7 +82,8 @@ export default function Page1() {
   }
 
   const fetchProducts = async () => {
-    const { data } = await supabase.from('products').select('*').order('id', { ascending: true })
+    const res = await fetch('/api/products')
+    const data = await res.json()
     setProducts(data ?? [])
   }
 
@@ -176,15 +177,19 @@ export default function Page1() {
 
   const handleAddProduct = async () => {
     if (!newProduct) { alert('상품명을 입력해주세요.'); return }
-    const { error } = await supabase.from('products').insert({ name: newProduct, price: Number(newProductPrice) || 0 })
-    if (error) { alert('등록 실패!'); return }
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newProduct, price: Number(newProductPrice) || 0 })
+    })
+    if (!res.ok) { alert('등록 실패!'); return }
     setNewProduct(''); setNewProductPrice('')
     fetchProducts()
   }
 
   const handleDeleteProduct = async (id: number) => {
     if (!confirm('삭제하시겠습니까?')) return
-    await supabase.from('products').delete().eq('id', id)
+    await fetch(`/api/products?id=${id}`, { method: 'DELETE' })
     fetchProducts()
   }
 
