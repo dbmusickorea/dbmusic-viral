@@ -164,11 +164,9 @@ export default function LoginPage() {
       return
     }
 
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle()
+    const userRes = await fetch(`/api/users?email=${encodeURIComponent(email)}`)
+    const users = await userRes.json()
+    const user = users?.[0]
 
     if (user) {
       if (user.role === 'client' && !user.client_id) {
