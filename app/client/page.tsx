@@ -57,27 +57,33 @@ export default function Page3() {
   }, [])
 
   const fetchRequests = async (clientId: string) => {
-    const { data } = await supabase.from('client_requests').select('*').eq('client_id', clientId).order('created_at', { ascending: false })
+    const res = await fetch(`/api/client_requests?client_id=${clientId}`)
+    const data = await res.json()
     setRequests(data ?? [])
   }
 
   const handleSubmitRequest = async () => {
     if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
-    const { error } = await supabase.from('client_requests').insert({
-      client_id: userInfo?.client_id,
-      client_name: userInfo?.name,
-      client_mobile: userInfo?.mobile,
-      title: requestTitle,
-      content: requestContent,
-      requested_posts: Number(requestedPosts)
+    const res = await fetch('/api/client_requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: userInfo?.client_id,
+        client_name: userInfo?.name,
+        client_mobile: userInfo?.mobile,
+        title: requestTitle,
+        content: requestContent,
+        requested_posts: Number(requestedPosts)
+      })
     })
-    if (error) { alert('등록 실패!'); return }
+    if (!res.ok) { alert('등록 실패!'); return }
     alert('✅ 프로젝트 문의가 등록됐어요!')
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
     // 관리자에게 푸시 알림 발송
-    const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
+    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',

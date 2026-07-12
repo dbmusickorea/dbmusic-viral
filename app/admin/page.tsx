@@ -92,7 +92,8 @@ export default function Page1() {
   }
 
   const fetchClientRequests = async () => {
-    const { data } = await supabase.from('client_requests').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/client_requests')
+    const data = await res.json()
     setClientRequests(data ?? [])
   }
 
@@ -818,7 +819,14 @@ export default function Page1() {
                           </span>
                           {req.status === 'PENDING' && (
                             <>
-                              <button onClick={async () => { await supabase.from('client_requests').update({ status: 'CONFIRMED' }).eq('id', req.id); fetchClientRequests() }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">확인</button>
+                              <button onClick={async () => { 
+                                await fetch(`/api/client_requests?id=${req.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'CONFIRMED' })
+                                })
+                                fetchClientRequests()
+                              }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">확인</button>
                             </>
                           )}
                         </div>
