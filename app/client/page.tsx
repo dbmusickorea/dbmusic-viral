@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react' 
@@ -40,6 +40,8 @@ export default function Page3() {
   const [myProjectPage, setMyProjectPage] = useState(0)
   const [allProjectPage, setAllProjectPage] = useState(0)
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
+  const [postPage, setPostPage] = useState(0)
+  const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -151,11 +153,13 @@ export default function Page3() {
 
   const handleSelectProject = (project: any) => {
     setProjectInfo(project)
-    setActiveTab('right')
     setClientCode(project.project_code)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
     fetchDailyStats(project.project_code)
+    setActiveTab('right')
+    setPostPage(0)
+    setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
   }
 
   const handleCodeChange = (code: string) => {
@@ -702,7 +706,7 @@ export default function Page3() {
 
             {/* 게시물 목록 */}
             {projectInfo && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div ref={postsRef} className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">게시물 목록</h2>
                 {posts.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
@@ -710,8 +714,9 @@ export default function Page3() {
                   <div className="space-y-3">
                     {[...posts]
                       .sort((a, b) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
+                      .slice(postPage * PAGE_SIZE, (postPage + 1) * PAGE_SIZE)
                       .map((post, index) => {
-                        const rank = index + 1
+                        const rank = postPage * PAGE_SIZE + index + 1
                         const isEligible = (post.likes_count ?? 0) >= 1000
                         return (
                           <div key={post.id} className="border rounded-lg p-3">
@@ -739,6 +744,13 @@ export default function Page3() {
                           </div>
                         )
                       })}
+                      {posts.length > PAGE_SIZE && (
+                        <div className="flex justify-between items-center mt-3">
+                          <button onClick={() => setPostPage(p => Math.max(0, p - 1))} disabled={postPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                          <span className="text-xs text-gray-500">{postPage + 1} / {Math.ceil(posts.length / PAGE_SIZE)}</span>
+                          <button onClick={() => setPostPage(p => Math.min(Math.ceil(posts.length / PAGE_SIZE) - 1, p + 1))} disabled={(postPage + 1) * PAGE_SIZE >= posts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
