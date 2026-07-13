@@ -47,14 +47,23 @@ export default function Page5() {
 
   const handleApprove = async () => {
     if (!selected) return
-    await supabase.from('settlements').update({ status: 'APPROVED', memo }).eq('id', selected.id)
+    await fetch(`/api/settlements?id=${selected.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'APPROVED', memo })
+    })
     if (selectedParticipant) {
-      await supabase.from('participants').update({
-        balance: (selectedParticipant.balance ?? 0) - (selected.net_amount ?? selected.amount ?? 0)
-      }).eq('id', selected.member_id)
+      await fetch(`/api/participants?id=${selected.member_id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          balance: (selectedParticipant.balance ?? 0) - (selected.net_amount ?? selected.amount ?? 0)
+        })
+      })
     }
     // 체험단에게 푸시 알림 발송
-    const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(selected.member_id))
+    const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.member_id)}`)
+    const memberTokens = await memberTokensRes.json()
     if (memberTokens && memberTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
