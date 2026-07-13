@@ -37,6 +37,9 @@ export default function Page3() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [myProjectPage, setMyProjectPage] = useState(0)
+  const [allProjectPage, setAllProjectPage] = useState(0)
+  const PAGE_SIZE = 5
   const router = useRouter()
 
   useEffect(() => {
@@ -226,15 +229,16 @@ export default function Page3() {
   }
 
   const fetchDailyStats = async (projectCode: string) => {
-    const { data } = await supabase.from('post_stats_history').select('*').ilike('project_code', projectCode).order('recorded_at', { ascending: true })
+    const res = await fetch(`/api/post_stats_history?project_code=${projectCode}`)
+    const data = await res.json()
     if (data && data.length > 0) {
-      const dates = [...new Set(data.map(h => h.recorded_at))].sort()
+      const dates = [...new Set(data.map((h: any) => h.recorded_at))].sort()
       const stats = dates.map(date => {
-        const dayData = data.filter(h => h.recorded_at === date)
+        const dayData = data.filter((h: any) => h.recorded_at === date)
         return {
           date,
-          likes: dayData.reduce((sum, h) => sum + (h.likes_count ?? 0), 0),
-          comments: dayData.reduce((sum, h) => sum + (h.comments_count ?? 0), 0)
+          likes: dayData.reduce((sum: number, h: any) => sum + (h.likes_count ?? 0), 0),
+          comments: dayData.reduce((sum: number, h: any) => sum + (h.comments_count ?? 0), 0)
         }
       })
       setDailyStats(stats)
@@ -425,21 +429,30 @@ export default function Page3() {
                 {myProjects.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
                 ) : (
-                  <div className="space-y-2">
-                    {myProjects.map((project) => (
-                      <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-sm">{project.product_content}</p>
-                            <p className="text-xs text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                  <>
+                    <div className="space-y-2">
+                      {myProjects.slice(myProjectPage * PAGE_SIZE, (myProjectPage + 1) * PAGE_SIZE).map((project) => (
+                        <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-medium text-sm">{project.product_content}</p>
+                              <p className="text-xs text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                              {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                            </span>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
-                          </span>
                         </div>
+                      ))}
+                    </div>
+                    {myProjects.length > PAGE_SIZE && (
+                      <div className="flex justify-between items-center mt-3">
+                        <button onClick={() => setMyProjectPage(p => Math.max(0, p - 1))} disabled={myProjectPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <span className="text-xs text-gray-500">{myProjectPage + 1} / {Math.ceil(myProjects.length / PAGE_SIZE)}</span>
+                        <button onClick={() => setMyProjectPage(p => Math.min(Math.ceil(myProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(myProjectPage + 1) * PAGE_SIZE >= myProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             )}

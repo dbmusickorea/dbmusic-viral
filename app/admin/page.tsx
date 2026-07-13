@@ -827,10 +827,13 @@ export default function Page1() {
               )}
             </div>
 
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold">📋 의뢰인 프로젝트 문의</h2>
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">총 {clientRequests.length}건</span>
+                <div className="flex gap-2 text-xs">
+                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
+                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
+                </div>
               </div>
               {clientRequests.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
