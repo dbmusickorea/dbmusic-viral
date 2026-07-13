@@ -80,15 +80,21 @@ useEffect(() => {
     setYoutubeHandle(accounts.youtube ?? '')
     setUserInfo(parsed)
     setUserRole(role ?? '')
-    fetchParticipantInfo(parsed.id)
-    fetchAvailableBalance(parsed.id)
-    fetchMyPostsAndProjects(parsed.id)
-    fetchMySettlements(parsed.id)
-    fetchCommentMissions(parsed.id)
-    fetchAllProjects()
-    fetchUnlockVideos()
-    fetchMyParticipations(parsed.id)
-    fetchNotifications(String(parsed.id))
+    
+    const loadData = async () => {
+      await Promise.all([
+        fetchParticipantInfo(parsed.id),
+        fetchAvailableBalance(parsed.id),
+        fetchMyPostsAndProjects(parsed.id),
+        fetchMySettlements(parsed.id),
+        fetchCommentMissions(parsed.id),
+        fetchAllProjects(),
+        fetchUnlockVideos(),
+        fetchMyParticipations(parsed.id),
+        fetchNotifications(String(parsed.id))
+      ])
+    }
+    loadData()
   }, [])
 
   const handleCommentVerify = async (videoId: string, projectCode: string) => {

@@ -62,17 +62,22 @@ export default function Page1() {
   useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (role !== 'admin') { router.push('/'); return }
-    fetchProjects()
-    fetchProducts()
-    fetchClients()
-    fetchClientRequests()
-    fetchUnlockVideos()
-    fetchCoverPosts() 
     const userInfo = localStorage.getItem('userInfo')
-    if (userInfo) {
-      const parsed = JSON.parse(userInfo)
-      fetchNotifications(String(parsed.id))
+    const loadData = async () => {
+      await Promise.all([
+        fetchProjects(),
+        fetchProducts(),
+        fetchClients(),
+        fetchClientRequests(),
+        fetchUnlockVideos(),
+        fetchCoverPosts(),
+      ])
+      if (userInfo) {
+        const parsed = JSON.parse(userInfo)
+        fetchNotifications(String(parsed.id))
+      }
     }
+    loadData()
   }, [])
 
   const fetchProjects = async () => {

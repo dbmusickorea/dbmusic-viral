@@ -46,14 +46,17 @@ export default function Page3() {
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')
-    fetchNotifications(String(parsed.id))
 
-    if (role === 'client' && parsed.client_id) {
-      fetchMyProjects(parsed.client_id)
-      fetchRequests(parsed.client_id)
-    } else if (role === 'admin') {
-      fetchAllProjects()
+    const loadData = async () => {
+      await Promise.all([
+        fetchNotifications(String(parsed.id)),
+        role === 'client' && parsed.client_id ? Promise.all([
+          fetchMyProjects(parsed.client_id),
+          fetchRequests(parsed.client_id)
+        ]) : role === 'admin' ? fetchAllProjects() : Promise.resolve()
+      ])
     }
+    loadData()
   }, [])
 
   const fetchRequests = async (clientId: string) => {
