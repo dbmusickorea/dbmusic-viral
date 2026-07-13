@@ -39,6 +39,7 @@ export default function Page3() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [myProjectPage, setMyProjectPage] = useState(0)
   const [allProjectPage, setAllProjectPage] = useState(0)
+  const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -378,9 +379,15 @@ export default function Page3() {
           </div>
         )}
 
+        {/* 모바일 탭 */}
+        <div className="md:hidden flex mb-4 border-b">
+          <button onClick={() => setActiveTab('left')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'left' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📋 프로젝트</button>
+          <button onClick={() => setActiveTab('right')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'right' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📊 현황</button>
+        </div>
+
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
-          <div>
+          <div className={`${activeTab === 'left' ? 'block' : 'hidden'} md:block`}>
             {/* 의뢰인 - 내 프로젝트 목록 */}
             {isClient && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
@@ -552,7 +559,7 @@ export default function Page3() {
           </div>
 
           {/* 오른쪽 컬럼 */}
-          <div>
+          <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
               <div className="grid grid-cols-2 gap-3 mb-4">
