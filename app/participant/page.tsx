@@ -498,6 +498,11 @@ useEffect(() => {
     if (!res.ok) { alert('이미 참여하셨거나 오류가 발생했어요.'); return }
     setIsJoined(true)
     setParticipantCount(prev => prev + 1)
+    const info = localStorage.getItem('userInfo')
+    if (info) {
+      const parsed = JSON.parse(info)
+      await fetchMyParticipations(parsed.id)
+    }
     alert('✅ 참여 완료!')
   }
 
