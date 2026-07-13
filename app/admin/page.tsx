@@ -263,6 +263,7 @@ export default function Page1() {
       return
     }
     setSelectedProject(project)
+    setActiveTab('right')
     setClientName(project.client_name ?? '')
     setProjectCode(project.project_code ?? '')
     setProjectPrefix(project.project_code?.split('_')[0] ?? '')
