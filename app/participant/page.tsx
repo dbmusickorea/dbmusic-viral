@@ -157,7 +157,7 @@ useEffect(() => {
           await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
           setBalance(newBalance)
           fetchCommentMissions(userInfo?.id)
-          alert('✅ 댓글 인증 완료! 300원이 적립됐어요!')
+          alert('✅ 댓글 인증 완료! 300P가 적립됐어요!')
         }
       } else {
         alert('❌ 댓글을 찾을 수 없어요. 유튜브 계정명을 다시 확인해주세요.')
@@ -534,9 +534,9 @@ useEffect(() => {
       await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
       setBalance(newBalance)
       if (isCover) {
-        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}원 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
+        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
       } else {
-        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}원 적립됐어요 🎉`)
+        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉`)
       }
     } else {
       alert(isCover ? '미션 제출 완료!\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.' : '미션 제출 완료!')
@@ -554,7 +554,7 @@ useEffect(() => {
     if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
-    if (amount < 10000) { alert('최소 10,000원 이상부터 환전 신청 가능합니다.'); return }
+    if (amount < 10000) { alert('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
     if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
 
     // 예금주 이름 확인
@@ -586,7 +586,7 @@ useEffect(() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '💰 환전 신청이 들어왔어요!',
-          body: `${userInfo?.name}님이 ${amount.toLocaleString()}원 환전을 신청했어요.`,
+          body: `${userInfo?.name}님이 ${amount.toLocaleString()}P 환전을 신청했어요.`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)
         })
@@ -771,9 +771,9 @@ useEffect(() => {
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <p className="text-sm text-gray-500">나의 적립금</p>
-                  <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}원</p>
+                  <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}P</p>
                 </div>
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}원)</span>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}P)</span>
               </div>
               {referralCode && (
                 <div className="bg-gray-50 rounded-lg p-3 mb-3">
@@ -791,9 +791,9 @@ useEffect(() => {
               {showLevelGuide && (
                 <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
                   <div className="bg-blue-50 p-3 text-xs text-blue-700 space-y-1">
-                    <p>🎯 추천인 1명 가입 시: <span className="font-bold">+150원 + 레벨 1 상승</span></p>
+                    <p>🎯 추천인 1명 가입 시: <span className="font-bold">+150P + 레벨 1 상승</span></p>
                     <p>💰 레벨이 높을수록 게시물당 적립금이 올라가요!</p>
-                    <p>⭐ 최대 적립금은 <span className="font-bold">10,000원</span>입니다.</p>
+                    <p>⭐ 최대 적립금은 <span className="font-bold">10,000P</span>입니다.</p>
                   </div>
                   <table className="w-full text-xs">
                     <thead className="bg-gray-50">
@@ -807,7 +807,7 @@ useEffect(() => {
                         <tr key={lv} className={`border-t ${level === lv ? 'bg-blue-50 font-bold' : ''}`}>
                           <td className="py-2 px-3">Lv.{lv} {level === lv ? '← 현재' : ''}</td>
                           <td className="py-2 px-3 text-right text-blue-600">
-                            {lv === 50 ? '10,000원' : `${(2500 + (lv - 1) * 150).toLocaleString()}원`}
+                            {lv === 50 ? '10,000P' : `${(2500 + (lv - 1) * 150).toLocaleString()}P`}
                           </td>
                         </tr>
                       ))}
@@ -856,16 +856,16 @@ useEffect(() => {
               {showExchange && (
                 <div className="mt-4 border-t pt-4">
                   <h2 className="font-bold mb-1">💰 환전 신청</h2>
-                  <p className="text-xs text-gray-500 mb-3">※ 최소 10,000원 이상 신청 가능</p>
+                  <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
                   <div className="bg-blue-50 rounded-lg p-3 mb-3">
                     <p className="text-xs text-gray-500">환전 가능 금액</p>
-                    <p className="text-xl font-bold text-blue-600">{availableBalance.toLocaleString()}원</p>
+                    <p className="text-xl font-bold text-blue-600">{availableBalance.toLocaleString()}P</p>
                     <p className="text-xs text-gray-400 mt-1">종료된 프로젝트 수익 + 댓글 미션 수익</p>
                   </div>
                   {coverReward > 0 && (
                     <div className="bg-purple-50 rounded-lg p-3 mb-3">
                       <p className="text-xs text-gray-500">커버영상 수익</p>
-                      <p className="text-xl font-bold text-purple-600">{coverReward.toLocaleString()}원</p>
+                      <p className="text-xl font-bold text-purple-600">{coverReward.toLocaleString()}P</p>
                       <p className="text-xs text-gray-400 mt-1">프로젝트 종료 후 15일 이후 환전 가능</p>
                     </div>
                   )}
@@ -892,12 +892,12 @@ useEffect(() => {
                     </div>
                     <div>
                       <label className="text-sm font-medium">신청 금액</label>
-                      <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000원)" />
+                      <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000P)" />
                     </div>
                     {exchangeAmount && (
                       <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                        <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}원</p>
-                        <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}원</p>
+                        <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}P</p>
+                        <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}P</p>
                       </div>
                     )}
                     <div className="flex gap-2">
@@ -973,7 +973,7 @@ useEffect(() => {
                     <div key={s.id} className="border rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
+                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}P</p>
                           <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                           {s.memo && (
                             <div className="mt-1 bg-blue-50 rounded p-2">
@@ -984,7 +984,7 @@ useEffect(() => {
                         </div>
                         <div className="text-right shrink-0 ml-2">
                           {settlementStatusLabel(s.status)}
-                          <p className="text-xs text-gray-500 mt-1">실수령: {s.net_amount?.toLocaleString() ?? 0}원</p>
+                          <p className="text-xs text-gray-500 mt-1">실수령: {s.net_amount?.toLocaleString() ?? 0}P</p>
                         </div>
                       </div>
                     </div>
@@ -1045,10 +1045,10 @@ useEffect(() => {
                               }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
                             </div>
                             <div className="text-right shrink-0 ml-2">
-                              <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}원</p>
-                              <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}원</p>
+                              <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
+                              <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
                               {post.is_cover && (
-                                <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}원</p>
+                                <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
                               )}
                               <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
                             </div>
@@ -1227,7 +1227,7 @@ useEffect(() => {
             {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">💬 댓글 미션</h2>
-                <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300원을 받으세요!</p>
+                <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300P를 받으세요!</p>
                 <p className="text-xs text-red-400 mb-3">⚠️ 댓글 삭제 시 적립금이 차감됩니다.</p>
                 <div className="space-y-3">
                   {/* 영상 선택 버튼 */}

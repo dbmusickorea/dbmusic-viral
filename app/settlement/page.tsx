@@ -61,7 +61,7 @@ export default function Page5() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '💰 환전 신청이 승인됐어요!',
-          body: `${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}원 환전이 승인됐어요.`,
+          body: `${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}P 환전이 승인됐어요.`,
           tokens: memberTokens.map((t: any) => t.token),
           userIds: memberTokens.map((t: any) => t.user_id)
         })
@@ -180,7 +180,7 @@ export default function Page5() {
                           {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}원</p>
+                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}P</p>
                           {statusLabel(s.status)}
                         </div>
                       </div>
@@ -203,10 +203,10 @@ export default function Page5() {
                       <p className="text-xs text-blue-600 mt-1">추천인 코드: {selectedParticipant.referral_code}</p>
                     )}
                   </div>
-                  <p>현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}원</span></p>
-                  <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}원</span></p>
-                  <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}원</span></p>
-                  <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}원</span></p>
+                  <p>현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}P</span></p>
+                  <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}P</span></p>
+                  <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}P</span></p>
+                  <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}P</span></p>
                   <p>주민번호: <span className="font-medium">{decryptedResident || '-'}</span></p>
                   <p>주소: <span className="font-medium">{selected.address ?? '-'}</span></p>
                   <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {decryptedAccount} ({selectedParticipant?.account_holder})</span></p>

@@ -318,7 +318,7 @@ export default function LoginPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '🎉 레벨이 올랐어요!',
-            body: `추천인 보상으로 Lv.${newLevel}이 됐어요! 150원도 적립됐어요.`,
+            body: `추천인 보상으로 Lv.${newLevel}이 됐어요! 150P도 적립됐어요.`,
             tokens: referrerTokens.map((t: any) => t.token),
             userIds: referrerTokens.map((t: any) => t.user_id)
           })

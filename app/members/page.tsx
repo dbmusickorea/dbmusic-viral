@@ -332,7 +332,7 @@ export default function Page4() {
                             </div>
                             <p className="text-xs text-gray-500">{p.email}</p>
                           </div>
-                          <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}원</p>
+                          <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}P</p>
                         </div>
                       </div>
                     ))}
@@ -401,7 +401,7 @@ export default function Page4() {
                       <label className="text-sm font-medium">등급 (레벨)</label>
                       <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
                         {Array.from({length: 50}, (_, i) => i + 1).map(lv => (
-                          <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000원' : `${(2500 + (lv-1) * 150).toLocaleString()}원`})</option>
+                          <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000P' : `${(2500 + (lv-1) * 150).toLocaleString()}P`})</option>
                         ))}
                       </select>
                     </div>
@@ -438,13 +438,13 @@ export default function Page4() {
                         return (
                           <div key={post.id} className="flex justify-between text-xs border rounded p-2">
                             <span>{post.platform} · {post.project_code}</span>
-                            <span className="text-blue-600 font-medium">{levelReward.toLocaleString()}원</span>
+                            <span className="text-blue-600 font-medium">{levelReward.toLocaleString()}P</span>
                           </div>
                         )
                       })}
                       <div className="flex justify-between text-xs font-bold bg-blue-50 rounded p-2">
                         <span>게시물 수익 합계</span>
-                        <span className="text-blue-600">{(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)).toLocaleString()}원</span>
+                        <span className="text-blue-600">{(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
@@ -457,12 +457,12 @@ export default function Page4() {
                       {memberCommentMissions.map((m) => (
                         <div key={m.id} className="flex justify-between text-xs border rounded p-2">
                           <span>{m.project_code} · {m.youtube_handle}</span>
-                          <span className="text-green-600 font-medium">300원</span>
+                          <span className="text-green-600 font-medium">300P</span>
                         </div>
                       ))}
                       <div className="flex justify-between text-xs font-bold bg-green-50 rounded p-2">
                         <span>댓글 수익 합계</span>
-                        <span className="text-green-600">{(memberCommentMissions.length * 300).toLocaleString()}원</span>
+                        <span className="text-green-600">{(memberCommentMissions.length * 300).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
@@ -474,7 +474,7 @@ export default function Page4() {
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs border rounded p-2">
                         <span>커버영상 별도 지급</span>
-                        <span className="text-purple-600 font-medium">{Number(selected.cover_reward).toLocaleString()}원</span>
+                        <span className="text-purple-600 font-medium">{Number(selected.cover_reward).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
@@ -483,7 +483,7 @@ export default function Page4() {
                 <div className="flex justify-between text-sm font-bold bg-gray-100 rounded p-2">
                   <span>총 수익</span>
                   <span className="text-blue-600">
-                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0)).toLocaleString()}원
+                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0)).toLocaleString()}P
                   </span>
                 </div>
               </div>

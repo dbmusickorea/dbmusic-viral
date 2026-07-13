@@ -142,7 +142,7 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 커버영상 승인됐어요!',
-          body: `커버영상이 승인되어 ${reward.toLocaleString()}원이 추가 지급됐어요.`,
+          body: `커버영상이 승인되어 ${reward.toLocaleString()}P이 추가 지급됐어요.`,
           tokens: tokens.map((t: any) => t.token),
           userIds: tokens.map((t: any) => t.user_id)
         })
@@ -771,7 +771,7 @@ export default function Page1() {
                         <div key={p.id} className="flex justify-between items-center border rounded-lg px-3 py-2">
                           <p className="text-sm">{p.name}</p>
                           <div className="flex items-center gap-2">
-                            <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
+                            <p className="text-sm text-blue-600">{p.price?.toLocaleString()}P</p>
                             <button onClick={() => handleDeleteProduct(p.id)} className="text-xs text-red-500">삭제</button>
                           </div>
                         </div>
@@ -986,10 +986,10 @@ export default function Page1() {
                   {(productContent && productContent !== '__direct__') && (
                     <div className="bg-blue-50 rounded-lg p-3 mb-3">
                       <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
-                      <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
+                      <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}P</p>
                       <div className="text-xs text-gray-500 mt-1">
-                        <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
-                        {optionPrice && <p>옵션: +{Number(optionPrice).toLocaleString()}원</p>}
+                        <p>상품: {getSelectedProductPrice().toLocaleString()}P</p>
+                        {optionPrice && <p>옵션: +{Number(optionPrice).toLocaleString()}P</p>}
                       </div>
                     </div>
                   )}
@@ -1034,7 +1034,7 @@ export default function Page1() {
                         <select value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass}>
                           <option value="">상품 선택</option>
                           {products.map((p) => (
-                            <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}원)</option>
+                            <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}P)</option>
                           ))}
                           <option value="__direct__">직접 입력</option>
                         </select>
