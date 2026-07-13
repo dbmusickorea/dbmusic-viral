@@ -151,6 +151,7 @@ export default function Page3() {
 
   const handleSelectProject = (project: any) => {
     setProjectInfo(project)
+    setActiveTab('right')
     setClientCode(project.project_code)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
