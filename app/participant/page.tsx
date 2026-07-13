@@ -72,6 +72,7 @@ export default function Page2() {
   const [participationPage, setParticipationPage] = useState(0)
   const [projectListPage, setProjectListPage] = useState(0)
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
+  const [myPostPage, setMyPostPage] = useState(0)
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -1137,36 +1138,45 @@ useEffect(() => {
                   {displayPosts.length === 0 ? (
                     <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
                   ) : (
-                    displayPosts.map((post) => {
-                      const baseAmount = projectsMap[post.project_code]?.reward_per_post ?? 0
-                      const myAmount = getLevelAmount(baseAmount, level)
-                      return (
-                        <div key={post.id} className="border rounded-lg p-3">
-                          <div className="flex justify-between items-start">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1 mb-1">
-                                <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                                {statusBadge(post.project_code)}
+                    <>
+                      {displayPosts.slice(myPostPage * PAGE_SIZE, (myPostPage + 1) * PAGE_SIZE).map((post) => {
+                        const baseAmount = projectsMap[post.project_code]?.reward_per_post ?? 0
+                        const myAmount = getLevelAmount(baseAmount, level)
+                        return (
+                          <div key={post.id} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                                  {statusBadge(post.project_code)}
+                                </div>
+                                <p className="text-xs text-gray-400">{post.project_code}</p>
+                                <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
+                                <button onClick={() => {
+                                  const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                                  if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { alert('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
+                                }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
                               </div>
-                              <p className="text-xs text-gray-400">{post.project_code}</p>
-                              <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
-                              <button onClick={() => {
-                                const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                                if (newUrl) { supabase.from('posts').update({ post_url: newUrl }).eq('id', post.id).then(() => { alert('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
-                              }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
-                            </div>
-                            <div className="text-right shrink-0 ml-2">
-                              <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
-                              <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
-                              {post.is_cover && (
-                                <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
-                              )}
-                              <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                              <div className="text-right shrink-0 ml-2">
+                                <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
+                                <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
+                                {post.is_cover && (
+                                  <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
+                                )}
+                                <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                              </div>
                             </div>
                           </div>
+                        )
+                      })}
+                      {displayPosts.length > PAGE_SIZE && (
+                        <div className="flex justify-between items-center mt-3">
+                          <button onClick={() => setMyPostPage(p => Math.max(0, p - 1))} disabled={myPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                          <span className="text-xs text-gray-500">{myPostPage + 1} / {Math.ceil(displayPosts.length / PAGE_SIZE)}</span>
+                          <button onClick={() => setMyPostPage(p => Math.min(Math.ceil(displayPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(myPostPage + 1) * PAGE_SIZE >= displayPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                         </div>
-                      )
-                    })
+                      )}
+                    </>
                   )}
                 </div>
               )}
