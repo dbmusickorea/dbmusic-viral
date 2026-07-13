@@ -477,21 +477,30 @@ export default function Page3() {
                 {filteredProjects.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
                 ) : (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {filteredProjects.map((project) => (
-                      <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-sm">{project.project_code}</p>
-                            <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
+                  <>
+                    <div className="space-y-2">
+                      {filteredProjects.slice(allProjectPage * PAGE_SIZE, (allProjectPage + 1) * PAGE_SIZE).map((project) => (
+                        <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-medium text-sm">{project.project_code}</p>
+                              <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                              {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                            </span>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
-                          </span>
                         </div>
+                      ))}
+                    </div>
+                    {filteredProjects.length > PAGE_SIZE && (
+                      <div className="flex justify-between items-center mt-3">
+                        <button onClick={() => setAllProjectPage(p => Math.max(0, p - 1))} disabled={allProjectPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <span className="text-xs text-gray-500">{allProjectPage + 1} / {Math.ceil(filteredProjects.length / PAGE_SIZE)}</span>
+                        <button onClick={() => setAllProjectPage(p => Math.min(Math.ceil(filteredProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(allProjectPage + 1) * PAGE_SIZE >= filteredProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
