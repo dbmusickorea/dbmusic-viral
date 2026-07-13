@@ -118,13 +118,13 @@ export default function Page3() {
     const res = await fetch(`/api/projects?client_id=${clientId}`)
     const data = await res.json()
     setMyProjects(data ?? [])
-    const active = data?.find((p: any) => p.status === 'ONGOING')
-    if (active) {
-      setProjectInfo(active)
-      setClientCode(active.project_code)
-      fetchPosts(active.project_code)
-      fetchCommentMissionData(active.project_code)
-      fetchDailyStats(active.project_code)
+    const active = data?.filter((p: any) => p.status === 'ONGOING')
+    if (active && active.length === 1) {
+      setProjectInfo(active[0])
+      setClientCode(active[0].project_code)
+      fetchPosts(active[0].project_code)
+      fetchCommentMissionData(active[0].project_code)
+      fetchDailyStats(active[0].project_code)
     }
   }
 
