@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">DBMUSIC</string>
-    <string name="title_activity_main">DBMUSIC</string>
+    <string name="app_name">더블비뮤직</string>
+    <string name="title_activity_main">더블비뮤직</string>
     <string name="package_name">com.dbmusic.viral</string>
     <string name="custom_url_scheme">com.dbmusic.viral</string>
 </resources>
