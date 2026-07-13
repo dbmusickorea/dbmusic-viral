@@ -640,14 +640,19 @@ useEffect(() => {
     // 주민번호 암호화
     const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
     
-    const { error } = await supabase.from('settlements').insert({
-      member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
-      resident_number: encryptedResident, address, status: 'PENDING'
+    const settlementRes = await fetch('/api/settlements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
+        resident_number: encryptedResident, status: 'PENDING'
+      })
     })
-    if (error) { alert('환전 신청 실패!'); return }
+    if (!settlementRes.ok) { alert('환전 신청 실패!'); return }
     
     // 관리자에게 환전 신청 푸시
-    const { data: adminTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'admin')
+    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -953,10 +958,6 @@ useEffect(() => {
                       </label>
                       <label className="text-sm font-medium">주민번호</label>
                       <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">주소</label>
-                      <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주소 입력" />
                     </div>
                     <div>
                       <label className="text-sm font-medium">신청 금액</label>

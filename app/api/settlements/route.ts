@@ -36,3 +36,10 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json([])
 }
+
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+  const { error } = await supabaseAdmin.from('settlements').insert(body)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}

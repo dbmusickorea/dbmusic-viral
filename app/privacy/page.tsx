@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           <p className="text-sm text-gray-600">더블비뮤직(이하 "회사")은 서비스 제공을 위해 아래와 같은 개인정보를 수집합니다.</p>
           <ul className="text-sm text-gray-600 mt-2 space-y-1 list-disc pl-4">
             <li>필수: 이름, 이메일, 휴대전화번호, 비밀번호</li>
-            <li>정산 시: 주민등록번호, 계좌번호, 예금주명, 은행명, 주소</li>
+            <li>정산 시: 주민등록번호, 계좌번호, 예금주명, 은행명</li>
             <li>SNS 활동: 인스타그램/유튜브/틱톡 계정 ID</li>
           </ul>
         </section>
@@ -75,6 +75,10 @@ export default function PrivacyPage() {
           <h2 className="font-bold mb-2">7. 개인정보 처리 담당자</h2>
           <ul className="text-sm text-gray-600 mt-2 space-y-1">
             <li>회사명: 더블비뮤직</li>
+            <li>성명: 함현철</li>
+            <li>직책: 개인정보 보호책임자</li>
+            <li>이메일: db_music@naver.com</li>
+            <li>전화: 010-3433-3806</li>
             <li>문의: 앱 내 의뢰인 문의 기능을 통해 접수</li>
           </ul>
         </section>
