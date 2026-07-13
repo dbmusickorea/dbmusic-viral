@@ -120,6 +120,8 @@ export default function Page3() {
       setProjectInfo(active)
       setClientCode(active.project_code)
       fetchPosts(active.project_code)
+      fetchCommentMissionData(active.project_code)
+      fetchDailyStats(active.project_code)
     }
   }
 
