@@ -80,19 +80,55 @@ useEffect(() => {
     setYoutubeHandle(accounts.youtube ?? '')
     setUserInfo(parsed)
     setUserRole(role ?? '')
-    
+
     const loadData = async () => {
-      await Promise.all([
-        fetchParticipantInfo(parsed.id),
-        fetchAvailableBalance(parsed.id),
-        fetchMyPostsAndProjects(parsed.id),
-        fetchMySettlements(parsed.id),
-        fetchCommentMissions(parsed.id),
-        fetchAllProjects(),
-        fetchUnlockVideos(),
-        fetchMyParticipations(parsed.id),
-        fetchNotifications(String(parsed.id))
-      ])
+      const res = await fetch(`/api/participant-data?id=${parsed.id}`)
+      const data = await res.json()
+      
+      const participant = data.participant
+      setCoverReward(participant?.cover_reward ?? 0)
+      setBalance(participant?.balance ?? 0)
+      setLevel(participant?.level ?? 1)
+      setReferralCode(participant?.referral_code ?? '')
+      setInfluencerName(participant?.name ?? '')
+      setIsLocked(participant?.is_locked ?? false)
+      setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
+      if (participant) {
+        localStorage.setItem('snsAccounts', JSON.stringify({
+          instagram: participant.instagram_id ?? '',
+          youtube: participant.youtube_id ?? '',
+          tiktok: participant.tiktok_id ?? ''
+        }))
+      }
+
+      setMyPosts(data.posts)
+      setMySettlements(data.settlements)
+      setCommentMissions(data.commentMissions)
+      setAllProjects(data.projects)
+      setUnlockVideos(data.unlockVideos)
+      setNotifications(data.notifications)
+      setUnreadCount(data.notifications?.filter((n: any) => !n.is_read).length ?? 0)
+
+      const map: any = {}
+      data.posts?.forEach((p: any) => { if (!map[p.project_code]) map[p.project_code] = {} })
+
+      if (data.participations?.length > 0) {
+        const codes = data.participations.map((p: any) => p.project_code).join(',')
+        const projectsRes = await fetch(`/api/projects?codes=${codes}`)
+        const projectData = await projectsRes.json()
+        const merged = data.participations.map((p: any) => ({
+          ...p,
+          projects: projectData?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
+        }))
+        setMyParticipations(merged)
+        for (const p of data.participations) {
+          fetchMyRank(p.project_code, parsed.id)
+        }
+      } else {
+        setMyParticipations([])
+      }
+
+      await fetchAvailableBalance(parsed.id)
     }
     loadData()
   }, [])
