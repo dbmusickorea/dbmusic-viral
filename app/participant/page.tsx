@@ -69,6 +69,9 @@ export default function Page2() {
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [agreedTax, setAgreedTax] = useState(false)
+  const [participationPage, setParticipationPage] = useState(0)
+  const [projectListPage, setProjectListPage] = useState(0)
+  const PAGE_SIZE = 5
   const router = useRouter()
 
 useEffect(() => {
@@ -218,7 +221,7 @@ useEffect(() => {
   }
 
   const fetchAllProjects = async () => {
-    const res = await fetch('/api/projects?status=ONGOING')
+    const res = await fetch('/api/projects?status=ONGOING,PAUSED')
     const data = await res.json()
     setAllProjects(data ?? [])
   }
@@ -1133,6 +1136,51 @@ useEffect(() => {
 
           {/* 오른쪽 컬럼 */}
           <div>
+         
+            {/* 프로젝트 리스트 */}
+            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3">📋 프로젝트 목록</h2>
+              {allProjects.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    {allProjects.slice(projectListPage * PAGE_SIZE, (projectListPage + 1) * PAGE_SIZE).map((project) => {
+                      const isFull = project.max_participants > 0 && participantCount >= project.max_participants
+                      const isJoined = myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
+                      return (
+                        <div key={project.id} className="border rounded-lg p-3">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-sm font-medium">{project.product_content}</p>
+                              <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
+                              {project.start_date && (
+                                <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
+                              )}
+                            </div>
+                            {isJoined ? (
+                              <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
+                            ) : (
+                              <button onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }} disabled={isFull} className={`text-xs px-3 py-1 rounded-full ${isFull ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white'}`}>
+                                {isFull ? '마감' : '참여'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {allProjects.length > PAGE_SIZE && (
+                    <div className="flex justify-between items-center mt-3">
+                      <button onClick={() => setProjectListPage(p => Math.max(0, p - 1))} disabled={projectListPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                      <span className="text-xs text-gray-500">{projectListPage + 1} / {Math.ceil(allProjects.length / PAGE_SIZE)}</span>
+                      <button onClick={() => setProjectListPage(p => Math.min(Math.ceil(allProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectListPage + 1) * PAGE_SIZE >= allProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
             {/* 프로젝트 기간 */}
             {projectInfo && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
@@ -1153,8 +1201,16 @@ useEffect(() => {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
                 <div className="space-y-2">
-                  {myParticipations.map((p) => (
-                    <div key={p.id} className="border rounded-lg p-3">
+                  {myParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
+                    <div key={p.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => { 
+                      if (projectCode.toLowerCase() === p.project_code.toLowerCase()) {
+                        setProjectCode('')
+                        setProjectInfo(null)
+                      } else {
+                        setProjectCode(p.project_code)
+                        getRequirements(p.project_code)
+                      }
+                    }}>
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="text-sm font-medium">{p.projects?.product_content}</p>
@@ -1179,40 +1235,15 @@ useEffect(() => {
                     </div>
                   ))}
                 </div>
+                {myParticipations.length > PAGE_SIZE && (
+                  <div className="flex justify-between items-center mt-3">
+                    <button onClick={() => setParticipationPage(p => Math.max(0, p - 1))} disabled={participationPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                    <span className="text-xs text-gray-500">{participationPage + 1} / {Math.ceil(myParticipations.length / PAGE_SIZE)}</span>
+                    <button onClick={() => setParticipationPage(p => Math.min(Math.ceil(myParticipations.length / PAGE_SIZE) - 1, p + 1))} disabled={(participationPage + 1) * PAGE_SIZE >= myParticipations.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                  </div>
+                )}
               </div>
             )}
-
-            {/* 프로젝트 리스트 */}
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">📋 프로젝트 목록</h2>
-              {allProjects.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
-              ) : (
-                <div className="space-y-2">
-                  {allProjects.map((project) => {
-                    const isSelected = projectCode.toLowerCase() === project.project_code.toLowerCase()
-                    const isStarted = !project.mission_date || new Date().toISOString().split('T')[0] >= project.mission_date
-                    const isFull = project.max_participants > 0 && participantCount >= project.max_participants
-                    return (
-                      <div key={project.id} onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }} className={`border rounded-lg p-3 cursor-pointer ${isSelected ? 'border-blue-500 bg-blue-50' : ''}`}>
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="text-sm font-medium">{project.product_content}</p>
-                            <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
-                            {project.start_date && (
-                              <p className="text-xs text-gray-500">미션일: {project.start_date} {` (D-${Math.max(0, Math.ceil((new Date(project.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))})`}</p>
-                            )}
-                          </div>
-                          <span className={`text-xs px-2 py-1 rounded-full ${isFull ? 'bg-red-100 text-red-700' : isStarted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                            {isStarted ? '진행중' : '예정'}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
 
             {/* 미션 제출 폼 */}
             <div className="bg-white rounded-2xl shadow p-4 mb-4">

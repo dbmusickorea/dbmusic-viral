@@ -16,7 +16,14 @@ export async function GET(request: NextRequest) {
   let query = supabaseAdmin.from('projects').select('*').order('created_at', { ascending: false })
 
   if (clientId) query = query.eq('client_id', clientId)
-  if (status) query = query.eq('status', status)
+  if (status) {
+    const statuses = status.split(',')
+    if (statuses.length > 1) {
+      query = query.in('status', statuses)
+    } else {
+      query = query.eq('status', status)
+    }
+  }
   if (projectCode) query = query.ilike('project_code', projectCode)
   if (codes) query = query.in('project_code', codes.split(','))
   const prefix = searchParams.get('prefix')
