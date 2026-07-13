@@ -1151,7 +1151,7 @@ useEffect(() => {
                 <>
                   <div className="space-y-2">
                     {allProjects.slice(projectListPage * PAGE_SIZE, (projectListPage + 1) * PAGE_SIZE).map((project) => {
-                      const isFull = project.max_participants > 0 && participantCount >= project.max_participants
+                      const isFull = project.max_participants > 0 && (project.current_participants ?? 0) >= project.max_participants
                       const isJoined = myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
                       return (
                         <div key={project.id} className="border rounded-lg p-3">
@@ -1162,6 +1162,7 @@ useEffect(() => {
                               {project.start_date && (
                                 <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
                               )}
+                              <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}</p>
                             </div>
                             {isJoined ? (
                               <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>

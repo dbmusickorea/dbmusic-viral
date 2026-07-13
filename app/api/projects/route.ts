@@ -31,9 +31,29 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
+
+  if (data && data.length > 0) {
+    const projectCodes = data.map((p: any) => p.project_code)
+    const { data: participantCounts } = await supabaseAdmin
+      .from('project_participants')
+      .select('project_code')
+      .in('project_code', projectCodes)
+      .eq('status', 'ACTIVE')
+    
+    const countMap: any = {}
+    participantCounts?.forEach((p: any) => {
+      countMap[p.project_code] = (countMap[p.project_code] ?? 0) + 1
+    })
+
+    const merged = data.map((p: any) => ({
+      ...p,
+      current_participants: countMap[p.project_code] ?? 0
+    }))
+    return NextResponse.json(merged)
+  }
+
   return NextResponse.json(data ?? [])
 }
-
 export async function PATCH(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
