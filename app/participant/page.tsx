@@ -68,6 +68,7 @@ export default function Page2() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [agreedTax, setAgreedTax] = useState(false)
   const router = useRouter()
 
 useEffect(() => {
@@ -548,7 +549,8 @@ useEffect(() => {
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null)
   }
 
-  const handleExchange = async () => {
+ const handleExchange = async () => {
+    if (!agreedTax) { alert('개인정보 수집 및 원천징수에 동의해주세요.'); return }
     if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
     if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
@@ -869,6 +871,18 @@ useEffect(() => {
                   )}
                   <div className="space-y-3">
                     <div>
+                      {/* 개인정보 수집 동의 */}
+                      <div className="bg-gray-50 rounded-lg p-3 mb-3 text-xs text-gray-600">
+                        <p className="font-bold mb-2">📋 개인정보 수집 및 이용 안내</p>
+                        <p>· 수집 항목: 주민등록번호, 계좌번호</p>
+                        <p>· 수집 목적: 원천징수 세금 신고 및 용역비 지급</p>
+                        <p>· 보유 기간: 관련 법령에 따라 5년 보관</p>
+                        <p className="mt-2 text-red-500">※ 용역비 지급 시 3.3% 원천징수 후 지급됩니다.</p>
+                      </div>
+                      <label className="flex items-center gap-2 mb-3 cursor-pointer">
+                        <input type="checkbox" checked={agreedTax} onChange={(e) => setAgreedTax(e.target.checked)} className="w-4 h-4" />
+                        <span className="text-sm">개인정보 수집 및 원천징수에 동의합니다 (필수)</span>
+                      </label>
                       <label className="text-sm font-medium">주민번호</label>
                       <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
                     </div>
