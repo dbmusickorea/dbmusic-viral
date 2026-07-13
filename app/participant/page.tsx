@@ -790,7 +790,6 @@ useEffect(() => {
                 <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
                   <div className="bg-blue-50 p-3 text-xs text-blue-700 space-y-1">
                     <p>🎯 추천인 1명 가입 시: <span className="font-bold">+150원 + 레벨 1 상승</span></p>
-                    <p>👥 추천인의 하위 가입자 발생 시: <span className="font-bold">+50원</span></p>
                     <p>💰 레벨이 높을수록 게시물당 적립금이 올라가요!</p>
                     <p>⭐ 최대 적립금은 <span className="font-bold">10,000원</span>입니다.</p>
                   </div>
