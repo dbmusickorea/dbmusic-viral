@@ -283,14 +283,40 @@ useEffect(() => {
     const info = localStorage.getItem('userInfo')
     if (info) {
       const parsed = JSON.parse(info)
-      await fetchParticipantInfo(parsed.id)
-      await fetchMyPostsAndProjects(parsed.id)
-      await fetchMySettlements(parsed.id)
-      await fetchCommentMissions(parsed.id)
-      await fetchAllProjects()
-      await fetchMyParticipations(parsed.id)
+      const res = await fetch(`/api/participant-data?id=${parsed.id}`)
+      const data = await res.json()
+      
+      const participant = data.participant
+      setCoverReward(participant?.cover_reward ?? 0)
+      setBalance(participant?.balance ?? 0)
+      setLevel(participant?.level ?? 1)
+      setReferralCode(participant?.referral_code ?? '')
+      setInfluencerName(participant?.name ?? '')
+      setIsLocked(participant?.is_locked ?? false)
+      setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
+
+      setMyPosts(data.posts)
+      setMySettlements(data.settlements)
+      setCommentMissions(data.commentMissions)
+      setAllProjects(data.projects)
+      setUnlockVideos(data.unlockVideos)
+      setNotifications(data.notifications)
+      setUnreadCount(data.notifications?.filter((n: any) => !n.is_read).length ?? 0)
+
+      if (data.participations?.length > 0) {
+        const codes = data.participations.map((p: any) => p.project_code).join(',')
+        const projectsRes = await fetch(`/api/projects?codes=${codes}`)
+        const projectData = await projectsRes.json()
+        const merged = data.participations.map((p: any) => ({
+          ...p,
+          projects: projectData?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
+        }))
+        setMyParticipations(merged)
+      } else {
+        setMyParticipations([])
+      }
+
       await fetchAvailableBalance(parsed.id)
-      await fetchNotifications(String(parsed.id))
     }
     setIsRefreshing(false)
   }
