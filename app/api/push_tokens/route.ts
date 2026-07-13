@@ -14,7 +14,14 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin.from('push_tokens').select('token, user_id, user_role')
 
-  if (userRole) query = query.eq('user_role', userRole)
+  if (userRole) {
+    const roles = userRole.split(',')
+    if (roles.length > 1) {
+      query = query.in('user_role', roles)
+    } else {
+      query = query.eq('user_role', userRole)
+    }
+  }
   if (userId) query = query.eq('user_id', userId)
   if (userIds) query = query.in('user_id', userIds.split(','))
 

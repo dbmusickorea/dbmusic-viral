@@ -159,28 +159,35 @@ useEffect(() => {
             const alreadyUnlock = commentMissions.find(m => m.video_id === videoId)
             if (alreadyUnlock) { alert('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
             
-            await supabase.from('comment_missions').insert({
-              project_code: 'UNLOCK',
-              member_id: userInfo?.id,
-              video_id: videoId,
-              youtube_handle: youtubeHandle.toLowerCase(),
-              status: 'APPROVED',
-              reward_amount: 0,
-              comment_id: data.commentId ?? null
+            await fetch('/api/comment_missions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_code: 'UNLOCK',
+                member_id: userInfo?.id,
+                video_id: videoId,
+                youtube_handle: youtubeHandle.toLowerCase(),
+                status: 'APPROVED',
+                reward_amount: 0,
+                comment_id: data.commentId ?? null
+              })
             })
             fetchCommentMissions(userInfo?.id)
             const newCount = (pData.comment_count_for_unlock ?? 0) + 1
             if (newCount >= 10) {
-              await supabase.from('participants').update({ 
-                is_locked: false, 
-                comment_count_for_unlock: 0 
-              }).eq('id', userInfo?.id)
+              await fetch(`/api/participants?id=${userInfo?.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
+              })
               setIsLocked(false)
               alert('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
             } else {
-              await supabase.from('participants').update({ 
-                comment_count_for_unlock: newCount 
-              }).eq('id', userInfo?.id)
+              await fetch(`/api/participants?id=${userInfo?.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment_count_for_unlock: newCount })
+              })
               setUnlockCommentCount(newCount)
               alert(`✅ 댓글 인증 완료! (${newCount}/10)`)
             }
@@ -190,17 +197,25 @@ useEffect(() => {
           const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
           if (already) { alert('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
           
-          await supabase.from('comment_missions').insert({
-            project_code: projectCode,
-            member_id: userInfo?.id,
-            video_id: videoId,
-            youtube_handle: youtubeHandle.toLowerCase(),
-            status: 'APPROVED',
-            reward_amount: 300,
-            comment_id: data.commentId ?? null
+          await fetch('/api/comment_missions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              project_code: projectCode,
+              member_id: userInfo?.id,
+              video_id: videoId,
+              youtube_handle: youtubeHandle.toLowerCase(),
+              status: 'APPROVED',
+              reward_amount: 300,
+              comment_id: data.commentId ?? null
+            })
           })
           const newBalance = balance + 300
-          await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
+          await fetch(`/api/participants?id=${userInfo?.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ balance: newBalance })
+          })
           setBalance(newBalance)
           fetchCommentMissions(userInfo?.id)
           alert('✅ 댓글 인증 완료! 300P가 적립됐어요!')
@@ -608,7 +623,11 @@ useEffect(() => {
     if (projectData?.reward_per_post) {
       const earnAmount = getLevelAmount(projectData.reward_per_post, level)
       const newBalance = balance + earnAmount
-      await supabase.from('participants').update({ balance: newBalance }).eq('id', userInfo?.id)
+      await fetch(`/api/participants?id=${userInfo?.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ balance: newBalance })
+      })
       setBalance(newBalance)
       if (isCover) {
         alert(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
@@ -635,7 +654,9 @@ useEffect(() => {
     if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
 
     // 예금주 이름 확인
-    const { data: participantData } = await supabase.from('participants').select('name, account_holder').eq('id', userInfo?.id).maybeSingle()
+    const participantRes = await fetch(`/api/participants?ids=${userInfo?.id}`)
+    const participants = await participantRes.json()
+    const participantData = participants?.[0]
     if (participantData?.account_holder && participantData?.name) {
       if (participantData.account_holder !== participantData.name) {
         alert('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
@@ -682,7 +703,9 @@ useEffect(() => {
   }
 
   const loadMyInfo = async () => {
-    const { data } = await supabase.from('participants').select('*').eq('id', userInfo?.id).maybeSingle()
+    const res = await fetch(`/api/participants?ids=${userInfo?.id}`)
+    const participants = await res.json()
+    const data = participants?.[0]
     setMyName(data?.name ?? ''); setMyMobile(data?.mobile ?? '')
     setMyBankName(data?.bank_name ?? ''); setMyAccountHolder(data?.account_holder ?? '')
     setMyInstagram(data?.instagram_id ?? '')
@@ -708,12 +731,16 @@ useEffect(() => {
     // 계좌번호 암호화
     const encryptedAccount = myAccountNumber ? await encryptText(myAccountNumber) : ''
 
-    const { error } = await supabase.from('participants').update({
-      name: myName, mobile: myMobile, bank_name: myBankName,
-      account_holder: myAccountHolder, account_number: encryptedAccount,
-      instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
-    }).eq('id', userInfo?.id)
-    if (error) { alert('수정 실패!'); return }
+    const res = await fetch(`/api/participants?id=${userInfo?.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: myName, mobile: myMobile, bank_name: myBankName,
+        account_holder: myAccountHolder, account_number: encryptedAccount,
+        instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
+      })
+    })
+    if (!res.ok) { alert('수정 실패!'); return }
     
     const updated = { 
       ...userInfo, 
@@ -1033,10 +1060,10 @@ useEffect(() => {
                     </div>
                     <button onClick={async () => {
                       if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
-                      await supabase.from('posts').delete().eq('member_id', userInfo?.id)
-                      await supabase.from('settlements').delete().eq('member_id', userInfo?.id)
-                      await supabase.from('comment_missions').delete().eq('member_id', userInfo?.id)
-                      await supabase.from('participants').delete().eq('id', userInfo?.id)
+                      await fetch(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                      await fetch(`/api/settlements?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                      await fetch(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                      await fetch(`/api/participants?id=${userInfo?.id}`, { method: 'DELETE' })
                       await supabase.auth.signOut()
                       localStorage.removeItem('userInfo')
                       localStorage.removeItem('userRole')

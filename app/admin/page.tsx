@@ -97,7 +97,8 @@ export default function Page1() {
   }
 
   const fetchClients = async () => {
-    const { data } = await supabase.from('users').select('*').eq('role', 'client').order('name', { ascending: true })
+    const res = await fetch('/api/users')
+    const data = await res.json()
     setClients(data ?? [])
   }
 
@@ -132,19 +133,30 @@ export default function Page1() {
     const reward = Number(coverRewardAmount)
     
     // 커버영상 승인 처리
-    await supabase.from('posts').update({ cover_status: 'APPROVED' }).eq('id', post.id)
+    await fetch(`/api/posts?id=${post.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cover_status: 'APPROVED' })
+    })
     
     // 적립금 추가
-    const { data: participant } = await supabase.from('participants').select('balance').eq('id', post.member_id).maybeSingle()
+    const participantRes = await fetch(`/api/participants?ids=${post.member_id}`)
+    const participants = await participantRes.json()
+    const participant = participants?.[0]
     if (participant) {
-      await supabase.from('participants').update({ 
-        balance: (participant.balance ?? 0) + reward,
-        cover_reward: reward
-      }).eq('id', post.member_id)
+      await fetch(`/api/participants?id=${post.member_id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          balance: (participant.balance ?? 0) + reward,
+          cover_reward: reward
+        })
+      })
     }
 
     // 푸시 알림
-    const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
+    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(post.member_id)}`)
+    const tokens = await tokensRes.json()
     if (tokens && tokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -164,7 +176,11 @@ export default function Page1() {
   }
 
   const handleRejectCover = async (postId: number) => {
-    await supabase.from('posts').update({ cover_status: 'REJECTED' }).eq('id', postId)
+    await fetch(`/api/posts?id=${postId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cover_status: 'REJECTED' })
+    })
     alert('거절 완료!')
     fetchCoverPosts()
   }
@@ -379,7 +395,8 @@ export default function Page1() {
     }
     await saveProjectVideos(projectCode.toUpperCase())
     // 체험단 전체에게 푸시 알림 발송
-    const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').in('user_role', ['participant', 'client'])
+    const participantTokensRes = await fetch('/api/push_tokens?user_role=participant,client')
+    const participantTokens = await participantTokensRes.json()
     if (participantTokens && participantTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -454,7 +471,8 @@ export default function Page1() {
         }
       }
       // 의뢰인에게 종료 알림
-      const { data: clientTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'client')
+      const clientTokensRes = await fetch('/api/push_tokens?user_role=client')
+      const clientTokens = await clientTokensRes.json()
       if (clientTokens && clientTokens.length > 0) {
         await fetch('/api/push', {
           method: 'POST',
@@ -531,7 +549,8 @@ export default function Page1() {
 
   const handleUpdateAllLikes = async () => {
     setIsUpdatingLikes(true)
-    const { data: allPosts } = await supabase.from('posts').select('*')
+    const res = await fetch('/api/posts')
+    const allPosts = await res.json()
     if (!allPosts) { setIsUpdatingLikes(false); return }
 
     for (const post of allPosts) {
@@ -546,10 +565,14 @@ export default function Page1() {
           stats = await getTiktokStats(post.post_url)
         }
         if (stats) {
-          await supabase.from('posts').update({
-            likes_count: stats.likes,
-            comments_count: stats.comments
-          }).eq('id', post.id)
+          await fetch(`/api/posts?id=${post.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              likes_count: stats.likes,
+              comments_count: stats.comments
+            })
+          })
         }
       } catch { continue }
     }
@@ -572,10 +595,14 @@ export default function Page1() {
       else if (post.platform === 'tiktok') stats = await getTiktokStats(post.post_url)
 
       if (stats) {
-        await supabase.from('posts').update({
-          likes_count: stats.likes,
-          comments_count: stats.comments
-        }).eq('id', post.id)
+        await fetch(`/api/posts?id=${post.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            likes_count: stats.likes,
+            comments_count: stats.comments
+          })
+        })
         fetchPosts(selectedProject.project_code)
         alert('갱신 완료!')
       }
@@ -639,7 +666,7 @@ export default function Page1() {
   }
 
   const deleteAllNotifications = async (userId: string) => {
-    await supabase.from('notifications').delete().eq('user_id', userId)
+    await fetch(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
     setNotifications([])
     setUnreadCount(0)
   }

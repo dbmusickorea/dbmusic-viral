@@ -21,3 +21,18 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json(data ?? [])
 }
+
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const memberId = searchParams.get('member_id')
+  const { error } = await supabaseAdmin.from('comment_missions').delete().eq('member_id', memberId!)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+  const { error } = await supabaseAdmin.from('comment_missions').insert(body)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}

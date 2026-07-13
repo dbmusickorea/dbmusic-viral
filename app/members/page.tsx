@@ -105,8 +105,9 @@ export default function Page4() {
     let referralCode = 'DB' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
     let isUnique = false
     while (!isUnique) {
-      const { data } = await supabase.from('participants').select('id').eq('referral_code', referralCode).maybeSingle()
-      if (!data) isUnique = true
+      const res = await fetch(`/api/participants?referral_code=${referralCode}`)
+      const data = await res.json()
+      if (!data || data.length === 0) isUnique = true
       else referralCode = 'DB' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
     }
 
@@ -118,14 +119,18 @@ export default function Page4() {
     if (authError) { alert('계정 생성 실패! ' + authError.message); return }
 
     // DB에 체험단 정보 저장
-    const { error } = await supabase.from('participants').insert({
-      name, mobile, email, bank_name: bankName,
-      account_holder: accountHolder, account_number: accountNumber,
-      instagram_id: instagram, youtube_id: youtube,
-      tiktok_id: tiktok, password: '', level,
-      referral_code: referralCode
+    const res = await fetch('/api/participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, mobile, email, bank_name: bankName,
+        account_holder: accountHolder, account_number: accountNumber,
+        instagram_id: instagram, youtube_id: youtube,
+        tiktok_id: tiktok, password: '', level,
+        referral_code: referralCode
+      })
     })
-    if (error) { alert('등록 실패!'); return }
+    if (!res.ok) { alert('등록 실패!'); return }
 
     // 임시 비밀번호 SMS 발송
     await fetch('/api/sms', {
@@ -152,16 +157,20 @@ export default function Page4() {
       cover_reward: coverReward === '' ? null : Number(coverReward)
     }
     if (password) updateData.password = password
-    const { error } = await supabase.from('participants').update(updateData).eq('id', selected.id)
-    if (error) { alert('수정 실패!'); return }
+    const res = await fetch(`/api/participants?id=${selected.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    })
+    if (!res.ok) { alert('수정 실패!'); return }
     alert('수정 완료!')
     fetchParticipants()
   }
 
   const handleDelete = async () => {
     if (!confirm('정말 삭제하시겠습니까?')) return
-    const { error } = await supabase.from('participants').delete().eq('id', selected.id)
-    if (error) { alert('삭제 실패!'); return }
+    const res = await fetch(`/api/participants?id=${selected.id}`, { method: 'DELETE' })
+    if (!res.ok) { alert('삭제 실패!'); return }
     alert('삭제 완료!')
     fetchParticipants()
     clearForm()
@@ -195,8 +204,9 @@ export default function Page4() {
     let clientId = generateClientId()
     let isUnique = false
     while (!isUnique) {
-      const { data } = await supabase.from('users').select('id').eq('client_id', clientId).maybeSingle()
-      if (!data) isUnique = true
+      const res = await fetch(`/api/users?client_id=${clientId}`)
+      const data = await res.json()
+      if (!data || data.length === 0) isUnique = true
       else clientId = generateClientId()
     }
 
@@ -208,12 +218,16 @@ export default function Page4() {
     if (authError) { alert('계정 생성 실패! ' + authError.message); return }
 
     // DB에 의뢰인 정보 저장
-    const { error } = await supabase.from('users').insert({
-      name: newClientName, company: newClientCompany, artist: newClientArtist,
-      phone: newClientPhone, mobile: newClientMobile, email: newClientEmail,
-      password: '', role: 'client', client_id: clientId
+    const res = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: newClientName, company: newClientCompany, artist: newClientArtist,
+        phone: newClientPhone, mobile: newClientMobile, email: newClientEmail,
+        password: '', role: 'client', client_id: clientId
+      })
     })
-    if (error) { alert('등록 실패!'); return }
+    if (!res.ok) { alert('등록 실패!'); return }
 
     // 임시 비밀번호 SMS 발송
     await fetch('/api/sms', {
@@ -241,10 +255,18 @@ export default function Page4() {
       project_code: cProjectCode || null
     }
     if (cPassword) updateData.password = cPassword
-    const { error } = await supabase.from('users').update(updateData).eq('id', selectedClient.id)
-    if (error) { alert('수정 실패!'); return }
+    const res = await fetch(`/api/users?id=${selectedClient.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    })
+    if (!res.ok) { alert('수정 실패!'); return }
     if (cProjectCode && selectedClient.client_id) {
-      await supabase.from('projects').update({ client_id: selectedClient.client_id }).eq('project_code', cProjectCode.toUpperCase())
+      await fetch(`/api/projects?project_code=${cProjectCode.toUpperCase()}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: selectedClient.client_id })
+      })
     }
     alert('수정 완료!')
     fetchClients()
@@ -252,8 +274,8 @@ export default function Page4() {
 
   const handleDeleteClient = async () => {
     if (!confirm('정말 삭제하시겠습니까?')) return
-    const { error } = await supabase.from('users').delete().eq('id', selectedClient.id)
-    if (error) { alert('삭제 실패!'); return }
+    const res = await fetch(`/api/users?id=${selectedClient.id}`, { method: 'DELETE' })
+    if (!res.ok) { alert('삭제 실패!'); return }
     alert('삭제 완료!')
     fetchClients()
     clearClientForm()

@@ -33,9 +33,12 @@ export default function Page5() {
   const handleSelect = async (s: any) => {
     setSelected(s)
     setMemo(s.memo ?? '')
-    const { data: participant } = await supabase.from('participants').select('*').eq('id', s.member_id).maybeSingle()
+    const participantRes = await fetch(`/api/participants?ids=${s.member_id}`)
+    const participants = await participantRes.json()
+    const participant = participants?.[0]
     setSelectedParticipant(participant)
-    const { data: posts } = await supabase.from('posts').select('*').eq('member_id', s.member_id).order('created_at', { ascending: false })
+    const postsRes = await fetch(`/api/posts?member_id=${s.member_id}`)
+    const posts = await postsRes.json()
     setMemberPosts(posts ?? [])
     const account = participant?.account_number ? await decryptText(participant.account_number) : ''
     setDecryptedAccount(account)
@@ -83,9 +86,14 @@ export default function Page5() {
 
   const handleReject = async () => {
     if (!selected) return
-    await supabase.from('settlements').update({ status: 'REJECTED', memo }).eq('id', selected.id)
+    await fetch(`/api/settlements?id=${selected.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'REJECTED', memo })
+    })
     // 체험단에게 푸시 알림 발송
-    const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(selected.member_id))
+    const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.member_id)}`)
+    const memberTokens = await memberTokensRes.json()
     if (memberTokens && memberTokens.length > 0) {
       await fetch('/api/push', {
         method: 'POST',
@@ -105,7 +113,11 @@ export default function Page5() {
 
   const handleSaveMemo = async () => {
     if (!selected) return
-    await supabase.from('settlements').update({ memo }).eq('id', selected.id)
+    await fetch(`/api/settlements?id=${selected.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memo })
+    })
     alert('메모 저장 완료!')
     fetchSettlements()
   }

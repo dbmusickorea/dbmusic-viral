@@ -29,3 +29,20 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
+
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const memberId = searchParams.get('member_id')
+  const { error } = await supabaseAdmin.from('posts').delete().eq('member_id', memberId!)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
+export async function PATCH(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+  const body = await request.json()
+  const { error } = await supabaseAdmin.from('posts').update(body).eq('id', id!)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}

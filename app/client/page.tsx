@@ -214,8 +214,12 @@ export default function Page3() {
       name: myName, company: myCompany, artist: myArtist,
       phone: myPhone, mobile: myMobile
     }
-    const { error } = await supabase.from('users').update(updateData).eq('id', userInfo?.id)
-    if (error) { alert('수정 실패!'); return }
+    const res = await fetch(`/api/users?id=${userInfo?.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    })
+    if (!res.ok) { alert('수정 실패!'); return }
     const updated = { ...userInfo, name: myName, company: myCompany, artist: myArtist, phone: myPhone, mobile: myMobile }
     localStorage.setItem('userInfo', JSON.stringify(updated))
     setUserInfo(updated)
@@ -262,7 +266,7 @@ export default function Page3() {
   }
 
   const deleteAllNotifications = async (userId: string) => {
-    await supabase.from('notifications').delete().eq('user_id', userId)
+    await fetch(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
     setNotifications([])
     setUnreadCount(0)
   }
@@ -426,7 +430,7 @@ export default function Page3() {
                     </div>
                     <button onClick={async () => {
                       if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
-                      await supabase.from('users').delete().eq('id', userInfo?.id)
+                      await fetch(`/api/users?id=${userInfo?.id}`, { method: 'DELETE' })
                       await supabase.auth.signOut()
                       localStorage.removeItem('userInfo')
                       localStorage.removeItem('userRole')

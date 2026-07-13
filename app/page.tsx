@@ -82,10 +82,18 @@ export default function LoginPage() {
     if (!pendingUserInfo || !pendingRole) return
     
     if (pendingRole === 'participant') {
-      await supabase.from('participants').update({ agreed_terms: true }).eq('id', pendingUserInfo.id)
+      await fetch(`/api/participants?id=${pendingUserInfo.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agreed_terms: true })
+      })
       router.push('/participant')
     } else {
-      await supabase.from('users').update({ agreed_terms: true }).eq('id', pendingUserInfo.id)
+      await fetch(`/api/users?id=${pendingUserInfo.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agreed_terms: true })
+      })
       if (pendingRole === 'admin') router.push('/admin')
       else if (pendingRole === 'client') router.push('/client')
     }
@@ -146,7 +154,11 @@ export default function LoginPage() {
           if (!checkData?.[0]) isUnique = true
           else referralCode = generateReferralCode()
         }
-        await supabase.from('participants').update({ referral_code: referralCode }).eq('id', participant.id)
+        await fetch(`/api/participants?id=${participant.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ referral_code: referralCode })
+        })
         participant.referral_code = referralCode
       }
       localStorage.setItem('userInfo', JSON.stringify(participant))
@@ -173,11 +185,16 @@ export default function LoginPage() {
         let clientId = generateClientId()
         let isUnique = false
         while (!isUnique) {
-          const { data } = await supabase.from('users').select('id').eq('client_id', clientId).maybeSingle()
-          if (!data) isUnique = true
+          const res = await fetch(`/api/users?client_id=${clientId}`)
+          const data = await res.json()
+          if (!data || data.length === 0) isUnique = true
           else clientId = generateClientId()
         }
-        await supabase.from('users').update({ client_id: clientId }).eq('id', user.id)
+        await fetch(`/api/users?id=${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ client_id: clientId })
+        })
         user.client_id = clientId
       }
       localStorage.setItem('userInfo', JSON.stringify(user))
@@ -291,27 +308,38 @@ export default function LoginPage() {
     if (p_password !== p_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
 
     // 이메일/전화번호 중복 체크
-    const { data: existingEmail } = await supabase.from('participants').select('id').eq('email', p_email).maybeSingle()
-    if (existingEmail) { alert('이미 사용중인 이메일입니다.'); return }
+    const emailRes = await fetch(`/api/participants?email=${encodeURIComponent(p_email)}`)
+    const emailData = await emailRes.json()
+    if (emailData && emailData.length > 0) { alert('이미 사용중인 이메일입니다.'); return }
     
-    const { data: existingMobile } = await supabase.from('participants').select('id').eq('mobile', p_mobile).maybeSingle()
-    if (existingMobile) { alert('이미 사용중인 전화번호입니다.'); return }
-    const { data: existingMobileU } = await supabase.from('users').select('id').eq('mobile', p_mobile).maybeSingle()
-    if (existingMobileU) { alert('이미 사용중인 전화번호입니다.'); return }
+    const mobileRes = await fetch(`/api/participants?mobile=${p_mobile}`)
+    const mobileData = await mobileRes.json()
+    if (mobileData && mobileData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
+    
+    const mobileURes = await fetch(`/api/users?mobile=${p_mobile}`)
+    const mobileUData = await mobileURes.json()
+    if (mobileUData && mobileUData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
 
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
     if (p_referral) {
-      const { data: referrer } = await supabase.from('participants').select('id, balance, level').eq('referral_code', p_referral).maybeSingle()
+      const referrerRes = await fetch(`/api/participants?referral_code=${p_referral}`)
+      const referrerData = await referrerRes.json()
+      const referrer = referrerData?.[0]
       if (!referrer) { alert('유효하지 않은 추천인 코드입니다.'); return }
       
       // 추천인에게 150원 적립 + 레벨 1 상승
       const newBalance = (referrer.balance ?? 0) + 150
       const newLevel = Math.min(50, (referrer.level ?? 1) + 1)
-      await supabase.from('participants').update({ balance: newBalance, level: newLevel }).eq('id', referrer.id)
+      await fetch(`/api/participants?id=${referrer.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ balance: newBalance, level: newLevel })
+      })
       
       // 추천인에게 레벨 상승 푸시
-      const { data: referrerTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(referrer.id))
+      const referrerTokensRes = await fetch(`/api/push_tokens?user_id=${String(referrer.id)}`)
+      const referrerTokens = await referrerTokensRes.json()
       if (referrerTokens && referrerTokens.length > 0) {
         await fetch('/api/push', {
           method: 'POST',
@@ -330,8 +358,9 @@ export default function LoginPage() {
     let referralCode = generateReferralCode()
     let isUnique = false
     while (!isUnique) {
-      const { data } = await supabase.from('participants').select('id').eq('referral_code', referralCode).maybeSingle()
-      if (!data) isUnique = true
+      const res = await fetch(`/api/participants?referral_code=${referralCode}`)
+      const data = await res.json()
+      if (!data || data.length === 0) isUnique = true
       else referralCode = generateReferralCode()
     }
 
@@ -341,13 +370,17 @@ export default function LoginPage() {
     })
     if (authError) { alert('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
-    const { error } = await supabase.from('participants').insert({
-      name: p_name, mobile: p_mobile, email: p_email, password: '',
-      bank_name: p_bank, account_holder: p_holder, account_number: p_account,
-      instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
-      referral_code: referralCode, level: 1
+    const res = await fetch('/api/participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: p_name, mobile: p_mobile, email: p_email, password: '',
+        bank_name: p_bank, account_holder: p_holder, account_number: p_account,
+        instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
+        referral_code: referralCode, level: 1
+      })
     })
-    if (error) { alert('회원가입 실패!'); return }
+    if (!res.ok) { alert('회원가입 실패!'); return }
     alert(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
@@ -358,19 +391,24 @@ export default function LoginPage() {
     if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
     if (c_password !== c_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
     // 이메일/전화번호 중복 체크
-    const { data: existingEmail } = await supabase.from('users').select('id').eq('email', c_email).maybeSingle()
-    if (existingEmail) { alert('이미 사용중인 이메일입니다.'); return }
+    const emailRes = await fetch(`/api/users?email=${encodeURIComponent(c_email)}`)
+    const emailData = await emailRes.json()
+    if (emailData && emailData.length > 0) { alert('이미 사용중인 이메일입니다.'); return }
     
-    const { data: existingMobile } = await supabase.from('users').select('id').eq('mobile', c_mobile).maybeSingle()
-    if (existingMobile) { alert('이미 사용중인 전화번호입니다.'); return }
-    const { data: existingMobileP } = await supabase.from('participants').select('id').eq('mobile', c_mobile).maybeSingle()
-    if (existingMobileP) { alert('이미 사용중인 전화번호입니다.'); return }
+    const mobileRes = await fetch(`/api/users?mobile=${c_mobile}`)
+    const mobileData = await mobileRes.json()
+    if (mobileData && mobileData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
+    
+    const mobilePRes = await fetch(`/api/participants?mobile=${c_mobile}`)
+    const mobilePData = await mobilePRes.json()
+    if (mobilePData && mobilePData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
 
     let clientId = generateClientId()
     let isUnique = false
     while (!isUnique) {
-      const { data } = await supabase.from('users').select('id').eq('client_id', clientId).maybeSingle()
-      if (!data) isUnique = true
+      const res = await fetch(`/api/users?client_id=${clientId}`)
+      const data = await res.json()
+      if (!data || data.length === 0) isUnique = true
       else clientId = generateClientId()
     }
 
@@ -380,12 +418,16 @@ export default function LoginPage() {
     })
     if (authError) { alert('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
-    const { error } = await supabase.from('users').insert({
-      name: c_name, company: c_company, artist: c_artist,
-      phone: c_phone, mobile: c_mobile, email: c_email,
-      password: '', role: 'client', client_id: clientId
+    const res = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: c_name, company: c_company, artist: c_artist,
+        phone: c_phone, mobile: c_mobile, email: c_email,
+        password: '', role: 'client', client_id: clientId
+      })
     })
-    if (error) { alert('회원가입 실패!'); return }
+    if (!res.ok) { alert('회원가입 실패!'); return }
     alert(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
