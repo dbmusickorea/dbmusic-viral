@@ -71,6 +71,7 @@ export default function Page2() {
   const [agreedTax, setAgreedTax] = useState(false)
   const [participationPage, setParticipationPage] = useState(0)
   const [projectListPage, setProjectListPage] = useState(0)
+  const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -844,9 +845,15 @@ useEffect(() => {
           </div>
         )}
 
+        {/* 모바일 탭 - md 이상에서는 숨김 */}
+        <div className="md:hidden flex mb-4 border-b">
+          <button onClick={() => setActiveTab('left')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'left' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📊 내 현황</button>
+          <button onClick={() => setActiveTab('right')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'right' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>🎯 프로젝트</button>
+        </div>
+
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
-          <div>
+          <div className={`${activeTab === 'left' ? 'block' : 'hidden'} md:block`}>
             {/* 적립금 + 레벨 + 추천인 코드 */}
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-start mb-3">
@@ -1140,7 +1147,7 @@ useEffect(() => {
           </div>
 
           {/* 오른쪽 컬럼 */}
-          <div>
+          <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
          
             {/* 프로젝트 리스트 */}
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
