@@ -59,6 +59,7 @@ export default function Page1() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [projectPage, setProjectPage] = useState(0)
   const [requestPage, setRequestPage] = useState(0)
+  const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -756,9 +757,15 @@ export default function Page1() {
           </div>
         )}
 
+        {/* 모바일 탭 */}
+        <div className="md:hidden flex mb-4 border-b">
+          <button onClick={() => setActiveTab('left')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'left' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📋 프로젝트</button>
+          <button onClick={() => setActiveTab('right')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'right' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>⚙️ 관리</button>
+        </div>
+
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
-          <div>
+          <div className={`${activeTab === 'left' ? 'block' : 'hidden'} md:block`}>
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold">📦 상품 사전 등록</h2>
@@ -1005,7 +1012,7 @@ export default function Page1() {
           </div>
 
           {/* 오른쪽 컬럼 */}
-          <div>
+          <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
