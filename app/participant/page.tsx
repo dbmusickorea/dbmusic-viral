@@ -109,7 +109,7 @@ useEffect(() => {
       setMyPosts(data.posts)
       setMySettlements(data.settlements)
       setCommentMissions(data.commentMissions)
-      setAllProjects(data.projects)
+      setAllProjects(data.allProjects)
       setUnlockVideos(data.unlockVideos)
       setNotifications(data.notifications)
       setUnreadCount(data.notifications?.filter((n: any) => !n.is_read).length ?? 0)
@@ -118,12 +118,9 @@ useEffect(() => {
       data.posts?.forEach((p: any) => { if (!map[p.project_code]) map[p.project_code] = {} })
 
       if (data.participations?.length > 0) {
-        const codes = data.participations.map((p: any) => p.project_code).join(',')
-        const projectsRes = await fetch(`/api/projects?codes=${codes}`)
-        const projectData = await projectsRes.json()
         const merged = data.participations.map((p: any) => ({
           ...p,
-          projects: projectData?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
+          projects: data.myProjects?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
         }))
         setMyParticipations(merged)
         for (const p of data.participations) {
@@ -318,18 +315,15 @@ useEffect(() => {
       setMyPosts(data.posts)
       setMySettlements(data.settlements)
       setCommentMissions(data.commentMissions)
-      setAllProjects(data.projects)
+      setAllProjects(data.allProjects)
       setUnlockVideos(data.unlockVideos)
       setNotifications(data.notifications)
       setUnreadCount(data.notifications?.filter((n: any) => !n.is_read).length ?? 0)
 
       if (data.participations?.length > 0) {
-        const codes = data.participations.map((p: any) => p.project_code).join(',')
-        const projectsRes = await fetch(`/api/projects?codes=${codes}`)
-        const projectData = await projectsRes.json()
         const merged = data.participations.map((p: any) => ({
           ...p,
-          projects: projectData?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
+          projects: data.myProjects?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
         }))
         setMyParticipations(merged)
       } else {

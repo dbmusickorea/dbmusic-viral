@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     postsRes,
     settlementsRes,
     commentMissionsRes,
-    projectsRes,
+    allProjectsRes,
     unlockVideosRes,
     participationsRes,
     notificationsRes
@@ -25,20 +25,27 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false }),
     supabaseAdmin.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false }),
     supabaseAdmin.from('comment_missions').select('*').eq('member_id', id),
-    supabaseAdmin.from('projects').select('*').eq('status', 'ONGOING').order('created_at', { ascending: false }),
+    supabaseAdmin.from('projects').select('*').in('status', ['ONGOING', 'PAUSED']).order('created_at', { ascending: false }),
     supabaseAdmin.from('unlock_videos').select('*'),
     supabaseAdmin.from('project_participants').select('*').eq('member_id', id).order('joined_at', { ascending: false }),
     supabaseAdmin.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
   ])
+
+  // 참여 프로젝트 조회
+  const participationCodes = participationsRes.data?.map((p: any) => p.project_code) ?? []
+  const myProjectsRes = participationCodes.length > 0
+    ? await supabaseAdmin.from('projects').select('*').in('project_code', participationCodes)
+    : { data: [] }
 
   return NextResponse.json({
     participant: participantRes.data,
     posts: postsRes.data ?? [],
     settlements: settlementsRes.data ?? [],
     commentMissions: commentMissionsRes.data ?? [],
-    projects: projectsRes.data ?? [],
+    allProjects: allProjectsRes.data ?? [],
     unlockVideos: unlockVideosRes.data ?? [],
     participations: participationsRes.data ?? [],
-    notifications: notificationsRes.data ?? []
+    notifications: notificationsRes.data ?? [],
+    myProjects: myProjectsRes.data ?? []
   })
 }
