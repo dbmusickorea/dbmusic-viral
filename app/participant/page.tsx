@@ -550,7 +550,9 @@ useEffect(() => {
   }
 
   const getLevelAmount = (baseAmount: number, lv: number) => {
-    return lv === 50 ? 10000 : 2500 + (lv - 1) * 150
+    const base = baseAmount || 2500
+    const amount = base + (lv - 1) * 150
+    return lv === 50 ? 10000 : Math.min(amount, 10000)
   }
 
   const handleSubmit = async () => {
