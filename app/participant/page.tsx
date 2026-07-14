@@ -396,34 +396,34 @@ useEffect(() => {
     const settledAmount = settlements?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
       .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
 
-    setAvailableBalance(Math.max(0, postIncome + commentIncome - settledAmount))
+    setAvailableBalance(Math.max(0, postIncome + commentIncome + coverReward - settledAmount))
   }
 
   const fetchMyRank = async (projectCode: string, memberId: number) => {
     if (!projectCode) return
-    const { data: posts } = await supabase
-      .from('posts')
-      .select('member_id, likes_count, influencer_name')
-      .ilike('project_code', projectCode)
-      .not('likes_count', 'is', null)
-      .order('likes_count', { ascending: false })
+    const res = await fetch(`/api/posts?project_code=${projectCode}`)
+    const posts = await res.json()
     
-    if (!posts || posts.length === 0) {
+    const sortedPosts = posts
+      ?.filter((p: any) => p.likes_count !== null)
+      ?.sort((a: any, b: any) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
+    
+    if (!sortedPosts || sortedPosts.length === 0) {
       setMyRankMap(prev => ({ ...prev, [projectCode]: null }))
       return
     }
     
-    const myPost = posts.find(p => p.member_id === memberId)
+    const myPost = sortedPosts.find((p: any) => p.member_id === memberId)
     if (!myPost) {
       setMyRankMap(prev => ({ ...prev, [projectCode]: null }))
       return
     }
     
-    const rank = posts.findIndex(p => p.member_id === memberId) + 1
+    const rank = sortedPosts.findIndex((p: any) => p.member_id === memberId) + 1
     setMyRankMap(prev => ({ ...prev, [projectCode]: {
       rank,
       likes: myPost.likes_count,
-      total: posts.length,
+      total: sortedPosts.length,
       isEligible: myPost.likes_count >= 1000
     }}))
   }
