@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
@@ -73,6 +73,7 @@ export default function Page2() {
   const [projectListPage, setProjectListPage] = useState(0)
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [myPostPage, setMyPostPage] = useState(0)
+  const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -1257,7 +1258,11 @@ useEffect(() => {
                         if (isJoined) return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
                         if (isFull) return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">미참여</span>
                         if (isPaused) return <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">대기중</span>
-                        return <button onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">참여</button>
+                        return <button onClick={() => { 
+                          setProjectCode(project.project_code)
+                          getRequirements(project.project_code)
+                          setTimeout(() => missionRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
+                        }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">참여</button>
                       }
 
                       return (
@@ -1304,7 +1309,7 @@ useEffect(() => {
             )}
 
             {/* 미션 제출 폼 */}
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div ref={missionRef} className="bg-white rounded-2xl shadow p-4 mb-4">
               <h2 className="font-bold mb-3">📸 미션 제출</h2>
               <div className="space-y-3">
                 {projectInfo && (
