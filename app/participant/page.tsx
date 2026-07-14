@@ -1231,7 +1231,7 @@ useEffect(() => {
          
             {/* 프로젝트 리스트 */}
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">📋 프로젝트 목록</h2>
+              <h2 className="font-bold mb-3">📋 전체 프로젝트 목록</h2>
               {allProjects.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
               ) : (
@@ -1240,6 +1240,17 @@ useEffect(() => {
                     {allProjects.slice(projectListPage * PAGE_SIZE, (projectListPage + 1) * PAGE_SIZE).map((project) => {
                       const isFull = project.max_participants > 0 && (project.current_participants ?? 0) >= project.max_participants
                       const isJoined = myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
+                      const isCompleted = project.status === 'COMPLETED'
+                      const isPaused = project.status === 'PAUSED'
+                      
+                      const getStatusButton = () => {
+                        if (isCompleted) return <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">종료</span>
+                        if (isJoined) return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
+                        if (isFull) return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">미참여</span>
+                        if (isPaused) return <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">대기중</span>
+                        return <button onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">참여</button>
+                      }
+
                       return (
                         <div key={project.id} className="border rounded-lg p-3">
                           <div className="flex justify-between items-center">
@@ -1251,13 +1262,7 @@ useEffect(() => {
                               )}
                               <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}</p>
                             </div>
-                            {isJoined ? (
-                              <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
-                            ) : (
-                              <button onClick={() => { setProjectCode(project.project_code); getRequirements(project.project_code) }} disabled={isFull} className={`text-xs px-3 py-1 rounded-full ${isFull ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white'}`}>
-                                {isFull ? '마감' : '참여'}
-                              </button>
-                            )}
+                            {getStatusButton()}
                           </div>
                         </div>
                       )
