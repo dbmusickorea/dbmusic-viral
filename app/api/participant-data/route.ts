@@ -37,6 +37,35 @@ export async function GET(request: NextRequest) {
     ? await supabaseAdmin.from('projects').select('*').in('project_code', participationCodes)
     : { data: [] }
 
+  // 랭크 계산
+  const rankMap: any = {}
+  if (participationCodes.length > 0) {
+    const allPostsRes = await supabaseAdmin
+      .from('posts')
+      .select('member_id, likes_count, project_code')
+      .in('project_code', participationCodes)
+      .not('likes_count', 'is', null)
+
+    for (const code of participationCodes) {
+      const projectPosts = allPostsRes.data
+        ?.filter((p: any) => p.project_code.toLowerCase() === code.toLowerCase())
+        ?.sort((a: any, b: any) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
+
+      if (!projectPosts || projectPosts.length === 0) continue
+
+      const myPost = projectPosts.find((p: any) => p.member_id === Number(id))
+      if (!myPost) continue
+
+      const rank = projectPosts.findIndex((p: any) => p.member_id === Number(id)) + 1
+      rankMap[code] = {
+        rank,
+        likes: myPost.likes_count,
+        total: projectPosts.length,
+        isEligible: myPost.likes_count >= 1000
+      }
+    }
+  }
+
   return NextResponse.json({
     participant: participantRes.data,
     posts: postsRes.data ?? [],
@@ -46,6 +75,7 @@ export async function GET(request: NextRequest) {
     unlockVideos: unlockVideosRes.data ?? [],
     participations: participationsRes.data ?? [],
     notifications: notificationsRes.data ?? [],
-    myProjects: myProjectsRes.data ?? []
+    myProjects: myProjectsRes.data ?? [],
+    rankMap
   })
 }

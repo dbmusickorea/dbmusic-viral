@@ -123,9 +123,7 @@ useEffect(() => {
           projects: data.myProjects?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
         }))
         setMyParticipations(merged)
-        for (const p of data.participations) {
-          fetchMyRank(p.project_code, parsed.id)
-        }
+        setMyRankMap(data.rankMap ?? {})
       } else {
         setMyParticipations([])
       }
@@ -326,6 +324,7 @@ useEffect(() => {
           projects: data.myProjects?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
         }))
         setMyParticipations(merged)
+        setMyRankMap(data.rankMap ?? {})
       } else {
         setMyParticipations([])
       }
