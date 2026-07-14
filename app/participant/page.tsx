@@ -20,7 +20,7 @@ export default function Page2() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [selectedVideoId, setSelectedVideoId] = useState('')
   const [snsAccount, setSnsAccount] = useState('')
-  const [postUrl, setPostUrl] = useState('')
+  const [postUrls, setPostUrls] = useState<string[]>([''])
   const [platform, setPlatform] = useState('')
   const [showExchange, setShowExchange] = useState(false)
   const [residentNumber, setResidentNumber] = useState('')
@@ -562,7 +562,7 @@ useEffect(() => {
       setIsSubmitting(false)
       return
     }
-    if (!projectCode || !postUrl) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
+    if (!projectCode || postUrls.every(u => !u)) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     
     // 링크 유효성 검사
     const isValidUrl = (url: string) => {
@@ -571,38 +571,42 @@ useEffect(() => {
       const tiktokRegex = /https?:\/\/(www\.)?tiktok\.com\/@[^/]+\/video\/[0-9]+/
       return instagramRegex.test(url) || youtubeRegex.test(url) || tiktokRegex.test(url)
     }
-    if (!isValidUrl(postUrl)) { alert('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
+    
+    const validUrls = postUrls.filter(u => u.trim())
+    if (validUrls.some(u => !isValidUrl(u))) { alert('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
     setIsSubmitting(true)
-    let likesCount = 0
-    let commentsCount = 0
 
-    if (platform === 'instagram') {
-      const stats = await getInstagramStats(postUrl)
-      likesCount = stats.likes; commentsCount = stats.comments
-    } else if (platform === 'youtube') {
-      const stats = await getYoutubeStats(postUrl)
-      likesCount = stats.likes; commentsCount = stats.comments
-    } else if (platform === 'tiktok') {
-      const stats = await getTiktokStats(postUrl)
-      likesCount = stats.likes; commentsCount = stats.comments
-    }
+    for (const postUrl of validUrls) {
+      let likesCount = 0
+      let commentsCount = 0
 
-    const postsInsertRes = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        project_code: projectCode.toUpperCase(),
-        influencer_name: influencerName,
-        post_url: postUrl,
-        platform,
-        member_id: userInfo?.id,
-        likes_count: likesCount,
-        comments_count: commentsCount,
-        is_cover: isCover,
-        cover_status: isCover ? 'PENDING' : null
+      if (platform === 'instagram') {
+        const stats = await getInstagramStats(postUrl)
+        likesCount = stats.likes; commentsCount = stats.comments
+      } else if (platform === 'youtube') {
+        const stats = await getYoutubeStats(postUrl)
+        likesCount = stats.likes; commentsCount = stats.comments
+      } else if (platform === 'tiktok') {
+        const stats = await getTiktokStats(postUrl)
+        likesCount = stats.likes; commentsCount = stats.comments
+      }
+
+      await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project_code: projectCode.toUpperCase(),
+          influencer_name: influencerName,
+          post_url: postUrl,
+          platform,
+          member_id: userInfo?.id,
+          likes_count: likesCount,
+          comments_count: commentsCount,
+          is_cover: isCover,
+          cover_status: isCover ? 'PENDING' : null
+        })
       })
-    })
-    if (!postsInsertRes.ok) { setIsSubmitting(false); alert('미션 제출 실패!'); return }
+    }
 
     // 관리자에게 푸시 알림
     const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
@@ -625,7 +629,7 @@ useEffect(() => {
     const projectData = projectList?.[0]
 
     if (projectData?.reward_per_post) {
-      const earnAmount = getLevelAmount(projectData.reward_per_post, level)
+      const earnAmount = getLevelAmount(projectData.reward_per_post, level) * validUrls.length
       const newBalance = balance + earnAmount
       await fetch(`/api/participants?id=${userInfo?.id}`, {
         method: 'PATCH',
@@ -645,7 +649,7 @@ useEffect(() => {
 
     setIsSubmitting(false)
     fetchMyPostsAndProjects(userInfo?.id)
-    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrl('')
+    setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrls([''])
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null)
   }
 
@@ -1373,7 +1377,19 @@ useEffect(() => {
                     </div>
                     <div>
                       <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
-                      <input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소" />
+                      {Array.from({ length: projectInfo?.required_posts ?? 1 }).map((_, i) => (
+                        <input 
+                          key={i}
+                          value={postUrls[i] ?? ''}
+                          onChange={(e) => {
+                            const newUrls = [...postUrls]
+                            newUrls[i] = e.target.value
+                            setPostUrls(newUrls)
+                          }}
+                          className="w-full border rounded-lg px-3 py-2 text-sm mt-1" 
+                          placeholder={`게시글 주소 ${(projectInfo?.required_posts ?? 1) > 1 ? `${i + 1}` : ''}`}
+                        />
+                      ))}
                     </div>
                     <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
                       <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
