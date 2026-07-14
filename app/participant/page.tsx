@@ -562,6 +562,15 @@ useEffect(() => {
       return
     }
     if (!projectCode || !postUrl) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
+    
+    // 링크 유효성 검사
+    const isValidUrl = (url: string) => {
+      const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+/
+      const youtubeRegex = /https?:\/\/(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[A-Za-z0-9_-]+/
+      const tiktokRegex = /https?:\/\/(www\.)?tiktok\.com\/@[^/]+\/video\/[0-9]+/
+      return instagramRegex.test(url) || youtubeRegex.test(url) || tiktokRegex.test(url)
+    }
+    if (!isValidUrl(postUrl)) { alert('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
     setIsSubmitting(true)
     let likesCount = 0
     let commentsCount = 0
