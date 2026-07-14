@@ -330,7 +330,8 @@ export default function Page1() {
     const option = Number(optionPrice) || 0
     const monitoring = monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : monitoringExtension === 45 ? 600000 : 0
     const traffic = refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : refreshInterval === '1' ? 800000 : 0
-    return productPrice + option + monitoring + traffic
+    const cover = coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : coverVideoCount === 30 ? 4500000 : 0
+    return productPrice + option + monitoring + traffic + cover
   }
 
   const extractVideoId = (url: string) => {
@@ -1065,10 +1066,13 @@ export default function Page1() {
                   {(productContent && productContent !== '__direct__') && (
                     <div className="bg-blue-50 rounded-lg p-3 mb-3">
                       <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
-                      <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}P</p>
-                      <div className="text-xs text-gray-500 mt-1">
-                        <p>상품: {getSelectedProductPrice().toLocaleString()}P</p>
-                        {optionPrice && <p>옵션: +{Number(optionPrice).toLocaleString()}P</p>}
+                      <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
+                      <div className="text-xs text-gray-500 mt-1 space-y-1">
+                        <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
+                        {optionPrice && <p>추가 옵션: +{Number(optionPrice).toLocaleString()}원</p>}
+                        {monitoringExtension > 0 && <p>모니터링 연장 ({monitoringExtension}일): +{(monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
+                        {refreshInterval && <p>트래픽 부스터: +{(refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
+                        {coverVideoCount > 0 && <p>커버영상 ({coverVideoCount}개): +{(coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
                       </div>
                     </div>
                   )}
