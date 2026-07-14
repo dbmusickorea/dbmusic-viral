@@ -62,6 +62,7 @@ export default function Page1() {
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [adminPostPage, setAdminPostPage] = useState(0)
   const [participantPage, setParticipantPage] = useState(0)
+  const [songTitle, setSongTitle] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -286,6 +287,7 @@ export default function Page1() {
     setProjectCode(project.project_code ?? '')
     setProjectPrefix(project.project_code?.split('_')[0] ?? '')
     setProductContent(project.product_content ?? '')
+    setSongTitle(project.song_title ?? '')
     setRequirements(project.requirements ?? '')
     setStatus(project.status ?? 'ONGOING')
     setStartDate(project.start_date ? project.start_date.substring(0, 10) : '')
@@ -370,6 +372,7 @@ export default function Page1() {
         project_code: projectCode.toUpperCase(),
         client_name: clientName,
         product_content: productContent,
+        song_title: songTitle,
         requirements,
         status,
         start_date: startDate || null,
@@ -424,6 +427,7 @@ export default function Page1() {
       body: JSON.stringify({
         client_name: clientName,
         product_content: productContent,
+        song_title: songTitle,
         requirements,
         status,
         start_date: startDate || null,
@@ -618,6 +622,7 @@ export default function Page1() {
     setRequirements(''); setStatus('ONGOING'); setStartDate('')
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setSelectedClientId(''); setClientSearch('')
+    setSongTitle('')
     setPosts([])
     setMaxParticipants(''); setMissionDate(''); setMissionTime('')
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
@@ -846,7 +851,7 @@ export default function Page1() {
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="font-medium text-sm">{project.project_code}</p>
-                            <p className="text-xs text-gray-500">{project.client_name} · {project.product_content}</p>
+                            <p className="text-xs text-gray-500">{project.client_name} / {project.song_title ?? project.product_content}</p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
                             {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
@@ -1097,8 +1102,8 @@ export default function Page1() {
                       {selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>}
                     </div>
                     <div>
-                      <label className="text-sm font-medium">의뢰인명</label>
-                      <input value={clientName} onChange={(e) => setClientName(e.target.value)} className={inputClass} />
+                      <label className="text-sm font-medium">노래제목</label>
+                      <input value={songTitle} onChange={(e) => setSongTitle(e.target.value)} className={inputClass} placeholder="노래제목 입력" />
                     </div>
                     <div>
                       <label className="text-sm font-medium">상품내용</label>
