@@ -41,6 +41,7 @@ export default function Page3() {
   const [allProjectPage, setAllProjectPage] = useState(0)
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [postPage, setPostPage] = useState(0)
+  const [topRanker, setTopRanker] = useState<any>(null)
   const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -132,6 +133,10 @@ export default function Page3() {
     const res = await fetch(`/api/posts?project_code=${code}`)
     const data = await res.json()
     setPosts(data ?? [])
+    
+    const eligible = data?.filter((p: any) => p.likes_count >= 1000)
+      ?.sort((a: any, b: any) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
+    setTopRanker(eligible?.[0] ?? null)
   }
 
   const fetchCommentMissionData = async (code: string) => {
@@ -160,6 +165,7 @@ export default function Page3() {
     setActiveTab('right')
     setPostPage(0)
     setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
+    // 1등 계산은 posts 로드 후 해야 해서 fetchPosts 안에서 처리
   }
 
   const handleCodeChange = (code: string) => {
@@ -379,15 +385,6 @@ export default function Page3() {
           </div>
         )}
 
-        {projectInfo && isClient && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
-            <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {projectInfo.required_posts ?? 1}개</p>
-            {projectInfo.refresh_interval && (
-              <p className="text-sm font-medium text-yellow-800 mt-1">🔄 새로고침 주기: {projectInfo.refresh_interval}시간마다</p>
-            )}
-          </div>
-        )}
-
         {/* 모바일 탭 */}
         <div className="md:hidden flex mb-4 border-b">
           <button onClick={() => setActiveTab('left')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'left' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📋 프로젝트</button>
@@ -601,7 +598,7 @@ export default function Page3() {
             {posts.length > 0 && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">📊 전체 통계</h2>
-                <div className="grid grid-cols-3 gap-3">
+                <div className={`grid gap-3 ${topRanker ? 'grid-cols-2' : 'grid-cols-3'}`}>
                   <div className="bg-gray-50 rounded-lg p-3 text-center">
                     <p className="text-xs text-gray-500">총 게시물</p>
                     <p className="text-lg font-bold text-blue-600">{posts.length}</p>
@@ -614,6 +611,13 @@ export default function Page3() {
                     <p className="text-xs text-gray-500">총 댓글</p>
                     <p className="text-lg font-bold text-green-600">{totalComments.toLocaleString()}</p>
                   </div>
+                  {topRanker && (
+                    <div className="bg-yellow-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-500">🏆 1등</p>
+                      <p className="text-sm font-bold text-yellow-700">{topRanker.influencer_name}</p>
+                      <p className="text-xs text-gray-500">❤️ {topRanker.likes_count?.toLocaleString()}</p>
+                    </div>
+                  )}
                 </div>
                 {dailyStats.length > 0 && (
                   <div className="mt-4">

@@ -118,14 +118,11 @@ export default function Page1() {
   }
 
   const fetchTopRanker = async (projectCode: string) => {
-    const { data: posts } = await supabase
-      .from('posts')
-      .select('member_id, likes_count, influencer_name, post_url')
-      .ilike('project_code', projectCode)
-      .not('likes_count', 'is', null)
-      .gte('likes_count', 1000)
-      .order('likes_count', { ascending: false })
-      .limit(1)
+    const res = await fetch(`/api/posts?project_code=${projectCode}`)
+    const allPosts = await res.json()
+    const posts = allPosts
+      ?.filter((p: any) => p.likes_count !== null && p.likes_count >= 1000)
+      ?.sort((a: any, b: any) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
     
     if (!posts || posts.length === 0) { setTopRanker(null); return }
     setTopRanker(posts[0])
@@ -775,23 +772,11 @@ export default function Page1() {
           </div>
         )}
 
-        {selectedProject && (
+        {selectedProject && topRanker && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium text-yellow-800">📝 요청 게시물 수: {selectedProject.required_posts ?? 1}개</p>
-                {selectedProject.refresh_interval && (
-                  <p className="text-sm font-medium text-yellow-800 mt-1">🔄 새로고침 주기: {selectedProject.refresh_interval}시간마다</p>
-                )}
-              </div>
-              {topRanker && (
-                <div className="text-right">
-                  <p className="text-sm font-medium text-yellow-800">🏆 1등: {topRanker.influencer_name}</p>
-                  <p className="text-xs text-yellow-700">❤️ {topRanker.likes_count?.toLocaleString()}</p>
-                  <a href={topRanker.post_url} target="_blank" className="text-xs text-blue-600">링크 →</a>
-                </div>
-              )}
-            </div>
+            <p className="text-sm font-medium text-yellow-800">🏆 1등: {topRanker.influencer_name}</p>
+            <p className="text-xs text-yellow-700">❤️ {topRanker.likes_count?.toLocaleString()}</p>
+            <a href={topRanker.post_url} target="_blank" className="text-xs text-blue-600">링크 →</a>
           </div>
         )}
 
