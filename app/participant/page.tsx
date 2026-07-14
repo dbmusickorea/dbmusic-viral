@@ -615,11 +615,9 @@ useEffect(() => {
       })
     }
 
-    const { data: projectData } = await supabase
-      .from('projects')
-      .select('reward_per_post')
-      .ilike('project_code', projectCode)
-      .maybeSingle()
+    const projectRes = await fetch(`/api/projects?project_code=${projectCode}`)
+    const projectList = await projectRes.json()
+    const projectData = projectList?.[0]
 
     if (projectData?.reward_per_post) {
       const earnAmount = getLevelAmount(projectData.reward_per_post, level)
