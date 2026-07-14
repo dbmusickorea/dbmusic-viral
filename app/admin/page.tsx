@@ -328,7 +328,9 @@ export default function Page1() {
   const getTotalCost = () => {
     const productPrice = getSelectedProductPrice()
     const option = Number(optionPrice) || 0
-    return productPrice + option
+    const monitoring = monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : monitoringExtension === 45 ? 600000 : 0
+    const traffic = refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : refreshInterval === '1' ? 800000 : 0
+    return productPrice + option + monitoring + traffic
   }
 
   const extractVideoId = (url: string) => {
@@ -1146,10 +1148,9 @@ export default function Page1() {
                       <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
                       <select value={refreshInterval} onChange={(e) => setRefreshInterval(e.target.value)} className={inputClass}>
                         <option value="">기본 (하루 1회)</option>
-                        <option value="1">1시간마다</option>
-                        <option value="3">3시간마다</option>
-                        <option value="6">6시간마다</option>
-                        <option value="12">12시간마다</option>
+                        <option value="6">실버 트래픽 - 일 4회 / 6시간 주기 (150,000원)</option>
+                        <option value="3">골드 트래픽 - 일 8회 / 3시간 주기 (300,000원)</option>
+                        <option value="1">다이아 VIP - 일 24회 / 1시간 주기 (800,000원)</option>
                       </select>
                     </div>
                     <div>
