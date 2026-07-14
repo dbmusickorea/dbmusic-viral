@@ -63,6 +63,7 @@ export default function Page1() {
   const [adminPostPage, setAdminPostPage] = useState(0)
   const [participantPage, setParticipantPage] = useState(0)
   const [songTitle, setSongTitle] = useState('')
+  const [pushTarget, setPushTarget] = useState<'all' | 'participant' | 'client'>('all')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -502,7 +503,13 @@ export default function Page1() {
     if (!pushTitle || !pushBody) { alert('제목과 내용을 입력해주세요.'); return }
     setIsSendingPush(true)
     
-    const res = await fetch('/api/push_tokens')
+    const url = pushTarget === 'all' 
+      ? '/api/push_tokens' 
+      : pushTarget === 'participant'
+      ? '/api/push_tokens?user_role=participant'
+      : '/api/push_tokens?user_role=client'
+    
+    const res = await fetch(url)
     const tokens = await res.json()
     if (!tokens || tokens.length === 0) { alert('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
     
@@ -971,6 +978,14 @@ export default function Page1() {
               <h2 className="font-bold mb-3">🔔 푸시 알림 발송</h2>
               <div className="space-y-3">
                 <div>
+                  <label className="text-sm font-medium">발송 대상</label>
+                  <div className="flex gap-2 mt-1">
+                    <button onClick={() => setPushTarget('all')} className={`flex-1 text-xs py-2 rounded-lg border ${pushTarget === 'all' ? 'bg-purple-600 text-white border-purple-600' : ''}`}>전체</button>
+                    <button onClick={() => setPushTarget('participant')} className={`flex-1 text-xs py-2 rounded-lg border ${pushTarget === 'participant' ? 'bg-blue-600 text-white border-blue-600' : ''}`}>체험단</button>
+                    <button onClick={() => setPushTarget('client')} className={`flex-1 text-xs py-2 rounded-lg border ${pushTarget === 'client' ? 'bg-green-600 text-white border-green-600' : ''}`}>의뢰인</button>
+                  </div>
+                </div>
+                <div>
                   <label className="text-sm font-medium">제목</label>
                   <input value={pushTitle} onChange={(e) => setPushTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="알림 제목" />
                 </div>
@@ -979,7 +994,7 @@ export default function Page1() {
                   <textarea value={pushBody} onChange={(e) => setPushBody(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="알림 내용" />
                 </div>
                 <button onClick={handleSendPush} disabled={isSendingPush} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
-                  {isSendingPush ? '발송 중...' : '전체 발송'}
+                  {isSendingPush ? '발송 중...' : `${pushTarget === 'all' ? '전체' : pushTarget === 'participant' ? '체험단' : '의뢰인'} 발송`}
                 </button>
               </div>
             </div>
