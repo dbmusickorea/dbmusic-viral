@@ -17,6 +17,8 @@ export default function Page5() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [decryptedResident, setDecryptedResident] = useState('')
   const [decryptedAccount, setDecryptedAccount] = useState('')
+  const [memberPostPage, setMemberPostPage] = useState(0)
+  const PAGE_SIZE = 5
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
@@ -229,7 +231,6 @@ export default function Page5() {
                   <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}P</span></p>
                   <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}P</span></p>
                   <p>주민번호: <span className="font-medium">{decryptedResident || '-'}</span></p>
-                  <p>주소: <span className="font-medium">{selected.address ?? '-'}</span></p>
                   <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {decryptedAccount} ({selectedParticipant?.account_holder})</span></p>
                   <p>상태: {statusLabel(selected.status)}</p>
                 </div>
@@ -251,7 +252,7 @@ export default function Page5() {
               <div className="bg-white rounded-2xl shadow p-4">
                 <h2 className="font-bold mb-3">📋 체험단 게시물 내역</h2>
                 <div className="space-y-2">
-                  {memberPosts.map((post) => (
+                  {memberPosts.slice(memberPostPage * PAGE_SIZE, (memberPostPage + 1) * PAGE_SIZE).map((post) => (
                     <div key={post.id} className="border rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div>
@@ -267,6 +268,13 @@ export default function Page5() {
                     </div>
                   ))}
                 </div>
+                {memberPosts.length > PAGE_SIZE && (
+                  <div className="flex justify-between items-center mt-3">
+                    <button onClick={() => setMemberPostPage(p => Math.max(0, p - 1))} disabled={memberPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                    <span className="text-xs text-gray-500">{memberPostPage + 1} / {Math.ceil(memberPosts.length / PAGE_SIZE)}</span>
+                    <button onClick={() => setMemberPostPage(p => Math.min(Math.ceil(memberPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(memberPostPage + 1) * PAGE_SIZE >= memberPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
