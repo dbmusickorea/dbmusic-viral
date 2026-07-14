@@ -381,11 +381,11 @@ useEffect(() => {
               const endDate = new Date(project.end_date)
               const availableDate = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
               if (new Date() >= availableDate) {
-                postIncome += (level === 50 ? 10000 : 2500 + (level - 1) * 150)
+                postIncome += getLevelAmount(project.reward_per_post ?? 2500, level)
               }
             }
           } else {
-            postIncome += (level === 50 ? 10000 : 2500 + (level - 1) * 150)
+            postIncome += getLevelAmount(project.reward_per_post ?? 2500, level)
           }
         })
       })
