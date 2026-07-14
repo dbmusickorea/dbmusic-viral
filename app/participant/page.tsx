@@ -1293,10 +1293,11 @@ useEffect(() => {
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <h2 className="font-bold mb-3">📸 미션 제출</h2>
               <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium">의뢰인 식별 코드</label>
-                  <input value={projectCode} onChange={(e) => { setProjectCode(e.target.value); if (e.target.value) getRequirements(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예: A_1" />
-                </div>
+                {projectInfo && (
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-sm font-medium text-blue-800">🎵 {projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
+                  </div>
+                )}
                 {requirements && (
                   <div className="bg-blue-50 rounded-lg p-3">
                     <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
