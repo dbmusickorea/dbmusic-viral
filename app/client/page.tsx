@@ -161,14 +161,14 @@ export default function Page3() {
   const handleSelectProject = (project: any) => {
     setProjectInfo(project)
     setClientCode(project.project_code)
+    setIgAudioCount(null)
+    setTtAudioCount(null)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
     fetchDailyStats(project.project_code)
     setActiveTab('right')
     setPostPage(0)
     setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
-    // 1등 계산은 posts 로드 후 해야 해서 fetchPosts 안에서 처리
-    // 음원 사용량 조회
     if (project.instagram_audio_id) {
       fetch(`/api/audio-stats?platform=instagram&audio_id=${project.instagram_audio_id}`)
         .then(r => r.json())
