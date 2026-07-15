@@ -168,6 +168,7 @@ export default function Page5() {
           )}
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">정산 관리</h1>
+            <button onClick={() => window.open('/api/settlement-excel', '_blank')} className="text-xs bg-green-600 text-white px-3 py-1 rounded-lg">📥 엑셀 다운로드</button>
           </div>
           <div className="flex gap-1">
             <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
