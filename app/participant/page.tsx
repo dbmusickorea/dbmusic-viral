@@ -1240,7 +1240,10 @@ useEffect(() => {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
                 <div className="space-y-2">
-                  {myParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
+                  {(postFilter === 'current' 
+                    ? myParticipations.filter(p => p.projects?.status === 'ONGOING')
+                    : myParticipations
+                  ).slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
                     <div key={p.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => { 
                       if (projectCode.toLowerCase() === p.project_code.toLowerCase()) {
                         setProjectCode('')
@@ -1251,8 +1254,8 @@ useEffect(() => {
                         setActiveTab('right')
                       }
                     }}>
-                      <div className="flex justify-between items-center">
-                        <div>
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">{p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
                           <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
                           <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
