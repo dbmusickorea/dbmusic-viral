@@ -661,10 +661,19 @@ useEffect(() => {
     if (amount < 10000) { alert('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
     if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
 
-    // 예금주 이름 확인
+    // 계좌번호 확인
     const participantRes = await fetch(`/api/participants?ids=${userInfo?.id}`)
     const participants = await participantRes.json()
     const participantData = participants?.[0]
+    
+    if (!participantData?.account_number || !participantData?.bank_name) {
+      alert('계좌번호가 등록되지 않았어요. 내 정보 보기에서 계좌를 먼저 등록해주세요!')
+      setShowExchange(false)
+      setShowMyInfo(true)
+      if (!myName) loadMyInfo()
+      return
+    }
+    
     if (participantData?.account_holder && participantData?.name) {
       if (participantData.account_holder !== participantData.name) {
         alert('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
