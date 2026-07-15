@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
         headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
       })
       const data = await res.json()
-      const items = data?.items ?? {}
-      return NextResponse.json({ count: Object.keys(items).length })
+      const reels = data?.data?.reels ?? {}
+      return NextResponse.json({ count: Object.keys(reels).length })
     }
   } catch {
     return NextResponse.json({ count: 0 })
