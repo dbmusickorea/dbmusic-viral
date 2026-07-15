@@ -666,7 +666,7 @@ useEffect(() => {
     const participants = await participantRes.json()
     const participantData = participants?.[0]
     
-    if (!participantData?.account_number || !participantData?.bank_name) {
+    if (!participantData?.account_number || !participantData?.bank_name || !participantData?.account_holder) {
       alert('계좌번호가 등록되지 않았어요. 내 정보 보기에서 계좌를 먼저 등록해주세요!')
       setShowExchange(false)
       setShowMyInfo(true)
