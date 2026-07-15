@@ -580,7 +580,12 @@ export default function Page3() {
                   <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
                   <p className="text-xs">의뢰인: {projectInfo.client_name ?? '-'}</p>
                   <p className="text-xs">상품: {projectInfo.product_content ?? '-'}</p>
-                  <p className="text-xs">요청: {projectInfo.requirements ?? '-'}</p>
+                  <p className="text-xs">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
+                  <p className="text-xs">모집인원: {projectInfo.max_participants ?? '-'}명</p>
+                  {projectInfo.monitoring_extension > 0 && <p className="text-xs">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
+                  {projectInfo.refresh_interval && <p className="text-xs">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
+                  {projectInfo.cover_video_count > 0 && <p className="text-xs">커버영상: {projectInfo.cover_video_count}개</p>}
+                  {projectInfo.requirements && <p className="text-xs">요청사항: {projectInfo.requirements}</p>}
                 </div>
               </div>
             )}
