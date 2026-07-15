@@ -350,7 +350,7 @@ export async function GET() {
         }
       }
     }
-    
+
     // 체험단 팔로워 수 갱신
     const { data: allParticipantsForFollowers } = await supabase
       .from('participants')
@@ -375,6 +375,44 @@ export async function GET() {
             }
           }
         } catch { continue }
+      }
+    }
+
+    // 음원 사용량 갱신 (하루 1회)
+    if (currentHour === 3) {
+      const { data: projectsWithAudio } = await supabase
+        .from('projects')
+        .select('project_code, instagram_audio_id, tiktok_audio_id')
+        .or('instagram_audio_id.not.is.null,tiktok_audio_id.not.is.null')
+        .in('status', ['ONGOING', 'PAUSED'])
+
+      if (projectsWithAudio) {
+        for (const project of projectsWithAudio) {
+          const updates: any = { audio_updated_at: new Date().toISOString() }
+          
+          if (project.instagram_audio_id) {
+            try {
+              const res = await fetch(`https://api.sociavault.com/v1/scrape/instagram/reels-by-song?audio_id=${project.instagram_audio_id}`, {
+                headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
+              })
+              const data = await res.json()
+              const reels = data?.data?.reels ?? {}
+              updates.instagram_audio_count = Object.keys(reels).length
+            } catch { }
+          }
+
+          if (project.tiktok_audio_id) {
+            try {
+              const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/details?clipId=${project.tiktok_audio_id}`, {
+                headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
+              })
+              const data = await res.json()
+              updates.tiktok_audio_count = data?.data?.music_info?.user_count ?? 0
+            } catch { }
+          }
+
+          await supabase.from('projects').update(updates).eq('project_code', project.project_code)
+        }
       }
     }
 

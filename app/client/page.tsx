@@ -170,14 +170,10 @@ export default function Page3() {
     setPostPage(0)
     setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
     if (project.instagram_audio_id) {
-      fetch(`/api/audio-stats?platform=instagram&audio_id=${project.instagram_audio_id}`)
-        .then(r => r.json())
-        .then(d => setIgAudioCount(d.count ?? 0))
+      setIgAudioCount(project.instagram_audio_count ?? null)
     }
     if (project.tiktok_audio_id) {
-      fetch(`/api/audio-stats?platform=tiktok&audio_id=${project.tiktok_audio_id}`)
-        .then(r => r.json())
-        .then(d => setTtAudioCount(d.count ?? 0))
+      setTtAudioCount(project.tiktok_audio_count ?? null)
     }
   }
 
