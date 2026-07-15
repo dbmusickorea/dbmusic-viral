@@ -1275,8 +1275,12 @@ useEffect(() => {
                               </div>
                             )}
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
-                            {p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
+                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${
+                            p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' :
+                            p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {p.status === 'CANCELLED' ? '취소됨 ❌' : p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
                           </span>
                         </div>
                       </div>
