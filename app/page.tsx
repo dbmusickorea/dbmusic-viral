@@ -322,6 +322,24 @@ export default function LoginPage() {
 
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
+    // SNS 팔로워 100명 이상 확인
+    if (p_instagram) {
+      const igRes = await fetch(`/api/instagram-user?username=${p_instagram}`)
+      const igData = await igRes.json()
+      if ((igData.followers ?? 0) < 100) {
+        alert('인스타그램 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정으로 가입해주세요.')
+        return
+      }
+    }
+    if (p_youtube) {
+      const ytRes = await fetch(`/api/youtube?handle=${p_youtube}`)
+      const ytData = await ytRes.json()
+      if ((ytData.subscriberCount ?? 0) < 100) {
+        alert('유튜브 구독자가 100명 미만이에요. 구독자 100명 이상인 채널로 가입해주세요.')
+        return
+      }
+    }
+
     if (p_referral) {
       const referrerRes = await fetch(`/api/participants?referral_code=${p_referral}`)
       const referrerData = await referrerRes.json()
