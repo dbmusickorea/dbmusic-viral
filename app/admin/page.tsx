@@ -846,8 +846,8 @@ export default function Page1() {
                       <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                         <div className="flex justify-between items-center">
                           <div>
-                            <p className="font-medium text-sm">{project.project_code}</p>
-                            <p className="text-xs text-gray-500">{project.client_name} / {project.song_title ?? project.product_content}</p>
+                            <p className="font-medium text-sm">{project.client_name} / {project.song_title ?? project.product_content}</p>
+                            <p className="text-xs text-gray-400">프로젝트 코드: {project.project_code}</p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
                             {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}

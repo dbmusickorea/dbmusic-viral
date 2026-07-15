@@ -1219,7 +1219,7 @@ useEffect(() => {
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="text-sm font-medium">{p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
-                          <p className="text-xs text-gray-500">프로젝트 코드: {p.project_code}</p>
+                          <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
                           <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
                           {p.projects?.end_date && (
                             <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>

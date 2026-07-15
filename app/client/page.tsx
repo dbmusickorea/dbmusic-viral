@@ -499,8 +499,8 @@ export default function Page3() {
                         <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="font-medium text-sm">{project.project_code}</p>
-                              <p className="text-xs text-gray-500">{project.client_name} / {project.song_title ?? project.product_content}</p>
+                              <p className="font-medium text-sm">{project.client_name} / {project.song_title ?? project.product_content}</p>
+                              <p className="text-xs text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
                               {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
@@ -579,6 +579,7 @@ export default function Page3() {
                 <div className="bg-white rounded-2xl shadow p-3">
                   <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
                   <p className="text-xs">의뢰인: {projectInfo.client_name ?? '-'}</p>
+                  {projectInfo.song_title && <p className="text-xs">노래제목: {projectInfo.song_title}</p>}
                   <p className="text-xs">상품: {projectInfo.product_content ?? '-'}</p>
                   <p className="text-xs">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
                   <p className="text-xs">모집인원: {projectInfo.max_participants ?? '-'}명</p>
