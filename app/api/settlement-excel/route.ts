@@ -1,22 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import ExcelJS from 'exceljs'
+import CryptoJS from 'crypto-js'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-async function decrypt(text: string): Promise<string> {
+const SECRET_KEY = process.env.ENCRYPT_KEY!
+
+function decrypt(text: string): string {
   if (!text) return ''
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://app.doubleb.kr'}/api/decrypt`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    })
-    const data = await res.json()
-    return data.decrypted ?? ''
+    const bytes = CryptoJS.AES.decrypt(text, SECRET_KEY)
+    return bytes.toString(CryptoJS.enc.Utf8) || ''
   } catch { return '' }
 }
 
@@ -54,8 +52,8 @@ export async function GET(request: NextRequest) {
 
   for (const s of settlements) {
     const participant = participants?.find((p: any) => p.id === s.member_id)
-    const accountNumber = await decrypt(participant?.account_number ?? '')
-    const residentNumber = await decrypt(s.resident_number ?? '')
+    const accountNumber = decrypt(participant?.account_number ?? '')
+    const residentNumber = decrypt(s.resident_number ?? '')
 
     sheet.addRow([
       participant?.name ?? '-',
