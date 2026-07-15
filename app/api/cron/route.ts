@@ -234,9 +234,12 @@ export async function GET() {
       // 1개월 미활동 락 체크
       const oneMonthAgo = new Date()
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-      const { data: allParticipants } = await supabase.from('participants').select('id').eq('is_locked', false)
+      const { data: allParticipants } = await supabase.from('participants').select('id, created_at').eq('is_locked', false)
       if (allParticipants) {
         for (const p of allParticipants) {
+          // 가입한 지 1개월 미만인 사람은 제외
+          if (new Date(p.created_at) > oneMonthAgo) continue
+          
           const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
           if (!recentPost) {
             await supabase.from('participants').update({ is_locked: true }).eq('id', p.id)
