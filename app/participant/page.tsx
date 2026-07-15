@@ -1382,6 +1382,11 @@ useEffect(() => {
                         <option value="youtube">유튜브</option>
                         <option value="tiktok">틱톡</option>
                       </select>
+                      {platform === 'instagram' && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
+                          <p className="text-xs text-orange-700 font-medium">⚠️ 인스타그램은 반드시 <strong>릴스(Reels)</strong>로 게시물을 올려주세요. 일반 사진 게시물은 음원 카운트에 반영되지 않아요.</p>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm font-medium">본인 SNS 계정</label>
