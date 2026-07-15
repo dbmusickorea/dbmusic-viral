@@ -25,19 +25,17 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false }),
     supabaseAdmin.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false }),
     supabaseAdmin.from('comment_missions').select('*').eq('member_id', id),
-    supabaseAdmin.from('projects').select('*, project_participants(member_id)').in('status', ['ONGOING', 'PAUSED']).order('created_at', { ascending: false }),
+    supabaseAdmin.from('projects').select('*').in('status', ['ONGOING', 'PAUSED']).order('created_at', { ascending: false }),
     supabaseAdmin.from('unlock_videos').select('*'),
     supabaseAdmin.from('project_participants').select('*').eq('member_id', id).order('joined_at', { ascending: false }),
     supabaseAdmin.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
   ])
 
-  // 참여 프로젝트 조회
   const participationCodes = participationsRes.data?.map((p: any) => p.project_code) ?? []
   const myProjectsRes = participationCodes.length > 0
     ? await supabaseAdmin.from('projects').select('*').in('project_code', participationCodes)
     : { data: [] }
 
-  // 랭크 계산
   const rankMap: any = {}
   if (participationCodes.length > 0) {
     const allPostsRes = await supabaseAdmin
@@ -66,6 +64,18 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  const allProjectCodes = allProjectsRes.data?.map((p: any) => p.project_code) ?? []
+  const { data: participantCounts } = await supabaseAdmin
+    .from('project_participants')
+    .select('project_code')
+    .in('project_code', allProjectCodes)
+    .eq('status', 'ACTIVE')
+
+  const countMap: any = {}
+  participantCounts?.forEach((p: any) => {
+    countMap[p.project_code] = (countMap[p.project_code] ?? 0) + 1
+  })
+
   return NextResponse.json({
     participant: participantRes.data,
     posts: postsRes.data ?? [],
@@ -73,7 +83,7 @@ export async function GET(request: NextRequest) {
     commentMissions: commentMissionsRes.data ?? [],
     allProjects: (allProjectsRes.data ?? []).map((p: any) => ({
       ...p,
-      current_participants: p.project_participants?.length ?? 0
+      current_participants: countMap[p.project_code] ?? 0
     })),
     unlockVideos: unlockVideosRes.data ?? [],
     participations: participationsRes.data ?? [],
