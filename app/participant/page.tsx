@@ -312,6 +312,16 @@ useEffect(() => {
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
 
       setMyPosts(data.posts)
+      // projectsMap 업데이트
+      if (data.posts && data.posts.length > 0) {
+        const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
+        const codesParam = codes.join(',')
+        const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+        const projects = await projectsRes.json()
+        const map: any = {}
+        projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
+        setProjectsMap(map)
+      }
       setMySettlements(data.settlements)
       setCommentMissions(data.commentMissions)
       setAllProjects(data.allProjects)
@@ -809,7 +819,7 @@ useEffect(() => {
   const tiktokPosts = displayPosts.filter(p => p.platform === 'tiktok')
 
   const statusBadge = (code: string) => {
-    const s = projectsMap[code]?.status
+    const s = projectsMap[code?.toUpperCase()]?.status
     if (s === 'ONGOING') return <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">진행중</span>
     if (s === 'COMPLETED') return <span className="text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded">완료</span>
     return <span className="text-xs bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded">대기중</span>
@@ -1177,7 +1187,7 @@ useEffect(() => {
                   ) : (
                     <>
                       {displayPosts.slice(myPostPage * PAGE_SIZE, (myPostPage + 1) * PAGE_SIZE).map((post) => {
-                        const baseAmount = projectsMap[post.project_code]?.reward_per_post ?? 0
+                        const baseAmount = projectsMap[post.project_code?.toUpperCase()]?.reward_per_post ?? 0
                         const myAmount = getLevelAmount(baseAmount, level)
                         return (
                           <div key={post.id} className="border rounded-lg p-3">
