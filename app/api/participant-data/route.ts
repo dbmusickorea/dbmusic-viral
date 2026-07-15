@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false }),
     supabaseAdmin.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false }),
     supabaseAdmin.from('comment_missions').select('*').eq('member_id', id),
-    supabaseAdmin.from('projects').select('*').in('status', ['ONGOING', 'PAUSED']).order('created_at', { ascending: false }),
+    supabaseAdmin.from('projects').select('*, project_participants(member_id)').in('status', ['ONGOING', 'PAUSED']).order('created_at', { ascending: false }),
     supabaseAdmin.from('unlock_videos').select('*'),
     supabaseAdmin.from('project_participants').select('*').eq('member_id', id).order('joined_at', { ascending: false }),
     supabaseAdmin.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
@@ -71,7 +71,10 @@ export async function GET(request: NextRequest) {
     posts: postsRes.data ?? [],
     settlements: settlementsRes.data ?? [],
     commentMissions: commentMissionsRes.data ?? [],
-    allProjects: allProjectsRes.data ?? [],
+    allProjects: (allProjectsRes.data ?? []).map((p: any) => ({
+      ...p,
+      current_participants: p.project_participants?.length ?? 0
+    })),
     unlockVideos: unlockVideosRes.data ?? [],
     participations: participationsRes.data ?? [],
     notifications: notificationsRes.data ?? [],
