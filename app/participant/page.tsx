@@ -116,7 +116,14 @@ useEffect(() => {
       setUnreadCount(data.notifications?.filter((n: any) => !n.is_read).length ?? 0)
 
       const map: any = {}
-      data.posts?.forEach((p: any) => { if (!map[p.project_code]) map[p.project_code] = {} })
+      if (data.posts && data.posts.length > 0) {
+        const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
+        const codesParam = codes.join(',')
+        const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+        const projects = await projectsRes.json()
+        projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
+      }
+      setProjectsMap(map)
 
       if (data.participations?.length > 0) {
         const merged = data.participations.map((p: any) => ({
