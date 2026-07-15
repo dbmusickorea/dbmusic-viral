@@ -306,27 +306,44 @@ export async function GET() {
       }
     }
     
-    // 매 시간 게시물 통계 스냅샷 저장
-    const { data: allPosts } = await supabase.from('posts').select('*')
-    if (allPosts && allPosts.length > 0) {
-      for (const post of allPosts) {
-        const { data: existing } = await supabase
-          .from('post_stats_history')
-          .select('id')
-          .eq('post_id', post.id)
-          .eq('recorded_at', today)
-          .maybeSingle()
-        
-        if (!existing) {
-          await supabase.from('post_stats_history').insert({
-            post_id: post.id,
-            project_code: post.project_code,
-            member_id: post.member_id,
-            platform: post.platform,
-            likes_count: post.likes_count ?? 0,
-            comments_count: post.comments_count ?? 0,
-            recorded_at: today
-          })
+    // 프로젝트별 refresh_interval에 맞게 스냅샷 저장
+    const { data: ongoingProjectsForSnapshot } = await supabase
+      .from('projects')
+      .select('project_code, refresh_interval')
+      .in('status', ['ONGOING', 'COMPLETED'])
+
+    if (ongoingProjectsForSnapshot && ongoingProjectsForSnapshot.length > 0) {
+      for (const project of ongoingProjectsForSnapshot) {
+        const interval = project.refresh_interval ?? 12
+        if (currentHour % interval !== 0) continue
+
+        const { data: projectPosts } = await supabase
+          .from('posts')
+          .select('*')
+          .ilike('project_code', project.project_code)
+
+        if (!projectPosts) continue
+
+        for (const post of projectPosts) {
+          const snapshotKey = `${today}_${currentHour}`
+          const { data: existing } = await supabase
+            .from('post_stats_history')
+            .select('id')
+            .eq('post_id', post.id)
+            .eq('recorded_at', snapshotKey)
+            .maybeSingle()
+
+          if (!existing) {
+            await supabase.from('post_stats_history').insert({
+              post_id: post.id,
+              project_code: post.project_code,
+              member_id: post.member_id,
+              platform: post.platform,
+              likes_count: post.likes_count ?? 0,
+              comments_count: post.comments_count ?? 0,
+              recorded_at: snapshotKey
+            })
+          }
         }
       }
     }
