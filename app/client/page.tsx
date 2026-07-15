@@ -329,20 +329,51 @@ export default function Page3() {
           )}
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">더블비뮤직 의뢰인</h1>
-            <div className="flex items-center gap-2">
+            <div className="relative">
               <button onClick={() => { 
-                        if (showNotifications) {
-                          markAllRead(String(userInfo?.id))
-                        } else {
-                          fetchNotifications(String(userInfo?.id))
-                        }
-                        setShowNotifications(!showNotifications)
-                      }} className="relative text-gray-500">
+                if (showNotifications) {
+                  markAllRead(String(userInfo?.id))
+                } else {
+                  fetchNotifications(String(userInfo?.id))
+                }
+                setShowNotifications(!showNotifications)
+              }} className="relative text-gray-500">
                 <Bell size={22} className="text-gray-600" strokeWidth={1.5} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
                 )}
               </button>
+              {showNotifications && (
+                <div className="absolute right-0 top-8 z-50 w-80 max-h-[70vh] overflow-y-auto">
+                  <div className="bg-white rounded-2xl shadow-xl p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h2 className="font-bold">알림 내역</h2>
+                      <div className="flex gap-2">
+                        {notifications.length > 0 && (
+                          <button onClick={() => deleteAllNotifications(String(userInfo?.id))} className="text-xs text-red-400 border border-red-200 rounded px-2 py-1">전체 삭제</button>
+                        )}
+                        <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+                      </div>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {notifications.map((n) => (
+                          <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{n.title}</p>
+                              <p className="text-xs text-gray-500 mt-1">{n.body}</p>
+                              <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
+                            </div>
+                            <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           {userRole === 'admin' && (
@@ -354,36 +385,6 @@ export default function Page3() {
             </div>
           )}
         </div>
-
-        {showNotifications && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">알림 내역</h2>
-              <div className="flex gap-2">
-                {notifications.length > 0 && (
-                  <button onClick={() => deleteAllNotifications(String(userInfo?.id))} className="text-xs text-red-400 border border-red-200 rounded px-2 py-1">전체 삭제</button>
-                )}
-                <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
-              </div>
-            </div>
-            {notifications.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
-            ) : (
-              <div className="space-y-2">
-                {notifications.map((n) => (
-                  <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{n.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">{n.body}</p>
-                      <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
-                    </div>
-                    <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* 모바일 탭 */}
         <div className="md:hidden flex mb-4 border-b">

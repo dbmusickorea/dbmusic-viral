@@ -720,7 +720,7 @@ export default function Page1() {
           )}
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-xl font-bold">프로젝트 관리</h1>
-            <div className="flex items-center gap-2">
+            <div className="relative">
               <button onClick={() => { 
                 if (showNotifications) {
                   const userInfo = localStorage.getItem('userInfo')
@@ -736,6 +736,37 @@ export default function Page1() {
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
                 )}
               </button>
+              {showNotifications && (
+                <div className="absolute right-0 top-8 z-50 w-80 max-h-[70vh] overflow-y-auto">
+                  <div className="bg-white rounded-2xl shadow-xl p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h2 className="font-bold">알림 내역</h2>
+                      <div className="flex gap-2">
+                        {notifications.length > 0 && (
+                          <button onClick={() => deleteAllNotifications(String(JSON.parse(localStorage.getItem('userInfo') || '{}').id))} className="text-xs text-red-400 border border-red-200 rounded px-2 py-1">전체 삭제</button>
+                        )}
+                        <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+                      </div>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {notifications.map((n) => (
+                          <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{n.title}</p>
+                              <p className="text-xs text-gray-500 mt-1">{n.body}</p>
+                              <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
+                            </div>
+                            <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-1 mb-2">
@@ -748,36 +779,6 @@ export default function Page1() {
             {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브 + 틱톡)'}
           </button>
         </div>
-        
-        {showNotifications && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">알림 내역</h2>
-              <div className="flex gap-2">
-                {notifications.length > 0 && (
-                  <button onClick={() => deleteAllNotifications(String(JSON.parse(localStorage.getItem('userInfo') || '{}').id))} className="text-xs text-red-400 border border-red-200 rounded px-2 py-1">전체 삭제</button>
-                )}
-                <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
-              </div>
-            </div>
-            {notifications.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">알림이 없습니다.</p>
-            ) : (
-              <div className="space-y-2">
-                {notifications.map((n) => (
-                  <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{n.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">{n.body}</p>
-                      <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
-                    </div>
-                    <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {selectedProject && topRanker && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-3 mb-4">
