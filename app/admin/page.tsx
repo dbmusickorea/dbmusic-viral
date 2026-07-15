@@ -1115,7 +1115,14 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">상품내용</label>
                       {products.length > 0 ? (
-                        <select value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass}>
+                        <select value={productContent} onChange={(e) => {
+                          setProductContent(e.target.value)
+                          if (e.target.value.includes('스탠다드') || e.target.value.includes('디럭스')) {
+                            setRefreshInterval('12')
+                          } else if (e.target.value.includes('프리미엄') || e.target.value.includes('메가')) {
+                            setRefreshInterval('6')
+                          }
+                        }} className={inputClass}>
                           <option value="">상품 선택</option>
                           {products.map((p) => (
                             <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}P)</option>

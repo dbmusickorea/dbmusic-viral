@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
   summarySheet.addRow([])
   summarySheet.addRow(['프로젝트 코드', project.project_code])
   summarySheet.addRow(['의뢰인', project.client_name])
-  summarySheet.addRow(['상품명', project.product_content])
   summarySheet.addRow(['노래제목', project.song_title ?? '-'])
-  summarySheet.addRow(['상품 금액', project.option_price ? `${project.option_price.toLocaleString()}원` : '-'])
+  summarySheet.addRow(['상품명', project.product_content])
+  summarySheet.addRow(['상품 금액', project.option_price ? `${Number(project.option_price).toLocaleString()}원` : '-'])
   summarySheet.addRow(['모니터링 연장', project.monitoring_extension > 0 ? `${project.monitoring_extension}일` : '없음'])
   summarySheet.addRow(['새로고침 주기', project.refresh_interval ? `${project.refresh_interval}시간` : '기본(하루 1회)'])
   summarySheet.addRow(['커버영상 옵션', project.cover_video_count > 0 ? `${project.cover_video_count}개` : '없음'])
@@ -43,9 +43,10 @@ export async function GET(request: NextRequest) {
   summarySheet.addRow(['인스타그램', posts?.filter(p => p.platform === 'instagram').length ?? 0])
   summarySheet.addRow(['유튜브', posts?.filter(p => p.platform === 'youtube').length ?? 0])
   summarySheet.addRow(['틱톡', posts?.filter(p => p.platform === 'tiktok').length ?? 0])
+  summarySheet.addRow(['커버영상', posts?.filter(p => p.is_cover).length ?? 0])
   summarySheet.addRow(['총 좋아요', posts?.reduce((sum, p) => sum + (p.likes_count ?? 0), 0) ?? 0])
   summarySheet.addRow(['총 댓글', posts?.reduce((sum, p) => sum + (p.comments_count ?? 0), 0) ?? 0])
-  summarySheet.addRow(['댓글 미션 참여', commentMissions?.length ?? 0])
+  summarySheet.addRow(['댓글 미션 참여', commentMissions?.filter(m => m.project_code !== 'UNLOCK').length ?? 0])
 
   // 시트 2: 게시물 목록
   const postsSheet = workbook.addWorksheet('게시물 목록')
@@ -55,21 +56,52 @@ export async function GET(request: NextRequest) {
     { header: '게시물 링크', width: 40 },
     { header: '좋아요', width: 10 },
     { header: '댓글', width: 10 },
+    { header: '커버영상', width: 10 },
     { header: '등록일', width: 12 }
   ]
   postsSheet.getRow(1).font = { bold: true }
-  posts?.forEach(p => {
-    postsSheet.addRow([
+  posts?.forEach((p, i) => {
+    const row = postsSheet.addRow([
       p.influencer_name,
       p.platform,
-      p.post_url,
+      { text: p.post_url, hyperlink: p.post_url },
       p.likes_count ?? 0,
       p.comments_count ?? 0,
+      p.is_cover ? '✅' : '',
       new Date(p.created_at).toLocaleDateString('ko-KR')
     ])
+    row.getCell(3).font = { color: { argb: 'FF0000FF' }, underline: true }
   })
 
-  // 시트 3: 일별 통계
+  // 시트 3: 커버영상 목록
+  const coverPosts = posts?.filter(p => p.is_cover) ?? []
+  if (coverPosts.length > 0) {
+    const coverSheet = workbook.addWorksheet('커버영상 목록')
+    coverSheet.columns = [
+      { header: '참여자', width: 15 },
+      { header: '플랫폼', width: 12 },
+      { header: '게시물 링크', width: 40 },
+      { header: '좋아요', width: 10 },
+      { header: '댓글', width: 10 },
+      { header: '승인상태', width: 12 },
+      { header: '등록일', width: 12 }
+    ]
+    coverSheet.getRow(1).font = { bold: true }
+    coverPosts.forEach(p => {
+      const row = coverSheet.addRow([
+        p.influencer_name,
+        p.platform,
+        { text: p.post_url, hyperlink: p.post_url },
+        p.likes_count ?? 0,
+        p.comments_count ?? 0,
+        p.cover_status === 'APPROVED' ? '승인' : p.cover_status === 'REJECTED' ? '거절' : '대기',
+        new Date(p.created_at).toLocaleDateString('ko-KR')
+      ])
+      row.getCell(3).font = { color: { argb: 'FF0000FF' }, underline: true }
+    })
+  }
+
+  // 시트 4: 일별 통계
   if (history && history.length > 0) {
     const dailySheet = workbook.addWorksheet('일별 통계')
     dailySheet.columns = [
@@ -89,7 +121,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  // 시트 4: 댓글 미션
+  // 시트 5: 댓글 미션
   if (commentMissions && commentMissions.length > 0) {
     const commentSheet = workbook.addWorksheet('댓글 미션')
     commentSheet.columns = [
@@ -99,7 +131,7 @@ export async function GET(request: NextRequest) {
       { header: '인증일', width: 12 }
     ]
     commentSheet.getRow(1).font = { bold: true }
-    commentMissions.forEach(m => {
+    commentMissions.filter(m => m.project_code !== 'UNLOCK').forEach(m => {
       commentSheet.addRow([
         m.youtube_handle,
         m.video_id,
@@ -114,7 +146,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse(buffer as ArrayBuffer, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename="${projectCode}_report.xlsx"`
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(`${project.client_name}_${project.song_title ?? project.product_content}`)}_report.xlsx"`
     }
   })
 }

@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 async function updatePostStats(posts: any[]) {
@@ -306,29 +306,27 @@ export async function GET() {
       }
     }
     
-    // 매일 게시물 통계 스냅샷 저장 (UTC 3시 = 낮 12시)
-    if (currentHour === 3) {
-      const { data: allPosts } = await supabase.from('posts').select('*')
-      if (allPosts && allPosts.length > 0) {
-        for (const post of allPosts) {
-          const { data: existing } = await supabase
-            .from('post_stats_history')
-            .select('id')
-            .eq('post_id', post.id)
-            .eq('recorded_at', today)
-            .maybeSingle()
-          
-          if (!existing) {
-            await supabase.from('post_stats_history').insert({
-              post_id: post.id,
-              project_code: post.project_code,
-              member_id: post.member_id,
-              platform: post.platform,
-              likes_count: post.likes_count ?? 0,
-              comments_count: post.comments_count ?? 0,
-              recorded_at: today
-            })
-          }
+    // 매 시간 게시물 통계 스냅샷 저장
+    const { data: allPosts } = await supabase.from('posts').select('*')
+    if (allPosts && allPosts.length > 0) {
+      for (const post of allPosts) {
+        const { data: existing } = await supabase
+          .from('post_stats_history')
+          .select('id')
+          .eq('post_id', post.id)
+          .eq('recorded_at', today)
+          .maybeSingle()
+        
+        if (!existing) {
+          await supabase.from('post_stats_history').insert({
+            post_id: post.id,
+            project_code: post.project_code,
+            member_id: post.member_id,
+            platform: post.platform,
+            likes_count: post.likes_count ?? 0,
+            comments_count: post.comments_count ?? 0,
+            recorded_at: today
+          })
         }
       }
     }
