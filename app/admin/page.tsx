@@ -64,6 +64,8 @@ export default function Page1() {
   const [participantPage, setParticipantPage] = useState(0)
   const [songTitle, setSongTitle] = useState('')
   const [pushTarget, setPushTarget] = useState<'all' | 'participant' | 'client'>('all')
+  const [instagramAudioId, setInstagramAudioId] = useState('')
+  const [tiktokAudioId, setTiktokAudioId] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -341,6 +343,8 @@ export default function Page1() {
     setProjectPrefix(project.project_code?.split('_')[0] ?? '')
     setProductContent(project.product_content ?? '')
     setSongTitle(project.song_title ?? '')
+    setInstagramAudioId(project.instagram_audio_id ?? '')
+    setTiktokAudioId(project.tiktok_audio_id ?? '')
     setRequirements(project.requirements ?? '')
     setStatus(project.status ?? 'ONGOING')
     setStartDate(project.start_date ? project.start_date.substring(0, 10) : '')
@@ -429,6 +433,8 @@ export default function Page1() {
         client_name: clientName,
         product_content: productContent,
         song_title: songTitle,
+        instagram_audio_id: instagramAudioId || null,
+        tiktok_audio_id: tiktokAudioId || null,
         requirements,
         status,
         start_date: startDate || null,
@@ -484,6 +490,8 @@ export default function Page1() {
         client_name: clientName,
         product_content: productContent,
         song_title: songTitle,
+        instagram_audio_id: instagramAudioId || null,
+        tiktok_audio_id: tiktokAudioId || null,
         requirements,
         status,
         start_date: startDate || null,
@@ -685,6 +693,8 @@ export default function Page1() {
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setSelectedClientId(''); setClientSearch('')
     setSongTitle('')
+    setInstagramAudioId('')
+    setTiktokAudioId('')
     setPosts([])
     setMaxParticipants(''); setMissionDate(''); setMissionTime('')
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
@@ -1166,6 +1176,20 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">노래제목</label>
                       <input value={songTitle} onChange={(e) => setSongTitle(e.target.value)} className={inputClass} placeholder="노래제목 입력" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">인스타그램 음원 URL</label>
+                      <input value={instagramAudioId} onChange={(e) => {
+                        const match = e.target.value.match(/reels\/audio\/(\d+)/)
+                        setInstagramAudioId(match ? match[1] : e.target.value)
+                      }} className={inputClass} placeholder="https://www.instagram.com/reels/audio/..." />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">틱톡 음원 URL</label>
+                      <input value={tiktokAudioId} onChange={(e) => {
+                        const match = e.target.value.match(/music\/[^-]+-(\d+)/)
+                        setTiktokAudioId(match ? match[1] : e.target.value)
+                      }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
                     </div>
                     <div>
                       <label className="text-sm font-medium">상품내용</label>
