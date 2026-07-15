@@ -444,7 +444,7 @@ useEffect(() => {
       const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
       const projects = await projectsRes.json()
       const map: any = {}
-      projects?.forEach((p: any) => { map[p.project_code] = p })
+      projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
       setProjectsMap(map)
     }
   }
@@ -801,7 +801,7 @@ useEffect(() => {
     router.push('/')
   }
 
-  const activePosts = myPosts.filter(p => projectsMap[p.project_code]?.status === 'ONGOING')
+  const activePosts = myPosts.filter(p => projectsMap[p.project_code?.toUpperCase()]?.status === 'ONGOING')
   const displayPosts = postFilter === 'current' ? activePosts : myPosts
 
   const instagramPosts = displayPosts.filter(p => p.platform === 'instagram')

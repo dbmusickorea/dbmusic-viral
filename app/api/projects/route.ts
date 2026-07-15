@@ -25,7 +25,10 @@ export async function GET(request: NextRequest) {
     }
   }
   if (projectCode) query = query.ilike('project_code', projectCode)
-  if (codes) query = query.in('project_code', codes.split(','))
+  if (codes) {
+    const codeList = codes.split(',').map((c: string) => c.toUpperCase())
+    query = query.in('project_code', codeList)
+  }
   const prefix = searchParams.get('prefix')
   if (prefix) query = query.ilike('project_code', `${prefix}_%`)
 
