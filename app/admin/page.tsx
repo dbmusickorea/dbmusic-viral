@@ -623,13 +623,14 @@ export default function Page1() {
     } catch { return null }
   }
 
-  const handleUpdateAllLikes = async () => {
+  const handleUpdateProjectLikes = async () => {
+    if (!selectedProject) return
     setIsUpdatingLikes(true)
-    const res = await fetch('/api/posts')
-    const allPosts = await res.json()
-    if (!allPosts) { setIsUpdatingLikes(false); return }
+    const res = await fetch(`/api/posts?project_code=${selectedProject.project_code}`)
+    const projectPosts = await res.json()
+    if (!projectPosts) { setIsUpdatingLikes(false); return }
 
-    for (const post of allPosts) {
+    for (const post of projectPosts) {
       try {
         let stats = null
         if (post.platform === 'instagram') {
@@ -654,8 +655,8 @@ export default function Page1() {
     }
 
     setIsUpdatingLikes(false)
-    alert('좋아요 수 갱신 완료!')
-    if (selectedProject) fetchPosts(selectedProject.project_code)
+    alert('갱신 완료!')
+    fetchPosts(selectedProject.project_code)
   }
 
   const handleUpdateSingleLike = async (post: any) => {
@@ -840,9 +841,6 @@ export default function Page1() {
             <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
             <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
           </div>
-          <button onClick={handleUpdateAllLikes} disabled={isUpdatingLikes} className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-400">
-            {isUpdatingLikes ? '갱신 중...' : '🔄 전체 좋아요 수 갱신 (인스타 + 유튜브 + 틱톡)'}
-          </button>
         </div>
 
         {selectedProject && topRanker && (
@@ -1361,7 +1359,12 @@ export default function Page1() {
 
             {selectedProject && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="font-bold">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
+                  <button onClick={handleUpdateProjectLikes} disabled={isUpdatingLikes} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg disabled:bg-gray-400">
+                    {isUpdatingLikes ? '갱신 중...' : '🔄 좋아요 갱신'}
+                  </button>
+                </div>
                 {posts.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
                 ) : (
