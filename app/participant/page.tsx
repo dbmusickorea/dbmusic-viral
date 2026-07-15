@@ -1236,57 +1236,62 @@ useEffect(() => {
               )}
 
             {/* 내 참여 현황 */}
-            {myParticipations.length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
-                <div className="space-y-2">
-                  {(postFilter === 'current' 
-                    ? myParticipations.filter(p => p.projects?.status === 'ONGOING')
-                    : myParticipations
-                  ).slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
-                    <div key={p.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => { 
-                      if (projectCode.toLowerCase() === p.project_code.toLowerCase()) {
-                        setProjectCode('')
-                        setProjectInfo(null)
-                      } else {
-                        setProjectCode(p.project_code)
-                        getRequirements(p.project_code)
-                        setActiveTab('right')
-                      }
-                    }}>
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium">{p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
-                          <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
-                          <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
-                          {p.projects?.end_date && (
-                            <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
-                          )}
-                          {myRankMap[p.project_code] && (
-                            <div className="mt-1">
-                              <p className="text-xs font-medium text-blue-600">
-                                {myRankMap[p.project_code].rank}위 / 전체 {myRankMap[p.project_code].total}명 중 {!myRankMap[p.project_code].isEligible ? '(좋아요 1,000건 미만 시상 제외)' : ''}
-                              </p>
-                              <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
-                            </div>
-                          )}
+            {myParticipations.length > 0 && (() => {
+              const filteredParticipations = postFilter === 'current'
+                ? myParticipations.filter(p => p.projects?.status === 'ONGOING')
+                : myParticipations
+              return (
+                <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                  <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
+                  <div className="space-y-2">
+                    {filteredParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
+                      <div key={p.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => { 
+                        if (projectCode.toLowerCase() === p.project_code.toLowerCase()) {
+                          setProjectCode('')
+                          setProjectInfo(null)
+                        } else {
+                          setProjectCode(p.project_code)
+                          getRequirements(p.project_code)
+                          setActiveTab('right')
+                        }
+                      }}>
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium">{p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
+                            <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
+                            <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                            {p.projects?.end_date && (
+                              <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
+                            )}
+                            {myRankMap[p.project_code] && (
+                              <div className="mt-1">
+                                <p className="text-xs font-medium text-blue-600">
+                                  {myRankMap[p.project_code].rank}위 / 전체 {myRankMap[p.project_code].total}명 중
+                                </p>
+                                {!myRankMap[p.project_code].isEligible && (
+                                  <p className="text-xs text-gray-400">(좋아요 1,000건 미만 시상 제외)</p>
+                                )}
+                                <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
+                              </div>
+                            )}
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
+                            {p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
+                          </span>
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded-full ${p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
-                          {p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
-                        </span>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                {myParticipations.length > PAGE_SIZE && (
-                  <div className="flex justify-between items-center mt-3">
-                    <button onClick={() => setParticipationPage(p => Math.max(0, p - 1))} disabled={participationPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                    <span className="text-xs text-gray-500">{participationPage + 1} / {Math.ceil(myParticipations.length / PAGE_SIZE)}</span>
-                    <button onClick={() => setParticipationPage(p => Math.min(Math.ceil(myParticipations.length / PAGE_SIZE) - 1, p + 1))} disabled={(participationPage + 1) * PAGE_SIZE >= myParticipations.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                    ))}
                   </div>
-                )}
-              </div>
-            )}
+                  {filteredParticipations.length > PAGE_SIZE && (
+                    <div className="flex justify-between items-center mt-3">
+                      <button onClick={() => setParticipationPage(p => Math.max(0, p - 1))} disabled={participationPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                      <span className="text-xs text-gray-500">{participationPage + 1} / {Math.ceil(filteredParticipations.length / PAGE_SIZE)}</span>
+                      <button onClick={() => setParticipationPage(p => Math.min(Math.ceil(filteredParticipations.length / PAGE_SIZE) - 1, p + 1))} disabled={(participationPage + 1) * PAGE_SIZE >= filteredParticipations.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
             </div>
           </div>
 
