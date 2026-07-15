@@ -476,7 +476,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">비밀번호</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="비밀번호 입력" />
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleLogin() }} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="비밀번호 입력" />
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <div className="flex flex-row justify-between">
