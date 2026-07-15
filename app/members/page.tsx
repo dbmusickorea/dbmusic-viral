@@ -46,6 +46,9 @@ export default function Page4() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [participantPage, setParticipantPage] = useState(0)
+  const [clientPage, setClientPage] = useState(0)
+  const PAGE_SIZE = 10
 
   const router = useRouter()
 
@@ -343,22 +346,31 @@ export default function Page4() {
                 {participants.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">회원이 없습니다.</p>
                 ) : (
-                  <div className="space-y-2">
-                    {participants.map((p) => (
-                      <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-sm">{p.name}</p>
-                              <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+                  <>
+                    <div className="space-y-2">
+                      {participants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
+                        <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-sm">{p.name}</p>
+                                <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+                              </div>
+                              <p className="text-xs text-gray-500">{p.email}</p>
                             </div>
-                            <p className="text-xs text-gray-500">{p.email}</p>
+                            <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}P</p>
                           </div>
-                          <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}P</p>
                         </div>
+                      ))}
+                    </div>
+                    {participants.length > PAGE_SIZE && (
+                      <div className="flex justify-between items-center mt-3">
+                        <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <span className="text-xs text-gray-500">{participantPage + 1} / {Math.ceil(participants.length / PAGE_SIZE)}</span>
+                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(participants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= participants.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -369,23 +381,32 @@ export default function Page4() {
                 {clients.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">의뢰인이 없습니다.</p>
                 ) : (
-                  <div className="space-y-2">
-                    {clients.map((c) => (
-                      <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50' : ''}`}>
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-sm">{c.name}</p>
-                            <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''}</p>
-                            <p className="text-xs text-gray-400">{c.email}</p>
-                          </div>
-                          <div className="text-right">
-                            {c.client_id && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">{c.client_id}</span>}
-                            {c.project_code && <p className="text-xs text-gray-500 mt-1">{c.project_code}</p>}
+                  <>
+                    <div className="space-y-2">
+                      {clients.slice(clientPage * PAGE_SIZE, (clientPage + 1) * PAGE_SIZE).map((c) => (
+                        <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50' : ''}`}>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-medium text-sm">{c.name}</p>
+                              <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''}</p>
+                              <p className="text-xs text-gray-400">{c.email}</p>
+                            </div>
+                            <div className="text-right">
+                              {c.client_id && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">{c.client_id}</span>}
+                              {c.project_code && <p className="text-xs text-gray-500 mt-1">{c.project_code}</p>}
+                            </div>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                    {clients.length > PAGE_SIZE && (
+                      <div className="flex justify-between items-center mt-3">
+                        <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <span className="text-xs text-gray-500">{clientPage + 1} / {Math.ceil(clients.length / PAGE_SIZE)}</span>
+                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(clients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= clients.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
