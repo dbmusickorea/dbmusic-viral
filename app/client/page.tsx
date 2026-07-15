@@ -42,6 +42,8 @@ export default function Page3() {
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [postPage, setPostPage] = useState(0)
   const [topRanker, setTopRanker] = useState<any>(null)
+  const [igAudioCount, setIgAudioCount] = useState<number | null>(null)
+  const [ttAudioCount, setTtAudioCount] = useState<number | null>(null)
   const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -166,6 +168,17 @@ export default function Page3() {
     setPostPage(0)
     setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
     // 1등 계산은 posts 로드 후 해야 해서 fetchPosts 안에서 처리
+    // 음원 사용량 조회
+    if (project.instagram_audio_id) {
+      fetch(`/api/audio-stats?platform=instagram&audio_id=${project.instagram_audio_id}`)
+        .then(r => r.json())
+        .then(d => setIgAudioCount(d.count ?? 0))
+    }
+    if (project.tiktok_audio_id) {
+      fetch(`/api/audio-stats?platform=tiktok&audio_id=${project.tiktok_audio_id}`)
+        .then(r => r.json())
+        .then(d => setTtAudioCount(d.count ?? 0))
+    }
   }
 
   const handleCodeChange = (code: string) => {
@@ -654,7 +667,7 @@ export default function Page3() {
                   {snsList.map(({ label, posts: snsPosts, icon }) => (
                     <div key={label} className="border rounded-lg p-3">
                       <p className="text-sm font-medium mb-2 flex items-center gap-1">{icon} {label}</p>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-4 gap-2">
                         <div className="text-center">
                           <p className="text-xs text-gray-500">게시물</p>
                           <p className="text-sm font-bold">{snsPosts.length}</p>
@@ -667,9 +680,18 @@ export default function Page3() {
                           <p className="text-xs text-gray-500">댓글</p>
                           <p className="text-sm font-bold text-green-600">{snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0).toLocaleString()}</p>
                         </div>
+                        <div className="text-center">
+                          <p className="text-xs text-gray-500">🎵 음원사용</p>
+                          <p className="text-sm font-bold text-purple-600">
+                            {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
+                            {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
+                            {label === '유튜브' ? '준비중' : ''}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   ))}
+                  <p className="text-xs text-gray-400 mt-2">※ 게시물 수는 더블비뮤직 체험단 업로드 기준이며, 음원 사용량은 인스타그램/틱톡 전체 기준(체험단 외 일반 사용자 포함)입니다.</p>
                 </div>
               </div>
             )}
