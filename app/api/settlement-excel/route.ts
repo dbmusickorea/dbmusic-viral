@@ -69,6 +69,14 @@ export async function GET(request: NextRequest) {
   }
 
   const buffer = await workbook.xlsx.writeBuffer()
+
+  // 다운로드 후 APPROVED → PAID 로 변경
+  const settlementIds = settlements.map((s: any) => s.id)
+  await supabaseAdmin
+    .from('settlements')
+    .update({ status: 'PAID', paid_at: new Date().toISOString() })
+    .in('id', settlementIds)
+
   return new NextResponse(buffer as ArrayBuffer, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

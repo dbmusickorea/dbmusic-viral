@@ -138,6 +138,7 @@ export default function Page5() {
   }
 
   const statusLabel = (s: string) => {
+    if (s === 'PAID') return <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">정산완료</span>
     if (s === 'APPROVED') return <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인</span>
     if (s === 'REJECTED') return <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">거절</span>
     return <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기</span>
@@ -201,6 +202,7 @@ export default function Page5() {
                         <div>
                           <p className="font-medium text-sm">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
                           <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                          {s.paid_at && <p className="text-xs text-blue-600">정산완료: {new Date(s.paid_at).toLocaleDateString('ko-KR')}</p>}
                           {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
                         </div>
                         <div className="text-right">
