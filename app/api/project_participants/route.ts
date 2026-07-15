@@ -107,10 +107,10 @@ export async function DELETE(request: NextRequest) {
       .ilike('project_code', project_code)
   }
 
-  // 7) 참여 기록 삭제
+  // 7) 참여 기록 CANCELLED로 변경 (삭제 대신)
   const { error } = await supabaseAdmin
     .from('project_participants')
-    .delete()
+    .update({ status: 'CANCELLED' })
     .eq('id', Number(id))
 
   if (error) return NextResponse.json({ error }, { status: 500 })
