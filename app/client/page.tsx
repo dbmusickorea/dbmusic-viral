@@ -250,9 +250,9 @@ export default function Page3() {
     const res = await fetch(`/api/post_stats_history?project_code=${projectCode}`)
     const data = await res.json()
     if (data && data.length > 0) {
-      const dates = [...new Set(data.map((h: any) => h.recorded_at.split('_')[0]))].sort()
+      const dates = [...new Set(data.map((h: any) => h.recorded_at.includes('_') ? h.recorded_at.split('_')[0] : h.recorded_at))].sort()
       const stats = dates.map(date => {
-        const dayData = data.filter((h: any) => h.recorded_at.startsWith(date))
+        const dayData = data.filter((h: any) => h.recorded_at === date || h.recorded_at.startsWith(date + '_'))
         return {
           date,
           likes: Math.max(...dayData.map((h: any) => h.likes_count ?? 0)),
