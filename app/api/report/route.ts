@@ -4,7 +4,7 @@ import ExcelJS from 'exceljs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(request: NextRequest) {
@@ -29,6 +29,11 @@ export async function GET(request: NextRequest) {
   summarySheet.addRow(['프로젝트 코드', project.project_code])
   summarySheet.addRow(['의뢰인', project.client_name])
   summarySheet.addRow(['상품명', project.product_content])
+  summarySheet.addRow(['노래제목', project.song_title ?? '-'])
+  summarySheet.addRow(['상품 금액', project.option_price ? `${project.option_price.toLocaleString()}원` : '-'])
+  summarySheet.addRow(['모니터링 연장', project.monitoring_extension > 0 ? `${project.monitoring_extension}일` : '없음'])
+  summarySheet.addRow(['새로고침 주기', project.refresh_interval ? `${project.refresh_interval}시간` : '기본(하루 1회)'])
+  summarySheet.addRow(['커버영상 옵션', project.cover_video_count > 0 ? `${project.cover_video_count}개` : '없음'])
   summarySheet.addRow(['요청사항', project.requirements ?? '-'])
   summarySheet.addRow(['시작일', project.start_date ?? '-'])
   summarySheet.addRow(['종료일', project.end_date ?? '-'])
