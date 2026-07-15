@@ -77,6 +77,21 @@ export async function GET(request: NextRequest) {
     .update({ status: 'PAID', paid_at: new Date().toISOString() })
     .in('id', settlementIds)
 
+  // balance 차감
+  for (const s of settlements) {
+    const { data: participant } = await supabaseAdmin
+      .from('participants')
+      .select('balance')
+      .eq('id', s.member_id)
+      .maybeSingle()
+    
+    const newBalance = Math.max(0, (participant?.balance ?? 0) - (s.amount ?? 0))
+    await supabaseAdmin
+      .from('participants')
+      .update({ balance: newBalance })
+      .eq('id', s.member_id)
+  }
+
   return new NextResponse(buffer as ArrayBuffer, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

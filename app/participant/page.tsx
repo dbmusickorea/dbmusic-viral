@@ -372,48 +372,13 @@ useEffect(() => {
     }
   }
 
-  const fetchAvailableBalance = async (id: number) => {
-    // 종료된 프로젝트 게시물 수익 (일반 게시물)
-    const postsRes = await fetch(`/api/posts?member_id=${id}`)
-    const posts = await postsRes.json()
-    let postIncome = 0
-    if (posts && posts.length > 0) {
-      const codes = [...new Set(posts.map((p: any) => p.project_code))]
-      const codesParam = codes.join(',')
-      const projectsRes = await fetch(`/api/projects?codes=${codesParam}&status=COMPLETED`)
-      const completedProjects = await projectsRes.json()
-      
-      completedProjects?.forEach((project: any) => {
-        const projectPosts = posts.filter((p: any) => p.project_code.toLowerCase() === project.project_code.toLowerCase())
-        
-        projectPosts.forEach((post: any) => {
-          if (post.is_cover) {
-            if (project.end_date) {
-              const endDate = new Date(project.end_date)
-              const availableDate = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
-              if (new Date() >= availableDate) {
-                postIncome += getLevelAmount(project.reward_per_post ?? 2500, level)
-              }
-            }
-          } else {
-            postIncome += getLevelAmount(project.reward_per_post ?? 2500, level)
-          }
-        })
-      })
-    }
-
-    // 댓글 미션 수익
-    const missionsRes = await fetch(`/api/comment_missions?member_id=${id}&status=APPROVED`)
-    const missions = await missionsRes.json()
-    const commentIncome = missions?.reduce((sum: number, m: any) => sum + (m.reward_amount ?? 300), 0) ?? 0
-
-    // 이미 환전 신청한 금액
+  const fetchAvailableBalance = async (id: number, currentBalance?: number) => {
     const settlementsRes = await fetch(`/api/settlements?member_id=${id}`)
     const settlements = await settlementsRes.json()
     const settledAmount = settlements?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
       .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
 
-    setAvailableBalance(Math.max(0, postIncome + commentIncome + coverReward - settledAmount))
+    setAvailableBalance(Math.max(0, (currentBalance ?? balance) - settledAmount))
   }
 
   const fetchMyRank = async (projectCode: string, memberId: number) => {
