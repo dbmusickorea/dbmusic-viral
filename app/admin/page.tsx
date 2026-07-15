@@ -262,12 +262,52 @@ export default function Page1() {
     }
   }
 
-  const handleCancelParticipation = async (participantId: number, name: string) => {
-    if (!confirm(`${name}님의 참여를 취소하시겠습니까?\n※ 제출한 게시물 삭제 및 포인트가 회수됩니다.`)) return
+  const handleCancelParticipation = async (participantId: number, name: string, memberId: number) => {
+    const reason = prompt(`${name}님의 참여를 취소합니다.\n※ 제출한 게시물 삭제 및 포인트가 회수됩니다.\n\n취소 사유를 입력하세요:`)
+    if (reason === null) return
+    if (!reason.trim()) { alert('취소 사유를 입력해주세요.'); return }
+
     const res = await fetch(`/api/project_participants?id=${participantId}`, { method: 'DELETE' })
     if (res.ok) {
       const result = await res.json()
-      alert(`${name}님 참여취소 완료\n- 삭제된 게시물: ${result.postsDeleted}건\n- 회수 포인트: ${result.deducted?.toLocaleString() ?? 0}P`)
+
+      // 1) 취소된 체험단에게 푸시
+      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+      const tokens = await tokensRes.json()
+      if (tokens && tokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '⚠️ 프로젝트 참여가 취소되었습니다',
+            body: `[${selectedProject?.project_code}] 참여취소 사유: ${reason}`,
+            tokens: tokens.map((t: any) => t.token),
+            userIds: tokens.map((t: any) => t.user_id)
+          })
+        })
+      }
+
+      // 2) 미참여 체험단에게 공석 안내 푸시
+      if (selectedProject) {
+        const allTokensRes = await fetch('/api/push_tokens?user_role=participant')
+        const allTokens = await allTokensRes.json()
+        const participantMemberIds = participants.map((p: any) => String(p.member_id))
+        const nonParticipantTokens = allTokens.filter((t: any) => !participantMemberIds.includes(String(t.user_id)) && String(t.user_id) !== String(memberId))
+        if (nonParticipantTokens.length > 0) {
+          await fetch('/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🎵 참여 가능한 프로젝트가 있어요!',
+              body: `[${selectedProject.project_code}] 프로젝트에 참여 공석이 생겼습니다. 지금 참여해보세요!`,
+              tokens: nonParticipantTokens.map((t: any) => t.token),
+              userIds: nonParticipantTokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
+
+      alert(`${name}님 참여취소 완료\n- 삭제된 게시물: ${result.postsDeleted}건\n- 회수 포인트: ${result.deducted?.toLocaleString() ?? 0}P\n- 푸시 알림 발송됨`)
       if (selectedProject) {
         fetchParticipants(selectedProject.project_code)
         fetchPosts(selectedProject.project_code)
@@ -1278,7 +1318,7 @@ export default function Page1() {
                           {p.participants?.tiktok_id && <p className="text-xs text-gray-500"><svg viewBox="0 0 24 24" className="w-3 h-3 inline mr-1" fill="#000000"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg> <a href={`https://www.tiktok.com/@${p.participants.tiktok_id.replace("@","")}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-600 underline hover:text-blue-800">{p.participants?.tiktok_id}</a>{p.participants?.tiktok_followers > 0 && ` (${p.participants.tiktok_followers.toLocaleString()}명)`}</p>}
                           <div className="flex justify-between items-center mt-1">
                             <p className="text-xs text-gray-400">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
-                            <button onClick={(e) => { e.stopPropagation(); handleCancelParticipation(p.id, p.participants?.name) }} className="text-xs text-red-500 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50">참여취소</button>
+                            <button onClick={(e) => { e.stopPropagation(); handleCancelParticipation(p.id, p.participants?.name, p.member_id) }} className="text-xs text-red-500 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50">참여취소</button>
                           </div>
                         </div>
                       ))}
