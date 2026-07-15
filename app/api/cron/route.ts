@@ -350,6 +350,33 @@ export async function GET() {
         }
       }
     }
+    
+    // 체험단 팔로워 수 갱신
+    const { data: allParticipantsForFollowers } = await supabase
+      .from('participants')
+      .select('id, instagram_id, youtube_id')
+      .eq('is_locked', false)
+
+    if (allParticipantsForFollowers) {
+      for (const p of allParticipantsForFollowers) {
+        try {
+          if (p.instagram_id) {
+            const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
+            const igData = await igRes.json()
+            if (igData.followers !== undefined) {
+              await supabase.from('participants').update({ instagram_followers: igData.followers }).eq('id', p.id)
+            }
+          }
+          if (p.youtube_id) {
+            const ytRes = await fetch(`https://app.doubleb.kr/api/youtube?handle=${p.youtube_id}`)
+            const ytData = await ytRes.json()
+            if (ytData.subscriberCount !== undefined) {
+              await supabase.from('participants').update({ youtube_subscribers: ytData.subscriberCount }).eq('id', p.id)
+            }
+          }
+        } catch { continue }
+      }
+    }
 
     return NextResponse.json({ success: true, updated })
   } catch (error) {
