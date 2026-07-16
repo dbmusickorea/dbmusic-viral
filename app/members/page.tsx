@@ -468,10 +468,34 @@ export default function Page4() {
                         ))}
                       </select>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium">커버가수 금액</label>
-                      <input type="number" value={coverReward} onChange={(e) => setCoverReward(e.target.value === '' ? '' : Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 별도 지급 금액" />
-                    </div>
+                    {selected?.is_cover_possible && (
+                      <div className="bg-purple-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-purple-700 mb-2">🎵 커버영상 신청</p>
+                        {selected.cover_video_url && (
+                          <a href={selected.cover_video_url} target="_blank" className="text-xs text-blue-500 block mb-2">영상 링크 보기 →</a>
+                        )}
+                        <div className="flex gap-2">
+                          <button onClick={async () => {
+                            await fetch(`/api/participants?id=${selected.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ cover_approved: true })
+                            })
+                            alert('커버영상 승인 완료!')
+                            fetchParticipants()
+                          }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-xs font-medium">승인</button>
+                          <button onClick={async () => {
+                            await fetch(`/api/participants?id=${selected.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ cover_approved: false })
+                            })
+                            alert('승인 취소 완료!')
+                            fetchParticipants()
+                          }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-xs font-medium">승인취소</button>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex gap-2">
                       {selected ? (
                         <>
