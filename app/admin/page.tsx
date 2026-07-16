@@ -458,6 +458,10 @@ export default function Page1() {
         })
       }
     }
+    // 저장 후 최신 데이터 다시 불러오기
+    const res = await fetch(`/api/project_links?project_code=${projectCode}`)
+    const data = await res.json()
+    setProjectLinks(data ?? [])
   }
 
   const handleInsert = async () => {
@@ -498,6 +502,8 @@ export default function Page1() {
       })
     }
     await saveProjectVideos(projectCode.toUpperCase())
+    await saveProjectLinks(projectCode.toUpperCase())
+    
     // 체험단 전체에게 푸시 알림 발송
     const participantTokensRes = await fetch('/api/push_tokens?user_role=participant,client')
     const participantTokens = await participantTokensRes.json()
@@ -1273,8 +1279,6 @@ export default function Page1() {
                           }} className="border rounded-lg px-2 py-2 text-xs">
                             <option value="youtube_shorts">유튜브 숏츠</option>
                             <option value="youtube_long">유튜브 롱폼</option>
-                            <option value="instagram">인스타그램</option>
-                            <option value="tiktok">틱톡</option>
                             <option value="playlist">플레이리스트</option>
                           </select>
                           <input value={link.url} onChange={(e) => {
