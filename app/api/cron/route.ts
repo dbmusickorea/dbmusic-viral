@@ -354,7 +354,7 @@ export async function GET() {
     // 체험단 팔로워 수 갱신
     const { data: allParticipantsForFollowers } = await supabase
       .from('participants')
-      .select('id, instagram_id, youtube_id')
+      .select('id, instagram_id, youtube_id, tiktok_id')
       .eq('is_locked', false)
 
     if (allParticipantsForFollowers) {
@@ -368,10 +368,20 @@ export async function GET() {
             }
           }
           if (p.youtube_id) {
-            const ytRes = await fetch(`https://app.doubleb.kr/api/youtube?handle=${p.youtube_id}`)
+            const ytRes = await fetch(`https://app.doubleb.kr/api/youtube-channel?handle=${p.youtube_id}`)
             const ytData = await ytRes.json()
             if (ytData.subscriberCount !== undefined) {
               await supabase.from('participants').update({ youtube_subscribers: ytData.subscriberCount }).eq('id', p.id)
+            }
+          }
+          if (p.tiktok_id) {
+            const ttRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.tiktok_id}`)
+            // 틱톡은 별도 API 필요 - 일단 SociaVault로
+            const ttData = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/profile?handle=${p.tiktok_id.replace('@','')}`, {
+              headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
+            }).then(r => r.json())
+            if (ttData?.data?.follower_count !== undefined) {
+              await supabase.from('participants').update({ tiktok_followers: ttData.data.follower_count }).eq('id', p.id)
             }
           }
         } catch { continue }
