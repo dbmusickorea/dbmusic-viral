@@ -98,8 +98,15 @@ export async function DELETE(request: NextRequest) {
     .delete()
     .ilike('project_code', project_code)
     .eq('member_id', member_id)
+  
+  // 5-1) 댓글 미션 삭제
+  await supabaseAdmin
+    .from('comment_missions')
+    .delete()
+    .ilike('project_code', project_code)
+    .eq('member_id', member_id)
 
-  // 6) current_participants -1
+    // 6) current_participants -1
   if (project && project.current_participants > 0) {
     await supabaseAdmin
       .from('projects')

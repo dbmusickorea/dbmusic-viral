@@ -246,7 +246,7 @@ export default function Page1() {
   }
 
   const fetchParticipants = async (code: string) => {
-    const res = await fetch(`/api/project_participants?project_code=${code}`)
+    const res = await fetch(`/api/project_participants?project_code=${code}&status=ACTIVE`)
     const data = await res.json()
     
     if (data && data.length > 0) {
