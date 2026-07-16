@@ -1296,9 +1296,75 @@ useEffect(() => {
                   await fetch(`/api/cover_requests?id=${r.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'APPROVED' })
+                  })
+                  setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
+                  
+                  // 의뢰인에게 푸시
+                  const clientRes = await fetch(`/api/users?client_id=${r.client_id}`)
+                  const clientData = await clientRes.json()
+                  const clientUser = clientData?.[0]
+                  if (clientUser) {
+                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+                    const tokens = await tokensRes.json()
+                    if (tokens && tokens.length > 0) {
+                      await fetch('/api/push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          title: '🎵 커버영상 미션 승인됐어요!',
+                          body: `[${r.project_code}] 선택한 커버 체험단이 미션을 수락했어요!`,
+                          tokens: tokens.map((t: any) => t.token),
+                          userIds: tokens.map((t: any) => t.user_id)
+                        })
+                      })
+                    }
+                  }
+                  // 관리자에게 푸시
+                  const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+                  const adminTokens = await adminTokensRes.json()
+                  if (adminTokens && adminTokens.length > 0) {
+                    await fetch('/api/push', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        title: '🎵 커버영상 미션 수락!',
+                        body: `[${r.project_code}] 커버 체험단이 미션을 수락했어요.`,
+                        tokens: adminTokens.map((t: any) => t.token),
+                        userIds: adminTokens.map((t: any) => t.user_id)
+                      })
+                    })
+                  }
+                  alert('커버영상 미션을 승인했어요! 3일 이내에 업로드해주세요.')
+                }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
+                <button onClick={async () => {
+                  await fetch(`/api/cover_requests?id=${r.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
                   })
                   setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'REJECTED'} : cr))
+                  
+                  // 의뢰인에게 푸시
+                  const clientRes = await fetch(`/api/users?client_id=${r.client_id}`)
+                  const clientData = await clientRes.json()
+                  const clientUser = clientData?.[0]
+                  if (clientUser) {
+                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+                    const tokens = await tokensRes.json()
+                    if (tokens && tokens.length > 0) {
+                      await fetch('/api/push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          title: '⚠️ 커버영상 미션 거절됐어요',
+                          body: `[${r.project_code}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
+                          tokens: tokens.map((t: any) => t.token),
+                          userIds: tokens.map((t: any) => t.user_id)
+                        })
+                      })
+                    }
+                  }
                   alert('거절했어요.')
                 }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-sm font-medium">거절</button>
               </div>
