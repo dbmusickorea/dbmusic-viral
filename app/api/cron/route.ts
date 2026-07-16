@@ -263,10 +263,10 @@ export async function GET() {
       // 미참여자 자동 푸시
       const { data: ongoingProjects } = await supabase.from('projects').select('project_code').eq('status', 'ONGOING')
       if (ongoingProjects && ongoingProjects.length > 0) {
-        const { data: allParticipantsForPush } = await supabase.from('participants').select('id')
+        const { data: allParticipantsInactive } = await supabase.from('participants').select('id, created_at')
         const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').eq('status', 'ACTIVE')
         const joinedIds = new Set(joinedParticipants?.map(j => j.member_id) ?? [])
-        const notJoined = allParticipantsForPush?.filter(p => !joinedIds.has(p.id)) ?? []
+        const notJoined = allParticipantsInactive?.filter(p => !joinedIds.has(p.id)) ?? []
         if (notJoined.length > 0) {
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', notJoined.map(p => String(p.id)))
           if (tokens && tokens.length > 0) {
@@ -285,9 +285,12 @@ export async function GET() {
       }
 
       // 미활동자 자동 푸시
-      const { data: allParticipantsInactive } = await supabase.from('participants').select('id')
+      const { data: allParticipantsInactive } = await supabase.from('participants').select('id, created_at')
       const inactive: number[] = []
       for (const p of allParticipantsInactive ?? []) {
+        // 가입 1개월 미만 제외
+        if (new Date(p.created_at) > oneMonthAgo) continue
+        
         const { data: recentPostInactive } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
         const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
         if (!recentPostInactive && !currentJoin) inactive.push(p.id)
