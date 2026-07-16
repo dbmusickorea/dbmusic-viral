@@ -77,6 +77,8 @@ export default function LoginPage() {
   const [showTermsModal, setShowTermsModal] = useState(false)
   const [pendingUserInfo, setPendingUserInfo] = useState<any>(null)
   const [pendingRole, setPendingRole] = useState('')
+  const [isCoverPossible, setIsCoverPossible] = useState(false)
+  const [coverVideoUrl, setCoverVideoUrl] = useState('')
 
   const handleAgreeTerms = async () => {
     if (!pendingUserInfo || !pendingRole) return
@@ -395,7 +397,9 @@ export default function LoginPage() {
         name: p_name, mobile: p_mobile, email: p_email, password: '',
         bank_name: p_bank, account_holder: p_holder, account_number: p_account,
         instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
-        referral_code: referralCode, level: 1
+        referral_code: referralCode, level: 1,
+        is_cover_possible: isCoverPossible,
+        cover_video_url: coverVideoUrl || null,
       })
     })
     if (!res.ok) { alert('회원가입 실패!'); return }
@@ -583,6 +587,22 @@ export default function LoginPage() {
                 <div>
                   <label className="text-sm font-medium">추천인 코드 (선택)</label>
                   <input value={p_referral} onChange={(e) => setPReferral(e.target.value.toUpperCase())} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="추천인 코드 입력 (예: DB1234)" />
+                </div>
+                <div className="border rounded-lg p-3 space-y-2">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={true} disabled className="w-4 h-4" />
+                    <span className="font-medium">일반 가입</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" checked={isCoverPossible} onChange={(e) => setIsCoverPossible(e.target.checked)} className="w-4 h-4" />
+                    <span className="font-medium">커버영상 촬영 가능</span>
+                  </label>
+                  {isCoverPossible && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-1">선택시 실 가창한 영상 링크를 필수로 남겨주세요. 관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
+                      <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="영상 링크 입력" />
+                    </div>
+                  )}
                 </div>
                 <button onClick={handleSignupParticipant} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">회원가입</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
