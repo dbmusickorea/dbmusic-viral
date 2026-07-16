@@ -67,6 +67,8 @@ export default function Page1() {
   const [instagramAudioId, setInstagramAudioId] = useState('')
   const [tiktokAudioId, setTiktokAudioId] = useState('')
   const [projectLinks, setProjectLinks] = useState<any[]>([{ platform: '', url: '', isNew: true }])
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -359,6 +361,8 @@ export default function Page1() {
     setShortsUrl1('')
     setShortsUrl2('')
     setPlaylistUrl('')
+    setStartTime(project.start_time ?? '')
+    setEndTime(project.end_time ?? '')
     setMaxParticipants(project.max_participants ?? '')
     setMissionDate(project.mission_date ?? '')
     setMissionTime(project.mission_time ?? '')
@@ -492,6 +496,8 @@ export default function Page1() {
         refresh_interval: refreshInterval ? Number(refreshInterval) : null,
         monitoring_extension: Number(monitoringExtension) || 0,
         cover_video_count: Number(coverVideoCount) || 0,
+        start_time: startTime || null,
+        end_time: endTime || null,
       })
     })
     if (!res.ok) { alert('등록 실패!'); return }
@@ -551,6 +557,8 @@ export default function Page1() {
         refresh_interval: refreshInterval ? Number(refreshInterval) : null,
         monitoring_extension: Number(monitoringExtension) || 0,
         cover_video_count: Number(coverVideoCount) || 0,
+        start_time: startTime || null,
+        end_time: endTime || null,
       })
     })
     if (!res.ok) { alert('수정 실패!'); return }
@@ -741,6 +749,8 @@ export default function Page1() {
     setInstagramAudioId('')
     setTiktokAudioId('')
     setPosts([])
+    setStartTime('')
+    setEndTime('')
     setMaxParticipants(''); setMissionDate(''); setMissionTime('')
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
     setRequiredPosts('1')
@@ -1359,11 +1369,24 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">시작일</label>
-                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                      <div className="flex gap-2">
+                        <input type="date" value={startDate} onChange={(e) => {
+                          setStartDate(e.target.value)
+                          if (e.target.value) {
+                            const end = new Date(e.target.value)
+                            end.setDate(end.getDate() + 15)
+                            setEndDate(end.toISOString().split('T')[0])
+                          }
+                        }} className={inputClass} style={dateInputStyle} />
+                        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} style={dateInputStyle} />
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium">종료일</label>
-                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                      <div className="flex gap-2">
+                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass} style={dateInputStyle} />
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
