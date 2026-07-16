@@ -375,9 +375,13 @@ export async function GET() {
             }
           }
           if (p.tiktok_id) {
-            const ttData = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/profile?handle=${p.tiktok_id.replace('@','')}`, {
-              headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
-            }).then(r => r.json())
+            const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p.tiktok_id.replace('@','')}`, {
+              headers: {
+                'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+                'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
+              }
+            })
+            const ttData = await ttRes.json()
             if (ttData?.data?.stats?.followerCount !== undefined) {
               await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount }).eq('id', p.id)
             }
