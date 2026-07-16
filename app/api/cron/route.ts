@@ -392,6 +392,49 @@ export async function GET() {
         } catch { continue }
       }
     }
+    
+    // 커버 요청 24시간 미응답 자동 거절
+    const { data: pendingCoverRequests } = await supabase
+      .from('cover_requests')
+      .select('*')
+      .eq('status', 'PENDING')
+      .lt('expires_at', new Date().toISOString())
+
+    if (pendingCoverRequests && pendingCoverRequests.length > 0) {
+      for (const r of pendingCoverRequests) {
+        await supabase
+          .from('cover_requests')
+          .update({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
+          .eq('id', r.id)
+
+        // 의뢰인에게 푸시
+        const { data: clientUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('client_id', r.client_id)
+          .maybeSingle()
+
+        if (clientUser) {
+          const { data: tokens } = await supabase
+            .from('push_tokens')
+            .select('token, user_id')
+            .eq('user_id', String(clientUser.id))
+
+          if (tokens && tokens.length > 0) {
+            await fetch('https://app.doubleb.kr/api/push', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: '⚠️ 커버영상 요청이 거절됐어요',
+                body: `[${r.project_code}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
+                tokens: tokens.map((t: any) => t.token),
+                userIds: tokens.map((t: any) => t.user_id)
+              })
+            })
+          }
+        }
+      }
+    }
 
     // 음원 사용량 갱신 (하루 1회)
     if (currentHour === 3) {
