@@ -172,21 +172,51 @@ export async function GET() {
       const { data: missionProjects } = await supabase.from('projects').select('*').eq('start_date', today).eq('status', 'ONGOING')
       if (missionProjects && missionProjects.length > 0) {
         for (const project of missionProjects) {
-          const { data: joinedTokens } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code)
-          if (joinedTokens && joinedTokens.length > 0) {
-            const memberIds = joinedTokens.map((j: any) => String(j.member_id))
-            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', memberIds)
-            if (tokens && tokens.length > 0) {
-              await fetch(`https://app.doubleb.kr/api/push`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  title: '📅 미션이 시작됐어요!',
-                  body: `${project.product_content} 미션이 시작됐어요! 24시간 안에 게시물을 올려주세요.`,
-                  tokens: tokens.map((t: any) => t.token),
-                  userIds: tokens.map((t: any) => t.user_id)
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
+          if (joinedParticipants && joinedParticipants.length > 0) {
+            const memberIds = joinedParticipants.map((j: any) => j.member_id)
+            
+            // 커버 수락자 목록
+            const { data: coverApproved } = await supabase
+              .from('cover_requests')
+              .select('participant_id')
+              .ilike('project_code', project.project_code)
+              .eq('status', 'APPROVED')
+            const coverIds = coverApproved?.map((c: any) => c.participant_id) ?? []
+            
+            // 일반 체험단 (커버 수락자 제외)
+            const normalIds = memberIds.filter((id: number) => !coverIds.includes(id))
+            if (normalIds.length > 0) {
+              const { data: normalTokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', normalIds.map(String))
+              if (normalTokens && normalTokens.length > 0) {
+                await fetch(`https://app.doubleb.kr/api/push`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '📅 미션이 시작됐어요!',
+                    body: `${project.product_content} 미션이 시작됐어요! 24시간 안에 게시물을 올려주세요.`,
+                    tokens: normalTokens.map((t: any) => t.token),
+                    userIds: normalTokens.map((t: any) => t.user_id)
+                  })
                 })
-              })
+              }
+            }
+            
+            // 커버 체험단 별도 푸시
+            if (coverIds.length > 0) {
+              const { data: coverTokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', coverIds.map(String))
+              if (coverTokens && coverTokens.length > 0) {
+                await fetch(`https://app.doubleb.kr/api/push`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '🎵 커버영상 미션이 시작됐어요!',
+                    body: `${project.product_content} 커버영상 미션이 시작됐어요! 7일 이내에 업로드해주세요.`,
+                    tokens: coverTokens.map((t: any) => t.token),
+                    userIds: coverTokens.map((t: any) => t.user_id)
+                  })
+                })
+              }
             }
           }
         }
@@ -444,6 +474,46 @@ export async function GET() {
               body: JSON.stringify({
                 title: '⚠️ 커버영상 요청이 거절됐어요',
                 body: `[${r.project_code}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
+                tokens: tokens.map((t: any) => t.token),
+                userIds: tokens.map((t: any) => t.user_id)
+              })
+            })
+          }
+        }
+      }
+    }
+
+    // 커버영상 7일 미업로드 패널티
+    const { data: approvedCoverRequests } = await supabase
+      .from('cover_requests')
+      .select('*')
+      .eq('status', 'APPROVED')
+      .lt('updated_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+
+    if (approvedCoverRequests && approvedCoverRequests.length > 0) {
+      for (const r of approvedCoverRequests) {
+        // 커버영상 올렸는지 확인
+        const { data: coverPost } = await supabase
+          .from('posts')
+          .select('id')
+          .ilike('project_code', r.project_code)
+          .eq('member_id', r.participant_id)
+          .eq('is_cover', true)
+          .maybeSingle()
+
+        if (!coverPost) {
+          const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+          await supabase.from('participants').update({ cover_penalty_until: penaltyUntil }).eq('id', r.participant_id)
+          await supabase.from('cover_requests').update({ status: 'PENALTY' }).eq('id', r.id)
+
+          const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(r.participant_id))
+          if (tokens && tokens.length > 0) {
+            await fetch('https://app.doubleb.kr/api/push', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: '⚠️ 커버영상 미업로드 패널티',
+                body: '7일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
                 tokens: tokens.map((t: any) => t.token),
                 userIds: tokens.map((t: any) => t.user_id)
               })
