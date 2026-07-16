@@ -230,6 +230,35 @@ export default function CoverPage() {
                 </button>
               </div>
             )}
+            {/* 커버 대시보드 */}
+            {selectedProject && coverRequests.filter(r => r.status === 'APPROVED').length > 0 && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-1">📊 커버 대시보드</h2>
+                <p className="text-xs text-gray-400 mb-3">
+                  {selectedProject.start_date} ~ {selectedProject.end_date ? 
+                    new Date(new Date(selectedProject.end_date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
+                    : '미정'}
+                </p>
+                <div className="space-y-2">
+                  {coverRequests.filter(r => r.status === 'APPROVED').map(r => {
+                    const participant = coverParticipants.find(p => p.id === r.participant_id)
+                    return (
+                      <div key={r.id} className="border rounded-lg p-3">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-sm font-medium">{participant?.name ?? '-'}</p>
+                            {participant?.cover_video_url && (
+                              <a href={participant.cover_video_url} target="_blank" className="text-xs text-blue-500">영상 보기 →</a>
+                            )}
+                          </div>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
