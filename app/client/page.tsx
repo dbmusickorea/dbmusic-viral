@@ -673,7 +673,7 @@ export default function Page3() {
                           <p className="text-sm font-bold text-green-600">{snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0).toLocaleString()}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">🎵 음원사용</p>
+                          <p className="text-xs text-gray-500">총 음원사용</p>
                           <p className="text-sm font-bold text-purple-600">
                             {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
                             {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
@@ -695,16 +695,6 @@ export default function Page3() {
                 <div className="text-center mb-4">
                   <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
                   <p className="text-3xl font-bold text-red-500">{commentMissionData.missions.length}건</p>
-                  <p className="text-xs text-gray-400">/ {commentMissionData.videos.target_count ?? 300}건 목표</p>
-                </div>
-                <div className="mb-4">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>달성률</span>
-                    <span>{Math.min(100, Math.round((commentMissionData.missions.length / (commentMissionData.videos.target_count ?? 300)) * 100))}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-4">
-                    <div className="bg-red-500 h-4 rounded-full transition-all" style={{ width: `${Math.min(100, Math.round((commentMissionData.missions.length / (commentMissionData.videos.target_count ?? 300)) * 100))}%` }} />
-                  </div>
                 </div>
                 <div className="space-y-2">
                   {commentMissionData.videos.shorts_url_1 && (

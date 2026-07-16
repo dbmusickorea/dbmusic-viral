@@ -66,6 +66,7 @@ export default function Page1() {
   const [pushTarget, setPushTarget] = useState<'all' | 'participant' | 'client'>('all')
   const [instagramAudioId, setInstagramAudioId] = useState('')
   const [tiktokAudioId, setTiktokAudioId] = useState('')
+  const [projectLinks, setProjectLinks] = useState<any[]>([])
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -375,6 +376,11 @@ export default function Page1() {
       })
     fetchParticipants(project.project_code)
     fetchTopRanker(project.project_code)
+    fetch(`/api/project_links?project_code=${project.project_code}`)
+      .then(res => res.json())
+      .then(data => {
+        setProjectLinks(data ?? [])
+      })
   }
 
   const getSelectedProductPrice = () => {
@@ -420,6 +426,37 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
+    }
+  }
+
+  const saveProjectLinks = async (projectCode: string) => {
+    for (const link of projectLinks) {
+      if (!link.url) continue
+      
+      const videoId = extractVideoId(link.url)
+      
+      if (link.isNew) {
+        await fetch('/api/project_links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project_code: projectCode,
+            platform: link.platform,
+            url: link.url,
+            video_id: videoId || null
+          })
+        })
+      } else if (link.id) {
+        await fetch(`/api/project_links?id=${link.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            platform: link.platform,
+            url: link.url,
+            video_id: videoId || null
+          })
+        })
+      }
     }
   }
 
@@ -517,7 +554,7 @@ export default function Page1() {
         body: JSON.stringify({ project_code: projectCode.toUpperCase() })
       })
     }
-    await saveProjectVideos(projectCode.toUpperCase())
+    await saveProjectLinks(projectCode.toUpperCase())
 
     // 프로젝트 상태 변경 시 푸시
     if (status === 'COMPLETED') {
@@ -701,6 +738,7 @@ export default function Page1() {
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
     setRequiredPosts('1')
     setRefreshInterval('')
+    setProjectLinks([])
   }
 
   const handleLogout = () => {
@@ -1222,16 +1260,36 @@ export default function Page1() {
                       <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">유튜브 쇼츠 1 URL</label>
-                      <input value={shortsUrl1} onChange={(e) => setShortsUrl1(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">유튜브 쇼츠 2 URL</label>
-                      <input value={shortsUrl2} onChange={(e) => setShortsUrl2(e.target.value)} className={inputClass} placeholder="https://youtube.com/shorts/..." />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">플레이리스트 URL</label>
-                      <input value={playlistUrl} onChange={(e) => setPlaylistUrl(e.target.value)} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-sm font-medium">프로젝트 링크</label>
+                        <button onClick={() => setProjectLinks([...projectLinks, { platform: 'youtube_shorts', url: '', isNew: true }])} className="text-xs bg-blue-600 text-white px-2 py-1 rounded">+ 링크 추가</button>
+                      </div>
+                      {projectLinks.map((link, i) => (
+                        <div key={i} className="flex gap-2 mt-2 items-center">
+                          <select value={link.platform} onChange={(e) => {
+                            const newLinks = [...projectLinks]
+                            newLinks[i].platform = e.target.value
+                            setProjectLinks(newLinks)
+                          }} className="border rounded-lg px-2 py-2 text-xs">
+                            <option value="youtube_shorts">유튜브 숏츠</option>
+                            <option value="youtube_long">유튜브 롱폼</option>
+                            <option value="instagram">인스타그램</option>
+                            <option value="tiktok">틱톡</option>
+                            <option value="playlist">플레이리스트</option>
+                          </select>
+                          <input value={link.url} onChange={(e) => {
+                            const newLinks = [...projectLinks]
+                            newLinks[i].url = e.target.value
+                            setProjectLinks(newLinks)
+                          }} className={`${inputClass} flex-1`} placeholder="URL 입력" />
+                          <button onClick={async () => {
+                            if (!link.isNew && link.id) {
+                              await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
+                            }
+                            setProjectLinks(projectLinks.filter((_, idx) => idx !== i))
+                          }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
+                        </div>
+                      ))}
                     </div>
                     <div>
                       <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
