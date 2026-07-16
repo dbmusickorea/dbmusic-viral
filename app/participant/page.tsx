@@ -73,6 +73,7 @@ export default function Page2() {
   const [projectListPage, setProjectListPage] = useState(0)
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [myPostPage, setMyPostPage] = useState(0)
+  const [projectLinks, setProjectLinks] = useState<any[]>([])
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -443,6 +444,10 @@ useEffect(() => {
     const videosRes = await fetch(`/api/project_videos?project_code=${code}`)
     const videos = await videosRes.json()
     setProjectVideos(videos)
+    
+    const linksRes = await fetch(`/api/project_links?project_code=${code}`)
+    const links = await linksRes.json()
+    setProjectLinks(links ?? [])
     const joinRes = await fetch(`/api/project_participants?project_code=${code}&member_id=${userInfo?.id}`)
     const joinData = await joinRes.json()
     const joinItem = joinData?.[0]
@@ -1433,7 +1438,7 @@ useEffect(() => {
             </div>
 
             {/* 댓글 미션 */}
-            {projectCode && projectVideos && (projectVideos.shorts_url_1 || projectVideos.shorts_url_2 || projectVideos.playlist_url) && (
+            {projectCode && projectLinks.length > 0 && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">💬 댓글 미션</h2>
                 <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300P를 받으세요!</p>
@@ -1441,36 +1446,25 @@ useEffect(() => {
                 <div className="space-y-3">
                   {/* 영상 선택 버튼 */}
                   <div className="space-y-2">
-                    {projectVideos.shorts_url_1 && (
-                      <button onClick={() => {
-                        setSelectedVideoIndex(1)
-                        setVideoWatched(false)
-                        window.open(projectVideos.shorts_url_1, '_blank')
-                        setTimeout(() => { setVideoWatched(true) }, 30000)
-                      }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        {commentMissions.some(m => m.video_id === projectVideos.shorts_video_id_1) ? '✅ ' : <svg viewBox="0 0 24 24" className="w-4 h-4 inline mr-1" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}숏츠 영상 1 보러가기
-                      </button>
-                    )}
-                    {projectVideos.shorts_url_2 && (
-                      <button onClick={() => {
-                        setSelectedVideoIndex(2)
-                        setVideoWatched(false)
-                        window.open(projectVideos.shorts_url_2, '_blank')
-                        setTimeout(() => { setVideoWatched(true) }, 30000)
-                      }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 2 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        {commentMissions.some(m => m.video_id === projectVideos.shorts_video_id_1) ? '✅ ' : <svg viewBox="0 0 24 24" className="w-4 h-4 inline mr-1" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}숏츠 영상 2 보러가기
-                      </button>
-                    )}
-                    {projectVideos.playlist_url && (
-                      <button onClick={() => {
-                        setSelectedVideoIndex(3)
-                        setVideoWatched(false)
-                        window.open(projectVideos.playlist_url, '_blank')
-                        setTimeout(() => { setVideoWatched(true) }, 30000)
-                      }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === 3 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                        {commentMissions.some(m => m.video_id === projectVideos.playlist_video_id) ? '✅ ' : '🎵 '}플레이리스트 보러가기
-                      </button>
-                    )}
+                    {projectLinks.map((link, i) => {
+                      const platformLabel = 
+                        link.platform === 'youtube_shorts' ? '유튜브 숏츠' :
+                        link.platform === 'youtube_long' ? '유튜브 롱폼' :
+                        link.platform === 'instagram' ? '인스타그램' :
+                        link.platform === 'tiktok' ? '틱톡' :
+                        link.platform === 'playlist' ? '플레이리스트' : '영상'
+                      const isDone = commentMissions.some(m => m.video_id === link.video_id)
+                      return (
+                        <button key={i} onClick={() => {
+                          setSelectedVideoIndex(i + 1)
+                          setVideoWatched(false)
+                          window.open(link.url, '_blank')
+                          setTimeout(() => { setVideoWatched(true) }, 30000)
+                        }} className={`w-full rounded-lg py-2 font-medium text-sm ${selectedVideoIndex === i + 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
+                          {isDone ? '✅ ' : ''}{platformLabel} 보러가기
+                        </button>
+                      )
+                    })}
                   </div>
 
                   {selectedVideoIndex && !videoWatched && (
@@ -1492,10 +1486,9 @@ useEffect(() => {
                   </div>
                   <button onClick={async () => {
                     if (!videoWatched) { alert('먼저 영상을 시청해주세요!'); return }
-                    if (!projectVideos) { alert('등록된 영상이 없어요.'); return }
-                    const videoId = selectedVideoIndex === 1 ? projectVideos.shorts_video_id_1 :
-                      selectedVideoIndex === 2 ? projectVideos.shorts_video_id_2 :
-                      projectVideos.playlist_video_id
+                    if (!projectLinks.length) { alert('등록된 영상이 없어요.'); return }
+                    const selectedLink = projectLinks[selectedVideoIndex! - 1]
+                    const videoId = selectedLink?.video_id
                     if (videoId) await handleCommentVerify(videoId, projectCode)
                     else alert('등록된 영상이 없어요.')
                   }} disabled={isVerifying || !videoWatched} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
