@@ -1378,14 +1378,27 @@ export default function Page1() {
                             setEndDate(end.toISOString().split('T')[0])
                           }
                         }} className={inputClass} style={dateInputStyle} />
-                        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} style={dateInputStyle} />
+                        <select value={startTime} onChange={(e) => {
+                          setStartTime(e.target.value)
+                          setEndTime(e.target.value)
+                        }} className={inputClass}>
+                          <option value="">시간 선택</option>
+                          {Array.from({length: 24}, (_, i) => (
+                            <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium">종료일</label>
                       <div className="flex gap-2">
                         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
-                        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass} style={dateInputStyle} />
+                        <select value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass}>
+                          <option value="">시간 선택</option>
+                          {Array.from({length: 24}, (_, i) => (
+                            <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div>
