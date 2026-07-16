@@ -481,6 +481,20 @@ export default function Page4() {
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ cover_approved: true })
                             })
+                            const tokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.id)}`)
+                            const tokens = await tokensRes.json()
+                            if (tokens && tokens.length > 0) {
+                              await fetch('/api/push', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  title: '🎵 커버영상 촬영 승인됐어요!',
+                                  body: '커버가능 회원으로 승인됐어요. 이제 커버영상 미션에 참여할 수 있어요!',
+                                  tokens: tokens.map((t: any) => t.token),
+                                  userIds: tokens.map((t: any) => t.user_id)
+                                })
+                              })
+                            }
                             alert('커버영상 승인 완료!')
                             fetchParticipants()
                           }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-xs font-medium">승인</button>
@@ -490,6 +504,20 @@ export default function Page4() {
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ cover_approved: false })
                             })
+                            const tokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.id)}`)
+                            const tokens = await tokensRes.json()
+                            if (tokens && tokens.length > 0) {
+                              await fetch('/api/push', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  title: '커버영상 촬영 신청 결과',
+                                  body: '아쉽게도 커버가능 회원으로 승인되지 않았어요. 일반 체험단으로 활동 가능합니다.',
+                                  tokens: tokens.map((t: any) => t.token),
+                                  userIds: tokens.map((t: any) => t.user_id)
+                                })
+                              })
+                            }
                             alert('승인 취소 완료!')
                             fetchParticipants()
                           }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-xs font-medium">승인취소</button>
