@@ -300,9 +300,9 @@ export default function Page4() {
   }
 
   const filteredParticipants = participants.filter(p => {
-  if (coverFilter === 'cover') return p.is_cover_possible
-  if (coverFilter === 'approved') return p.cover_approved
-  return true
+    if (coverFilter === 'cover') return p.is_cover_possible
+    if (coverFilter === 'normal') return !p.is_cover_possible
+    return true
   })
 
   return (
@@ -354,7 +354,7 @@ export default function Page4() {
                   <div className="flex gap-1">
                     <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : ''}`}>전체</button>
                     <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : ''}`}>커버가능</button>
-                    <button onClick={() => setCoverFilter('approved')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'approved' ? 'bg-green-600 text-white border-green-600' : ''}`}>승인완료</button>
+                    <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : ''}`}>일반회원</button>
                   </div>
                 </div>
                 {filteredParticipants.length === 0 ? (
