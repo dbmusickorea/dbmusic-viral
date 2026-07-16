@@ -15,8 +15,10 @@ export async function GET(request: NextRequest) {
   const mobile = searchParams.get('mobile')
   if (mobile) query = query.eq('mobile', mobile)
   const referralCode = searchParams.get('referral_code')
+  const coverApproved = searchParams.get('cover_approved')
   if (email) query = query.eq('email', email)
   if (referralCode) query = query.eq('referral_code', referralCode)
+  if (coverApproved === 'true') query = query.eq('cover_approved', true)
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json(data ?? [])

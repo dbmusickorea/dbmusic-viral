@@ -74,6 +74,7 @@ export default function Page2() {
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [myPostPage, setMyPostPage] = useState(0)
   const [projectLinks, setProjectLinks] = useState<any[]>([])
+  const [coverRequests, setCoverRequests] = useState<any[]>([])
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -138,6 +139,10 @@ useEffect(() => {
       }
 
       await fetchAvailableBalance(parsed.id)
+      // 커버 요청 확인
+      const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
+      const coverData = await coverRes.json()
+      setCoverRequests(coverData ?? [])
     }
     loadData()
   }, [])
@@ -349,6 +354,10 @@ useEffect(() => {
       }
 
       await fetchAvailableBalance(parsed.id)
+      // 커버 요청 확인
+      const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
+      const coverData = await coverRes.json()
+      setCoverRequests(coverData ?? [])
     }
     setIsRefreshing(false)
   }
@@ -1268,6 +1277,33 @@ useEffect(() => {
             })()}
             </div>
           </div>
+          {coverRequests.filter(r => r.status === 'PENDING').map(r => (
+            <div key={r.id} className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4">
+              <p className="text-sm font-medium text-purple-800 mb-2">🎵 커버영상 미션 선택됐어요!</p>
+              <p className="text-xs text-gray-600 mb-3">프로젝트: {r.project_code}</p>
+              <p className="text-xs text-red-400 mb-3">⚠️ 24시간 이내 응답하지 않으면 거절로 처리됩니다.</p>
+              <div className="flex gap-2">
+                <button onClick={async () => {
+                  await fetch(`/api/cover_requests?id=${r.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'APPROVED' })
+                  })
+                  setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
+                  alert('커버영상 미션을 승인했어요! 3일 이내에 업로드해주세요.')
+                }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
+                <button onClick={async () => {
+                  await fetch(`/api/cover_requests?id=${r.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
+                  })
+                  setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'REJECTED'} : cr))
+                  alert('거절했어요.')
+                }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-sm font-medium">거절</button>
+              </div>
+            </div>
+          ))}
 
           {/* 오른쪽 컬럼 */}
           <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>

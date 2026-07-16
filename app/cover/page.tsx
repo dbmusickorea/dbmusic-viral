@@ -1,0 +1,212 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Bell } from 'lucide-react'
+
+export default function CoverPage() {
+  const router = useRouter()
+  const [userRole, setUserRole] = useState('')
+  const [userInfo, setUserInfo] = useState<any>(null)
+  const [coverParticipants, setCoverParticipants] = useState<any[]>([])
+  const [projects, setProjects] = useState<any[]>([])
+  const [selectedProject, setSelectedProject] = useState<any>(null)
+  const [coverRequests, setCoverRequests] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const info = localStorage.getItem('userInfo')
+    const role = localStorage.getItem('userRole')
+    if (!info) { router.push('/'); return }
+    const parsed = JSON.parse(info)
+    setUserInfo(parsed)
+    setUserRole(role ?? '')
+    loadData(parsed, role ?? '')
+  }, [])
+
+  const loadData = async (user: any, role: string) => {
+    // 승인된 커버가능 체험단 목록
+    const participantsRes = await fetch('/api/participants?cover_approved=true')
+    const participants = await participantsRes.json()
+    setCoverParticipants(participants ?? [])
+
+    // 프로젝트 목록
+    if (role === 'admin') {
+      const projectsRes = await fetch('/api/projects?status=ONGOING')
+      const projects = await projectsRes.json()
+      setProjects(projects ?? [])
+    } else if (role === 'client') {
+      const projectsRes = await fetch(`/api/projects?client_id=${user.client_id}`)
+      const projects = await projectsRes.json()
+      // 커버 옵션 선택한 프로젝트만
+      setProjects(projects?.filter((p: any) => p.cover_video_count > 0) ?? [])
+    }
+    setIsLoading(false)
+  }
+
+  const handleSelectParticipant = async (participant: any) => {
+    if (!selectedProject) { alert('먼저 프로젝트를 선택해주세요.'); return }
+    
+    // 이미 선택했는지 확인
+    const existing = coverRequests.find(r => r.project_code === selectedProject.project_code && r.participant_id === participant.id)
+    if (existing) { alert('이미 선택된 체험단이에요.'); return }
+
+    const res = await fetch('/api/cover_requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        project_code: selectedProject.project_code,
+        client_id: userInfo.client_id,
+        participant_id: participant.id,
+        status: 'PENDING',
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      })
+    })
+    
+    if (res.ok) {
+      // 체험단에게 푸시
+      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(participant.id)}`)
+      const tokens = await tokensRes.json()
+      if (tokens && tokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '🎵 커버영상 미션 선택됐어요!',
+            body: `[${selectedProject.project_code}] 커버영상 미션에 선택됐어요. 승인/거절을 선택해주세요.`,
+            tokens: tokens.map((t: any) => t.token),
+            userIds: tokens.map((t: any) => t.user_id)
+          })
+        })
+      }
+      alert('선택 완료! 체험단에게 알림을 보냈어요.')
+      loadCoverRequests(selectedProject.project_code)
+    }
+  }
+
+  const loadCoverRequests = async (projectCode: string) => {
+    const res = await fetch(`/api/cover_requests?project_code=${projectCode}`)
+    const data = await res.json()
+    setCoverRequests(data ?? [])
+  }
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><p>로딩 중...</p></div>
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-2xl mx-auto">
+        {/* 헤더 */}
+        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold">🎵 커버 페이지</h1>
+          </div>
+          <div className="flex gap-1 mb-2">
+            {userRole === 'admin' && (
+              <>
+                <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
+                <button onClick={() => router.push('/participant')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
+                <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
+                <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
+                <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 프로젝트 선택 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold mb-3">프로젝트 선택</h2>
+          <div className="space-y-2">
+            {projects.map(p => (
+              <div key={p.id} onClick={() => { setSelectedProject(p); loadCoverRequests(p.project_code) }}
+                className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === p.id ? 'border-purple-500 bg-purple-50' : ''}`}>
+                <p className="text-sm font-medium">{p.client_name} / {p.song_title ?? p.product_content}</p>
+                <p className="text-xs text-gray-400">{p.project_code}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 승인된 커버가능 체험단 목록 */}
+        {selectedProject && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3">🎤 커버 가능 체험단</h2>
+            {coverParticipants.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">승인된 커버가능 체험단이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {coverParticipants.map(p => {
+                  const request = coverRequests.find(r => r.participant_id === p.id)
+                  return (
+                    <div key={p.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-sm font-medium">{p.name}</p>
+                          {p.cover_video_url && (
+                            <a href={p.cover_video_url} target="_blank" className="text-xs text-blue-500">영상 보기 →</a>
+                          )}
+                        </div>
+                        {userRole === 'client' && (
+                          <div>
+                            {!request ? (
+                              <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                            ) : request.status === 'PENDING' ? (
+                              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
+                            ) : request.status === 'APPROVED' ? (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
+                            ) : request.status === 'REJECTED' ? (
+                              request.rejected_count < 2 ? (
+                                <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-full">재선택</button>
+                              ) : (
+                                <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">거절됨</span>
+                              )
+                            ) : null}
+                          </div>
+                        )}
+                        {userRole === 'admin' && request && (
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                            request.status === 'REJECTED' ? 'bg-red-100 text-red-500' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>{request.status === 'APPROVED' ? '승인' : request.status === 'REJECTED' ? '거절' : '대기중'}</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 재선택 2회 후 공개 모집 */}
+        {userRole === 'client' && selectedProject && coverRequests.filter(r => r.rejected_count >= 2).length > 0 && (
+          <div className="bg-orange-50 rounded-2xl p-4 mb-4">
+            <p className="text-sm font-medium text-orange-700 mb-2">⚠️ 거절이 2회 발생했어요.</p>
+            <button onClick={async () => {
+              const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id))
+              if (approvedParticipants.length === 0) { alert('알림 받을 체험단이 없어요.'); return }
+              const ids = approvedParticipants.map(p => String(p.id))
+              const tokensRes = await fetch(`/api/push_tokens?user_ids=${ids.join(',')}`)
+              const tokens = await tokensRes.json()
+              if (tokens && tokens.length > 0) {
+                await fetch('/api/push', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '🎵 커버영상 미션 모집!',
+                    body: `[${selectedProject.project_code}] 커버영상 미션 참여자를 모집합니다!`,
+                    tokens: tokens.map((t: any) => t.token),
+                    userIds: tokens.map((t: any) => t.user_id)
+                  })
+                })
+              }
+              alert('모집 푸시를 보냈어요!')
+            }} className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium">
+              커버가능 체험단 전체에게 모집 푸시 보내기
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

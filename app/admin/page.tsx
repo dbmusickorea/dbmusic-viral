@@ -895,6 +895,7 @@ export default function Page1() {
             <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
             <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
             <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
+            <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버</button>
           </div>
         </div>
 
