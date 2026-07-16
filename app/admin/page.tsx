@@ -1491,7 +1491,7 @@ export default function Page1() {
                                   ) : (
                                     <span className="text-xs text-gray-300">-</span>
                                   )}
-                                  <p className="text-sm font-medium">{post.influencer_name}{post.is_cover && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded ml-1">🎵 커버</span>}</p>
+                                  <p className="text-sm font-medium">{post.influencer_name}{post.is_cover && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded ml-1">COVER</span>}</p>
                                 </div>
                                 <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                                 <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
