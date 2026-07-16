@@ -163,20 +163,14 @@ export default function Page3() {
   const handleSelectProject = (project: any) => {
     setProjectInfo(project)
     setClientCode(project.project_code)
-    setIgAudioCount(null)
-    setTtAudioCount(null)
+    setIgAudioCount(project.instagram_audio_id ? (project.instagram_audio_count ?? null) : null)
+    setTtAudioCount(project.tiktok_audio_id ? (project.tiktok_audio_count ?? null) : null)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
     fetchDailyStats(project.project_code)
     setActiveTab('right')
     setPostPage(0)
     setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
-    if (project.instagram_audio_id) {
-      setIgAudioCount(project.instagram_audio_count ?? null)
-    }
-    if (project.tiktok_audio_id) {
-      setTtAudioCount(project.tiktok_audio_count ?? null)
-    }
   }
 
   const handleCodeChange = (code: string) => {
