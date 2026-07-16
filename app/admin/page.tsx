@@ -66,7 +66,7 @@ export default function Page1() {
   const [pushTarget, setPushTarget] = useState<'all' | 'participant' | 'client'>('all')
   const [instagramAudioId, setInstagramAudioId] = useState('')
   const [tiktokAudioId, setTiktokAudioId] = useState('')
-  const [projectLinks, setProjectLinks] = useState<any[]>([])
+  const [projectLinks, setProjectLinks] = useState<any[]>([{ platform: 'youtube_shorts', url: '', isNew: true }])
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -745,7 +745,7 @@ export default function Page1() {
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
     setRequiredPosts('1')
     setRefreshInterval('')
-    setProjectLinks([])
+    setProjectLinks([{ platform: 'youtube_shorts', url: '', isNew: true }])
   }
 
   const handleLogout = () => {
@@ -1326,7 +1326,7 @@ export default function Page1() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">요청 게시물 수</label>
+                      <label className="text-sm font-medium">요청 게시물 수 (추가 옵션)</label>
                       <select value={requiredPosts} onChange={(e) => setRequiredPosts(e.target.value)} className={inputClass}>
                         <option value="1">1개</option>
                         <option value="2">2개 (+상품금액의 50%)</option>

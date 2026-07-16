@@ -1345,20 +1345,17 @@ useEffect(() => {
             <div ref={missionRef} className="bg-white rounded-2xl shadow p-4 mb-4">
               <h2 className="font-bold mb-3">📸 미션 제출</h2>
               <div className="space-y-3">
-                {projectInfo && (
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <p className="text-sm font-medium text-blue-800">🎵 {projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
-                  </div>
-                )}
-                {requirements && (
+                {projectInfo && (requirements || projectInfo?.required_posts > 1) && (
                   <div className="bg-blue-50 rounded-lg p-3">
                     <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                    <p className="text-sm text-blue-700 mt-1">{requirements}</p>
-                    {projectInfo?.required_posts && (
+                    {requirements && (
+                      <p className="text-sm text-blue-700 mt-1">{requirements}</p>
+                    )}
+                    {projectInfo?.required_posts > 1 && (
                       <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>
                     )}
                   </div>
-                )}
+                )}     
                 {projectInfo && (
                   <div className="bg-gray-50 rounded-lg p-3 mt-2">
                     {projectInfo.start_date && (
