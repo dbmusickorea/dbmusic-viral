@@ -1448,19 +1448,32 @@ useEffect(() => {
                   <div className="space-y-2">
                     {projectLinks.map((link, i) => {
                       const isDone = commentMissions.some(m => m.video_id === link.video_id)
-                      const platformLabel = 
-                        link.platform === 'youtube_shorts' ? '숏츠 보러가기' :
-                        link.platform === 'youtube_long' ? '유튜브 영상 보러가기' :
-                        '플레이리스트 보러가기'
+                      
+                      const sameplatformLinks = projectLinks.filter(l => l.platform === link.platform)
+                      const platformIndex = sameplatformLinks.findIndex(l => l === link) + 1
+                      const showNumber = sameplatformLinks.length > 1
+                      
+                      const platformName = 
+                        link.platform === 'youtube_shorts' ? '숏츠 영상' :
+                        link.platform === 'youtube_long' ? '유튜브 영상' :
+                        '플레이리스트'
+                      
+                      const platformLabel = showNumber 
+                        ? `${platformName} ${platformIndex} 보러가기`
+                        : `${platformName} 보러가기`
+
                       return (
                         <button key={i} onClick={() => {
                           setSelectedVideoIndex(i + 1)
                           setVideoWatched(false)
                           window.open(link.url, '_blank')
                           setTimeout(() => { setVideoWatched(true) }, 30000)
-                        }} className={`w-full rounded-lg py-2 font-medium text-sm flex items-center justify-center gap-1 ${selectedVideoIndex === i + 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                          {isDone ? '✅ ' : <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}
-                          {platformLabel}
+                        }} className={`w-full rounded-lg py-2 font-medium text-sm flex items-center px-3 ${selectedVideoIndex === i + 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
+                          <span className="w-5 flex items-center">
+                            {isDone ? '✅' : <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}
+                          </span>
+                          <span className="flex-1 text-center">{platformLabel}</span>
+                          <span className="w-5"></span>
                         </button>
                       )
                     })}
