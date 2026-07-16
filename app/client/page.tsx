@@ -144,16 +144,19 @@ export default function Page3() {
   }
 
   const fetchCommentMissionData = async (code: string) => {
-    const [videosRes, missionsRes] = await Promise.all([
+    const [videosRes, missionsRes, linksRes] = await Promise.all([
       fetch(`/api/project_videos?project_code=${code}`),
-      fetch(`/api/comment_missions?project_code=${code}&status=APPROVED`)
+      fetch(`/api/comment_missions?project_code=${code}&status=APPROVED`),
+      fetch(`/api/project_links?project_code=${code}`)
     ])
     const videos = await videosRes.json()
     const missions = await missionsRes.json()
-    if (videos) {
+    const links = await linksRes.json()
+    if (videos || links?.length > 0) {
       setCommentMissionData({
         videos,
-        missions: missions ?? []
+        missions: missions ?? [],
+        links: links ?? []
       })
     } else {
       setCommentMissionData(null)
@@ -696,26 +699,43 @@ export default function Page3() {
                   <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
                   <p className="text-3xl font-bold text-red-500">{commentMissionData.missions.length}건</p>
                 </div>
-                <div className="space-y-2">
-                  {commentMissionData.videos.shorts_url_1 && (
-                    <div className="flex justify-between items-center border rounded-lg p-2">
-                      <p className="text-xs font-medium flex items-center gap-1"><svg viewBox="0 0 24 24" className="w-3 h-3" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> 유튜브 숏츠 1</p>
-                      <p className="text-sm font-bold text-red-500">{commentMissionData.missions.filter((m: any) => m.video_id === commentMissionData.videos.shorts_video_id_1).length}건</p>
+                {commentMissionData.links?.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* 유튜브 합산 */}
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-500 mb-1">유튜브</p>
+                      <p className="text-sm font-bold text-red-500">
+                        {commentMissionData.missions.filter((m: any) => 
+                          commentMissionData.links
+                            .filter((l: any) => ['youtube_shorts', 'youtube_long', 'playlist'].includes(l.platform))
+                            .some((l: any) => l.video_id === m.video_id)
+                        ).length}건
+                      </p>
                     </div>
-                  )}
-                  {commentMissionData.videos.shorts_url_2 && (
-                    <div className="flex justify-between items-center border rounded-lg p-2">
-                      <p className="text-xs font-medium flex items-center gap-1"><svg viewBox="0 0 24 24" className="w-3 h-3" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> 유튜브 숏츠 2</p>
-                      <p className="text-sm font-bold text-red-500">{commentMissionData.missions.filter((m: any) => m.video_id === commentMissionData.videos.shorts_video_id_2).length}건</p>
+                    {/* 인스타 */}
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-500 mb-1">인스타</p>
+                      <p className="text-sm font-bold text-pink-500">
+                        {commentMissionData.missions.filter((m: any) =>
+                          commentMissionData.links
+                            .filter((l: any) => l.platform === 'instagram')
+                            .some((l: any) => l.video_id === m.video_id)
+                        ).length}건
+                      </p>
                     </div>
-                  )}
-                  {commentMissionData.videos.playlist_url && (
-                    <div className="flex justify-between items-center border rounded-lg p-2">
-                      <p className="text-xs font-medium">🎵 플레이리스트</p>
-                      <p className="text-sm font-bold text-red-500">{commentMissionData.missions.filter((m: any) => m.video_id === commentMissionData.videos.playlist_video_id).length}건</p>
+                    {/* 틱톡 */}
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-500 mb-1">틱톡</p>
+                      <p className="text-sm font-bold text-black">
+                        {commentMissionData.missions.filter((m: any) =>
+                          commentMissionData.links
+                            .filter((l: any) => l.platform === 'tiktok')
+                            .some((l: any) => l.video_id === m.video_id)
+                        ).length}건
+                      </p>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 
