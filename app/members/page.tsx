@@ -48,6 +48,7 @@ export default function Page4() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [participantPage, setParticipantPage] = useState(0)
   const [clientPage, setClientPage] = useState(0)
+  const [coverFilter, setCoverFilter] = useState('all')
   const PAGE_SIZE = 10
 
   const router = useRouter()
@@ -298,6 +299,12 @@ export default function Page4() {
     setIsRefreshing(false)
   }
 
+  const filteredParticipants = participants.filter(p => {
+  if (coverFilter === 'cover') return p.is_cover_possible
+  if (coverFilter === 'approved') return p.cover_approved
+  return true
+  })
+
   return (
     <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
@@ -342,19 +349,32 @@ export default function Page4() {
           <div>
             {tab === 'participant' && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">체험단 목록</h2>
-                {participants.length === 0 ? (
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="font-bold">체험단 목록</h2>
+                  <div className="flex gap-1">
+                    <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : ''}`}>전체</button>
+                    <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : ''}`}>커버가능</button>
+                    <button onClick={() => setCoverFilter('approved')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'approved' ? 'bg-green-600 text-white border-green-600' : ''}`}>승인완료</button>
+                  </div>
+                </div>
+                {filteredParticipants.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">회원이 없습니다.</p>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      {participants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
+                      {filteredParticipants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
                         <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="flex items-center gap-2">
                                 <p className="font-medium text-sm">{p.name}</p>
                                 <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+                                {p.is_cover_possible && (
+                                  <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버가능</span>
+                                )}
+                                {p.cover_approved && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>
+                                )}
                               </div>
                               <p className="text-xs text-gray-500">{p.email}</p>
                             </div>
@@ -363,11 +383,11 @@ export default function Page4() {
                         </div>
                       ))}
                     </div>
-                    {participants.length > PAGE_SIZE && (
+                    {filteredParticipants.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
                         <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                        <span className="text-xs text-gray-500">{participantPage + 1} / {Math.ceil(participants.length / PAGE_SIZE)}</span>
-                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(participants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= participants.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        <span className="text-xs text-gray-500">{participantPage + 1} / {Math.ceil(filteredParticipants.length / PAGE_SIZE)}</span>
+                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(filteredParticipants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= filteredParticipants.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
