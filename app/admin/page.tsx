@@ -394,7 +394,8 @@ export default function Page1() {
     const monitoring = monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : monitoringExtension === 45 ? 600000 : 0
     const traffic = refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : refreshInterval === '1' ? 800000 : 0
     const cover = coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : coverVideoCount === 30 ? 4500000 : 0
-    return productPrice + option + monitoring + traffic + cover
+    const extraPosts = Number(requiredPosts) === 2 ? Math.floor(productPrice * 0.5) : 0
+    return productPrice + option + monitoring + traffic + cover + extraPosts
   }
 
   const extractVideoId = (url: string) => {
@@ -1178,6 +1179,7 @@ export default function Page1() {
                       <div className="text-xs text-gray-500 mt-1 space-y-1">
                         <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
                         {optionPrice && <p>추가 옵션: +{Number(optionPrice).toLocaleString()}원</p>}
+                        {Number(requiredPosts) === 2 && <p>게시물 2개 (+50%): +{Math.floor(getSelectedProductPrice() * 0.5).toLocaleString()}원</p>}
                         {monitoringExtension > 0 && <p>모니터링 연장 ({monitoringExtension}일): +{(monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
                         {refreshInterval && <p>트래픽 부스터: +{(refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
                         {coverVideoCount > 0 && <p>커버영상 ({coverVideoCount}개): +{(coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
@@ -1327,8 +1329,7 @@ export default function Page1() {
                       <label className="text-sm font-medium">요청 게시물 수</label>
                       <select value={requiredPosts} onChange={(e) => setRequiredPosts(e.target.value)} className={inputClass}>
                         <option value="1">1개</option>
-                        <option value="2">2개</option>
-                        <option value="3">3개</option>
+                        <option value="2">2개 (+상품금액의 50%)</option>
                       </select>
                     </div>
                     <div>
