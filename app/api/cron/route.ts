@@ -318,7 +318,7 @@ export async function GET() {
     if (ongoingProjectsForSnapshot && ongoingProjectsForSnapshot.length > 0) {
       for (const project of ongoingProjectsForSnapshot) {
         const interval = project.refresh_interval ?? 12
-        
+        if (currentHour % interval !== 0) continue
 
         const { data: projectPosts } = await supabase
           .from('posts')
