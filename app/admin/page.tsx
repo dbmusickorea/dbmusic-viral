@@ -66,7 +66,7 @@ export default function Page1() {
   const [pushTarget, setPushTarget] = useState<'all' | 'participant' | 'client'>('all')
   const [instagramAudioId, setInstagramAudioId] = useState('')
   const [tiktokAudioId, setTiktokAudioId] = useState('')
-  const [projectLinks, setProjectLinks] = useState<any[]>([{ platform: 'youtube_shorts', url: '', isNew: true }])
+  const [projectLinks, setProjectLinks] = useState<any[]>([{ platform: '', url: '', isNew: true }])
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -379,7 +379,7 @@ export default function Page1() {
     fetch(`/api/project_links?project_code=${project.project_code}`)
       .then(res => res.json())
       .then(data => {
-        setProjectLinks(data ?? [])
+        setProjectLinks([{ platform: '', url: '', isNew: true }])
       })
   }
 
@@ -1278,7 +1278,8 @@ export default function Page1() {
                             const newLinks = [...projectLinks]
                             newLinks[i].platform = e.target.value
                             setProjectLinks(newLinks)
-                          }} className="border rounded-lg px-2 py-2 text-xs">
+                          }} className="border rounded-lg px-2 py-2 text-base box-border">
+                            <option value="">- 선택하세요 -</option>
                             <option value="youtube_shorts">유튜브 숏츠</option>
                             <option value="youtube_long">유튜브 롱폼</option>
                             <option value="playlist">플레이리스트</option>
@@ -1287,7 +1288,7 @@ export default function Page1() {
                             const newLinks = [...projectLinks]
                             newLinks[i].url = e.target.value
                             setProjectLinks(newLinks)
-                          }} className={`${inputClass} flex-1`} placeholder="URL 입력" />
+                          }} className={`flex-1 border rounded-lg px-3 py-2 text-base box-border`} placeholder="URL 입력" />
                           <button onClick={async () => {
                             if (!link.isNew && link.id) {
                               await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
