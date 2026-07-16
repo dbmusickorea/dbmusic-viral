@@ -375,13 +375,11 @@ export async function GET() {
             }
           }
           if (p.tiktok_id) {
-            const ttRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.tiktok_id}`)
-            // 틱톡은 별도 API 필요 - 일단 SociaVault로
             const ttData = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/profile?handle=${p.tiktok_id.replace('@','')}`, {
               headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
             }).then(r => r.json())
-            if (ttData?.data?.follower_count !== undefined) {
-              await supabase.from('participants').update({ tiktok_followers: ttData.data.follower_count }).eq('id', p.id)
+            if (ttData?.data?.stats?.followerCount !== undefined) {
+              await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount }).eq('id', p.id)
             }
           }
         } catch { continue }
