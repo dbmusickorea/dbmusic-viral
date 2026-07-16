@@ -60,16 +60,33 @@ export async function GET() {
     // refresh_interval이 있는 프로젝트 - 시간별 조건부 갱신
     const { data: intervalProjects } = await supabase
       .from('projects')
-      .select('project_code, refresh_interval')
-      .eq('status', 'ONGOING')
+      .select('project_code, refresh_interval, base_refresh_interval, end_date, status')
+      .in('status', ['ONGOING', 'COMPLETED'])
       .not('refresh_interval', 'is', null)
 
     if (intervalProjects && intervalProjects.length > 0) {
       for (const project of intervalProjects) {
-        const interval = project.refresh_interval
-        if (interval && currentHour % interval === 0) {
-          const { data: projectPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
-          if (projectPosts) await updatePostStats(projectPosts)
+        // 종료일 + 15일 이후면 갱신 중단
+        if (project.end_date) {
+          const endDate = new Date(project.end_date)
+          const extendedEnd = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+          if (new Date() > extendedEnd) continue
+          
+          // 종료일 이후면 base_refresh_interval 사용
+          const interval = new Date() > endDate 
+            ? (project.base_refresh_interval ?? 12)
+            : project.refresh_interval
+          
+          if (interval && currentHour % interval === 0) {
+            const { data: projectPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
+            if (projectPosts) await updatePostStats(projectPosts)
+          }
+        } else {
+          const interval = project.refresh_interval
+          if (interval && currentHour % interval === 0) {
+            const { data: projectPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
+            if (projectPosts) await updatePostStats(projectPosts)
+          }
         }
       }
     }
@@ -392,7 +409,7 @@ export async function GET() {
         } catch { continue }
       }
     }
-    
+
     // 커버 요청 24시간 미응답 자동 거절
     const { data: pendingCoverRequests } = await supabase
       .from('cover_requests')
