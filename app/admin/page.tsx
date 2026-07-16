@@ -134,7 +134,7 @@ export default function Page1() {
     setTopRanker(posts[0])
   }
 
-  const handleApproveCover = async (post: any) => {
+  const handleApproveCover = async (post: any, type: string = 'long') => {
     if (!coverRewardAmount) { alert('지급할 금액을 입력해주세요.'); return }
     const reward = Number(coverRewardAmount)
     
@@ -142,7 +142,7 @@ export default function Page1() {
     await fetch(`/api/posts?id=${post.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cover_status: 'APPROVED' })
+      body: JSON.stringify({ cover_status: 'APPROVED', cover_type: type })
     })
     
     // 적립금 추가
@@ -1060,7 +1060,8 @@ export default function Page1() {
                           </span>
                           {post.cover_status === 'PENDING' && (
                             <>
-                              <button onClick={() => handleApproveCover(post)} className="text-xs bg-green-600 text-white rounded px-2 py-1">승인</button>
+                              <button onClick={() => handleApproveCover(post, 'long')} className="text-xs bg-green-600 text-white rounded px-2 py-1">롱폼 승인</button>
+                              <button onClick={() => handleApproveCover(post, 'shorts')} className="text-xs bg-blue-600 text-white rounded px-2 py-1">숏츠 승인</button>
                               <button onClick={() => handleRejectCover(post.id)} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
                             </>
                           )}
