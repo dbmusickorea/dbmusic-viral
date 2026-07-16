@@ -230,11 +230,17 @@ export default function Page1() {
     const data = await res.json()
     if (data && data.length > 0) {
       const memberIds = data.map((p: any) => p.member_id).join(',')
-      const participantRes = await fetch(`/api/participants?ids=${memberIds}`)
+      const projectCodes = [...new Set(data.map((p: any) => p.project_code))].join(',')
+      const [participantRes, projectsRes] = await Promise.all([
+        fetch(`/api/participants?ids=${memberIds}`),
+        fetch(`/api/projects?codes=${projectCodes}`)
+      ])
       const participantData = await participantRes.json()
+      const projectsData = await projectsRes.json()
       const merged = data.map((p: any) => ({
         ...p,
-        participants: participantData?.find((pd: any) => pd.id === p.member_id)
+        participants: participantData?.find((pd: any) => pd.id === p.member_id),
+        projects: projectsData?.find((proj: any) => proj.project_code.toLowerCase() === p.project_code.toLowerCase())
       }))
       setCoverPosts(merged)
     } else {
@@ -1051,7 +1057,8 @@ export default function Page1() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm font-medium">{post.participants?.name}</p>
-                          <p className="text-xs text-gray-500">{post.project_code} · {post.platform}</p>
+                          <p className="text-xs text-gray-500">{post.project_code}</p>
+                          <p className="text-xs text-gray-400">{post.projects?.client_name} / {post.projects?.song_title ?? post.projects?.product_content}</p>
                           <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                         </div>
                         <div className="flex flex-col gap-1 shrink-0 ml-2">
