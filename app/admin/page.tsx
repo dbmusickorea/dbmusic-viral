@@ -1057,8 +1057,8 @@ export default function Page1() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm font-medium">{post.participants?.name}</p>
-                          <p className="text-xs text-gray-500">{post.project_code}</p>
-                          <p className="text-xs text-gray-400">{post.projects?.client_name} / {post.projects?.song_title ?? post.projects?.product_content}</p>
+                          <p className="text-xs text-gray-700">{post.projects?.client_name} / {post.projects?.song_title ?? post.projects?.product_content}</p>
+                          <p className="text-xs text-gray-400">{post.project_code}</p>
                           <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                         </div>
                         <div className="flex flex-col gap-1 shrink-0 ml-2">
