@@ -578,26 +578,48 @@ export default function Page3() {
           <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-white rounded-2xl shadow p-3">
-                  <p className="text-xs text-gray-500 mb-1">📅 프로젝트 기간</p>
-                  <p className="text-xs">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
-                  <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
-                  <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+              <>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-white rounded-2xl shadow p-3">
+                    <p className="text-xs text-gray-500 mb-1">📅 프로젝트 기간</p>
+                    <p className="text-xs">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
+                    <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
+                    <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                  </div>
+                  <div className="bg-white rounded-2xl shadow p-3">
+                    <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
+                    <p className="text-xs">의뢰인: {projectInfo.client_name ?? '-'}</p>
+                    {projectInfo.song_title && <p className="text-xs">노래제목: {projectInfo.song_title}</p>}
+                    <p className="text-xs">상품: {projectInfo.product_content ?? '-'}</p>
+                    <p className="text-xs">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
+                    <p className="text-xs">모집인원: {projectInfo.max_participants ?? '-'}명</p>
+                    {projectInfo.monitoring_extension > 0 && <p className="text-xs">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
+                    {projectInfo.refresh_interval && <p className="text-xs">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
+                    {projectInfo.cover_video_count > 0 && <p className="text-xs">커버영상: {projectInfo.cover_video_count}개</p>}
+                    {projectInfo.requirements && <p className="text-xs">요청사항: {projectInfo.requirements}</p>}
+                  </div>
                 </div>
-                <div className="bg-white rounded-2xl shadow p-3">
-                  <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
-                  <p className="text-xs">의뢰인: {projectInfo.client_name ?? '-'}</p>
-                  {projectInfo.song_title && <p className="text-xs">노래제목: {projectInfo.song_title}</p>}
-                  <p className="text-xs">상품: {projectInfo.product_content ?? '-'}</p>
-                  <p className="text-xs">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
-                  <p className="text-xs">모집인원: {projectInfo.max_participants ?? '-'}명</p>
-                  {projectInfo.monitoring_extension > 0 && <p className="text-xs">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
-                  {projectInfo.refresh_interval && <p className="text-xs">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
-                  {projectInfo.cover_video_count > 0 && <p className="text-xs">커버영상: {projectInfo.cover_video_count}개</p>}
-                  {projectInfo.requirements && <p className="text-xs">요청사항: {projectInfo.requirements}</p>}
-                </div>
-              </div>
+                {projectInfo.document_id && (
+                  <div className="bg-white rounded-2xl shadow p-3 mb-4">
+                    <p className="text-xs text-gray-500 mb-2">📄 계약서</p>
+                    <button onClick={async () => {
+                      const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                      })
+                      const data = await res.json()
+                      if (data.download_url) {
+                        window.open(data.download_url, '_blank')
+                      } else {
+                        alert('아직 서명이 완료되지 않았어요.')
+                      }
+                    }} className="w-full bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">
+                      📄 계약서 다운로드
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
             {/* 결과보고서 다운로드 */}
