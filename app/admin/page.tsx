@@ -70,6 +70,8 @@ export default function Page1() {
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [artistName, setArtistName] = useState('')
+  const [secondPostDate, setSecondPostDate] = useState('')
+  const [secondPostTime, setSecondPostTime] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -377,6 +379,8 @@ export default function Page1() {
     setRequiredPosts(String(project.required_posts ?? 1))
     setRefreshInterval(String(project.refresh_interval ?? ''))
     fetchPosts(project.project_code)
+    setSecondPostDate(project.second_post_date ?? '')
+    setSecondPostTime(project.second_post_time ?? '')
     fetch(`/api/project_videos?project_code=${project.project_code}`)
       .then(res => res.json())
       .then(data => {
@@ -508,6 +512,8 @@ export default function Page1() {
         cover_video_count: Number(coverVideoCount) || 0,
         start_time: startTime || null,
         end_time: endTime || null,
+        second_post_date: secondPostDate || null,
+        second_post_time: secondPostTime || null,
       })
     })
     if (!res.ok) { alert('등록 실패!'); return }
@@ -594,6 +600,8 @@ export default function Page1() {
         cover_video_count: Number(coverVideoCount) || 0,
         start_time: startTime || null,
         end_time: endTime || null,
+        second_post_date: secondPostDate || null,
+        second_post_time: secondPostTime || null,
       })
     })
     if (!res.ok) { alert('수정 실패!'); return }
@@ -791,6 +799,8 @@ export default function Page1() {
     setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
     setRequiredPosts('1')
     setRefreshInterval('')
+    setSecondPostDate('')
+    setSecondPostTime('')
     setProjectLinks([{ platform: 'youtube_shorts', url: '', isNew: true }])
   }
 
@@ -1460,6 +1470,20 @@ export default function Page1() {
                         </select>
                       </div>
                     </div>
+                    {Number(requiredPosts) === 2 && (
+                      <div>
+                        <label className="text-sm font-medium">2차 게시물 날짜</label>
+                        <div className="flex gap-2">
+                          <input type="date" value={secondPostDate} onChange={(e) => setSecondPostDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                          <select value={secondPostTime} onChange={(e) => setSecondPostTime(e.target.value)} className={inputClass}>
+                            <option value="">시간 선택</option>
+                            {Array.from({length: 24}, (_, i) => (
+                              <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
                       <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} placeholder="기본값: 2,500원" />
