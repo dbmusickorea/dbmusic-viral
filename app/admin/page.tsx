@@ -1383,11 +1383,15 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">모집일</label>
-                      <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">모집 시간</label>
-                      <input type="time" value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass} />
+                      <div className="flex gap-2">
+                        <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} style={dateInputStyle} />
+                        <select value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass}>
+                          <option value="">시간 선택</option>
+                          {Array.from({length: 24}, (_, i) => (
+                            <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium">요청사항</label>

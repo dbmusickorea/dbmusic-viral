@@ -154,6 +154,11 @@ export async function GET() {
         const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
         if (participantTokens && participantTokens.length > 0) {
           for (const project of recruitProjects) {
+            // 모집시간 체크
+            if (project.mission_time) {
+              const missionHour = parseInt(project.mission_time.split(':')[0])
+              if (currentHour !== missionHour) continue
+            }
             await fetch(`https://app.doubleb.kr/api/push`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
