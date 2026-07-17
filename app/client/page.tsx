@@ -419,7 +419,6 @@ export default function Page3() {
                       { label: '대표자명', value: myName, setter: setMyName },
                       { label: '소속사명', value: myCompany, setter: setMyCompany },
                       { label: '아티스트명', value: myArtist, setter: setMyArtist },
-                      { label: '전화번호', value: myPhone, setter: setMyPhone },
                       { label: '휴대전화', value: myMobile, setter: setMyMobile },
                     ].map(({ label, value, setter }) => (
                       <div key={label}>
