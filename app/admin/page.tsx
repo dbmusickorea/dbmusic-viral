@@ -1457,7 +1457,57 @@ export default function Page1() {
                     </div>
                     <div>
                       {selectedProject ? (
-                        <button onClick={handleUpdate} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">정보 수정하기</button>
+                        <>
+                          <button onClick={handleUpdate} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2">정보 수정하기</button>
+                          <button onClick={async () => {
+                            if (!selectedClientId) { alert('의뢰인을 선택해주세요.'); return }
+                            
+                            // 총비용 계산
+                            const totalCost = getTotalCost()
+                            const confirmed = confirm(
+                              `계약서를 발송하시겠어요?\n\n` +
+                              `의뢰인: ${clientName}\n` +
+                              `곡명: ${songTitle}\n` +
+                              `상품: ${productContent}\n` +
+                              `계약금액: ${totalCost.toLocaleString()}원\n` +
+                              `계약기간: ${startDate} ~ ${endDate}\n\n` +
+                              `위 내용으로 계약서를 발송합니다.`
+                            )
+                            if (!confirmed) return
+
+                            const clientRes = await fetch(`/api/users?client_id=${selectedClientId}`)
+                            const clientData = await clientRes.json()
+                            const client = clientData?.[0]
+                            if (!client) { alert('의뢰인 정보를 찾을 수 없어요.'); return }
+                            
+                            const res = await fetch('/api/eformsign?action=send', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                clientName: clientName,
+                                clientEmail: client.email,
+                                clientMobile: client.mobile,
+                                projectCode: projectCode.toUpperCase(),
+                                productContent: productContent,
+                                songTitle: songTitle,
+                                totalCost: totalCost,
+                                startDate: startDate,
+                                endDate: endDate
+                              })
+                            })
+                            const data = await res.json()
+                            if (data.success) {
+                              await fetch(`/api/projects?project_code=${projectCode.toUpperCase()}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ document_id: data.document_id })
+                              })
+                              alert('계약서 발송 완료!')
+                            } else {
+                              alert('계약서 발송 실패!')
+                            }
+                          }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium">📄 계약서 발송</button>
+                        </>
                       ) : (
                         <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
                       )}
