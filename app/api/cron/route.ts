@@ -588,6 +588,60 @@ export async function GET() {
       }
     }
 
+    // 프로젝트 종료일 푸시
+      const { data: endingProjects } = await supabase.from('projects').select('*').eq('end_date', today).eq('status', 'ONGOING')
+      if (endingProjects && endingProjects.length > 0) {
+        for (const project of endingProjects) {
+          // 종료시간 체크
+          if (project.end_time) {
+            const endHour = parseInt(project.end_time.split(':')[0])
+            if (currentHour !== endHour) continue
+          }
+
+          // 프로젝트 COMPLETED 로 변경
+          await supabase.from('projects').update({ status: 'COMPLETED' }).eq('project_code', project.project_code)
+
+          // 참여 체험단에게 푸시
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
+          if (joinedParticipants && joinedParticipants.length > 0) {
+            const memberIds = joinedParticipants.map((j: any) => String(j.member_id))
+            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', memberIds)
+            if (tokens && tokens.length > 0) {
+              await fetch(`https://app.doubleb.kr/api/push`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  title: '📅 미션이 종료됐어요!',
+                  body: `${project.product_content} 미션이 종료됐어요. 수고하셨어요!`,
+                  tokens: tokens.map((t: any) => t.token),
+                  userIds: tokens.map((t: any) => t.user_id)
+                })
+              })
+            }
+          }
+
+          // 해당 의뢰인에게 푸시
+          if (project.client_id) {
+            const { data: clientUser } = await supabase.from('users').select('id').eq('client_id', project.client_id).maybeSingle()
+            if (clientUser) {
+              const { data: clientTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(clientUser.id))
+              if (clientTokens && clientTokens.length > 0) {
+                await fetch(`https://app.doubleb.kr/api/push`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '📅 프로젝트가 종료됐어요!',
+                    body: `${project.product_content} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,
+                    tokens: clientTokens.map((t: any) => t.token),
+                    userIds: clientTokens.map((t: any) => t.user_id)
+                  })
+                })
+              }
+            }
+          }
+        }
+      }
+
     // 음원 사용량 갱신 (하루 1회)
     if (currentHour === 3) {
       const { data: projectsWithAudio } = await supabase
