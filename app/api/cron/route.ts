@@ -523,6 +523,60 @@ export async function GET() {
       }
     }
 
+    // BANNED 자동 해제
+    const { data: bannedParticipants } = await supabase
+      .from('participants')
+      .select('id, name')
+      .not('banned_until', 'is', null)
+      .lt('banned_until', new Date().toISOString())
+
+    if (bannedParticipants && bannedParticipants.length > 0) {
+      for (const p of bannedParticipants) {
+        await supabase.from('participants').update({ banned_until: null }).eq('id', p.id)
+        
+        const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(p.id))
+        if (tokens && tokens.length > 0) {
+          await fetch('https://app.doubleb.kr/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '✅ 활동 제한이 해제됐어요!',
+              body: '미션 불이행 제한 기간이 끝났어요. 이제 다시 미션에 참여할 수 있어요!',
+              tokens: tokens.map((t: any) => t.token),
+              userIds: tokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
+    }
+
+    // 커버 패널티 자동 해제
+    const { data: penaltyParticipants } = await supabase
+      .from('participants')
+      .select('id, name')
+      .not('cover_penalty_until', 'is', null)
+      .lt('cover_penalty_until', new Date().toISOString())
+
+    if (penaltyParticipants && penaltyParticipants.length > 0) {
+      for (const p of penaltyParticipants) {
+        await supabase.from('participants').update({ cover_penalty_until: null }).eq('id', p.id)
+        
+        const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(p.id))
+        if (tokens && tokens.length > 0) {
+          await fetch('https://app.doubleb.kr/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '✅ 커버영상 제한이 해제됐어요!',
+              body: '커버영상 업로드 제한 기간이 끝났어요. 이제 다시 커버영상 미션에 참여할 수 있어요!',
+              tokens: tokens.map((t: any) => t.token),
+              userIds: tokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
+    }
+
     // 음원 사용량 갱신 (하루 1회)
     if (currentHour === 3) {
       const { data: projectsWithAudio } = await supabase

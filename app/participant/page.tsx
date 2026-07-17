@@ -192,6 +192,22 @@ useEffect(() => {
               })
               setIsLocked(false)
               alert('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
+              
+              // 관리자에게 푸시
+              const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+              const adminTokens = await adminTokensRes.json()
+              if (adminTokens && adminTokens.length > 0) {
+                await fetch('/api/push', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '🔓 체험단 잠금 해제됐어요',
+                    body: `${influencerName}님이 댓글 10개를 작성해 잠금이 해제됐어요.`,
+                    tokens: adminTokens.map((t: any) => t.token),
+                    userIds: adminTokens.map((t: any) => t.user_id)
+                  })
+                })
+              }
             } else {
               await fetch(`/api/participants?id=${userInfo?.id}`, {
                 method: 'PATCH',
