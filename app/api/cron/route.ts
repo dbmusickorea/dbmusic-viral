@@ -60,7 +60,7 @@ export async function GET() {
     // refresh_interval이 있는 프로젝트 - 시간별 조건부 갱신
     const { data: intervalProjects } = await supabase
       .from('projects')
-      .select('project_code, refresh_interval, base_refresh_interval, end_date, status, cover_video_count')
+      .select('project_code, refresh_interval, base_refresh_interval, end_date, status, cover_video_count, monitoring_extension')
       .in('status', ['ONGOING', 'COMPLETED'])
       .not('refresh_interval', 'is', null)
 
@@ -68,17 +68,20 @@ export async function GET() {
       for (const project of intervalProjects) {
         if (project.end_date) {
           const endDate = new Date(project.end_date)
+          const monitoringDays = project.monitoring_extension ?? 0
+          const monitoringEnd = new Date(endDate.getTime() + monitoringDays * 24 * 60 * 60 * 1000)
           
-          // 커버 옵션 선택한 프로젝트만 15일 연장
+          // 커버 옵션 선택한 프로젝트만 추가 15일 연장
           const hasCover = (project.cover_video_count ?? 0) > 0
           const extendedEnd = hasCover 
-            ? new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
-            : endDate
+            ? new Date(monitoringEnd.getTime() + 15 * 24 * 60 * 60 * 1000)
+            : monitoringEnd
 
           if (new Date() > extendedEnd) continue
           
-          // 종료일 이후면 base_refresh_interval 사용
-          const interval = new Date() > endDate 
+          // 커버 연장 기간이면 base 트래픽, 그 외엔 선택 트래픽
+          const inCoverExtension = hasCover && new Date() > monitoringEnd
+          const interval = inCoverExtension
             ? (project.base_refresh_interval ?? 12)
             : project.refresh_interval
           
