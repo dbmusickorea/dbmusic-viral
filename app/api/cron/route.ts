@@ -412,45 +412,6 @@ export async function GET() {
       }
     }
 
-    // 체험단 팔로워 수 갱신
-    const { data: allParticipantsForFollowers } = await supabase
-      .from('participants')
-      .select('id, instagram_id, youtube_id, tiktok_id')
-      .eq('is_locked', false)
-
-    if (allParticipantsForFollowers) {
-      for (const p of allParticipantsForFollowers) {
-        try {
-          if (p.instagram_id) {
-            const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
-            const igData = await igRes.json()
-            if (igData.followers !== undefined) {
-              await supabase.from('participants').update({ instagram_followers: igData.followers }).eq('id', p.id)
-            }
-          }
-          if (p.youtube_id) {
-            const ytRes = await fetch(`https://app.doubleb.kr/api/youtube-channel?handle=${p.youtube_id}`)
-            const ytData = await ytRes.json()
-            if (ytData.subscriberCount !== undefined) {
-              await supabase.from('participants').update({ youtube_subscribers: ytData.subscriberCount }).eq('id', p.id)
-            }
-          }
-          if (p.tiktok_id) {
-            const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p.tiktok_id.replace('@','')}`, {
-              headers: {
-                'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
-                'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
-              }
-            })
-            const ttData = await ttRes.json()
-            if (ttData?.data?.stats?.followerCount !== undefined) {
-              await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount }).eq('id', p.id)
-            }
-          }
-        } catch { continue }
-      }
-    }
-
     // 커버 요청 24시간 미응답 자동 거절
     const { data: pendingCoverRequests } = await supabase
       .from('cover_requests')
@@ -641,6 +602,47 @@ export async function GET() {
           }
         }
       }
+
+      // 체험단 팔로워 수 갱신 (하루 1회)
+    if (currentHour === 3) {
+      const { data: allParticipantsForFollowers } = await supabase
+        .from('participants')
+        .select('id, instagram_id, youtube_id, tiktok_id')
+        .eq('is_locked', false)
+
+      if (allParticipantsForFollowers) {
+        for (const p of allParticipantsForFollowers) {
+          try {
+            if (p.instagram_id) {
+              const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
+              const igData = await igRes.json()
+              if (igData.followers !== undefined) {
+                await supabase.from('participants').update({ instagram_followers: igData.followers }).eq('id', p.id)
+              }
+            }
+            if (p.youtube_id) {
+              const ytRes = await fetch(`https://app.doubleb.kr/api/youtube-channel?handle=${p.youtube_id}`)
+              const ytData = await ytRes.json()
+              if (ytData.subscriberCount !== undefined) {
+                await supabase.from('participants').update({ youtube_subscribers: ytData.subscriberCount }).eq('id', p.id)
+              }
+            }
+            if (p.tiktok_id) {
+              const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p.tiktok_id.replace('@','')}`, {
+                headers: {
+                  'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+                  'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
+                }
+              })
+              const ttData = await ttRes.json()
+              if (ttData?.data?.stats?.followerCount !== undefined) {
+                await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount }).eq('id', p.id)
+              }
+            }
+          } catch { continue }
+        }
+      }
+    }
 
     // 음원 사용량 갱신 (하루 1회)
     if (currentHour === 3) {
