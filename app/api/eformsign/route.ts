@@ -54,16 +54,18 @@ export async function POST(request: NextRequest) {
             name: clientName,
             id: clientEmail,
             authentication: { type: 'NONE' },
-            notify: { method: 'EMAIL', message: '계약서 서명을 요청드립니다.' }
+            notify: { 
+              method: 'EMAIL_AND_KAKAO',
+              phone_number: clientMobile,
+              message: '계약서 서명을 요청드립니다.' 
+            }
           }],
           fields: [
-            { id: 'project_code', value: projectCode },
-            { id: 'client_name', value: clientName },
+            { id: 'artist_name', value: clientName },
             { id: 'song_title', value: songTitle },
-            { id: 'product_content', value: productContent },
-            { id: 'total_cost', value: String(totalCost) },
-            { id: 'start_date', value: startDate },
-            { id: 'end_date', value: endDate }
+            { id: 'product_name', value: productContent },
+            { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
+            { id: 'contract_period', value: `${startDate} ~ ${endDate}` }
           ]
         })
       })
