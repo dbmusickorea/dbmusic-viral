@@ -69,6 +69,7 @@ export default function Page1() {
   const [projectLinks, setProjectLinks] = useState<any[]>([{ platform: '', url: '', isNew: true }])
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
+  const [artistName, setArtistName] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -348,6 +349,7 @@ export default function Page1() {
     setSelectedProject(project)
     setActiveTab('right')
     setClientName(project.client_name ?? '')
+    setArtistName(project.artist_name ?? '')
     setProjectCode(project.project_code ?? '')
     setProjectPrefix(project.project_code?.split('_')[0] ?? '')
     setProductContent(project.product_content ?? '')
@@ -485,6 +487,7 @@ export default function Page1() {
         client_name: clientName,
         product_content: productContent,
         song_title: songTitle,
+        artist_name: artistName || null,
         instagram_audio_id: instagramAudioId || null,
         tiktok_audio_id: tiktokAudioId || null,
         requirements,
@@ -570,6 +573,7 @@ export default function Page1() {
         client_name: clientName,
         product_content: productContent,
         song_title: songTitle,
+        artist_name: artistName || null,
         instagram_audio_id: instagramAudioId || null,
         tiktok_audio_id: tiktokAudioId || null,
         requirements,
@@ -773,6 +777,7 @@ export default function Page1() {
   const clearForm = () => {
     setSelectedProject(null)
     setClientName(''); setProjectCode(''); setProjectPrefix(''); setProductContent('')
+    setArtistName('')
     setRequirements(''); setStatus('ONGOING'); setStartDate('')
     setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
     setSelectedClientId(''); setClientSearch('')
@@ -1252,7 +1257,12 @@ export default function Page1() {
                       {clientSearch && filteredClients.length > 0 && (
                         <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
                           {filteredClients.map((c) => (
-                            <div key={c.id} onClick={() => { setSelectedClientId(c.client_id); setClientName(c.name); setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`) }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
+                            <div key={c.id} onClick={() => { 
+                              setSelectedClientId(c.client_id)
+                              setClientName(c.name)
+                              setArtistName(c.artist ?? '')
+                              setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
+                            }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                               <p className="font-medium">{c.name}</p>
                               <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
                             </div>
