@@ -126,8 +126,7 @@ export default function CoverPage() {
         {userRole === 'client' && (
           <div className="bg-blue-50 rounded-2xl p-4 mb-4">
             <p className="text-sm font-medium text-blue-800 mb-1">📢 커버영상 안내</p>
-            <p className="text-xs text-blue-700">• 음원 발매 7일 후 커버영상이 업로드됩니다.</p>
-            <p className="text-xs text-blue-700">• 커버 체험단은 선택 후 3일 이내에 업로드해야 합니다.</p>
+            <p className="text-xs text-blue-700">• 커버영상은 음원 발매 15일 이내에 업로드됩니다.</p>
             <p className="text-xs text-blue-700">• 미션 시작 전까지 커버 체험단을 선택할 수 있습니다.</p>
           </div>
         )}

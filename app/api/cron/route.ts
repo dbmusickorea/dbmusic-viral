@@ -60,16 +60,21 @@ export async function GET() {
     // refresh_interval이 있는 프로젝트 - 시간별 조건부 갱신
     const { data: intervalProjects } = await supabase
       .from('projects')
-      .select('project_code, refresh_interval, base_refresh_interval, end_date, status')
+      .select('project_code, refresh_interval, base_refresh_interval, end_date, status, cover_video_count')
       .in('status', ['ONGOING', 'COMPLETED'])
       .not('refresh_interval', 'is', null)
 
     if (intervalProjects && intervalProjects.length > 0) {
       for (const project of intervalProjects) {
-        // 종료일 + 15일 이후면 갱신 중단
         if (project.end_date) {
           const endDate = new Date(project.end_date)
-          const extendedEnd = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+          
+          // 커버 옵션 선택한 프로젝트만 15일 연장
+          const hasCover = (project.cover_video_count ?? 0) > 0
+          const extendedEnd = hasCover 
+            ? new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+            : endDate
+
           if (new Date() > extendedEnd) continue
           
           // 종료일 이후면 base_refresh_interval 사용
