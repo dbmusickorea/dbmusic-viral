@@ -722,7 +722,10 @@ useEffect(() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
-        resident_number: encryptedResident, status: 'PENDING'
+        resident_number: encryptedResident, status: 'PENDING',
+        is_privacy_agreed: true,
+        agreed_at: new Date().toISOString(),
+        user_ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown')
       })
     })
     if (!settlementRes.ok) { alert('환전 신청 실패!'); return }
@@ -1037,12 +1040,15 @@ useEffect(() => {
                   <div className="space-y-3">
                     <div>
                       {/* 개인정보 수집 동의 */}
-                      <div className="bg-gray-50 rounded-lg p-3 mb-3 text-xs text-gray-600">
-                        <p className="font-bold mb-2">📋 개인정보 수집 및 이용 안내</p>
-                        <p>· 수집 항목: 주민등록번호, 계좌번호</p>
-                        <p>· 수집 목적: 원천징수 세금 신고 및 용역비 지급</p>
-                        <p>· 보유 기간: 관련 법령에 따라 5년 보관</p>
-                        <p className="mt-2 text-red-500">※ 용역비 지급 시 3.3% 원천징수 후 지급됩니다.</p>
+                      <div className="bg-gray-50 rounded-lg p-3 mb-3 text-xs text-gray-600 max-h-40 overflow-y-auto">
+                        <p className="font-medium text-gray-800 mb-2">■ 미션 완료 포인트 환전 신청에 따른 간이 용역 계약 및 법적 고지</p>
+                        <p className="mb-2">본 환전 신청은 주식회사 더블비뮤직(이하 '회사')과 회원(이하 '크리에이터') 간의 프리랜서 음원 바이럴 홍보 용역 계약에 의거하여 정산금이 지급되는 절차입니다.</p>
+                        <p className="mb-2">대한민국 소득세법 및 국세징수법에 따라, 회사는 크리에이터가 정산 요청한 금액의 총 3.3%(사업소득세 3% + 지방소득세 0.3%)를 원천징수하여 국세청에 일괄 대리 신고 및 납부할 법적 의무가 있습니다.</p>
+                        <p className="font-medium text-gray-800 mb-1">[개인정보 처리에 관한 필수 동의]</p>
+                        <p>1. 수집 및 이용 목적: 국세청 사업소득 원천징수 영수증 발행 및 세무 신고 대행</p>
+                        <p>2. 수집 항목: 성명, 주민등록번호, 은행명, 계좌번호, 예금주명</p>
+                        <p>3. 보유 및 이용 기간: 소득세법 등 관련 법령에 따른 법정 의무 보관 기간(5년) 보존 후 즉시 파기 및 삭제</p>
+                        <p>4. 동의 거부 권리: 귀하는 본 동의를 거부할 권리가 있으나, 거부 시 국세청 세무 신고가 불가능하므로 포인트 환전 및 현금 지급이 원천 제한됩니다.</p>
                       </div>
                       <label className="flex items-center gap-2 mb-3 cursor-pointer">
                         <input type="checkbox" checked={agreedTax} onChange={(e) => setAgreedTax(e.target.checked)} className="w-4 h-4" />
