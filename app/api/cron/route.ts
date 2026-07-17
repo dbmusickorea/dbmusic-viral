@@ -195,7 +195,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '📅 미션이 시작됐어요!',
-                    body: `${project.product_content} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요.`,
+                    body: `${project.product_content} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                     tokens: normalTokens.map((t: any) => t.token),
                     userIds: normalTokens.map((t: any) => t.user_id)
                   })
@@ -218,6 +218,34 @@ export async function GET() {
                   })
                 })
               }
+            }
+          }
+        }
+      }
+      
+      // 2차 게시물 푸시
+      const { data: secondPostProjects } = await supabase.from('projects').select('*').eq('second_post_date', today).eq('status', 'ONGOING').eq('required_posts', 2)
+      if (secondPostProjects && secondPostProjects.length > 0) {
+        for (const project of secondPostProjects) {
+          if (project.second_post_time) {
+            const secondPostHour = parseInt(project.second_post_time.split(':')[0])
+            if (currentHour !== secondPostHour) continue
+          }
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
+          if (joinedParticipants && joinedParticipants.length > 0) {
+            const memberIds = joinedParticipants.map((j: any) => String(j.member_id))
+            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', memberIds)
+            if (tokens && tokens.length > 0) {
+              await fetch(`https://app.doubleb.kr/api/push`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  title: '📅 2차 미션이 시작됐어요!',
+                  body: `${project.product_content} 2차 게시물을 48시간 안에 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
+                  tokens: tokens.map((t: any) => t.token),
+                  userIds: tokens.map((t: any) => t.user_id)
+                })
+              })
             }
           }
         }
@@ -252,8 +280,8 @@ export async function GET() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      title: '⚠️ 미션 불이행으로 레벨이 하락했어요!',
-                      body: `미션을 완료하지 않아 Lv.${newLevel}으로 하락했어요. 7일간 활동이 제한됩니다.`,
+                      title: '⚠️ 미션 불이행으로 활동이 제한됐어요!',
+                      body: `미션을 완료하지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
                       tokens: memberTokens.map((t: any) => t.token),
                       userIds: memberTokens.map((t: any) => t.user_id)
                     })
@@ -270,6 +298,47 @@ export async function GET() {
                       body: `${project.product_content} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
                       tokens: allTokens.map((t: any) => t.token),
                       userIds: allTokens.map((t: any) => t.user_id)
+                    })
+                  })
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 2차 게시물 미업로드 체크
+      const { data: secondPostCheckProjects } = await supabase.from('projects').select('*').eq('status', 'ONGOING').eq('required_posts', 2).not('second_post_date', 'is', null)
+      if (secondPostCheckProjects && secondPostCheckProjects.length > 0) {
+        for (const project of secondPostCheckProjects) {
+          if (!project.second_post_date || !project.second_post_time) continue
+          const secondPostDateTime = new Date(`${project.second_post_date}T${project.second_post_time}:00`)
+          const fortyEightHoursAfter = new Date(secondPostDateTime.getTime() + 48 * 60 * 60 * 1000)
+          if (now < fortyEightHoursAfter) continue
+
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
+          if (!joinedParticipants) continue
+
+          for (const jp of joinedParticipants) {
+            const { data: posts } = await supabase.from('posts').select('id').ilike('project_code', project.project_code).eq('member_id', jp.member_id)
+            if (!posts || posts.length < 2) {
+              const { data: participant } = await supabase.from('participants').select('*').eq('id', jp.member_id).maybeSingle()
+              if (participant) {
+                const newLevel = Math.max(1, (participant.level ?? 1) - 10)
+                const bannedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+                await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString() }).eq('id', participant.id)
+                await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', project.project_code).eq('member_id', participant.id)
+                
+                const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
+                if (memberTokens && memberTokens.length > 0) {
+                  await fetch(`https://app.doubleb.kr/api/push`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      title: '⚠️ 2차 미션 불이행으로 활동이 제한됐어요!',
+                      body: `2차 게시물을 올리지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
+                      tokens: memberTokens.map((t: any) => t.token),
+                      userIds: memberTokens.map((t: any) => t.user_id)
                     })
                   })
                 }
