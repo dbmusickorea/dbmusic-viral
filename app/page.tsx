@@ -618,7 +618,7 @@ export default function LoginPage() {
                   </label>
                   {isCoverPossible && (
                     <div className="mt-2">
-                      <p className="text-xs text-gray-500 mb-1">선택시 실 가창한 영상 링크를 필수로 남겨주세요. 관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
+                      <p className="text-xs text-gray-500 mb-1">본인의 실제 가창한 영상 링크를 필수로 남겨주세요.<br/>관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
                       <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="영상 링크 입력" />
                     </div>
                   )}
