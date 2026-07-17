@@ -518,8 +518,8 @@ export default function Page1() {
     await saveProjectVideos(projectCode.toUpperCase())
     await saveProjectLinks(projectCode.toUpperCase())
     
-    // 체험단 전체에게 푸시 알림 발송
-    const participantTokensRes = await fetch('/api/push_tokens?user_role=participant,client')
+    // 체험단 전체에게 푸시
+    const participantTokensRes = await fetch('/api/push_tokens?user_role=participant')
     const participantTokens = await participantTokensRes.json()
     if (participantTokens && participantTokens.length > 0) {
       await fetch('/api/push', {
@@ -532,6 +532,29 @@ export default function Page1() {
           userIds: participantTokens.map((t: any) => t.user_id)
         })
       })
+    }
+
+    // 해당 의뢰인에게만 푸시
+    if (selectedClientId) {
+      const clientUserRes = await fetch(`/api/users?client_id=${selectedClientId}`)
+      const clientUserData = await clientUserRes.json()
+      const clientUser = clientUserData?.[0]
+      if (clientUser) {
+        const clientTokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+        const clientTokens = await clientTokensRes.json()
+        if (clientTokens && clientTokens.length > 0) {
+          await fetch('/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🎵 프로젝트가 등록됐어요!',
+              body: `${productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
+              tokens: clientTokens.map((t: any) => t.token),
+              userIds: clientTokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
     }
     alert('등록 완료!')
     fetchProjects()
