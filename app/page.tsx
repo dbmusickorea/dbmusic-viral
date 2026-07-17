@@ -324,22 +324,33 @@ export default function LoginPage() {
 
     if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
 
-    // SNS 팔로워 100명 이상 확인
+    // SNS 팔로워 100명 이상 확인 (셋 중 하나라도 100명 이상이면 통과)
+    let hasEnoughFollowers = false
+
     if (p_instagram) {
       const igRes = await fetch(`/api/instagram-user?username=${p_instagram}`)
       const igData = await igRes.json()
-      if ((igData.followers ?? 0) < 100) {
-        alert('인스타그램 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정으로 가입해주세요.')
-        return
-      }
+      if ((igData.followers ?? 0) >= 100) hasEnoughFollowers = true
     }
     if (p_youtube) {
-      const ytRes = await fetch(`/api/youtube?handle=${p_youtube}`)
+      const ytRes = await fetch(`/api/youtube-channel?handle=${p_youtube}`)
       const ytData = await ytRes.json()
-      if ((ytData.subscriberCount ?? 0) < 100) {
-        alert('유튜브 구독자가 100명 미만이에요. 구독자 100명 이상인 채널로 가입해주세요.')
-        return
-      }
+      if ((ytData.subscriberCount ?? 0) >= 100) hasEnoughFollowers = true
+    }
+    if (p_tiktok) {
+      const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p_tiktok.replace('@','')}`, {
+        headers: {
+          'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+          'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
+        }
+      })
+      const ttData = await ttRes.json()
+      if ((ttData?.data?.stats?.followerCount ?? 0) >= 100) hasEnoughFollowers = true
+    }
+
+    if ((p_instagram || p_youtube || p_tiktok) && !hasEnoughFollowers) {
+      alert('인스타그램/유튜브/틱톡 중 하나 이상 팔로워 100명 이상인 계정이 필요해요.')
+      return
     }
 
     if (p_referral) {
