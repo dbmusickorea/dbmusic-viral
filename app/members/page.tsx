@@ -228,7 +228,7 @@ export default function Page4() {
       body: JSON.stringify({
         name: newClientName, company: newClientCompany, artist: newClientArtist,
         phone: newClientPhone, mobile: newClientMobile, email: newClientEmail,
-        password: '', role: 'client', client_id: clientId
+        role: 'client', client_id: clientId
       })
     })
     if (!res.ok) { alert('등록 실패!'); return }
