@@ -635,7 +635,6 @@ export default function LoginPage() {
                   { label: '대표자명 *', value: c_name, setter: setCName },
                   { label: '소속사명', value: c_company, setter: setCCompany },
                   { label: '아티스트명', value: c_artist, setter: setCArtist },
-                  { label: '전화번호', value: c_phone, setter: setCPhone },
                   { label: '이메일 *', value: c_email, setter: setCEmail, type: 'email' },
                   { label: '비밀번호 *', value: c_password, setter: setCPassword, type: 'password', placeholder: '6자 이상 입력해주세요' },
                   { label: '비밀번호 확인 *', value: c_passwordConfirm, setter: setCPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },
