@@ -643,6 +643,53 @@ export async function GET() {
         }
       }
     }
+    
+    // 댓글 삭제 여부 체크 (하루 1회)
+    if (currentHour === 3) {
+      const { data: approvedMissions } = await supabase
+        .from('comment_missions')
+        .select('*')
+        .eq('status', 'APPROVED')
+
+      if (approvedMissions && approvedMissions.length > 0) {
+        for (const mission of approvedMissions) {
+          try {
+            const res = await fetch(
+              `https://www.googleapis.com/youtube/v3/comments?id=${mission.comment_id}&part=snippet&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`
+            )
+            const data = await res.json()
+            
+            if (!data.items || data.items.length === 0) {
+              // 댓글 삭제됨 → 포인트 차감
+              const { data: participant } = await supabase
+                .from('participants')
+                .select('balance')
+                .eq('id', mission.member_id)
+                .maybeSingle()
+              
+              const newBalance = Math.max(0, (participant?.balance ?? 0) - (mission.reward_amount ?? 300))
+              await supabase.from('participants').update({ balance: newBalance }).eq('id', mission.member_id)
+              await supabase.from('comment_missions').update({ status: 'DELETED' }).eq('id', mission.id)
+
+              // 체험단에게 푸시
+              const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(mission.member_id))
+              if (tokens && tokens.length > 0) {
+                await fetch('https://app.doubleb.kr/api/push', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '⚠️ 댓글 삭제로 적립금이 차감됐어요',
+                    body: `댓글이 삭제되어 ${(mission.reward_amount ?? 300).toLocaleString()}P가 차감됐어요.`,
+                    tokens: tokens.map((t: any) => t.token),
+                    userIds: tokens.map((t: any) => t.user_id)
+                  })
+                })
+              }
+            }
+          } catch { continue }
+        }
+      }
+    }
 
     // 음원 사용량 갱신 (하루 1회)
     if (currentHour === 3) {
