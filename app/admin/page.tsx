@@ -1291,7 +1291,7 @@ export default function Page1() {
                           }
                           // 스탠다드30 제한
                           if (e.target.value.includes('스탠다드 30') || e.target.value.includes('스탠다드30')) {
-                            setRefreshInterval('')
+                            setRefreshInterval('12')  // 기본 트래픽으로 설정
                             setRequiredPosts('1')
                           }
                         }} className={inputClass}>
@@ -1349,16 +1349,14 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
-                      <select value={refreshInterval} onChange={(e) => setRefreshInterval(e.target.value)} className={inputClass}
-                        disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>
-                        <option value="">기본 (하루 1회)</option>
+                      <select value={refreshInterval} onChange={(e) => setRefreshInterval(e.target.value)} className={inputClass}>
                         <option value="12">기본 트래픽 - 일 2회 / 12시간 주기</option>
-                        <option value="6">실버 트래픽 - 일 4회 / 6시간 주기 (150,000원)</option>
-                        <option value="3">골드 트래픽 - 일 8회 / 3시간 주기 (300,000원)</option>
-                        <option value="1">다이아 VIP - 일 24회 / 1시간 주기 (800,000원)</option>
+                        <option value="6" disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>실버 트래픽 - 일 4회 / 6시간 주기 (150,000원)</option>
+                        <option value="3" disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>골드 트래픽 - 일 8회 / 3시간 주기 (300,000원)</option>
+                        <option value="1" disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>다이아 VIP - 일 24회 / 1시간 주기 (800,000원)</option>
                       </select>
                       {(productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')) && (
-                        <p className="text-xs text-red-400 mt-1">스탠다드 30은 트래픽 추가가 불가합니다.</p>
+                        <p className="text-xs text-red-400 mt-1">스탠다드 30은 트래픽 추가가 불가합니다. (기본 트래픽 일 2회 적용)</p>
                       )}
                     </div>
                     <div>
