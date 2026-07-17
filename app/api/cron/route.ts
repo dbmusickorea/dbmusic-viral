@@ -381,12 +381,28 @@ export async function GET() {
     // 프로젝트별 refresh_interval에 맞게 스냅샷 저장
     const { data: ongoingProjectsForSnapshot } = await supabase
       .from('projects')
-      .select('project_code, refresh_interval')
+      .select('project_code, refresh_interval, base_refresh_interval, end_date, monitoring_extension, cover_video_count')
       .in('status', ['ONGOING', 'COMPLETED'])
 
     if (ongoingProjectsForSnapshot && ongoingProjectsForSnapshot.length > 0) {
       for (const project of ongoingProjectsForSnapshot) {
-        const interval = project.refresh_interval ?? 12
+        // 종료일 + 모니터링 연장 + 커버 연장 계산
+        if (project.end_date) {
+          const endDate = new Date(project.end_date)
+          const monitoringDays = project.monitoring_extension ?? 0
+          const monitoringEnd = new Date(endDate.getTime() + monitoringDays * 24 * 60 * 60 * 1000)
+          const hasCover = (project.cover_video_count ?? 0) > 0
+          const extendedEnd = hasCover
+            ? new Date(monitoringEnd.getTime() + 15 * 24 * 60 * 60 * 1000)
+            : monitoringEnd
+          if (new Date() > extendedEnd) continue
+        }
+
+        const inCoverExtension = project.end_date && (project.cover_video_count ?? 0) > 0 &&
+          new Date() > new Date(new Date(project.end_date).getTime() + (project.monitoring_extension ?? 0) * 24 * 60 * 60 * 1000)
+        const interval = inCoverExtension
+          ? (project.base_refresh_interval ?? 12)
+          : (project.refresh_interval ?? 12)
         if (currentHour % interval !== 0) continue
 
         const { data: projectPosts } = await supabase
