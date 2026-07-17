@@ -448,9 +448,9 @@ export default function Page4() {
                 {(selected || showParticipantInsert) && (
                   <div className="space-y-3">
                     {[
-                      { label: '이름', value: name, setter: setName },
-                      { label: '휴대전화', value: mobile, setter: setMobile },
-                      { label: '이메일', value: email, setter: setEmail, type: 'email' },
+                      { label: '이름 *', value: name, setter: setName },
+                      { label: '휴대전화 *', value: mobile, setter: setMobile },
+                      { label: '이메일 *', value: email, setter: setEmail, type: 'email' },
                       { label: '인스타그램 ID', value: instagram, setter: setInstagram },
                       { label: '유튜브 ID', value: youtube, setter: setYoutube },
                       { label: '틱톡 ID', value: tiktok, setter: setTiktok },
@@ -618,7 +618,6 @@ export default function Page4() {
                       { label: '대표자명 *', value: newClientName, setter: setNewClientName },
                       { label: '소속사명', value: newClientCompany, setter: setNewClientCompany },
                       { label: '아티스트명', value: newClientArtist, setter: setNewClientArtist },
-                      { label: '전화번호', value: newClientPhone, setter: setNewClientPhone },
                       { label: '휴대전화 *', value: newClientMobile, setter: setNewClientMobile },
                       { label: '이메일 *', value: newClientEmail, setter: setNewClientEmail, type: 'email' },
                     ].map(({ label, value, setter, type }) => (
@@ -644,7 +643,6 @@ export default function Page4() {
                     { label: '대표자명', value: cName, setter: setCName },
                     { label: '소속사명', value: cCompany, setter: setCCompany },
                     { label: '아티스트명', value: cArtist, setter: setCArtist },
-                    { label: '전화번호', value: cPhone, setter: setCPhone },
                     { label: '휴대전화', value: cMobile, setter: setCMobile },
                     { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
                   ].map(({ label, value, setter, type }) => (
