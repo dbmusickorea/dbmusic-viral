@@ -19,7 +19,7 @@ export default function Page1() {
   const [projectPrefix, setProjectPrefix] = useState('')
   const [productContent, setProductContent] = useState('')
   const [requirements, setRequirements] = useState('')
-  const [status, setStatus] = useState('ONGOING')
+  const [status, setStatus] = useState('PENDING')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [rewardPerPost, setRewardPerPost] = useState('2500')
@@ -1005,7 +1005,7 @@ export default function Page1() {
                             <p className="text-xs text-gray-400">프로젝트 코드: {project.project_code}</p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '대기중' : '완료'}
+                            {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '일시중지' : project.status === 'PENDING' ? '대기중' : '완료'}
                           </span>
                         </div>
                       </div>

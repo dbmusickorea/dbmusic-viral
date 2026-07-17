@@ -127,59 +127,41 @@ export async function GET() {
       }
     }
 
-    // 날짜별 자동 푸시 알림 (하루 1회 - UTC 3시)
-    if (currentHour === 3) {
-      // 대기중 → 진행중 자동 전환 (mission_date가 오늘인 프로젝트)
-      const { data: pendingProjects } = await supabase.from('projects').select('*').eq('mission_date', today).eq('status', 'PENDING')
-      if (pendingProjects && pendingProjects.length > 0) {
-        for (const project of pendingProjects) {
-          await supabase.from('projects').update({ status: 'ONGOING' }).eq('project_code', project.project_code)
-          
-          // 참여 체험단에게 진행 시작 푸시
-          const { data: joinedTokens } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code)
-          if (joinedTokens && joinedTokens.length > 0) {
-            const memberIds = joinedTokens.map(j => String(j.member_id))
-            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', memberIds)
-            if (tokens && tokens.length > 0) {
-              await fetch(`https://app.doubleb.kr/api/push`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  title: '🎵 프로젝트가 시작됐어요!',
-                  body: `${project.product_content} 프로젝트가 시작됐어요! 24시간 안에 게시물을 올려주세요.`,
-                  tokens: tokens.map((t: any) => t.token),
-                  userIds: tokens.map((t: any) => t.user_id)
-                })
-              })
-            }
-          }
+    // 대기중 → 진행중 자동 전환 (start_date + start_time 기준)
+    const { data: pendingProjects } = await supabase.from('projects').select('*').eq('start_date', today).eq('status', 'PENDING')
+    if (pendingProjects && pendingProjects.length > 0) {
+      for (const project of pendingProjects) {
+        if (project.start_time) {
+          const startHour = parseInt(project.start_time.split(':')[0])
+          if (currentHour !== startHour) continue
         }
+        await supabase.from('projects').update({ status: 'ONGOING' }).eq('project_code', project.project_code)
       }
+    }
 
-      // 모집 시작일 푸시
-      const { data: recruitProjects } = await supabase.from('projects').select('*').eq('mission_date', today).eq('status', 'ONGOING')
-      if (recruitProjects && recruitProjects.length > 0) {
-        const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
-        if (participantTokens && participantTokens.length > 0) {
-          for (const project of recruitProjects) {
-            // 모집시간 체크
-            if (project.mission_time) {
-              const missionHour = parseInt(project.mission_time.split(':')[0])
-              if (currentHour !== missionHour) continue
-            }
-            await fetch(`https://app.doubleb.kr/api/push`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                title: '🎵 모집이 시작됐어요!',
-                body: `${project.product_content} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
-                tokens: participantTokens.map((t: any) => t.token),
-                userIds: participantTokens.map((t: any) => t.user_id)
-              })
-            })
+    // 모집 시작일 푸시 (mission_date + mission_time 기준)
+    const { data: recruitProjects } = await supabase.from('projects').select('*').eq('mission_date', today).in('status', ['ONGOING', 'PENDING'])
+    if (recruitProjects && recruitProjects.length > 0) {
+      const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
+      if (participantTokens && participantTokens.length > 0) {
+        for (const project of recruitProjects) {
+          if (project.mission_time) {
+            const missionHour = parseInt(project.mission_time.split(':')[0])
+            if (currentHour !== missionHour) continue
           }
+          await fetch(`https://app.doubleb.kr/api/push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🎵 모집이 시작됐어요!',
+              body: `${project.product_content} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
+              tokens: participantTokens.map((t: any) => t.token),
+              userIds: participantTokens.map((t: any) => t.user_id)
+            })
+          })
         }
       }
+    }
 
       // 미션 수행일 푸시
       const { data: missionProjects } = await supabase.from('projects').select('*').eq('start_date', today).eq('status', 'ONGOING')
@@ -213,7 +195,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '📅 미션이 시작됐어요!',
-                    body: `${project.product_content} 미션이 시작됐어요! 24시간 안에 게시물을 올려주세요.`,
+                    body: `${project.product_content} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요.`,
                     tokens: normalTokens.map((t: any) => t.token),
                     userIds: normalTokens.map((t: any) => t.user_id)
                   })
@@ -247,7 +229,7 @@ export async function GET() {
         for (const project of missionDayProjects) {
           if (!project.mission_time) continue
           const missionDateTime = new Date(`${today}T${project.mission_time}:00`)
-          const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 24 * 60 * 60 * 1000)
+          const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 48 * 60 * 60 * 1000)
           if (now < twentyFourHoursAfter) continue
 
           const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code)
@@ -376,7 +358,7 @@ export async function GET() {
           })
         }
       }
-    }
+    
     
     // 프로젝트별 refresh_interval에 맞게 스냅샷 저장
     const { data: ongoingProjectsForSnapshot } = await supabase
