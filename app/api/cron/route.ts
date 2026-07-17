@@ -177,6 +177,12 @@ export async function GET() {
       const { data: missionProjects } = await supabase.from('projects').select('*').eq('start_date', today).eq('status', 'ONGOING')
       if (missionProjects && missionProjects.length > 0) {
         for (const project of missionProjects) {
+          // 시작시간 체크
+          if (project.start_time) {
+            const startHour = parseInt(project.start_time.split(':')[0])
+            if (currentHour !== startHour) continue
+          }
+          
           const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
           if (joinedParticipants && joinedParticipants.length > 0) {
             const memberIds = joinedParticipants.map((j: any) => j.member_id)
