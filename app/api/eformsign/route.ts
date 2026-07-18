@@ -46,28 +46,29 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           document: {
-            document_name: `${clientName} - ${productContent} 계약서`
-          },
-          recipients: [{
-            step_idx: 1,
-            step_type: '05',
-            name: clientName,
-            id: clientEmail,
-            authentication: { type: 'NONE' },
-            notify: { 
-              method: 'EMAIL_AND_KAKAO',
-              phone_number: clientMobile,
-              message: '계약서 서명을 요청드립니다.' 
+            document_name: `${clientName} - ${productContent} 계약서`,
+            recipients: [{
+              step_type: '05',
+              use_mail: true,
+              use_sms: false,
+              member: {
+                name: clientName,
+                id: clientEmail,
+                sms: {
+                  country_code: '+82',
+                  phone_number: clientMobile
+                }
+              }
+            }],
+            fields: {
+              artist_name: `${clientName} / ${artistName || ''}`,
+              song_title: songTitle,
+              product_name: optionName ? `${productContent} + ${optionName}` : productContent,
+              contract_amount: `${totalCost.toLocaleString()}원`,
+              contract_period: `${startDate} ~ ${endDate}`,
+              DB_signature: ''
             }
-          }],
-          fields: [
-            { id: 'artist_name', value: `${clientName} / ${artistName || ''}` },
-            { id: 'song_title', value: songTitle },
-            { id: 'product_name', value: optionName ? `${productContent} + ${optionName}` : productContent },
-            { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
-            { id: 'contract_period', value: `${startDate} ~ ${endDate}` },
-            { id: 'DB_signature', value: '' }
-          ]
+          }
         })
       })
 
