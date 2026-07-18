@@ -109,7 +109,8 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    return NextResponse.json({ error: 'eformsign API error' }, { status: 500 })
+    console.error('eformsign error:', error)
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 
   return NextResponse.json({ error: 'invalid action' }, { status: 400 })
