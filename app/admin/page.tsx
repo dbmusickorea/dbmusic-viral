@@ -1550,7 +1550,9 @@ export default function Page1() {
                                 songTitle: songTitle,
                                 totalCost: totalCost,
                                 startDate: startDate,
-                                endDate: endDate
+                                endDate: endDate,
+                                artistName: artistName,
+                                optionName: optionName
                               })
                             })
                             const data = await res.json()

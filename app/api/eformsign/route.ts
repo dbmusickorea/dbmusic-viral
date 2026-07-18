@@ -34,8 +34,7 @@ export async function POST(request: NextRequest) {
     if (action === 'send') {
       // 계약서 서명 요청
       const body = await request.json()
-      const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate } = body
-
+      const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate, artistName, optionName } = body
       const { accessToken, apiUrl } = await getAccessToken()
 
       const res = await fetch(`${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`, {
@@ -61,9 +60,9 @@ export async function POST(request: NextRequest) {
             }
           }],
           fields: [
-            { id: 'artist_name', value: clientName },
+            { id: 'artist_name', value: `${clientName} / ${artistName || ''}` },
             { id: 'song_title', value: songTitle },
-            { id: 'product_name', value: productContent },
+            { id: 'product_name', value: optionName ? `${productContent} + ${optionName}` : productContent },
             { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
             { id: 'contract_period', value: `${startDate} ~ ${endDate}` }
           ]
