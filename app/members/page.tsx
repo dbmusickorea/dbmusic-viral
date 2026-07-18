@@ -120,7 +120,11 @@ export default function Page4() {
       email,
       password: tempPassword
     })
-    if (authError) { alert('계정 생성 실패! ' + authError.message); return }
+    if (authError) {
+      const errorMsg = authError.message.includes('already registered') ? '이미 가입된 이메일이에요.' : authError.message
+      alert('계정 생성 실패! ' + errorMsg)
+      return
+    }
 
     // DB에 체험단 정보 저장
     const res = await fetch('/api/participants', {
@@ -219,7 +223,11 @@ export default function Page4() {
       email: newClientEmail,
       password: tempPassword
     })
-    if (authError) { alert('계정 생성 실패! ' + authError.message); return }
+    if (authError) {
+      const errorMsg = authError.message.includes('already registered') ? '이미 가입된 이메일이에요.' : authError.message
+      alert('계정 생성 실패! ' + errorMsg)
+      return
+    }
 
     // DB에 의뢰인 정보 저장
     const res = await fetch('/api/users', {
