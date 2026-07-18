@@ -54,8 +54,9 @@ async function updatePostStats(posts: any[]) {
 export async function GET() {
   try {
     const now = new Date()
-    const currentHour = now.getUTCHours()
-    const today = now.toISOString().split('T')[0]
+    const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000)
+    const currentHour = kstNow.getUTCHours()
+    const today = kstNow.toISOString().split('T')[0]
 
     // refresh_interval이 있는 프로젝트 - 시간별 조건부 갱신
     const { data: intervalProjects } = await supabase
