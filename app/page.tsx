@@ -76,6 +76,10 @@ export default function LoginPage() {
   const [p_passwordConfirm, setPPasswordConfirm] = useState('')
   const [c_passwordConfirm, setCPasswordConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showPPassword, setShowPPassword] = useState(false)
+  const [showPPasswordConfirm, setShowPPasswordConfirm] = useState(false)
+  const [showCPassword, setShowCPassword] = useState(false)
+  const [showCPasswordConfirm, setShowCPasswordConfirm] = useState(false)
   const [showTermsModal, setShowTermsModal] = useState(false)
   const [pendingUserInfo, setPendingUserInfo] = useState<any>(null)
   const [pendingRole, setPendingRole] = useState('')
@@ -600,7 +604,22 @@ export default function LoginPage() {
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
-                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                    {type === 'password' ? (
+                      <div className="relative mt-1">
+                        <input 
+                          type={label.includes('확인') ? (showPPasswordConfirm ? 'text' : 'password') : (showPPassword ? 'text' : 'password')} 
+                          value={value} 
+                          onChange={(e) => setter(e.target.value)} 
+                          placeholder={placeholder ?? ''} 
+                          className="w-full border rounded-lg px-3 py-2 text-sm pr-10" 
+                        />
+                        <button type="button" onClick={() => label.includes('확인') ? setShowPPasswordConfirm(!showPPasswordConfirm) : setShowPPassword(!showPPassword)} className="absolute right-3 top-2.5 text-gray-400">
+                          {(label.includes('확인') ? showPPasswordConfirm : showPPassword) ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    ) : (
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                    )}
                   </div>
                 ))}
                 <div>
@@ -656,7 +675,22 @@ export default function LoginPage() {
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
                     <label className="text-sm font-medium">{label}</label>
-                    <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                    {type === 'password' ? (
+                      <div className="relative mt-1">
+                        <input 
+                          type={label.includes('확인') ? (showCPasswordConfirm ? 'text' : 'password') : (showCPassword ? 'text' : 'password')} 
+                          value={value} 
+                          onChange={(e) => setter(e.target.value)} 
+                          placeholder={placeholder ?? ''} 
+                          className="w-full border rounded-lg px-3 py-2 text-sm pr-10" 
+                        />
+                        <button type="button" onClick={() => label.includes('확인') ? setShowCPasswordConfirm(!showCPasswordConfirm) : setShowCPassword(!showCPassword)} className="absolute right-3 top-2.5 text-gray-400">
+                          {(label.includes('확인') ? showCPasswordConfirm : showCPassword) ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    ) : (
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                    )}
                   </div>
                 ))}
                 <div>
