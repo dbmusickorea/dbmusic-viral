@@ -70,7 +70,9 @@ export async function POST(request: NextRequest) {
         })
       })
 
-      const data = await res.json()
+      const responseText = await res.text()
+      console.log('eformsign raw response:', responseText)
+      const data = responseText ? JSON.parse(responseText) : {}
       console.log('eformsign response:', JSON.stringify(data))
       console.log('fields sent:', JSON.stringify({
         artist_name: `${clientName} / ${artistName || ''}`,
