@@ -658,11 +658,7 @@ export default function Page4() {
                       <label className="text-sm font-medium">{label}</label>
                       <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                     </div>
-                  ))}
-                  <div>
-                    <label className="text-sm font-medium">프로젝트 코드 연결</label>
-                    <input value={cProjectCode} onChange={(e) => setCProjectCode(e.target.value.toUpperCase())} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예: A_1" />
-                  </div>
+                  ))}                  
                   {selectedClient.client_id && (
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500">의뢰인 코드: <span className="font-bold text-green-600">{selectedClient.client_id}</span></p>
