@@ -1526,7 +1526,7 @@ export default function Page1() {
                               `계약서를 발송하시겠어요?\n\n` +
                               `의뢰인: ${clientName}\n` +
                               `곡명: ${songTitle}\n` +
-                              `상품: ${productContent}\n` +
+                              `상품: ${productContent}${optionName ? ` + ${optionName}` : ''}\n` +
                               `계약금액: ${totalCost.toLocaleString()}원\n` +
                               `계약기간: ${startDate} ~ ${endDate}\n\n` +
                               `위 내용으로 계약서를 발송합니다.`

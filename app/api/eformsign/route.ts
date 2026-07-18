@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
       const body = await request.json()
       const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate, artistName, optionName } = body
       const { accessToken, apiUrl } = await getAccessToken()
+      console.log('optionName received:', optionName)
+      console.log('productContent received:', productContent)
 
       console.log('eformsign request URL:', `${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`)
       const res = await fetch(`${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`, {
