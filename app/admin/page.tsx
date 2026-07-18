@@ -909,6 +909,9 @@ export default function Page1() {
                     <div className="flex justify-between items-center mb-3">
                       <h2 className="font-bold">알림 내역</h2>
                       <div className="flex gap-2">
+                        {unreadCount > 0 && (
+                          <button onClick={() => markAllRead(String(JSON.parse(localStorage.getItem('userInfo') || '{}').id))} className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1">모두읽음</button>
+                        )}
                         {notifications.length > 0 && (
                           <button onClick={() => deleteAllNotifications(String(JSON.parse(localStorage.getItem('userInfo') || '{}').id))} className="text-xs text-red-400 border border-red-200 rounded px-2 py-1">전체 삭제</button>
                         )}
