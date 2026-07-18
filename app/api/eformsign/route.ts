@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       })
 
       const data = await res.json()
+      console.log('eformsign response:', JSON.stringify(data))
       return NextResponse.json({ success: true, document_id: data.document_id })
     }
 
