@@ -285,6 +285,14 @@ useEffect(() => {
     await fetch(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
     setUnreadCount(0)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+    
+    // 뱃지 초기화
+    if ((window as any).Capacitor) {
+      try {
+        const { Badge } = await import('@capawesome/capacitor-badge')
+        await Badge.clear()
+      } catch (e) {}
+    }
   }
 
   const deleteNotification = async (id: number) => {

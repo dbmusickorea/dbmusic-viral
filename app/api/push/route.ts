@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       const notification = new apn.Notification()
       notification.alert = { title, body }
       notification.sound = 'default'
+      notification.badge = 1
       notification.topic = 'com.dbmusic.viral'
 
       for (const token of iosTokens) {
