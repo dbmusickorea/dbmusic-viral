@@ -71,6 +71,13 @@ export async function POST(request: NextRequest) {
 
       const data = await res.json()
       console.log('eformsign response:', JSON.stringify(data))
+      console.log('fields sent:', JSON.stringify({
+        artist_name: `${clientName} / ${artistName || ''}`,
+        song_title: songTitle,
+        product_name: optionName ? `${productContent} + ${optionName}` : productContent,
+        contract_amount: `${totalCost?.toLocaleString()}원`,
+        contract_period: `${startDate} ~ ${endDate}`
+      }))
       return NextResponse.json({ success: true, document_id: data.document_id })
     }
 
