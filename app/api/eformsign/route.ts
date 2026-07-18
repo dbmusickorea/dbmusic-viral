@@ -60,14 +60,13 @@ export async function POST(request: NextRequest) {
                 }
               }
             }],
-            fields: {
-              artist_name: `${clientName} / ${artistName || ''}`,
-              song_title: songTitle,
-              product_name: optionName ? `${productContent} + ${optionName}` : productContent,
-              contract_amount: `${totalCost.toLocaleString()}원`,
-              contract_period: `${startDate} ~ ${endDate}`,
-              DB_signature: ''
-            }
+            fields: [
+              { id: 'artist_name', value: `${clientName} / ${artistName || ''}` },
+              { id: 'song_title', value: songTitle },
+              { id: 'product_name', value: optionName ? `${productContent} + ${optionName}` : productContent },
+              { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
+              { id: 'contract_period', value: `${startDate} ~ ${endDate}` }
+            ]
           }
         })
       })
