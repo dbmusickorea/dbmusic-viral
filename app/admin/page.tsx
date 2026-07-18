@@ -72,6 +72,7 @@ export default function Page1() {
   const [artistName, setArtistName] = useState('')
   const [secondPostDate, setSecondPostDate] = useState('')
   const [secondPostTime, setSecondPostTime] = useState('')
+  const [artistList, setArtistList] = useState<any[]>([])
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -801,6 +802,7 @@ export default function Page1() {
     setRefreshInterval('')
     setSecondPostDate('')
     setSecondPostTime('')
+    setArtistList([])
     setProjectLinks([{ platform: 'youtube_shorts', url: '', isNew: true }])
   }
 
@@ -1270,11 +1272,15 @@ export default function Page1() {
                       {clientSearch && filteredClients.length > 0 && (
                         <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
                           {filteredClients.map((c) => (
-                            <div key={c.id} onClick={() => { 
+                            <div key={c.id} onClick={async () => { 
                               setSelectedClientId(c.client_id)
                               setClientName(c.name)
                               setArtistName(c.artist ?? '')
                               setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
+                              // 아티스트 목록 불러오기
+                              const res = await fetch(`/api/artists?client_id=${c.client_id}`)
+                              const data = await res.json()
+                              setArtistList(data ?? [])
                             }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                               <p className="font-medium">{c.name}</p>
                               <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
@@ -1284,6 +1290,17 @@ export default function Page1() {
                       )}
                       {selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>}
                     </div>
+                    {selectedClientId && artistList.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium">아티스트 선택</label>
+                        <select value={artistName} onChange={(e) => setArtistName(e.target.value)} className={inputClass}>
+                          <option value="">아티스트 선택</option>
+                          {artistList.map((a) => (
+                            <option key={a.id} value={a.artist_name}>{a.artist_name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                     <div>
                       <label className="text-sm font-medium">노래제목</label>
                       <input value={songTitle} onChange={(e) => setSongTitle(e.target.value)} className={inputClass} placeholder="노래제목 입력" />
