@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       })
 
       const responseText = await res.text()
+      console.log('eformsign status:', res.status)
       console.log('eformsign raw response:', responseText)
       const data = responseText ? JSON.parse(responseText) : {}
       console.log('eformsign response:', JSON.stringify(data))
