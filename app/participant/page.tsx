@@ -967,11 +967,29 @@ useEffect(() => {
                   <p className="text-xs text-gray-500">나의 추천인 코드</p>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-lg font-bold text-blue-600">{referralCode}</p>
-                    <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
+                    <div className="flex gap-2">
+                      <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
+                      <button onClick={async () => {
+                        const shareUrl = `https://app.doubleb.kr?ref=${referralCode}`
+                        if ((window as any).Capacitor) {
+                          try {
+                            const { Share } = await import('@capacitor/share')
+                            await Share.share({
+                              title: '더블비뮤직 체험단 가입',
+                              text: `더블비뮤직 체험단에 가입하고 함께 활동해요! 추천인 코드: ${referralCode}`,
+                              url: shareUrl
+                            })
+                          } catch (e) {}
+                        } else {
+                          navigator.clipboard.writeText(shareUrl)
+                          alert('가입 링크가 복사됐어요!')
+                        }
+                      }} className="text-xs bg-blue-600 text-white border rounded px-2 py-1">공유</button>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+                  <p className="text-xs text-gray-400 mt-1">공유하기를 누르면 추천인 코드가 자동 입력돼요!</p>
                 </div>
-              )}              
+              )}             
               {showLevelGuide && (
                 <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
                   <div className="bg-blue-50 p-3 text-xs text-blue-700 space-y-1">

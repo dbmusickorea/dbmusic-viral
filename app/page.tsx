@@ -17,6 +17,15 @@ export default function LoginPage() {
     if (savedEmail) { setEmail(savedEmail); setSaveId(true) }
     if (savedAutoLogin === 'true') setAutoLogin(true)
 
+    // URL 파라미터로 추천인 코드 자동 입력
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    if (ref) {
+      setPReferral(ref)
+      setShowSignup(true)
+      setSignupType('participant')
+    }
+
     // 자동 로그인 체크
     const checkSession = async () => {
       if (savedAutoLogin !== 'true') return
