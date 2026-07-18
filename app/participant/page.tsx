@@ -955,7 +955,12 @@ useEffect(() => {
                   <p className="text-sm text-gray-500">나의 적립금</p>
                   <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString()}P</p>
                 </div>
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}P)</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Lv.{level} ({level === 50 ? 10000 : (2500 + (level - 1) * 150).toLocaleString()}P)</span>
+                  <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="text-xs text-gray-500 border rounded px-2 py-1">
+                    {showLevelGuide ? '레벨안내 ▲' : '레벨안내 ▼'}
+                  </button>
+                </div>
               </div>
               {referralCode && (
                 <div className="bg-gray-50 rounded-lg p-3 mb-3">
@@ -966,10 +971,7 @@ useEffect(() => {
                   </div>
                   <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
                 </div>
-              )}
-              <button onClick={() => setShowLevelGuide(!showLevelGuide)} className="w-full text-xs text-gray-500 border rounded-lg py-2 mt-2 mb-3">
-                {showLevelGuide ? '레벨 안내 접기 ▲' : '레벨별 적립금 안내 ▼'}
-              </button>
+              )}              
               {showLevelGuide && (
                 <div className="mt-3 mb-3 border rounded-lg overflow-hidden">
                   <div className="bg-blue-50 p-3 text-xs text-blue-700 space-y-1">
