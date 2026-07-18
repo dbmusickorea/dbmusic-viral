@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
             { id: 'song_title', value: songTitle },
             { id: 'product_name', value: optionName ? `${productContent} + ${optionName}` : productContent },
             { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
-            { id: 'contract_period', value: `${startDate} ~ ${endDate}` }
+            { id: 'contract_period', value: `${startDate} ~ ${endDate}` },
+            { id: 'DB_signature', value: '' }
           ]
         })
       })
