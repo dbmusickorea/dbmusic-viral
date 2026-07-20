@@ -1446,13 +1446,9 @@ export default function Page1() {
                         <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} style={dateInputStyle} />
                         <select value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass}>
                           <option value="">시간 선택</option>
-                          {Array.from({length: 48}, (_, i) => {
-                            const hour = Math.floor(i / 2)
-                            const min = i % 2 === 0 ? '00' : '30'
-                            return (
-                              <option key={i} value={`${String(hour).padStart(2,'0')}:${min}`}>{`${String(hour).padStart(2,'0')}:${min}`}</option>
-                            )
-                          })}
+                          {Array.from({length: 24}, (_, i) => (
+                            <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
+                          ))}
                         </select>
                       </div>
                     </div>
