@@ -103,16 +103,11 @@ export async function POST(request: NextRequest) {
       const { accessToken, apiUrl } = await getAccessToken()
       console.log('download document_id:', documentId)
 
-      const res = await fetch(`${apiUrl}/v2.0/api/documents/${documentId}/download_files`, {
-        method: 'POST',
+      const res = await fetch(`${apiUrl}/v2.0/api/documents/${documentId}/download_files?doc_file=true&audit_trail=false`, {
+        method: 'GET',
         headers: { 
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          doc_file: true,
-          audit_trail: false
-        })
+          'Authorization': `Bearer ${accessToken}`
+        }
       })
       const responseText = await res.text()
       console.log('download status:', res.status)
