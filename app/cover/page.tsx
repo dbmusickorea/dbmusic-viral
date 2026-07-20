@@ -64,7 +64,13 @@ export default function CoverPage() {
     if (!selectedProject) { alert('먼저 프로젝트를 선택해주세요.'); return }
     
     // 미션 시작일 체크
-    if (selectedProject.start_date && new Date() >= new Date(selectedProject.start_date)) {
+    if (selectedProject.start_date && selectedProject.start_time) {
+      const startDateTime = new Date(`${selectedProject.start_date}T${selectedProject.start_time}:00`)
+      if (new Date() >= startDateTime) {
+        alert('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
+        return
+      }
+    } else if (selectedProject.start_date && new Date() >= new Date(selectedProject.start_date)) {
       alert('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
       return
     }

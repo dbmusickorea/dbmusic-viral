@@ -99,15 +99,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'download') {
-      // PDF 다운로드
       const documentId = request.nextUrl.searchParams.get('document_id')
       const { accessToken, apiUrl } = await getAccessToken()
+      console.log('download document_id:', documentId)
 
       const res = await fetch(`${apiUrl}/v2.0/api/documents/${documentId}/download_files`, {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       })
-
-      const data = await res.json()
+      const responseText = await res.text()
+      console.log('download status:', res.status)
+      console.log('download response:', responseText)
+      const data = responseText ? JSON.parse(responseText) : {}
       return NextResponse.json({ success: true, download_url: data.files?.[0]?.url })
     }
 
