@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
+import { RefreshCw, ArrowDown } from 'lucide-react'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
@@ -295,7 +296,7 @@ export default function Page1() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '⚠️ 프로젝트 참여가 취소되었습니다',
-            body: `[${selectedProject?.project_code}] 참여취소 사유: ${reason}`,
+            body: `[${selectedProject?.artist_name || selectedProject?.client_name} - ${selectedProject?.song_title}] 참여취소 사유: ${reason}`,
             tokens: tokens.map((t: any) => t.token),
             userIds: tokens.map((t: any) => t.user_id)
           })
@@ -314,7 +315,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 참여 가능한 프로젝트가 있어요!',
-              body: `[${selectedProject.project_code}] 프로젝트에 참여 공석이 생겼습니다. 지금 참여해보세요!`,
+              body: `${selectedProject.artist_name || selectedProject.client_name} - ${selectedProject.song_title} 프로젝트에 참여 공석이 생겼습니다. 지금 참여해보세요!`,
               tokens: nonParticipantTokens.map((t: any) => t.token),
               userIds: nonParticipantTokens.map((t: any) => t.user_id)
             })
@@ -537,7 +538,7 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 새 프로젝트가 등록됐어요!',
-          body: `${productContent} 프로젝트가 등록됐어요. 모집일: ${startDate || '미정'}. 앱에서 확인해보세요!`,
+          body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 등록됐어요. 모집일: ${missionDate || '미정'}. 앱에서 확인해보세요!`,
           tokens: participantTokens.map((t: any) => t.token),
           userIds: participantTokens.map((t: any) => t.user_id)
         })
@@ -558,7 +559,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 프로젝트가 등록됐어요!',
-              body: `${productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
+              body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
               tokens: clientTokens.map((t: any) => t.token),
               userIds: clientTokens.map((t: any) => t.user_id)
             })
@@ -883,8 +884,12 @@ export default function Page1() {
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
-            <div className="text-center py-1 text-sm text-blue-500">
-              {isRefreshing ? '🔄 새로고침 중...' : '↓ 놓으면 새로고침'}
+            <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+              {isRefreshing ? (
+                <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+              ) : (
+                <><ArrowDown size={14} /> 놓으면 새로고침</>
+              )}
             </div>
           )}
           <div className="flex justify-between items-center mb-2">
