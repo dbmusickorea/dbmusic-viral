@@ -665,15 +665,25 @@ export default function Page3() {
                         btn.textContent = '다운로드 중...'
                         btn.disabled = true
                         try {
-                          const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(`${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`)}`, {
+                          const fileName = `${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`
+                          const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(fileName)}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({})
                           })
-                          if (res.ok) {
-                            const blob = await res.blob()
-                            const url = URL.createObjectURL(blob)
-                            window.open(url, '_blank')
+                          const data = await res.json()
+                          if (data.dataUrl) {
+                            if ((window as any).Capacitor) {
+                              const { Browser } = await import('@capacitor/browser')
+                              await Browser.open({ url: data.dataUrl })
+                            } else {
+                              const a = document.createElement('a')
+                              a.href = data.dataUrl
+                              a.download = fileName + '.pdf'
+                              document.body.appendChild(a)
+                              a.click()
+                              document.body.removeChild(a)
+                            }
                           } else {
                             alert('아직 서명이 완료되지 않았어요.')
                           }
