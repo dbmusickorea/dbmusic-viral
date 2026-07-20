@@ -1573,6 +1573,21 @@ export default function Page1() {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ document_id: data.document_id })
                               })
+                              // 의뢰인에게 푸시
+                              const clientTokensRes = await fetch(`/api/push_tokens?user_id=${String(client.id)}`)
+                              const clientTokens = await clientTokensRes.json()
+                              if (clientTokens && clientTokens.length > 0) {
+                                await fetch('/api/push', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    title: '📄 계약서가 발송됐어요!',
+                                    body: '계약서를 확인하고 서명해주세요.',
+                                    tokens: clientTokens.map((t: any) => t.token),
+                                    userIds: clientTokens.map((t: any) => t.user_id)
+                                  })
+                                })
+                              }
                               alert('계약서 발송 완료!')
                             } else {
                               alert('계약서 발송 실패!')
