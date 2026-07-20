@@ -292,6 +292,13 @@ export default function CoverPage() {
           </div>
         </div>
       </div>
+    {/* 스크롤 상단 버튼 */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-6 right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50"
+      >
+        ↑
+      </button>
     </div>
   )
 }
