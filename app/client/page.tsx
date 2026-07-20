@@ -688,7 +688,10 @@ export default function Page3() {
                       const a = document.createElement('a')
                       a.href = url
                       a.download = '계약서.pdf'
+                      document.body.appendChild(a)
                       a.click()
+                      document.body.removeChild(a)
+                      URL.revokeObjectURL(url)
                     } else {
                       alert('아직 서명이 완료되지 않았어요.')
                     }
