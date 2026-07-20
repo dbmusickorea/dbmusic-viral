@@ -111,17 +111,27 @@ export async function POST(request: NextRequest) {
       const { accessToken, apiUrl } = await getAccessToken()
       console.log('download document_id:', documentId)
 
-      const res = await fetch(`${apiUrl}/v2.0/api/documents/${documentId}/download_files?file_type=0&doc_file=true`, {
+      const res = await fetch(`${apiUrl}/v2.0/api/documents/${documentId}/download_files?file_type=document`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${accessToken}`
         }
       })
-      const responseText = await res.text()
       console.log('download status:', res.status)
-      console.log('download response:', responseText)
-      const data = responseText ? JSON.parse(responseText) : {}
-      return NextResponse.json({ success: true, download_url: data.files?.[0]?.url })
+      
+      if (!res.ok) {
+        const errText = await res.text()
+        console.log('download error:', errText)
+        return NextResponse.json({ error: '다운로드 실패' }, { status: 400 })
+      }
+
+      const pdfBuffer = await res.arrayBuffer()
+      return new Response(pdfBuffer, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename=contract.pdf'
+        }
+      })
     }
 
     if (action === 'status') {

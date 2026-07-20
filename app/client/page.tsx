@@ -623,20 +623,24 @@ export default function Page3() {
                   <div className="bg-white rounded-2xl shadow p-3 mb-4">
                     <p className="text-xs text-gray-500 mb-2">📄 계약서</p>
                     <button onClick={async () => {
-                      const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({})
-                      })
-                      const data = await res.json()
-                      if (data.download_url) {
-                        window.open(data.download_url, '_blank')
-                      } else {
-                        alert('아직 서명이 완료되지 않았어요.')
-                      }
-                    }} className="w-full bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">
-                      📄 계약서 다운로드
-                    </button>
+                    const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({})
+                    })
+                    if (res.ok) {
+                      const blob = await res.blob()
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = '계약서.pdf'
+                      a.click()
+                    } else {
+                      alert('아직 서명이 완료되지 않았어요.')
+                    }
+                  }} className="w-full bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">
+                    📄 계약서 다운로드
+                  </button>
                   </div>
                 )}
               </>
