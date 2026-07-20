@@ -1268,7 +1268,11 @@ useEffect(() => {
                       {displayPosts.length > PAGE_SIZE && (
                         <div className="flex justify-between items-center mt-3">
                           <button onClick={() => setMyPostPage(p => Math.max(0, p - 1))} disabled={myPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                          <span className="text-xs text-gray-500">{myPostPage + 1} / {Math.ceil(displayPosts.length / PAGE_SIZE)}</span>
+                          <div className="flex gap-1">
+                            {Array.from({length: Math.ceil(displayPosts.length / PAGE_SIZE)}, (_, i) => (
+                              <button key={i} onClick={() => setMyPostPage(i)} className={`text-xs px-2 py-1 border rounded ${myPostPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                            ))}
+                          </div>
                           <button onClick={() => setMyPostPage(p => Math.min(Math.ceil(displayPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(myPostPage + 1) * PAGE_SIZE >= displayPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                         </div>
                       )}
@@ -1331,7 +1335,11 @@ useEffect(() => {
                   {filteredParticipations.length > PAGE_SIZE && (
                     <div className="flex justify-between items-center mt-3">
                       <button onClick={() => setParticipationPage(p => Math.max(0, p - 1))} disabled={participationPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                      <span className="text-xs text-gray-500">{participationPage + 1} / {Math.ceil(filteredParticipations.length / PAGE_SIZE)}</span>
+                      <div className="flex gap-1">
+                        {Array.from({length: Math.ceil(filteredParticipations.length / PAGE_SIZE)}, (_, i) => (
+                          <button key={i} onClick={() => setParticipationPage(i)} className={`text-xs px-2 py-1 border rounded ${participationPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                        ))}
+                      </div>
                       <button onClick={() => setParticipationPage(p => Math.min(Math.ceil(filteredParticipations.length / PAGE_SIZE) - 1, p + 1))} disabled={(participationPage + 1) * PAGE_SIZE >= filteredParticipations.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                     </div>
                   )}
@@ -1483,7 +1491,11 @@ useEffect(() => {
                   {allProjects.length > PAGE_SIZE && (
                     <div className="flex justify-between items-center mt-3">
                       <button onClick={() => setProjectListPage(p => Math.max(0, p - 1))} disabled={projectListPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                      <span className="text-xs text-gray-500">{projectListPage + 1} / {Math.ceil(allProjects.length / PAGE_SIZE)}</span>
+                      <div className="flex gap-1">
+                        {Array.from({length: Math.ceil(allProjects.length / PAGE_SIZE)}, (_, i) => (
+                          <button key={i} onClick={() => setProjectListPage(i)} className={`text-xs px-2 py-1 border rounded ${projectListPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                        ))}
+                      </div>
                       <button onClick={() => setProjectListPage(p => Math.min(Math.ceil(allProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectListPage + 1) * PAGE_SIZE >= allProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                     </div>
                   )}

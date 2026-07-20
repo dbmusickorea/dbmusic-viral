@@ -493,7 +493,11 @@ export default function Page3() {
                     {myProjects.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
                         <button onClick={() => setMyProjectPage(p => Math.max(0, p - 1))} disabled={myProjectPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                        <span className="text-xs text-gray-500">{myProjectPage + 1} / {Math.ceil(myProjects.length / PAGE_SIZE)}</span>
+                        <div className="flex gap-1">
+                          {Array.from({length: Math.ceil(myProjects.length / PAGE_SIZE)}, (_, i) => (
+                            <button key={i} onClick={() => setMyProjectPage(i)} className={`text-xs px-2 py-1 border rounded ${myProjectPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                          ))}
+                        </div>
                         <button onClick={() => setMyProjectPage(p => Math.min(Math.ceil(myProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(myProjectPage + 1) * PAGE_SIZE >= myProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
@@ -541,7 +545,11 @@ export default function Page3() {
                     {filteredProjects.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
                         <button onClick={() => setAllProjectPage(p => Math.max(0, p - 1))} disabled={allProjectPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                        <span className="text-xs text-gray-500">{allProjectPage + 1} / {Math.ceil(filteredProjects.length / PAGE_SIZE)}</span>
+                        <div className="flex gap-1">
+                          {Array.from({length: Math.ceil(filteredProjects.length / PAGE_SIZE)}, (_, i) => (
+                            <button key={i} onClick={() => setAllProjectPage(i)} className={`text-xs px-2 py-1 border rounded ${allProjectPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                          ))}
+                        </div>
                         <button onClick={() => setAllProjectPage(p => Math.min(Math.ceil(filteredProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(allProjectPage + 1) * PAGE_SIZE >= filteredProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
@@ -829,11 +837,15 @@ export default function Page3() {
                       {posts.length > PAGE_SIZE && (
                         <div className="flex justify-between items-center mt-3">
                           <button onClick={() => setPostPage(p => Math.max(0, p - 1))} disabled={postPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                          <span className="text-xs text-gray-500">{postPage + 1} / {Math.ceil(posts.length / PAGE_SIZE)}</span>
+                          <div className="flex gap-1">
+                            {Array.from({length: Math.ceil(posts.length / PAGE_SIZE)}, (_, i) => (
+                              <button key={i} onClick={() => setPostPage(i)} className={`text-xs px-2 py-1 border rounded ${postPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                            ))}
+                          </div>
                           <button onClick={() => setPostPage(p => Math.min(Math.ceil(posts.length / PAGE_SIZE) - 1, p + 1))} disabled={(postPage + 1) * PAGE_SIZE >= posts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                         </div>
                       )}
-                  </div>
+                    </div>
                 )}
               </div>
             )}

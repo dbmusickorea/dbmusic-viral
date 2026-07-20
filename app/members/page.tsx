@@ -405,7 +405,11 @@ export default function Page4() {
                     {filteredParticipants.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
                         <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                        <span className="text-xs text-gray-500">{participantPage + 1} / {Math.ceil(filteredParticipants.length / PAGE_SIZE)}</span>
+                        <div className="flex gap-1">
+                          {Array.from({length: Math.ceil(filteredParticipants.length / PAGE_SIZE)}, (_, i) => (
+                            <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs px-2 py-1 border rounded ${participantPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                          ))}
+                        </div>
                         <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(filteredParticipants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= filteredParticipants.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
@@ -441,7 +445,11 @@ export default function Page4() {
                     {clients.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
                         <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                        <span className="text-xs text-gray-500">{clientPage + 1} / {Math.ceil(clients.length / PAGE_SIZE)}</span>
+                        <div className="flex gap-1">
+                          {Array.from({length: Math.ceil(clients.length / PAGE_SIZE)}, (_, i) => (
+                            <button key={i} onClick={() => setClientPage(i)} className={`text-xs px-2 py-1 border rounded ${clientPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                          ))}
+                        </div>
                         <button onClick={() => setClientPage(p => Math.min(Math.ceil(clients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= clients.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
