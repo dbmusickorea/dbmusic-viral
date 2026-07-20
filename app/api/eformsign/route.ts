@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
             recipients: [{
               step_type: '05',
               use_mail: true,
-              use_sms: false,
+              use_sms: true,
               use_kakao: true,
               member: {
                 name: clientName,
