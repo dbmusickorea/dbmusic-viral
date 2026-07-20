@@ -1049,7 +1049,12 @@ useEffect(() => {
 
               <div className="flex gap-2">
                 <button onClick={() => { setShowExchange(!showExchange); setShowMyInfo(false) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${showExchange ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}>환전 신청</button>
-                <button onClick={() => { if (!showMyInfo) loadMyInfo(); setShowMyInfo(!showMyInfo); setShowExchange(false) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}>내 정보 보기</button>
+                <button onClick={() => { 
+                  if (!showMyInfo) loadMyInfo(); 
+                  setShowMyInfo(!showMyInfo); 
+                  setShowExchange(false)
+                  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100)
+                }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}>내 정보 보기</button>
               </div>
 
               {showExchange && (
