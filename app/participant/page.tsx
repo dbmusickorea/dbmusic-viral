@@ -1374,6 +1374,10 @@ useEffect(() => {
               <p className="text-xs text-red-400 mb-3">⚠️ 24시간 이내 응답하지 않으면 거절로 처리됩니다.</p>
               <div className="flex gap-2">                
                 <button onClick={async () => {
+                  const confirmed = confirm(
+                    `커버영상 미션을 수락하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내에 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
+                  )
+                  if (!confirmed) return
                   await fetch(`/api/cover_requests?id=${r.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
@@ -1416,7 +1420,7 @@ useEffect(() => {
                       })
                     })
                   }
-                  alert('커버영상 미션을 승인했어요! 3일 이내에 업로드해주세요.')
+                  alert('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.\n⚠️ 미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.')
                 }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
                 <button onClick={async () => {
                   await fetch(`/api/cover_requests?id=${r.id}`, {
