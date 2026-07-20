@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     supabaseAdmin.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false }),
     supabaseAdmin.from('settlements').select('*').eq('member_id', id).order('requested_at', { ascending: false }),
     supabaseAdmin.from('comment_missions').select('*').eq('member_id', id),
-    supabaseAdmin.from('projects').select('*').in('status', ['ONGOING', 'PAUSED']).order('created_at', { ascending: false }),
+    supabaseAdmin.from('projects').select('*').in('status', ['ONGOING', 'PENDING']).order('created_at', { ascending: false }),
     supabaseAdmin.from('unlock_videos').select('*'),
     supabaseAdmin.from('project_participants').select('*').eq('member_id', id).order('joined_at', { ascending: false }),
     supabaseAdmin.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
