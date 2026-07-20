@@ -266,7 +266,7 @@ useEffect(() => {
   }
 
   const fetchAllProjects = async () => {
-    const res = await fetch('/api/projects?status=ONGOING,PAUSED')
+    const res = await fetch('/api/projects?status=ONGOING,PENDING')
     const data = await res.json()
     setAllProjects(data ?? [])
   }
