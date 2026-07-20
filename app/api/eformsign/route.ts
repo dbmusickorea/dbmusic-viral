@@ -94,8 +94,8 @@ export async function POST(request: NextRequest) {
         contract_amount: `${totalCost?.toLocaleString()}원`,
         contract_period: `${startDate} ~ ${endDate}`
       }))
-      console.log('document_id:', data.document_id)
-      return NextResponse.json({ success: true, document_id: data.document_id })
+      console.log('document_id:', data.document?.id)
+      return NextResponse.json({ success: true, document_id: data.document?.id })
     }
 
     if (action === 'download') {
