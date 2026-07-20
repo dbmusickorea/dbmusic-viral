@@ -521,6 +521,11 @@ useEffect(() => {
       alert('모집이 마감됐어요.')
       return
     }
+    const confirmed = confirm(
+      `프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내에 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.`
+    )
+    if (!confirmed) return
+
     const res = await fetch('/api/project_participants', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
