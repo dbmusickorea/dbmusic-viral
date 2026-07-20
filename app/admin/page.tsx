@@ -1522,11 +1522,18 @@ export default function Page1() {
                             
                             // 총비용 계산
                             const totalCost = getTotalCost()
+                            const optionsText = [
+                              refreshInterval ? ({'12':'기본 트래픽','6':'실버 트래픽','3':'골드 트래픽','1':'다이아 VIP'} as any)[String(refreshInterval)] : '',
+                              Number(monitoringExtension) > 0 ? `모니터링 ${monitoringExtension}일 연장` : '',
+                              Number(coverVideoCount) > 0 ? `커버영상 ${coverVideoCount}개` : '',
+                              Number(requiredPosts) > 1 ? `게시물 ${requiredPosts}개` : '',
+                              optionName || ''
+                            ].filter(Boolean).join(' / ')
                             const confirmed = confirm(
                               `계약서를 발송하시겠어요?\n\n` +
                               `의뢰인: ${clientName}\n` +
                               `곡명: ${songTitle}\n` +
-                              `상품: ${productContent}${optionName ? ` + ${optionName}` : ''}\n` +
+                              `상품: ${productContent}${optionsText ? ` + ${optionsText}` : ''}\n` +
                               `계약금액: ${totalCost.toLocaleString()}원\n` +
                               `계약기간: ${startDate} ~ ${endDate}\n\n` +
                               `위 내용으로 계약서를 발송합니다.`
