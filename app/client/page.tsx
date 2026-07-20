@@ -47,6 +47,8 @@ export default function Page3() {
   const [topRanker, setTopRanker] = useState<any>(null)
   const [igAudioCount, setIgAudioCount] = useState<number | null>(null)
   const [ttAudioCount, setTtAudioCount] = useState<number | null>(null)
+  const [artistList, setArtistList] = useState<any[]>([])
+  const [newArtistName, setNewArtistName] = useState('')
   const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -212,12 +214,18 @@ export default function Page3() {
     setIsRefreshing(false)
   }
 
-  const loadMyInfo = () => {
+  const loadMyInfo = async () => {
     setMyName(userInfo?.name ?? '')
     setMyCompany(userInfo?.company ?? '')
     setMyArtist(userInfo?.artist ?? '')
     setMyPhone(userInfo?.phone ?? '')
     setMyMobile(userInfo?.mobile ?? '')
+    // 아티스트 목록 불러오기
+    if (userInfo?.client_id) {
+      const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+      const data = await res.json()
+      setArtistList(data ?? [])
+    }
     setShowMyInfo(true)
   }
 
@@ -445,6 +453,36 @@ export default function Page3() {
                         <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                       </div>
                     ))}
+                    {/* 아티스트 목록 */}
+                    <div>
+                      <label className="text-sm font-medium">아티스트 목록</label>
+                      <div className="space-y-2 mt-1">
+                        {artistList.map((a) => (
+                          <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                            <span className="text-sm">{a.artist_name}</span>
+                            <button onClick={async () => {
+                              await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
+                              const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+                              setArtistList(await res.json())
+                            }} className="text-xs text-red-400">삭제</button>
+                          </div>
+                        ))}
+                        <div className="flex gap-2">
+                          <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="아티스트명 입력" />
+                          <button onClick={async () => {
+                            if (!newArtistName) return
+                            await fetch('/api/artists', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName })
+                            })
+                            setNewArtistName('')
+                            const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+                            setArtistList(await res.json())
+                          }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <label className="text-sm font-medium">기존 비밀번호</label>
                       <div className="relative mt-1">
