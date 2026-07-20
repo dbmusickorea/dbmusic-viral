@@ -1298,7 +1298,7 @@ useEffect(() => {
             {/* 내 참여 현황 */}
             {myParticipations.length > 0 && (() => {
               const filteredParticipations = postFilter === 'current'
-                ? myParticipations.filter(p => p.projects?.status === 'ONGOING')
+                ? myParticipations.filter(p => ['ONGOING', 'PENDING'].includes(p.projects?.status))
                 : myParticipations
               return (
                 <div className="bg-white rounded-2xl shadow p-4 mb-4">
