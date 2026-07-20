@@ -658,6 +658,33 @@ export default function Page3() {
                     <p className="text-xs">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
                     <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
                     <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                    {projectInfo.document_id && (
+                      <button onClick={async () => {
+                        const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(`${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`)}`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({})
+                        })
+                        if (res.ok) {
+                          const blob = await res.blob()
+                          const url = URL.createObjectURL(blob)
+                          const fileName = `${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서.pdf`
+                          if ((window as any).Capacitor) {
+                            window.open(url, '_blank')
+                          } else {
+                            const a = document.createElement('a')
+                            a.href = url
+                            a.download = fileName
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
+                            URL.revokeObjectURL(url)
+                          }
+                        } else {
+                          alert('아직 서명이 완료되지 않았어요.')
+                        }
+                      }} className="text-xs text-purple-600 mt-2 block">📄 계약서 다운로드</button>
+                    )}
                   </div>
                   <div className="bg-white rounded-2xl shadow p-3">
                     <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
@@ -673,33 +700,6 @@ export default function Page3() {
                     {projectInfo.requirements && <p className="text-xs">요청사항: {projectInfo.requirements}</p>}
                   </div>
                 </div>
-                {projectInfo.document_id && (
-                  <div className="bg-white rounded-2xl shadow p-3 mb-4">
-                    <p className="text-xs text-gray-500 mb-2">📄 계약서</p>
-                    <button onClick={async () => {
-                    const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(`${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`)}`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({})
-                    })
-                    if (res.ok) {
-                      const blob = await res.blob()
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = '계약서.pdf'
-                      document.body.appendChild(a)
-                      a.click()
-                      document.body.removeChild(a)
-                      URL.revokeObjectURL(url)
-                    } else {
-                      alert('아직 서명이 완료되지 않았어요.')
-                    }
-                  }} className="w-full bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">
-                    📄 계약서 다운로드
-                  </button>
-                  </div>
-                )}
               </>
             )}
 
