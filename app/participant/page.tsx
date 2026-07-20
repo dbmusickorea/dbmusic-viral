@@ -1372,16 +1372,7 @@ useEffect(() => {
               <p className="text-sm font-medium text-purple-800 mb-2">🎵 커버영상 미션 선택됐어요!</p>
               <p className="text-xs text-gray-600 mb-3">프로젝트: {r.project_code}</p>
               <p className="text-xs text-red-400 mb-3">⚠️ 24시간 이내 응답하지 않으면 거절로 처리됩니다.</p>
-              <div className="flex gap-2">
-                <button onClick={async () => {
-                  await fetch(`/api/cover_requests?id=${r.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'APPROVED' })
-                  })
-                  setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
-                  alert('커버영상 미션을 승인했어요! 3일 이내에 업로드해주세요.')
-                }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
+              <div className="flex gap-2">                
                 <button onClick={async () => {
                   await fetch(`/api/cover_requests?id=${r.id}`, {
                     method: 'PATCH',
@@ -1403,7 +1394,7 @@ useEffect(() => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                           title: '🎵 커버영상 미션 승인됐어요!',
-                          body: `[${r.project_code}] 선택한 커버 체험단이 미션을 수락했어요!`,
+                          body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 수락했어요!`,
                           tokens: tokens.map((t: any) => t.token),
                           userIds: tokens.map((t: any) => t.user_id)
                         })
@@ -1448,7 +1439,7 @@ useEffect(() => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                           title: '⚠️ 커버영상 미션 거절됐어요',
-                          body: `[${r.project_code}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
+                          body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
                           tokens: tokens.map((t: any) => t.token),
                           userIds: tokens.map((t: any) => t.user_id)
                         })
