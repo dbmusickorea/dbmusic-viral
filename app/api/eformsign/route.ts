@@ -61,12 +61,13 @@ export async function POST(request: NextRequest) {
               step_type: '05',
               use_mail: true,
               use_sms: false,
+              use_kakao: true,
               member: {
                 name: clientName,
                 id: clientEmail,
                 sms: {
                   country_code: '+82',
-                  phone_number: clientMobile
+                  phone_number: clientMobile?.replace(/-/g, '').replace(/^0/, '')
                 }
               }
             }],
