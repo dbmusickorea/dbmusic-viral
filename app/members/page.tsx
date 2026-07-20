@@ -644,7 +644,6 @@ export default function Page4() {
                     {[
                       { label: '대표자명 *', value: newClientName, setter: setNewClientName },
                       { label: '소속사명', value: newClientCompany, setter: setNewClientCompany },
-                      { label: '아티스트명', value: newClientArtist, setter: setNewClientArtist },
                       { label: '휴대전화 *', value: newClientMobile, setter: setNewClientMobile },
                       { label: '이메일 *', value: newClientEmail, setter: setNewClientEmail, type: 'email' },
                     ].map(({ label, value, setter, type }) => (
@@ -669,7 +668,6 @@ export default function Page4() {
                   {[
                     { label: '대표자명', value: cName, setter: setCName },
                     { label: '소속사명', value: cCompany, setter: setCCompany },
-                    { label: '아티스트명', value: cArtist, setter: setCArtist },
                     { label: '휴대전화', value: cMobile, setter: setCMobile },
                     { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
                   ].map(({ label, value, setter, type }) => (
