@@ -369,7 +369,7 @@ export default function Page4() {
             {tab === 'participant' && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold">체험단 목록</h2>
+                  <h2 className="font-bold">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
                   <div className="flex gap-1">
                     <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : ''}`}>전체</button>
                     <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : ''}`}>커버가능</button>
@@ -420,7 +420,7 @@ export default function Page4() {
 
             {tab === 'client' && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">의뢰인 목록</h2>
+                <h2 className="font-bold mb-3">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({clients.length}명)</span></h2>
                 {clients.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">의뢰인이 없습니다.</p>
                 ) : (
