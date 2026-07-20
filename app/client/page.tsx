@@ -399,6 +399,11 @@ export default function Page3() {
               <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버</button>
             </div>
           )}
+          {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
+            <div className="flex gap-1 mt-2">
+              <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버 페이지</button>
+            </div>
+          )}
         </div>
 
         {/* 모바일 탭 */}
