@@ -659,29 +659,27 @@ export default function Page3() {
                     <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
                     <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
                     {projectInfo.document_id && (
-                      <button onClick={async () => {
-                        const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(`${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`)}`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({})
-                        })
-                        if (res.ok) {
-                          const blob = await res.blob()
-                          const url = URL.createObjectURL(blob)
-                          const fileName = `${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서.pdf`
-                          if ((window as any).Capacitor) {
+                      <button onClick={async (e) => {
+                        e.preventDefault()
+                        const btn = e.currentTarget
+                        btn.textContent = '다운로드 중...'
+                        btn.disabled = true
+                        try {
+                          const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(`${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`)}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                          })
+                          if (res.ok) {
+                            const blob = await res.blob()
+                            const url = URL.createObjectURL(blob)
                             window.open(url, '_blank')
                           } else {
-                            const a = document.createElement('a')
-                            a.href = url
-                            a.download = fileName
-                            document.body.appendChild(a)
-                            a.click()
-                            document.body.removeChild(a)
-                            URL.revokeObjectURL(url)
+                            alert('아직 서명이 완료되지 않았어요.')
                           }
-                        } else {
-                          alert('아직 서명이 완료되지 않았어요.')
+                        } finally {
+                          btn.textContent = '📄 계약서 다운로드'
+                          btn.disabled = false
                         }
                       }} className="text-xs text-purple-600 mt-2 block">📄 계약서 다운로드</button>
                     )}
