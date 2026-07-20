@@ -15,6 +15,17 @@ export default function CoverPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState('')
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return ''
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/)
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`
+    const igMatch = url.match(/instagram\.com\/(?:reel|p)\/([^/?]+)/)
+    if (igMatch) return `https://www.instagram.com/p/${igMatch[1]}/embed`
+    const ttMatch = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/)
+    if (ttMatch) return `https://www.tiktok.com/embed/${ttMatch[1]}`
+    return url
+  }
+
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
@@ -172,7 +183,7 @@ export default function CoverPage() {
                                 <>
                                   <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
                                   {previewUrl === p.cover_video_url && (
-                                    <iframe src={p.cover_video_url} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                    <iframe src={getEmbedUrl(p.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
                                   )}
                                 </>
                               )}
@@ -259,7 +270,7 @@ export default function CoverPage() {
                               <>
                                 <button onClick={() => setPreviewUrl(previewUrl === participant.cover_video_url ? '' : participant.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
                                 {previewUrl === participant.cover_video_url && (
-                                  <iframe src={participant.cover_video_url} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                  <iframe src={getEmbedUrl(participant.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
                                 )}
                               </>
                             )}
