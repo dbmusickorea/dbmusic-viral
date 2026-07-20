@@ -124,11 +124,14 @@ export default function CoverPage() {
 
         {/* 의뢰인 안내 */}
         {userRole === 'client' && (
-          <div className="bg-blue-50 rounded-2xl p-4 mb-4">
-            <p className="text-sm font-medium text-blue-800 mb-1">📢 커버영상 안내</p>
-            <p className="text-xs text-blue-700">• 커버영상은 음원 발매 15일 이내에 업로드됩니다.</p>
-            <p className="text-xs text-blue-700">• 미션 시작 전까지 커버 체험단을 선택할 수 있습니다.</p>
-          </div>
+          <>
+            <button onClick={() => router.push('/client')} className="w-full text-xs border rounded py-2 text-center mb-3">← 의뢰인 페이지로 돌아가기</button>
+            <div className="bg-blue-50 rounded-2xl p-4 mb-4">
+              <p className="text-sm font-medium text-blue-800 mb-1">📢 커버영상 안내</p>
+              <p className="text-xs text-blue-700">• 커버영상은 음원 발매 15일 이내에 업로드됩니다.</p>
+              <p className="text-xs text-blue-700">• 미션 시작 전까지 커버 체험단을 선택할 수 있습니다.</p>
+            </div>
+          </>
         )}
 
         <div className="md:grid md:grid-cols-2 md:gap-4">
