@@ -420,7 +420,11 @@ export default function Page3() {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-sm font-medium">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
-                  <button onClick={() => { if (!showMyInfo) loadMyInfo(); setShowMyInfo(!showMyInfo) }} className={`text-xs rounded px-2 py-1 ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}>내 정보 보기</button>
+                  <button onClick={() => { 
+                    if (!showMyInfo) loadMyInfo(); 
+                    setShowMyInfo(!showMyInfo)
+                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100)
+                  }} className={`text-xs rounded px-2 py-1 ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}>내 정보 보기</button>
                 </div>
 
                 {showMyInfo && (
