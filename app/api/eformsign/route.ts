@@ -47,6 +47,13 @@ export async function POST(request: NextRequest) {
       ].filter(Boolean).join(' / ')
       const productNameValue = options ? `${productContent} + ${options}` : productContent
 
+      // 회사 도장 가져오기
+      const stampRes = await fetch(`${apiUrl}/v2.0/api/company_stamp/07f75916d49a42a59ddcd42e08f79820`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      const stampData = await stampRes.json()
+      const stampBase64 = stampData?.stamp?.path ?? ''
+
       console.log('eformsign request URL:', `${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`)
       const res = await fetch(`${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`, {
         method: 'POST',
@@ -76,7 +83,8 @@ export async function POST(request: NextRequest) {
               { id: 'song_title', value: songTitle },
               { id: 'product_name', value: productNameValue },
               { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
-              { id: 'contract_period', value: `${startDate} ~ ${endDate}` }
+              { id: 'contract_period', value: `${startDate} ~ ${endDate}` },
+              { id: 'DB_signature', value: stampBase64 }
             ]
           }
         })
