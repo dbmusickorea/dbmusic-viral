@@ -1002,7 +1002,7 @@ export default function Page1() {
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold">프로젝트 목록</h2>
                 <div className="flex gap-2 text-xs">
-                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기 {projects.filter(p => p.status === 'PAUSED').length}</span>
+                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기 {projects.filter(p => p.status === 'PENDING').length}</span>
                   <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full">진행 {projects.filter(p => p.status === 'ONGOING').length}</span>
                   <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full">완료 {projects.filter(p => p.status === 'COMPLETED').length}</span>
                 </div>
@@ -1019,8 +1019,8 @@ export default function Page1() {
                             <p className="font-medium text-sm">{project.client_name} / {project.song_title ?? project.product_content}</p>
                             <p className="text-xs text-gray-400">프로젝트 코드: {project.project_code}</p>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PAUSED' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {project.status === 'ONGOING' ? '진행중' : project.status === 'PAUSED' ? '일시중지' : project.status === 'PENDING' ? '대기중' : '완료'}
+                          <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                            {project.status === 'ONGOING' ? '진행중' : project.status === 'PENDING' ? '대기중' : '완료'}
                           </span>
                         </div>
                       </div>
