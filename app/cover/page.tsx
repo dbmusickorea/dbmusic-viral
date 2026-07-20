@@ -30,7 +30,7 @@ export default function CoverPage() {
     setCoverParticipants(participants ?? [])
 
     if (role === 'admin') {
-      const projectsRes = await fetch('/api/projects?status=ONGOING')
+      const projectsRes = await fetch('/api/projects?status=ONGOING,PENDING')
       const projects = await projectsRes.json()
       setProjects(projects ?? [])
     } else if (role === 'client') {
