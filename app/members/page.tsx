@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
+import { RefreshCw, ArrowDown } from 'lucide-react'
 
 export default function Page4() {
   const [tab, setTab] = useState<'participant' | 'client'>('participant')
@@ -343,8 +344,12 @@ export default function Page4() {
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
-            <div className="text-center py-1 text-sm text-blue-500">
-              {isRefreshing ? '🔄 새로고침 중...' : '↓ 놓으면 새로고침'}
+            <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+              {isRefreshing ? (
+                <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+              ) : (
+                <><ArrowDown size={14} /> 놓으면 새로고침</>
+              )}
             </div>
           )}
           <div className="flex justify-between items-center mb-2">

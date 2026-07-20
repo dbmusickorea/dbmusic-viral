@@ -1663,7 +1663,7 @@ export default function Page1() {
                   <h2 className="font-bold">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
                   {posts.length > 0 && (
                     <button onClick={handleUpdateProjectLikes} disabled={isUpdatingLikes} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg disabled:bg-gray-400">
-                      {isUpdatingLikes ? '갱신 중...' : '🔄 좋아요 갱신'}
+                      {isUpdatingLikes ? '갱신 중...' : <><RefreshCw size={14} className="inline mr-1" />좋아요 갱신</>}
                     </button>
                   )}
                 </div>

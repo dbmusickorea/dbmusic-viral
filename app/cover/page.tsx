@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
+import { RefreshCw, ArrowDown } from 'lucide-react'
 
 export default function CoverPage() {
   const router = useRouter()
@@ -14,6 +15,9 @@ export default function CoverPage() {
   const [coverRequests, setCoverRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState('')
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
@@ -58,6 +62,13 @@ export default function CoverPage() {
       setProjects(coverProjects)
     }
     setIsLoading(false)
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await loadData(userInfo, userRole)
+    setIsRefreshing(false)
+    setIsPulling(false)
   }
 
   const handleSelectParticipant = async (participant: any) => {
@@ -120,7 +131,31 @@ export default function CoverPage() {
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><p>로딩 중...</p></div>
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4"
+      onTouchStart={(e) => {
+        if (document.documentElement.scrollTop === 0) {
+          setPullStartY(e.touches[0].clientY)
+        }
+      }}
+      onTouchMove={(e) => {
+        if (pullStartY > 0 && e.touches[0].clientY - pullStartY > 60) {
+          setIsPulling(true)
+        }
+      }}
+      onTouchEnd={() => {
+        if (isPulling) handleRefresh()
+        setPullStartY(0)
+      }}
+    >
+      {(isPulling || isRefreshing) && (
+        <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+          {isRefreshing ? (
+            <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+          ) : (
+            <><ArrowDown size={14} /> 놓으면 새로고침</>
+          )}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
