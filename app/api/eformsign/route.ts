@@ -34,10 +34,18 @@ export async function POST(request: NextRequest) {
     if (action === 'send') {
       // 계약서 서명 요청
       const body = await request.json()
-      const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate, artistName, optionName } = body
+      const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate, artistName, optionName, refreshInterval, monitoringExtension, coverVideoCount, requiredPosts } = body
       const { accessToken, apiUrl } = await getAccessToken()
-      console.log('optionName received:', optionName)
-      console.log('productContent received:', productContent)
+
+      const refreshMap: any = { '12': '기본 트래픽', '6': '실버 트래픽', '3': '골드 트래픽', '1': '다이아 VIP' }
+      const options = [
+        refreshInterval ? refreshMap[String(refreshInterval)] : '',
+        Number(monitoringExtension) > 0 ? `모니터링 ${monitoringExtension}일 연장` : '',
+        Number(coverVideoCount) > 0 ? `커버영상 ${coverVideoCount}개` : '',
+        Number(requiredPosts) > 1 ? `게시물 ${requiredPosts}개` : '',
+        optionName || ''
+      ].filter(Boolean).join(' / ')
+      const productNameValue = options ? `${productContent} + ${options}` : productContent
 
       console.log('eformsign request URL:', `${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`)
       const res = await fetch(`${apiUrl}/v2.0/api/documents?template_id=${EFORMSIGN_TEMPLATE_ID}`, {
@@ -65,7 +73,7 @@ export async function POST(request: NextRequest) {
             fields: [
               { id: 'artist_name', value: `${clientName} / ${artistName || ''}` },
               { id: 'song_title', value: songTitle },
-              { id: 'product_name', value: optionName ? `${productContent} + ${optionName}` : productContent },
+              { id: 'product_name', value: productNameValue },
               { id: 'contract_amount', value: `${totalCost.toLocaleString()}원` },
               { id: 'contract_period', value: `${startDate} ~ ${endDate}` }
             ]

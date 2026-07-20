@@ -1552,7 +1552,11 @@ export default function Page1() {
                                 startDate: startDate,
                                 endDate: endDate,
                                 artistName: artistName,
-                                optionName: optionName
+                                optionName: optionName,
+                                refreshInterval: refreshInterval,
+                                monitoringExtension: monitoringExtension,
+                                coverVideoCount: coverVideoCount,
+                                requiredPosts: requiredPosts
                               })
                             })
                             const data = await res.json()
