@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DBMUSIC 바이럴 관리",
+  title: "더블비뮤직 바이럴",
   description: "더블비뮤직 바이럴 마케팅 관리 시스템",
   openGraph: {
-    title: "DBMUSIC 바이럴 관리",
+    title: "더블비뮤직 바이럴",
     description: "더블비뮤직 바이럴 마케팅 관리 시스템",
     url: "https://app.doubleb.kr",
-    siteName: "DBMUSIC",
+    siteName: "더블비뮤직",
     locale: "ko_KR",
     type: "website",
     images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         url: "https://app.doubleb.kr/og-image.png",
         width: 1200,
         height: 630,
-        alt: "DBMUSIC 바이럴 관리",
+        alt: "더블비뮤직 바이럴",
       }
     ],
   },
