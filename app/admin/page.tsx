@@ -1455,8 +1455,8 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">프로젝트 상태</label>
                       <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
+                        <option value="PENDING">대기중</option>
                         <option value="ONGOING">진행중</option>
-                        <option value="PAUSED">대기중</option>
                         <option value="COMPLETED">완료</option>
                       </select>
                     </div>
