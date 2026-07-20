@@ -658,7 +658,7 @@ export default function Page3() {
                     <p className="text-xs">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
                     <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
                     <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
-                    {projectInfo.document_id && (
+                    {projectInfo.document_id && typeof window !== 'undefined' && !(window as any).Capacitor && (
                       <button onClick={async (e) => {
                         e.preventDefault()
                         const btn = e.currentTarget
