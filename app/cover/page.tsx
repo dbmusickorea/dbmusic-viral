@@ -13,6 +13,7 @@ export default function CoverPage() {
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [coverRequests, setCoverRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [previewUrl, setPreviewUrl] = useState('')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -168,7 +169,12 @@ export default function CoverPage() {
                             <div>
                               <p className="text-sm font-medium">{p.name}</p>
                               {p.cover_video_url && (
-                                <a href={p.cover_video_url} target="_blank" className="text-xs text-blue-500">영상 보기 →</a>
+                                <>
+                                  <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                  {previewUrl === p.cover_video_url && (
+                                    <iframe src={p.cover_video_url} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                  )}
+                                </>
                               )}
                             </div>
                             {userRole === 'client' && (
@@ -250,7 +256,12 @@ export default function CoverPage() {
                           <div>
                             <p className="text-sm font-medium">{participant?.name ?? '-'}</p>
                             {participant?.cover_video_url && (
-                              <a href={participant.cover_video_url} target="_blank" className="text-xs text-blue-500">영상 보기 →</a>
+                              <>
+                                <button onClick={() => setPreviewUrl(previewUrl === participant.cover_video_url ? '' : participant.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                {previewUrl === participant.cover_video_url && (
+                                  <iframe src={participant.cover_video_url} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                )}
+                              </>
                             )}
                           </div>
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
