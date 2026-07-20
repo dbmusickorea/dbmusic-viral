@@ -763,7 +763,7 @@ useEffect(() => {
       })
     }
 
-    alert('환전 신청 완료!')
+    alert('환전 신청 완료!\n\n💰 휴일 제외 1영업일 이내 입금됩니다.')
     fetchMySettlements(userInfo?.id)
     fetchAvailableBalance(userInfo?.id)
     setShowExchange(false); setResidentNumber(''); setAddress(''); setExchangeAmount('')
