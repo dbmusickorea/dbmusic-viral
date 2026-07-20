@@ -155,7 +155,7 @@ export async function GET() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 모집이 시작됐어요!',
-              body: `${project.product_content} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
+              body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
               tokens: participantTokens.map((t: any) => t.token),
               userIds: participantTokens.map((t: any) => t.user_id)
             })
@@ -196,7 +196,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '📅 미션이 시작됐어요!',
-                    body: `${project.product_content} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
+                    body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                     tokens: normalTokens.map((t: any) => t.token),
                     userIds: normalTokens.map((t: any) => t.user_id)
                   })
@@ -213,7 +213,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '🎵 커버영상 미션이 시작됐어요!',
-                    body: `${project.product_content} 커버영상 미션이 시작됐어요! 7일 이내에 업로드해주세요.`,
+                    body: `${project.artist_name || project.client_name} - ${project.song_title} 커버영상 미션이 시작됐어요! 7일 이내에 업로드해주세요.`,
                     tokens: coverTokens.map((t: any) => t.token),
                     userIds: coverTokens.map((t: any) => t.user_id)
                   })
@@ -242,7 +242,7 @@ export async function GET() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   title: '📅 2차 미션이 시작됐어요!',
-                  body: `${project.product_content} 2차 게시물을 48시간 안에 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
+                  body: `${project.artist_name || project.client_name} - ${project.song_title} 2차 게시물을 48시간 안에 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                   tokens: tokens.map((t: any) => t.token),
                   userIds: tokens.map((t: any) => t.user_id)
                 })
@@ -296,7 +296,7 @@ export async function GET() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '🔔 추가 모집 공고!',
-                      body: `${project.product_content} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
+                      body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
                       tokens: allTokens.map((t: any) => t.token),
                       userIds: allTokens.map((t: any) => t.user_id)
                     })
@@ -649,7 +649,7 @@ export async function GET() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   title: '📅 미션이 종료됐어요!',
-                  body: `${project.product_content} 미션이 종료됐어요. 수고하셨어요!`,
+                  body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 종료됐어요. 수고하셨어요!`,
                   tokens: tokens.map((t: any) => t.token),
                   userIds: tokens.map((t: any) => t.user_id)
                 })
@@ -668,7 +668,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '📅 프로젝트가 종료됐어요!',
-                    body: `${project.product_content} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,
+                    body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,
                     tokens: clientTokens.map((t: any) => t.token),
                     userIds: clientTokens.map((t: any) => t.user_id)
                   })
