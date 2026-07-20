@@ -1567,6 +1567,7 @@ export default function Page1() {
                               })
                             })
                             const data = await res.json()
+                            console.log('eformsign result:', JSON.stringify(data))
                             if (data.success) {
                               await fetch(`/api/projects?project_code=${projectCode.toUpperCase()}`, {
                                 method: 'PATCH',
