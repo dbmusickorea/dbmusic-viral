@@ -663,6 +663,7 @@ export default function Page3() {
                   <div className="bg-white rounded-2xl shadow p-3">
                     <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
                     <p className="text-xs">의뢰인: {projectInfo.client_name ?? '-'}</p>
+                    {projectInfo.artist_name && <p className="text-xs">가수명: {projectInfo.artist_name}</p>}
                     {projectInfo.song_title && <p className="text-xs">노래제목: {projectInfo.song_title}</p>}
                     <p className="text-xs">상품: {projectInfo.product_content ?? '-'}</p>
                     <p className="text-xs">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
