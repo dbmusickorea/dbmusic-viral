@@ -1536,6 +1536,7 @@ export default function Page1() {
                             const confirmed = confirm(
                               `계약서를 발송하시겠어요?\n\n` +
                               `의뢰인: ${clientName}\n` +
+                              `가수명: ${artistName || '-'}\n` +
                               `곡명: ${songTitle}\n` +
                               `상품: ${productContent}${optionsText ? ` + ${optionsText}` : ''}\n` +
                               `계약금액: ${totalCost.toLocaleString()}원\n` +
