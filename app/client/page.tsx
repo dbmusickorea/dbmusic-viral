@@ -426,6 +426,10 @@ export default function Page3() {
                 {showMyInfo && (
                   <div className="border-t pt-4 mb-4 space-y-3">
                     <h3 className="font-bold text-sm">👤 내 정보 수정</h3>
+                    <div className="bg-gray-50 rounded-lg px-3 py-2">
+                      <p className="text-xs text-gray-500">로그인 아이디 (이메일)</p>
+                      <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
+                    </div>
                     {[
                       { label: '대표자명', value: myName, setter: setMyName },
                       { label: '소속사명', value: myCompany, setter: setMyCompany },

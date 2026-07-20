@@ -1110,6 +1110,10 @@ useEffect(() => {
                 <div className="mt-4 border-t pt-4">
                   <h2 className="font-bold mb-3">👤 회원정보 수정</h2>
                   <div className="space-y-3">
+                    <div className="bg-gray-50 rounded-lg px-3 py-2">
+                      <p className="text-xs text-gray-500">로그인 아이디 (이메일)</p>
+                      <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
+                    </div>
                     {[
                       { label: '이름', value: myName, setter: setMyName },
                       { label: '휴대전화', value: myMobile, setter: setMyMobile },
