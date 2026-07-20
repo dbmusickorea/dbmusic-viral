@@ -146,7 +146,7 @@ useEffect(() => {
       // 커버 요청 확인
       const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
       const coverData = await coverRes.json()
-      setCoverRequests(coverData ?? [])
+      setCoverRequests(Array.isArray(coverData) ? coverData : [])
     }
     loadData()
   }, [])
@@ -385,7 +385,7 @@ useEffect(() => {
       // 커버 요청 확인
       const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
       const coverData = await coverRes.json()
-      setCoverRequests(coverData ?? [])
+      setCoverRequests(Array.isArray(coverData) ? coverData : [])
     }
     setIsRefreshing(false)
   }
