@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           document: {
-            document_name: `${clientName} - ${productContent} 계약서`,
+            document_name: `${artistName || clientName} - ${songTitle} 계약서`,
             recipients: [{
               step_type: '05',
               use_mail: true,
@@ -108,6 +108,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'download') {
       const documentId = request.nextUrl.searchParams.get('document_id')
+      const fileName = request.nextUrl.searchParams.get('file_name') || 'contract'
       const { accessToken, apiUrl } = await getAccessToken()
       console.log('download document_id:', documentId)
 
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
       return new Response(pdfBuffer, {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename=contract.pdf'
+          'Content-Disposition': `attachment; filename=${encodeURIComponent(fileName)}.pdf`
         }
       })
     }

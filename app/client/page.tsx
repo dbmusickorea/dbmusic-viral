@@ -623,7 +623,7 @@ export default function Page3() {
                   <div className="bg-white rounded-2xl shadow p-3 mb-4">
                     <p className="text-xs text-gray-500 mb-2">📄 계약서</p>
                     <button onClick={async () => {
-                    const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}`, {
+                    const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(`${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`)}`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({})
