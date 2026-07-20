@@ -1312,7 +1312,7 @@ useEffect(() => {
                       }}>
                         <div className="flex justify-between items-start gap-2">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium">{p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
+                            <p className="text-sm font-medium">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
                             <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
                             <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
                             {p.projects?.end_date && (
@@ -1484,7 +1484,7 @@ useEffect(() => {
                         <div key={project.id} className="border rounded-lg p-3">
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium">{project.client_name} / {project.song_title ?? project.product_content}</p>
+                              <p className="text-sm font-medium">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                               <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
                               {project.start_date && (
                                 <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
