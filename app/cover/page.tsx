@@ -160,7 +160,7 @@ export default function CoverPage() {
         {/* 헤더 */}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">🎵 커버 페이지</h1>
+            <h1 className="text-xl font-bold">커버 페이지</h1>
           </div>
           <div className="flex gap-1 mb-2">
             {userRole === 'admin' && (
