@@ -210,7 +210,15 @@ export default function CoverPage() {
                 {projects.map(p => (
                   <div key={p.id} onClick={() => { setSelectedProject(p); loadCoverRequests(p.project_code) }}
                     className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === p.id ? 'border-purple-500 bg-purple-50' : ''}`}>
-                    <p className="text-base font-bold">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-base font-bold">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
+                        <p className="text-xs text-gray-500 mt-1">{p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                        {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '종료'}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
