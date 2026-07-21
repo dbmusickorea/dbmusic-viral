@@ -7,6 +7,7 @@ import { Bell } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
 
 export default function Page3() {
   const [userInfo, setUserInfo] = useState<any>(null)
@@ -972,8 +973,20 @@ export default function Page3() {
                                     {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
                                   </div>
                                   <div className="text-right shrink-0 ml-2">
-                                    <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
+                                    <p className="text-sm flex items-center justify-end gap-1">
+                                      {post.platform === 'youtube' ? <ThumbsUp size={12} className="text-red-500" /> : <Heart size={12} className="text-red-500" />}
+                                      {post.likes_count?.toLocaleString()}
+                                    </p>
+                                    <p className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                                      <MessageCircle size={12} />
+                                      {post.comments_count?.toLocaleString()}
+                                    </p>
+                                    {post.views_count > 0 && (
+                                      <p className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                                        <PlayCircle size={12} />
+                                        {post.views_count?.toLocaleString()}
+                                      </p>
+                                    )}
                                   </div>
                                 </div>
                                 <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
