@@ -957,9 +957,7 @@ export default function Page3() {
                                         <span className={`text-xs font-bold ${rank === 1 ? 'text-yellow-500' : rank === 2 ? 'text-gray-400' : rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
                                           {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`}
                                         </span>
-                                      ) : (
-                                        <span className="text-xs text-gray-300">-</span>
-                                      )}
+                                      ) : null}
                                       <p className="text-sm font-medium">{post.influencer_name}</p>
                                       {post.platform === 'instagram' && post.participant?.instagram_id && (
                                         <span className="text-xs text-gray-500">@{post.participant.instagram_id.replace('@','')} ({post.participant.instagram_followers?.toLocaleString() ?? '-'}명)</span>
