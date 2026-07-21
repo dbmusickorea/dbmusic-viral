@@ -32,6 +32,14 @@ export default function CoverPage() {
     return url
   }
 
+  const getCoverPlatform = (url: string) => {
+    if (!url) return null
+    if (url.includes('instagram.com')) return 'instagram'
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube'
+    if (url.includes('tiktok.com')) return 'tiktok'
+    return null
+  }
+
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
@@ -225,47 +233,45 @@ export default function CoverPage() {
                       return (
                         <div key={p.id} className="border rounded-lg p-3">
                           <div className="flex justify-between items-center">
-                            <div>
-                              <p className="text-sm font-medium">{p.name}</p>
-                              {p.instagram_id && (
-                                <p className="text-xs text-gray-500 flex items-center gap-1">
-                                  {p.profile_image_url ? (
-                                    <img src={p.profile_image_url} className="w-5 h-5 rounded-full" />
+                            <div className="flex gap-3 flex-1 min-w-0">
+                              {/* 프로필사진 */}
+                              <div className="shrink-0">
+                                {(() => {
+                                  const platform = getCoverPlatform(p.cover_video_url)
+                                  const img = platform === 'instagram' ? p.instagram_profile_image :
+                                              platform === 'youtube' ? p.youtube_profile_image :
+                                              platform === 'tiktok' ? p.tiktok_profile_image : null
+                                  return img ? (
+                                    <img src={img} className="w-12 h-12 rounded-full object-cover" />
                                   ) : (
-                                    <svg viewBox="0 0 24 24" className="w-3 h-3 inline shrink-0" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                                  )}
-                                  @{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}
-                                </p>
-                              )}
-                              {p.youtube_id && (
-                                <p className="text-xs text-gray-500 flex items-center gap-1">
-                                  {p.profile_image_url ? (
-                                    <img src={p.profile_image_url} className="w-5 h-5 rounded-full" />
-                                  ) : (
-                                    <svg viewBox="0 0 24 24" className="w-3 h-3 inline shrink-0" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                                  )}
-                                  @{p.youtube_id.replace('@','')} {p.youtube_subscribers > 0 && `(${p.youtube_subscribers.toLocaleString()}명)`}
-                                </p>
-                              )}
-                              {p.tiktok_id && (
-                                <p className="text-xs text-gray-500 flex items-center gap-1">
-                                  {p.profile_image_url ? (
-                                    <img src={p.profile_image_url} className="w-5 h-5 rounded-full" />
-                                  ) : (
-                                    <svg viewBox="0 0 24 24" className="w-3 h-3 inline shrink-0" fill="#000000"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
-                                  )}
-                                  @{p.tiktok_id.replace('@','')} {p.tiktok_followers > 0 && `(${p.tiktok_followers.toLocaleString()}명)`}
-                                </p>
-                              )}
-                              <p className="text-xs text-gray-400">※ 팔로워수는 오차가 있을 수 있습니다.</p>
-                              {p.cover_video_url && (
-                                <>
-                                  <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
-                                  {previewUrl === p.cover_video_url && (
-                                    <iframe src={getEmbedUrl(p.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
-                                  )}
-                                </>
-                              )}
+                                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                      {platform === 'instagram' && <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>}
+                                      {platform === 'youtube' && <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}
+                                      {platform === 'tiktok' && <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#000000"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>}
+                                    </div>
+                                  )
+                                })()}
+                              </div>
+                              {/* 정보 */}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium">{p.name}</p>
+                                {(() => {
+                                  const platform = getCoverPlatform(p.cover_video_url)
+                                  if (platform === 'instagram' && p.instagram_id) return <p className="text-xs text-gray-500">@{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}</p>
+                                  if (platform === 'youtube' && p.youtube_id) return <p className="text-xs text-gray-500">@{p.youtube_id.replace('@','')} {p.youtube_subscribers > 0 && `(${p.youtube_subscribers.toLocaleString()}명)`}</p>
+                                  if (platform === 'tiktok' && p.tiktok_id) return <p className="text-xs text-gray-500">@{p.tiktok_id.replace('@','')} {p.tiktok_followers > 0 && `(${p.tiktok_followers.toLocaleString()}명)`}</p>
+                                  return null
+                                })()}
+                                <p className="text-xs text-gray-400">※ 팔로워수는 오차가 있을 수 있습니다.</p>
+                                {p.cover_video_url && (
+                                  <>
+                                    <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                    {previewUrl === p.cover_video_url && (
+                                      <iframe src={getEmbedUrl(p.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                    )}
+                                  </>
+                                )}
+                              </div>
                             </div>
                             {userRole === 'client' && (
                               <div>
