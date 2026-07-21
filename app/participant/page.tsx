@@ -605,19 +605,24 @@ useEffect(() => {
     if (validUrls.some(u => !isValidUrl(u))) { alert('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
 
     // 팔로워 100명 이상 확인
-    if (platform === 'instagram' && snsAccount) {
-      const igRes = await fetch(`/api/instagram-user?username=${snsAccount}`)
-      const igData = await igRes.json()
-      if ((igData.followers ?? 0) < 100) {
+    if (platform === 'instagram') {
+      const followers = userInfo?.instagram_followers ?? 0
+      if (followers < 100) {
         alert('인스타그램 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
         return
       }
     }
-    if (platform === 'youtube' && snsAccount) {
-      const ytRes = await fetch(`/api/youtube?handle=${snsAccount}`)
-      const ytData = await ytRes.json()
-      if ((ytData.subscriberCount ?? 0) < 100) {
+    if (platform === 'youtube') {
+      const subscribers = userInfo?.youtube_subscribers ?? 0
+      if (subscribers < 100) {
         alert('유튜브 구독자가 100명 미만이에요. 구독자 100명 이상인 채널만 미션 제출이 가능합니다.')
+        return
+      }
+    }
+    if (platform === 'tiktok') {
+      const followers = userInfo?.tiktok_followers ?? 0
+      if (followers < 100) {
+        alert('틱톡 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
         return
       }
     }
