@@ -243,7 +243,7 @@ export default function CoverPage() {
                                 ) : request.status === 'PENDING' ? (
                                   <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
                                 ) : request.status === 'APPROVED' ? (
-                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{coverPost ? '업로드완료' : '업로드전'}</span>
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
                                 ) : request.status === 'REJECTED' ? (
                                   request.rejected_count < 2 ? (
                                     <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-full">재선택</button>
