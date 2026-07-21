@@ -9,14 +9,16 @@ export async function GET(request: NextRequest) {
   const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY
 
   const response = await fetch(
-    `https://www.googleapis.com/youtube/v3/channels?forHandle=${cleanHandle}&part=statistics&key=${apiKey}`
+    `https://www.googleapis.com/youtube/v3/channels?forHandle=${cleanHandle}&part=statistics,snippet&key=${apiKey}`
   )
 
   const data = await response.json()
   const stats = data.items?.[0]?.statistics
+  const snippet = data.items?.[0]?.snippet
 
   return NextResponse.json({
     subscriberCount: Number(stats?.subscriberCount ?? 0),
-    videoCount: Number(stats?.videoCount ?? 0)
+    videoCount: Number(stats?.videoCount ?? 0),
+    thumbnail: snippet?.thumbnails?.default?.url ?? null
   })
 }

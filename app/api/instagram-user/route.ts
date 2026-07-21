@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
   const data = await response.json()
   return NextResponse.json({
     followers: data?.follower_count ?? 0,
-    posts: data?.media_count ?? 0
+    posts: data?.media_count ?? 0,
+    thumbnail: data?.profile_pic_url ?? null
   })
 }
