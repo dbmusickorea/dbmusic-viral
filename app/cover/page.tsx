@@ -227,11 +227,11 @@ export default function CoverPage() {
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-sm font-medium">{p.name}</p>
-                              {coverPost && (
+                              {p.cover_video_url && (
                                 <>
-                                  <button onClick={() => setPreviewUrl(previewUrl === coverPost.post_url ? '' : coverPost.post_url)} className="text-xs text-blue-500">영상 보기 →</button>
-                                  {previewUrl === coverPost.post_url && (
-                                    <iframe src={getEmbedUrl(coverPost.post_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                  <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                  {previewUrl === p.cover_video_url && (
+                                    <iframe src={getEmbedUrl(p.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
                                   )}
                                 </>
                               )}
