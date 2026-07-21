@@ -341,16 +341,21 @@ export default function LoginPage() {
 
     // SNS 팔로워 100명 이상 확인 (셋 중 하나라도 100명 이상이면 통과)
     let hasEnoughFollowers = false
+    let igFollowers = 0
+    let ytSubscribers = 0
+    let ttFollowers = 0
 
     if (p_instagram) {
       const igRes = await fetch(`/api/instagram-user?username=${p_instagram}`)
       const igData = await igRes.json()
-      if ((igData.followers ?? 0) >= 100) hasEnoughFollowers = true
+      igFollowers = igData.followers ?? 0
+      if (igFollowers >= 100) hasEnoughFollowers = true
     }
     if (p_youtube) {
       const ytRes = await fetch(`/api/youtube-channel?handle=${p_youtube}`)
       const ytData = await ytRes.json()
-      if ((ytData.subscriberCount ?? 0) >= 100) hasEnoughFollowers = true
+      ytSubscribers = ytData.subscriberCount ?? 0
+      if (ytSubscribers >= 100) hasEnoughFollowers = true
     }
     if (p_tiktok) {
       const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p_tiktok.replace('@','')}`, {
@@ -360,7 +365,8 @@ export default function LoginPage() {
         }
       })
       const ttData = await ttRes.json()
-      if ((ttData?.data?.stats?.followerCount ?? 0) >= 100) hasEnoughFollowers = true
+      ttFollowers = ttData?.data?.stats?.followerCount ?? 0
+      if (ttFollowers >= 100) hasEnoughFollowers = true
     }
 
     if ((p_instagram || p_youtube || p_tiktok) && !hasEnoughFollowers) {
@@ -423,6 +429,9 @@ export default function LoginPage() {
         name: p_name, mobile: p_mobile, email: p_email,
         bank_name: p_bank, account_holder: p_holder, account_number: p_account,
         instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
+        instagram_followers: igFollowers || null,
+        youtube_subscribers: ytSubscribers || null,
+        tiktok_followers: ttFollowers || null,
         referral_code: referralCode, level: 1,
         is_cover_possible: isCoverPossible,
         cover_video_url: coverVideoUrl || null,
