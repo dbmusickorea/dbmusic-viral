@@ -157,7 +157,8 @@ export async function GET() {
               title: '🎵 모집이 시작됐어요!',
               body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
               tokens: participantTokens.map((t: any) => t.token),
-              userIds: participantTokens.map((t: any) => t.user_id)
+              userIds: participantTokens.map((t: any) => t.user_id),
+              saveToRole: 'participant'
             })
           })
         }
@@ -198,7 +199,7 @@ export async function GET() {
                     title: '📅 미션이 시작됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                     tokens: normalTokens.map((t: any) => t.token),
-                    userIds: normalTokens.map((t: any) => t.user_id)
+                    userIds: normalIds.map(String)
                   })
                 })
               }
@@ -215,7 +216,7 @@ export async function GET() {
                     title: '🎵 커버영상 미션이 시작됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 커버영상 미션이 시작됐어요! 7일 이내에 업로드해주세요.`,
                     tokens: coverTokens.map((t: any) => t.token),
-                    userIds: coverTokens.map((t: any) => t.user_id)
+                    userIds: coverIds.map(String)
                   })
                 })
               }
@@ -244,7 +245,7 @@ export async function GET() {
                   title: '📅 2차 미션이 시작됐어요!',
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 2차 게시물을 48시간 안에 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                   tokens: tokens.map((t: any) => t.token),
-                  userIds: tokens.map((t: any) => t.user_id)
+                  userIds: memberIds
                 })
               })
             }
@@ -284,7 +285,7 @@ export async function GET() {
                       title: '⚠️ 미션 불이행으로 활동이 제한됐어요!',
                       body: `미션을 완료하지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
                       tokens: memberTokens.map((t: any) => t.token),
-                      userIds: memberTokens.map((t: any) => t.user_id)
+                      userIds: [String(participant.id)]
                     })
                   })
                 }
@@ -298,7 +299,8 @@ export async function GET() {
                       title: '🔔 추가 모집 공고!',
                       body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
                       tokens: allTokens.map((t: any) => t.token),
-                      userIds: allTokens.map((t: any) => t.user_id)
+                      userIds: allTokens.map((t: any) => t.user_id),
+                      saveToRole: 'participant'
                     })
                   })
                 }
@@ -339,7 +341,7 @@ export async function GET() {
                       title: '⚠️ 2차 미션 불이행으로 활동이 제한됐어요!',
                       body: `2차 게시물을 올리지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
                       tokens: memberTokens.map((t: any) => t.token),
-                      userIds: memberTokens.map((t: any) => t.user_id)
+                      userIds: [String(participant.id)]
                     })
                   })
                 }
@@ -370,7 +372,7 @@ export async function GET() {
                   title: '⚠️ 활동 잠금 알림',
                   body: '1개월간 미션 참여가 없어서 계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!',
                   tokens: tokens.map((t: any) => t.token),
-                  userIds: tokens.map((t: any) => t.user_id)
+                  userIds: [String(p.id)]
                 })
               })
             }
@@ -395,7 +397,7 @@ export async function GET() {
                 title: '🎵 새 프로젝트가 기다리고 있어요!',
                 body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!',
                 tokens: tokens.map((t: any) => t.token),
-                userIds: tokens.map((t: any) => t.user_id)
+                userIds: notJoined.map(p => String(p.id))
               })
             })
           }
@@ -423,7 +425,7 @@ export async function GET() {
               title: '💪 오랫동안 활동이 없었어요!',
               body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!',
               tokens: tokens.map((t: any) => t.token),
-              userIds: tokens.map((t: any) => t.user_id)
+              userIds: inactive.map(id => String(id))
             })
           })
         }
@@ -523,7 +525,7 @@ export async function GET() {
                 title: '⚠️ 커버영상 요청이 거절됐어요',
                 body: `[${r.project_code}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
                 tokens: tokens.map((t: any) => t.token),
-                userIds: tokens.map((t: any) => t.user_id)
+                userIds: [String(clientUser.id)]
               })
             })
           }
@@ -563,7 +565,7 @@ export async function GET() {
                 title: '⚠️ 커버영상 미업로드 패널티',
                 body: '7일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
                 tokens: tokens.map((t: any) => t.token),
-                userIds: tokens.map((t: any) => t.user_id)
+                userIds: [String(r.participant_id)]
               })
             })
           }
@@ -591,7 +593,7 @@ export async function GET() {
               title: '✅ 활동 제한이 해제됐어요!',
               body: '미션 불이행 제한 기간이 끝났어요. 이제 다시 미션에 참여할 수 있어요!',
               tokens: tokens.map((t: any) => t.token),
-              userIds: tokens.map((t: any) => t.user_id)
+              userIds: [String(p.id)]
             })
           })
         }
@@ -618,7 +620,7 @@ export async function GET() {
               title: '✅ 커버영상 제한이 해제됐어요!',
               body: '커버영상 업로드 제한 기간이 끝났어요. 이제 다시 커버영상 미션에 참여할 수 있어요!',
               tokens: tokens.map((t: any) => t.token),
-              userIds: tokens.map((t: any) => t.user_id)
+              userIds: [String(p.id)]
             })
           })
         }
@@ -651,7 +653,7 @@ export async function GET() {
                   title: '📅 미션이 종료됐어요!',
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 종료됐어요. 수고하셨어요!`,
                   tokens: tokens.map((t: any) => t.token),
-                  userIds: tokens.map((t: any) => t.user_id)
+                  userIds: memberIds
                 })
               })
             }
@@ -670,7 +672,7 @@ export async function GET() {
                     title: '📅 프로젝트가 종료됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,
                     tokens: clientTokens.map((t: any) => t.token),
-                    userIds: clientTokens.map((t: any) => t.user_id)
+                    userIds: [String(clientUser.id)]
                   })
                 })
               }
@@ -757,7 +759,7 @@ export async function GET() {
                     title: '⚠️ 댓글 삭제로 적립금이 차감됐어요',
                     body: `댓글이 삭제되어 ${(mission.reward_amount ?? 300).toLocaleString()}P가 차감됐어요.`,
                     tokens: tokens.map((t: any) => t.token),
-                    userIds: tokens.map((t: any) => t.user_id)
+                    userIds: [String(mission.member_id)]
                   })
                 })
               }

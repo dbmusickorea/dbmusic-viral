@@ -78,7 +78,7 @@ export default function Page5() {
           title: '💰 환전 신청이 승인됐어요!',
           body: `${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}P 환전이 승인됐어요.`,
           tokens: memberTokens.map((t: any) => t.token),
-          userIds: memberTokens.map((t: any) => t.user_id)
+          userIds: [String(selected.member_id)]
         })
       })
     }
@@ -105,7 +105,7 @@ export default function Page5() {
           title: '❌ 환전 신청이 거절됐어요.',
           body: `환전 신청이 거절됐어요. 사유: ${memo || '없음'}`,
           tokens: memberTokens.map((t: any) => t.token),
-          userIds: memberTokens.map((t: any) => t.user_id)
+          userIds: [String(selected.member_id)]
         })
       })
     }

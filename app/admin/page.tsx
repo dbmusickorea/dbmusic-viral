@@ -176,9 +176,9 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 커버영상 승인됐어요!',
-          body: `커버영상(${type === 'long' ? '롱폼' : '숏츠'})이 승인됐어요. 음원 발매 7일 후 3일 이내에 업로드해주세요. ${reward.toLocaleString()}P이 추가 지급됐어요.`,
+          body: `커버영상(${type === 'long' ? '롱폼' : '숏츠'})이 승인됐어요. 미션 시작일로부터 7일 이내에 업로드해주세요. ${reward.toLocaleString()}P이 추가 지급됐어요.`,
           tokens: tokens.map((t: any) => t.token),
-          userIds: tokens.map((t: any) => t.user_id)
+          userIds: [String(post.member_id)]
         })
       })
     }
@@ -300,7 +300,7 @@ export default function Page1() {
             title: '⚠️ 프로젝트 참여가 취소되었습니다',
             body: `[${selectedProject?.artist_name || selectedProject?.client_name} - ${selectedProject?.song_title}] 참여취소 사유: ${reason}`,
             tokens: tokens.map((t: any) => t.token),
-            userIds: tokens.map((t: any) => t.user_id)
+            userIds: [String(memberId)]
           })
         })
       }
@@ -542,7 +542,8 @@ export default function Page1() {
           title: '🎵 새 프로젝트가 등록됐어요!',
           body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 등록됐어요. 모집일: ${missionDate || '미정'}. 앱에서 확인해보세요!`,
           tokens: participantTokens.map((t: any) => t.token),
-          userIds: participantTokens.map((t: any) => t.user_id)
+          userIds: participantTokens.map((t: any) => t.user_id),
+          saveToRole: 'participant'
         })
       })
     }
@@ -563,7 +564,7 @@ export default function Page1() {
               title: '🎵 프로젝트가 등록됐어요!',
               body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
               tokens: clientTokens.map((t: any) => t.token),
-              userIds: clientTokens.map((t: any) => t.user_id)
+              userIds: [String(clientUser.id)]
             })
           })
         }
@@ -632,7 +633,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '📢 프로젝트가 종료됐어요!',
-              body: `${productContent} 프로젝트가 종료됐어요. 환전 신청을 확인해보세요!`,
+              body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 종료됐어요. 환전 신청을 확인해보세요!`,
               tokens: tokens.map((t: any) => t.token),
               userIds: tokens.map((t: any) => t.user_id)
             })
@@ -648,7 +649,7 @@ export default function Page1() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '📢 프로젝트가 종료됐어요!',
-            body: `${productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
+            body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
             tokens: clientTokens.map((t: any) => t.token),
             userIds: clientTokens.map((t: any) => t.user_id)
           })
@@ -682,7 +683,8 @@ export default function Page1() {
         title: pushTitle,
         body: pushBody,
         tokens: tokens.map((t: any) => t.token),
-        userIds: tokens.map((t: any) => t.user_id)
+        userIds: tokens.map((t: any) => t.user_id),
+        saveToRole: pushTarget === 'all' ? 'participant' : pushTarget === 'participant' ? 'participant' : 'client'
       })
     })
     const data = await response.json()
@@ -1261,7 +1263,7 @@ export default function Page1() {
                   const tokensRes = await fetch(`/api/push_tokens?user_ids=${notJoined.map((p: any) => String(p.id)).join(',')}`)
                   const tokens = await tokensRes.json()
                   if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token) }) })
+                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: notJoined.map((p: any) => String(p.id)) }) })
                   alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
                 }} disabled={isSendingPush} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
@@ -1286,7 +1288,7 @@ export default function Page1() {
                   const tokensRes = await fetch(`/api/push_tokens?user_ids=${inactive.map(id => String(id)).join(',')}`)
                   const tokens = await tokensRes.json()
                   if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token) }) })
+                  await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: inactive.map(id => String(id)) }) })
                   alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
                 }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
@@ -1656,7 +1658,7 @@ export default function Page1() {
                                     title: '📄 계약서가 발송됐어요!',
                                     body: '계약서를 확인하고 서명해주세요.',
                                     tokens: clientTokens.map((t: any) => t.token),
-                                    userIds: clientTokens.map((t: any) => t.user_id)
+                                    userIds: [String(client.id)]
                                   })
                                 })
                               }

@@ -20,7 +20,7 @@ if (!getApps().length) {
 }
 
 export async function POST(request: NextRequest) {
-  const { title, body, tokens, userIds } = await request.json()
+  const { title, body, tokens, userIds, saveToRole } = await request.json()
 
   if (!title || !body || !tokens || tokens.length === 0) {
     return NextResponse.json({ error: 'title, body, tokens required' }, { status: 400 })
@@ -81,14 +81,18 @@ export async function POST(request: NextRequest) {
   }
 
   // notifications 테이블에 저장
-  if (userIds && userIds.length > 0) {
+  if (saveToRole) {
+    const table = saveToRole === 'participant' ? 'participants' : 'users'
+    const { data: allUsers } = await supabaseAdmin.from(table).select('id')
+    const rows = allUsers?.map((u: any) => ({ user_id: String(u.id), title, body }))
+    if (rows) await supabaseAdmin.from('notifications').insert(rows)
+  } else if (userIds && userIds.length > 0) {
     const notificationRows = userIds.map((userId: string) => ({
       user_id: userId,
       title,
       body
     }))
-    const { error: notifError } = await supabaseAdmin.from('notifications').insert(notificationRows)
-    if (notifError) console.error('notifications insert error:', notifError)
+    await supabaseAdmin.from('notifications').insert(notificationRows)
   }
 
   return NextResponse.json({ success: true, results })

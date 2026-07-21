@@ -1405,7 +1405,7 @@ useEffect(() => {
                           title: '🎵 커버영상 미션 승인됐어요!',
                           body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 수락했어요!`,
                           tokens: tokens.map((t: any) => t.token),
-                          userIds: tokens.map((t: any) => t.user_id)
+                          userIds: [String(clientUser.id)]
                         })
                       })
                     }
@@ -1450,7 +1450,7 @@ useEffect(() => {
                           title: '⚠️ 커버영상 미션 거절됐어요',
                           body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
                           tokens: tokens.map((t: any) => t.token),
-                          userIds: tokens.map((t: any) => t.user_id)
+                          userIds: [String(clientUser.id)]
                         })
                       })
                     }
