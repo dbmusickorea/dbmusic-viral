@@ -1306,7 +1306,7 @@ useEffect(() => {
                   )}
                 </div>
               )}
-
+            </div>
             {/* 내 참여 현황 */}
             {myParticipations.length > 0 && (() => {
               const filteredParticipations = participationFilter === 'current'
@@ -1466,7 +1466,6 @@ useEffect(() => {
                 </div>
               )
             })()}
-            </div>
           </div>
           {coverRequests.filter(r => r.status === 'PENDING').map(r => (
             <div key={r.id} className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4">
