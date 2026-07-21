@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
@@ -1832,7 +1833,22 @@ export default function Page1() {
                                   const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
                                   if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
                                 }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
-                                <p className="text-xs mt-1">❤️ {post.likes_count?.toLocaleString()} · 💬 {post.comments_count?.toLocaleString()}</p>
+                                <p className="text-xs mt-1 flex items-center gap-2">
+                                  <span className="flex items-center gap-1">
+                                    {post.platform === 'youtube' ? <ThumbsUp size={12} className="text-red-500" /> : <Heart size={12} className="text-red-500" />}
+                                    {post.likes_count?.toLocaleString()}
+                                  </span>
+                                  <span className="flex items-center gap-1 text-gray-500">
+                                    <MessageCircle size={12} />
+                                    {post.comments_count?.toLocaleString()}
+                                  </span>
+                                  {post.views_count > 0 && (
+                                    <span className="flex items-center gap-1 text-gray-500">
+                                      <PlayCircle size={12} />
+                                      {post.views_count?.toLocaleString()}
+                                    </span>
+                                  )}
+                                </p>
                                 {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
                               </div>
                               </div>

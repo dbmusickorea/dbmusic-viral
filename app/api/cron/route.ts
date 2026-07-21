@@ -487,6 +487,7 @@ export async function GET() {
               platform: post.platform,
               likes_count: post.likes_count ?? 0,
               comments_count: post.comments_count ?? 0,
+              views_count: post.views_count ?? 0,
               recorded_at: snapshotKey
             })
           }

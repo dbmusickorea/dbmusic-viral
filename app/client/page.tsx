@@ -308,10 +308,13 @@ export default function Page3() {
           date,
           ig_likes: igData.length > 0 ? Math.max(...igData.map((h: any) => h.likes_count ?? 0)) : 0,
           ig_comments: igData.length > 0 ? Math.max(...igData.map((h: any) => h.comments_count ?? 0)) : 0,
+          ig_views: igData.length > 0 ? Math.max(...igData.map((h: any) => h.views_count ?? 0)) : 0,
           yt_likes: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.likes_count ?? 0)) : 0,
           yt_comments: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.comments_count ?? 0)) : 0,
+          yt_views: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.views_count ?? 0)) : 0,
           tt_likes: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.likes_count ?? 0)) : 0,
           tt_comments: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.comments_count ?? 0)) : 0,
+          tt_views: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.views_count ?? 0)) : 0,
           cover_count: coverCount > 0 ? coverCount : null,
         }
       })
@@ -824,9 +827,12 @@ export default function Page3() {
                         <Line type="monotone" dataKey="ig_audio" stroke="#E1306C" name="인스타 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                         <Line type="monotone" dataKey="tt_audio" stroke="#000000" name="틱톡 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                         <Line type="monotone" dataKey="cover_count" stroke="#9333ea" name="커버영상" dot={true} connectNulls={false} />
+                        <Line type="monotone" dataKey="ig_views" stroke="#E1306C" name="인스타 조회수" dot={false} strokeDasharray="3 3" />
+                        <Line type="monotone" dataKey="yt_views" stroke="#FF0000" name="유튜브 조회수" dot={false} strokeDasharray="3 3" />
+                        <Line type="monotone" dataKey="tt_views" stroke="#000000" name="틱톡 조회수" dot={false} strokeDasharray="3 3" />
                       </LineChart>
                     </ResponsiveContainer>
-                    <p className="text-xs text-gray-400 mt-1 text-center">※ 데이터는 매일 낮 12시에 갱신됩니다</p>
+                    <p className="text-xs text-gray-400 mt-1 text-center">※ 데이터는 선택하신 상품에 따라 1~12시간 간격으로 갱신됩니다</p>
                   </div>
                 )}
               </div>
