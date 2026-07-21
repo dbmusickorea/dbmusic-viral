@@ -1476,7 +1476,7 @@ useEffect(() => {
                       const isFull = project.max_participants > 0 && (project.current_participants ?? 0) >= project.max_participants
                       const isJoined = myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
                       const isCompleted = project.status === 'COMPLETED'
-                      const isPaused = project.status === 'PAUSED'
+                      const isPaused = project.status === 'PENDING'
                       
                       const getStatusButton = () => {
                         if (isCompleted) return <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">종료</span>
