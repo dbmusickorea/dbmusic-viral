@@ -709,11 +709,14 @@ export default function Page3() {
             {projectInfo && (
               <>
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-white rounded-2xl shadow p-3">
+                  <div className="bg-white rounded-2xl shadow p-3 h-full flex flex-col">
+                    <div>
                     <p className="text-xs text-gray-500 mb-1">📅 프로젝트 기간</p>
                     <p className="text-xs">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
                     <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
                     <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                    </div>
+                    <div className="mt-auto">
                     {projectInfo.document_id && typeof window !== 'undefined' && !(window as any).Capacitor && (
                       <button onClick={async (e) => {
                         e.preventDefault()
@@ -729,17 +732,12 @@ export default function Page3() {
                           })
                           const data = await res.json()
                           if (data.dataUrl) {
-                            if ((window as any).Capacitor) {
-                              const { Browser } = await import('@capacitor/browser')
-                              await Browser.open({ url: data.dataUrl })
-                            } else {
-                              const a = document.createElement('a')
-                              a.href = data.dataUrl
-                              a.download = fileName + '.pdf'
-                              document.body.appendChild(a)
-                              a.click()
-                              document.body.removeChild(a)
-                            }
+                            const a = document.createElement('a')
+                            a.href = data.dataUrl
+                            a.download = fileName + '.pdf'
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
                           } else {
                             alert('아직 서명이 완료되지 않았어요.')
                           }
@@ -747,8 +745,9 @@ export default function Page3() {
                           btn.textContent = '📄 계약서 다운로드'
                           btn.disabled = false
                         }
-                      }} className="text-xs text-purple-600 mt-2 block">📄 계약서 다운로드</button>
+                      }} className="w-full mt-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">📄 계약서 다운로드</button>
                     )}
+                    </div>                  
                   </div>
                   <div className="bg-white rounded-2xl shadow p-3">
                     <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
