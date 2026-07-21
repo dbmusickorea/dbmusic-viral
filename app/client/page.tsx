@@ -656,7 +656,7 @@ export default function Page3() {
                   <div className="space-y-3 mb-4 border-b pb-4">
                     <div>
                       <label className="text-sm font-medium">제목</label>
-                      <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="프로젝트 문의 제목" />
+                      <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
                     </div>
                     <div>
                       <label className="text-sm font-medium">내용</label>
@@ -761,8 +761,11 @@ export default function Page3() {
             {projectInfo && projectInfo.status === 'COMPLETED' && (
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4">
                 <p className="text-sm font-medium text-blue-800 mb-2">📊 프로젝트 결과보고서</p>
-                <button onClick={() => window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">
-                  📥 결과보고서 다운로드 (엑셀)
+                <button onClick={() => {
+                  window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')
+                  alert('상세 결과 보고서 작성을 원하시는 경우 문의하기로 요청하시면 2~3일 이내 발송됩니다.')
+                }} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">
+                  📥 결과 요약 다운로드 (엑셀)
                 </button>
               </div>
             )}

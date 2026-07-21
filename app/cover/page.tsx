@@ -210,8 +210,7 @@ export default function CoverPage() {
                 {projects.map(p => (
                   <div key={p.id} onClick={() => { setSelectedProject(p); loadCoverRequests(p.project_code) }}
                     className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === p.id ? 'border-purple-500 bg-purple-50' : ''}`}>
-                    <p className="text-sm font-medium">{p.client_name} / {p.song_title ?? p.product_content}</p>
-                    <p className="text-xs text-gray-400">{p.project_code}</p>
+                    <p className="text-base font-bold">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
                   </div>
                 ))}
               </div>
