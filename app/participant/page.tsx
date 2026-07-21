@@ -1414,7 +1414,7 @@ useEffect(() => {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         title: '🎵 커버영상 미션 수락!',
-                        body: `[${r.project_code}] 커버 체험단이 미션을 수락했어요.`,
+                        body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 커버 체험단이 미션을 수락했어요.`,
                         tokens: adminTokens.map((t: any) => t.token),
                         userIds: adminTokens.map((t: any) => t.user_id)
                       })
