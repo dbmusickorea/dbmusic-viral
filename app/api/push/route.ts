@@ -22,8 +22,8 @@ if (!getApps().length) {
 export async function POST(request: NextRequest) {
   const { title, body, tokens, userIds, saveToRole } = await request.json()
 
-  if (!title || !body || !tokens || tokens.length === 0) {
-    return NextResponse.json({ error: 'title, body, tokens required' }, { status: 400 })
+  if (!title || !body) {
+    return NextResponse.json({ error: 'title, body required' }, { status: 400 })
   }
 
   const results = []
