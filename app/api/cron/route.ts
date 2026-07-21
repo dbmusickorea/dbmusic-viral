@@ -12,6 +12,7 @@ async function updatePostStats(posts: any[]) {
     try {
       let likes = 0
       let comments = 0
+      let views = 0
 
       if (post.platform === 'instagram') {
         const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
@@ -23,6 +24,7 @@ async function updatePostStats(posts: any[]) {
         const data = await res.json()
         likes = data.like_count ?? 0
         comments = data.comment_count ?? 0
+        views = data.view_count ?? data.video_view_count ?? 0
         await new Promise(resolve => setTimeout(resolve, 1000))
 
       } else if (post.platform === 'youtube') {
@@ -33,6 +35,7 @@ async function updatePostStats(posts: any[]) {
         const stats = data.items?.[0]?.statistics
         likes = Number(stats?.likeCount ?? 0)
         comments = Number(stats?.commentCount ?? 0)
+        views = Number(stats?.viewCount ?? 0)
 
       } else if (post.platform === 'tiktok') {
         const res = await fetch(
@@ -42,9 +45,10 @@ async function updatePostStats(posts: any[]) {
         const data = await res.json()
         likes = data.data?.digg_count ?? 0
         comments = data.data?.comment_count ?? 0
+        views = data.data?.play_count ?? 0
       }
 
-      await supabase.from('posts').update({ likes_count: likes, comments_count: comments }).eq('id', post.id)
+      await supabase.from('posts').update({ likes_count: likes, comments_count: comments, views_count: views }).eq('id', post.id)
       updated++
     } catch { continue }
   }
