@@ -74,6 +74,18 @@ export default function Page3() {
     loadData()
   }, [])
 
+  useEffect(() => {
+    if (dailyStats.length > 0 && (igAudioCount !== null || ttAudioCount !== null)) {
+      const updated = [...dailyStats]
+      updated[updated.length - 1] = {
+        ...updated[updated.length - 1],
+        ig_audio: igAudioCount,
+        tt_audio: ttAudioCount
+      }
+      setDailyStats(updated)
+    }
+  }, [igAudioCount, ttAudioCount])
+
   const fetchRequests = async (clientId: string) => {
     const res = await fetch(`/api/client_requests?client_id=${clientId}`)
     const data = await res.json()
@@ -278,14 +290,28 @@ export default function Page3() {
   const fetchDailyStats = async (projectCode: string) => {
     const res = await fetch(`/api/post_stats_history?project_code=${projectCode}`)
     const data = await res.json()
+    
+    // 커버영상 데이터
+    const coverRes = await fetch(`/api/posts?project_code=${projectCode}&is_cover=true`)
+    const coverData = await coverRes.json()
+    
     if (data && data.length > 0) {
       const dates = [...new Set(data.map((h: any) => h.recorded_at.includes('_') ? h.recorded_at.split('_')[0] : h.recorded_at))].sort()
       const stats = dates.map(date => {
         const dayData = data.filter((h: any) => h.recorded_at === date || h.recorded_at.startsWith(date + '_'))
+        const igData = dayData.filter((h: any) => h.platform === 'instagram')
+        const ytData = dayData.filter((h: any) => h.platform === 'youtube')
+        const ttData = dayData.filter((h: any) => h.platform === 'tiktok')
+        const coverCount = coverData?.filter((p: any) => p.created_at?.startsWith(date))?.length ?? 0
         return {
           date,
-          likes: Math.max(...dayData.map((h: any) => h.likes_count ?? 0)),
-          comments: Math.max(...dayData.map((h: any) => h.comments_count ?? 0))
+          ig_likes: igData.length > 0 ? Math.max(...igData.map((h: any) => h.likes_count ?? 0)) : 0,
+          ig_comments: igData.length > 0 ? Math.max(...igData.map((h: any) => h.comments_count ?? 0)) : 0,
+          yt_likes: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.likes_count ?? 0)) : 0,
+          yt_comments: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.comments_count ?? 0)) : 0,
+          tt_likes: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.likes_count ?? 0)) : 0,
+          tt_comments: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.comments_count ?? 0)) : 0,
+          cover_count: coverCount > 0 ? coverCount : null,
         }
       })
       setDailyStats(stats)
@@ -776,8 +802,15 @@ export default function Page3() {
                         <YAxis tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="likes" stroke="#ef4444" name="좋아요" dot={false} />
-                        <Line type="monotone" dataKey="comments" stroke="#22c55e" name="댓글" dot={false} />
+                        <Line type="monotone" dataKey="ig_likes" stroke="#E1306C" name="인스타 하트" dot={false} />
+                        <Line type="monotone" dataKey="ig_comments" stroke="#E1306C" name="인스타 댓글" dot={false} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="yt_likes" stroke="#FF0000" name="유튜브 좋아요" dot={false} />
+                        <Line type="monotone" dataKey="yt_comments" stroke="#FF0000" name="유튜브 댓글" dot={false} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="tt_likes" stroke="#000000" name="틱톡 하트" dot={false} />
+                        <Line type="monotone" dataKey="tt_comments" stroke="#000000" name="틱톡 댓글" dot={false} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="ig_audio" stroke="#E1306C" name="인스타 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
+                        <Line type="monotone" dataKey="tt_audio" stroke="#000000" name="틱톡 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
+                        <Line type="monotone" dataKey="cover_count" stroke="#9333ea" name="커버영상" dot={true} connectNulls={false} />
                       </LineChart>
                     </ResponsiveContainer>
                     <p className="text-xs text-gray-400 mt-1 text-center">※ 데이터는 매일 낮 12시에 갱신됩니다</p>
@@ -800,7 +833,7 @@ export default function Page3() {
                           <p className="text-sm font-bold">{snsPosts.length}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">좋아요</p>
+                          <p className="text-xs text-gray-500">{label === '유튜브' ? '좋아요' : '하트'}</p>
                           <p className="text-sm font-bold text-red-500">{snsPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0).toLocaleString()}</p>
                         </div>
                         <div className="text-center">
