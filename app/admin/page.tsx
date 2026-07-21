@@ -74,6 +74,7 @@ export default function Page1() {
   const [secondPostDate, setSecondPostDate] = useState('')
   const [secondPostTime, setSecondPostTime] = useState('')
   const [artistList, setArtistList] = useState<any[]>([])
+  const [replyText, setReplyText] = useState<{[key: number]: string}>({})
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -1064,6 +1065,58 @@ export default function Page1() {
                             <p className="text-sm font-medium">{req.title}</p>
                             <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · 게시물 {req.requested_posts ?? 1}개 · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                             <p className="text-xs text-gray-600 mt-1">{req.content}</p>
+                            {req.reply && (
+                              <p className="text-xs text-blue-600 mt-1 bg-blue-50 rounded p-2">💬 답장: {req.reply}</p>
+                            )}
+                            <div className="flex gap-1 mt-2">
+                              <input
+                                value={replyText[req.id] ?? ''}
+                                onChange={(e) => setReplyText(prev => ({...prev, [req.id]: e.target.value}))}
+                                className="flex-1 text-xs border rounded px-2 py-1"
+                                placeholder="답장 입력..."
+                              />
+                              <button onClick={async () => {
+                                if (!replyText[req.id]) return
+                                await fetch(`/api/client_requests?id=${req.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ reply: replyText[req.id], replied_at: new Date().toISOString() })
+                                })
+                                // 의뢰인 푸시
+                                const clientRes = await fetch(`/api/users?client_id=${req.client_id}`)
+                                const clientData = await clientRes.json()
+                                const clientUser = clientData?.[0]
+                                if (clientUser) {
+                                  const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+                                  const tokens = await tokensRes.json()
+                                  if (tokens && tokens.length > 0) {
+                                    await fetch('/api/push', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        title: '📬 문의 답장이 왔어요!',
+                                        body: replyText[req.id],
+                                        tokens: tokens.map((t: any) => t.token),
+                                        userIds: tokens.map((t: any) => t.user_id)
+                                      })
+                                    })
+                                  }
+                                }
+                                // 알림 저장
+                                await fetch('/api/notifications', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    user_id: clientUser?.id,
+                                    user_role: 'client',
+                                    title: '📬 문의 답장이 왔어요!',
+                                    body: replyText[req.id]
+                                  })
+                                })
+                                setReplyText(prev => ({...prev, [req.id]: ''}))
+                                fetchClientRequests()
+                              }} className="text-xs bg-blue-600 text-white rounded px-2 py-1">답장</button>
+                            </div>
                           </div>
                           <div className="flex flex-col gap-1 shrink-0 ml-2">
                             <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
