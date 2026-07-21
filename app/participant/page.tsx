@@ -79,6 +79,8 @@ export default function Page2() {
   const [myPostPage, setMyPostPage] = useState(0)
   const [projectLinks, setProjectLinks] = useState<any[]>([])
   const [coverRequests, setCoverRequests] = useState<any[]>([])
+  const [selectedParticipation, setSelectedParticipation] = useState<any>(null)
+  const [participationFilter, setParticipationFilter] = useState<'current' | 'all'>('current')
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -1307,22 +1309,27 @@ useEffect(() => {
 
             {/* 내 참여 현황 */}
             {myParticipations.length > 0 && (() => {
-              const filteredParticipations = postFilter === 'current'
+              const filteredParticipations = participationFilter === 'current'
                 ? myParticipations.filter(p => ['ONGOING', 'PENDING'].includes(p.projects?.status))
                 : myParticipations
               return (
                 <div className="bg-white rounded-2xl shadow p-4 mb-4">
                   <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
+                  <div className="flex gap-2 mb-3">
+                    <button onClick={() => setParticipationFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행중</button>
+                    <button onClick={() => setParticipationFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체</button>
+                  </div>
                   <div className="space-y-2">
                     {filteredParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
                       <div key={p.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => { 
-                        if (projectCode.toLowerCase() === p.project_code.toLowerCase()) {
+                        if (selectedParticipation?.project_code === p.project_code) {
+                          setSelectedParticipation(null)
                           setProjectCode('')
                           setProjectInfo(null)
                         } else {
+                          setSelectedParticipation(p)
                           setProjectCode(p.project_code)
                           getRequirements(p.project_code)
-                          setActiveTab('right')
                         }
                       }}>
                         <div className="flex justify-between items-start gap-2">
@@ -1355,6 +1362,95 @@ useEffect(() => {
                         </div>
                       </div>
                     ))}
+                    {/* 선택된 참여 프로젝트 정보 + 미션제출 */}
+                    {selectedParticipation && (
+                      <div className="mt-3 border-t pt-3">
+                        <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                          <p className="text-sm font-bold mb-2">{selectedParticipation.projects?.artist_name || selectedParticipation.projects?.client_name} - {selectedParticipation.projects?.song_title}</p>
+                          <p className="text-xs text-gray-500">시작일: {selectedParticipation.projects?.start_date ?? '미정'}{selectedParticipation.projects?.start_time ? ` ${selectedParticipation.projects.start_time}` : ''}</p>
+                          <p className="text-xs text-gray-500">종료일: {selectedParticipation.projects?.end_date ?? '미정'}</p>
+                          <p className="text-xs text-gray-500">진행일수: {selectedParticipation.projects?.start_date ? Math.floor((new Date().getTime() - new Date(selectedParticipation.projects.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                          <span className={`text-xs px-2 py-1 rounded-full ${selectedParticipation.projects?.status === 'ONGOING' ? 'bg-green-100 text-green-700' : selectedParticipation.projects?.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                            {selectedParticipation.projects?.status === 'ONGOING' ? '진행중' : selectedParticipation.projects?.status === 'PENDING' ? '대기중' : '완료'}
+                          </span>
+                        </div>
+                        {/* 미션 제출 폼 */}
+                        <div className="mt-3">
+                          <div className="space-y-3">
+                            {projectInfo && (requirements || projectInfo?.required_posts > 1) && (
+                              <div className="bg-blue-50 rounded-lg p-3">
+                                <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
+                                {requirements && <p className="text-sm text-blue-700 mt-1">{requirements}</p>}
+                                {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
+                              </div>
+                            )}
+                            {projectInfo && (
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
+                                <div className="flex justify-between items-center mt-2">
+                                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                                  {isJoined ? (
+                                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                                  ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
+                                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
+                                  ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
+                                    <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
+                                  ) : (
+                                    <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                            {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
+                              <>
+                                <div>
+                                  <label className="text-sm font-medium">참여자 이름</label>
+                                  <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">플랫폼 선택</label>
+                                  <select value={platform} onChange={(e) => {
+                                    setPlatform(e.target.value)
+                                    const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
+                                    if (e.target.value === 'instagram') setSnsAccount(accounts.instagram ?? '')
+                                    else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
+                                    else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
+                                    else setSnsAccount('')
+                                  }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                                    <option value="">플랫폼을 선택해주세요</option>
+                                    <option value="instagram">인스타그램</option>
+                                    <option value="youtube">유튜브</option>
+                                    <option value="tiktok">틱톡</option>
+                                  </select>
+                                  {platform === 'instagram' && (
+                                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
+                                      <p className="text-xs text-orange-700 font-medium">⚠️ 인스타그램은 반드시 <strong>릴스(Reels)</strong>로 올려주세요.</p>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">본인 SNS 계정</label>
+                                  <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
+                                  {Array.from({ length: projectInfo?.required_posts ?? 1 }).map((_, i) => (
+                                    <input key={i} value={postUrls[i] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[i] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${(projectInfo?.required_posts ?? 1) > 1 ? `${i + 1}` : ''}`} />
+                                  ))}
+                                </div>
+                                <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                                  <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
+                                  커버영상 제출 (관리자 승인 후 별도 금액 지급)
+                                </label>
+                                <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                                  {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {filteredParticipations.length > PAGE_SIZE && (
                     <div className="flex justify-between items-center mt-3">
@@ -1486,6 +1582,7 @@ useEffect(() => {
                         return <button onClick={() => { 
                           setProjectCode(project.project_code)
                           getRequirements(project.project_code)
+                          setActiveTab('left')
                           setTimeout(() => missionRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
                         }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">참여</button>
                       }
@@ -1522,113 +1619,6 @@ useEffect(() => {
               )}
             </div>
 
-            {/* 프로젝트 기간 */}
-            {projectInfo && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-2">📅 프로젝트 기간</h2>
-                <p className="text-sm">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
-                <p className="text-sm">종료예정일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}</p>
-                {projectInfo.start_date && (
-                  <p className="text-sm">진행일수: {Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24))}일째</p>
-                )}
-                <p className={`text-xs mt-1 font-medium ${projectInfo.status === 'COMPLETED' ? 'text-gray-500' : projectInfo.status === 'ONGOING' ? 'text-green-600' : 'text-yellow-600'}`}>
-                  {projectInfo.status === 'COMPLETED' ? '✅ 종료된 프로젝트' : projectInfo.status === 'ONGOING' ? '🟢 진행중' : '⏸ 대기중'}
-                </p>
-              </div>
-            )}
-
-            {/* 미션 제출 폼 */}
-            <div ref={missionRef} className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">📸 미션 제출</h2>
-              <div className="space-y-3">
-                {projectInfo && (requirements || projectInfo?.required_posts > 1) && (
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                    {requirements && (
-                      <p className="text-sm text-blue-700 mt-1">{requirements}</p>
-                    )}
-                    {projectInfo?.required_posts > 1 && (
-                      <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>
-                    )}
-                  </div>
-                )}     
-                {projectInfo && (
-                  <div className="bg-gray-50 rounded-lg p-3 mt-2">
-                    {projectInfo.start_date && (
-                      <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date} {projectInfo.mission_date && `(모집일: ${projectInfo.mission_date})`}</p>
-                    )}
-                    <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
-                      {isJoined ? (
-                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
-                      ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
-                        <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
-                      ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
-                      ) : (
-                        <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
-                  <>
-                    <div>
-                      <label className="text-sm font-medium">참여자 이름</label>
-                      <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">플랫폼 선택</label>
-                      <select value={platform} onChange={(e) => {
-                        setPlatform(e.target.value)
-                        const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
-                        if (e.target.value === 'instagram') setSnsAccount(accounts.instagram ?? '')
-                        else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
-                        else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
-                        else setSnsAccount('')
-                      }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
-                        <option value="">플랫폼을 선택해주세요</option>
-                        <option value="instagram">인스타그램</option>
-                        <option value="youtube">유튜브</option>
-                        <option value="tiktok">틱톡</option>
-                      </select>
-                      {platform === 'instagram' && (
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
-                          <p className="text-xs text-orange-700 font-medium">⚠️ 인스타그램은 반드시 <strong>릴스(Reels)</strong>로 게시물을 올려주세요. 일반 사진 게시물은 음원 카운트에 반영되지 않아요.</p>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">본인 SNS 계정</label>
-                      <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
-                      {Array.from({ length: projectInfo?.required_posts ?? 1 }).map((_, i) => (
-                        <input 
-                          key={i}
-                          value={postUrls[i] ?? ''}
-                          onChange={(e) => {
-                            const newUrls = [...postUrls]
-                            newUrls[i] = e.target.value
-                            setPostUrls(newUrls)
-                          }}
-                          className="w-full border rounded-lg px-3 py-2 text-sm mt-1" 
-                          placeholder={`게시글 주소 ${(projectInfo?.required_posts ?? 1) > 1 ? `${i + 1}` : ''}`}
-                        />
-                      ))}
-                    </div>
-                    <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                      <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
-                      커버영상 제출 (관리자 승인 후 별도 금액 지급)
-                    </label>
-                    <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
-                      {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
 
             {/* 댓글 미션 */}
             {projectCode && projectLinks.length > 0 && (
