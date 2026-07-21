@@ -76,6 +76,8 @@ export default function Page1() {
   const [artistList, setArtistList] = useState<any[]>([])
   const [replyText, setReplyText] = useState<{[key: number]: string}>({})
   const [expandedReply, setExpandedReply] = useState<{[key: number]: boolean}>({})
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [coverImageUrl, setCoverImageUrl] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -360,6 +362,8 @@ export default function Page1() {
     setProjectPrefix(project.project_code?.split('_')[0] ?? '')
     setProductContent(project.product_content ?? '')
     setSongTitle(project.song_title ?? '')
+    setCoverImageUrl(project.cover_image_url ?? '')
+    setCoverImageFile(null)
     setInstagramAudioId(project.instagram_audio_id ?? '')
     setTiktokAudioId(project.tiktok_audio_id ?? '')
     setRequirements(project.requirements ?? '')
@@ -487,6 +491,19 @@ export default function Page1() {
 
   const handleInsert = async () => {
     if (!projectCode) { alert('프로젝트 코드를 입력해주세요.'); return }
+    
+    // 이미지 업로드
+    let uploadedImageUrl = ''
+    if (coverImageFile) {
+      const { data, error } = await supabase.storage
+        .from('covers')
+        .upload(`${projectCode.toUpperCase()}_${Date.now()}`, coverImageFile, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
+        uploadedImageUrl = urlData.publicUrl
+      }
+    }
+    
     const res = await fetch('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -496,6 +513,7 @@ export default function Page1() {
         product_content: productContent,
         song_title: songTitle,
         artist_name: artistName || null,
+        cover_image_url: uploadedImageUrl || null,
         instagram_audio_id: instagramAudioId || null,
         tiktok_audio_id: tiktokAudioId || null,
         requirements,
@@ -577,6 +595,18 @@ export default function Page1() {
   }
 
   const handleUpdate = async () => {
+    // 이미지 업로드
+    let uploadedImageUrl = selectedProject?.cover_image_url || ''
+    if (coverImageFile) {
+      const { data, error } = await supabase.storage
+        .from('covers')
+        .upload(`${selectedProject.project_code}_${Date.now()}`, coverImageFile, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
+        uploadedImageUrl = urlData.publicUrl
+      }
+    }
+
     const res = await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -585,6 +615,7 @@ export default function Page1() {
         product_content: productContent,
         song_title: songTitle,
         artist_name: artistName || null,
+        cover_image_url: uploadedImageUrl || null,
         instagram_audio_id: instagramAudioId || null,
         tiktok_audio_id: tiktokAudioId || null,
         requirements,
@@ -1023,12 +1054,17 @@ export default function Page1() {
                   <div className="space-y-2">
                     {projects.slice(projectPage * PAGE_SIZE, (projectPage + 1) * PAGE_SIZE).map((project) => (
                       <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-sm">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
-                            <p className="text-xs text-gray-400">프로젝트 코드: {project.project_code}</p>
+                        <div className="flex justify-between items-center gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {project.cover_image_url && (
+                              <img src={project.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                            )}
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
+                              <p className="text-xs text-gray-400">프로젝트 코드: {project.project_code}</p>
+                            </div>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
                             {project.status === 'ONGOING' ? '진행중' : project.status === 'PENDING' ? '대기중' : '완료'}
                           </span>
                         </div>
@@ -1342,6 +1378,16 @@ export default function Page1() {
                         <input value={projectCode} className={`${inputClass} bg-gray-100`} disabled />
                       </div>
                     )}
+                    <div>
+                      <label className="text-sm font-medium">앨범 자켓 이미지</label>
+                      <input type="file" accept="image/*" onChange={(e) => setCoverImageFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      {coverImageFile && (
+                        <img src={URL.createObjectURL(coverImageFile)} className="w-20 h-20 rounded-lg object-cover mt-2" />
+                      )}
+                      {!coverImageFile && coverImageUrl && (
+                        <img src={coverImageUrl} className="w-20 h-20 rounded-lg object-cover mt-2" />
+                      )}
+                    </div>
                     <div>
                       <label className="text-sm font-medium">의뢰인 선택</label>
                       <input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className={inputClass} placeholder="이름/소속사/아티스트 검색" />

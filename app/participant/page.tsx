@@ -1613,14 +1613,19 @@ useEffect(() => {
 
                       return (
                         <div key={project.id} className="border rounded-lg p-3">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <p className="text-sm font-medium">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
-                              <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
-                              {project.start_date && (
-                                <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
+                          <div className="flex justify-between items-center gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              {project.cover_image_url && (
+                                <img src={project.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                               )}
-                              <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}</p>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
+                                <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
+                                {project.start_date && (
+                                  <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
+                                )}
+                                <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}</p>
+                              </div>
                             </div>
                             {getStatusButton()}
                           </div>
