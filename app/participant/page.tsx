@@ -81,6 +81,8 @@ export default function Page2() {
   const [coverRequests, setCoverRequests] = useState<any[]>([])
   const [selectedParticipation, setSelectedParticipation] = useState<any>(null)
   const [participationFilter, setParticipationFilter] = useState<'current' | 'all'>('current')
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -1181,18 +1183,41 @@ useEffect(() => {
                       <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
                       <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
                     </div>
-                    <button onClick={async () => {
-                      if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
-                      await fetch(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
-                      await fetch(`/api/settlements?member_id=${userInfo?.id}`, { method: 'DELETE' })
-                      await fetch(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
-                      await fetch(`/api/participants?id=${userInfo?.id}`, { method: 'DELETE' })
-                      await supabase.auth.signOut()
-                      localStorage.removeItem('userInfo')
-                      localStorage.removeItem('userRole')
-                      alert('계정이 삭제됐습니다.')
-                      router.push('/')
-                    }} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium mt-2">계정 삭제</button>
+                    <button onClick={() => setShowDeleteConfirm(true)} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium mt-2">계정 삭제</button>
+                    
+                    {showDeleteConfirm && (
+                      <div className="mt-3 border border-red-300 rounded-lg p-4 bg-red-50">
+                        <p className="text-sm font-bold text-red-700 mb-2">⚠️ 계정 삭제 확인</p>
+                        <p className="text-xs text-gray-600 mb-1">• 현재 잔여 적립금: <span className="font-bold text-red-600">{balance.toLocaleString()}P (삭제 시 소멸)</span></p>
+                        <p className="text-xs text-gray-600 mb-1">• 진행중 프로젝트가 있는 경우 미션 수익을 받을 수 없어요.</p>
+                        <p className="text-xs text-gray-600 mb-3">• 삭제 후 복구가 불가능합니다.</p>
+                        <p className="text-xs font-medium mb-1">아래에 <span className="text-red-600 font-bold">"탈퇴합니다"</span> 를 입력해주세요:</p>
+                        <input 
+                          value={deleteConfirmText} 
+                          onChange={(e) => setDeleteConfirmText(e.target.value)} 
+                          className="w-full border border-red-300 rounded-lg px-3 py-2 text-sm mt-1 mb-3" 
+                          placeholder="탈퇴합니다" 
+                        />
+                        <div className="flex gap-2">
+                          <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
+                          <button 
+                            disabled={deleteConfirmText !== '탈퇴합니다'}
+                            onClick={async () => {
+                              await fetch(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                              await fetch(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                              await fetch(`/api/participants?id=${userInfo?.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '탈퇴회원', mobile: '', email: '', account_number: '', account_holder: '', bank_name: '', instagram_id: '', youtube_id: '', tiktok_id: '', is_deleted: true }) })
+                              await supabase.auth.signOut()
+                              localStorage.removeItem('userInfo')
+                              localStorage.removeItem('userRole')
+                              alert('계정이 삭제됐습니다.')
+                              router.push('/')
+                            }} 
+                            className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">
+                            삭제 확인
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
