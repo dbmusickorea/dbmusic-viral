@@ -18,7 +18,7 @@ export default function PrivacyPage() {
           <ul className="text-sm text-gray-600 mt-2 space-y-1 list-disc pl-4">
             <li>필수: 이름, 이메일, 휴대전화번호, 비밀번호</li>
             <li>정산 시: 주민등록번호, 계좌번호, 예금주명, 은행명</li>
-            <li>SNS 활동: 인스타그램/유튜브/틱톡 계정 ID</li>
+            <li>SNS 활동: 인스타그램/유튜브/틱톡 계정 ID, 팔로워수, 게시물 좋아요수/댓글수</li>
           </ul>
         </section>
 
@@ -86,6 +86,11 @@ export default function PrivacyPage() {
         <section className="mb-6">
           <h2 className="font-bold mb-2">8. 개인정보처리방침 변경</h2>
           <p className="text-sm text-gray-600">이 개인정보처리방침은 법령, 정책 또는 보안 기술의 변경에 따라 내용이 변경될 수 있으며, 변경 시 앱 내 공지를 통해 안내합니다.</p>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="font-bold mb-2">9. 아동 및 미성년자 보호</h2>
+          <p className="text-sm text-gray-600">더블비뮤직 서비스는 만 18세 이상만 이용 가능합니다. 만 18세 미만의 경우 서비스 이용이 제한되며, 만 18세 미만으로 확인될 경우 계정이 즉시 삭제될 수 있습니다. 또한 만 14세 미만 아동의 개인정보는 수집하지 않습니다.</p>
         </section>
 
       </div>

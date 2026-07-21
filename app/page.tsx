@@ -94,6 +94,7 @@ export default function LoginPage() {
   const [pendingRole, setPendingRole] = useState('')
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [coverVideoUrl, setCoverVideoUrl] = useState('')
+  const [agreedAge, setAgreedAge] = useState(false)
 
   const handleAgreeTerms = async () => {
     if (!pendingUserInfo || !pendingRole) return
@@ -676,7 +677,11 @@ export default function LoginPage() {
                     </div>
                   )}
                 </div>
-                <button onClick={handleSignupParticipant} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">회원가입</button>
+                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                  <input type="checkbox" checked={agreedAge} onChange={(e) => setAgreedAge(e.target.checked)} className="w-4 h-4" />
+                  만 18세 이상임을 확인합니다. (필수)
+                </label>
+                <button onClick={handleSignupParticipant} disabled={!agreedAge} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-300">회원가입</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
               </div>
             )}
