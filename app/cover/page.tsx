@@ -19,6 +19,7 @@ export default function CoverPage() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [coverPosts, setCoverPosts] = useState<any[]>([])
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
@@ -45,6 +46,10 @@ export default function CoverPage() {
     const participantsRes = await fetch('/api/participants?cover_approved=true')
     const participants = await participantsRes.json()
     setCoverParticipants(participants ?? [])
+    // 커버 게시물 불러오기
+    const coverPostsRes = await fetch('/api/posts?is_cover=true')
+    const coverPostsData = await coverPostsRes.json()
+    setCoverPosts(Array.isArray(coverPostsData) ? coverPostsData : [])
 
     if (role === 'admin') {
       const projectsRes = await fetch('/api/projects?status=ONGOING,PENDING')
@@ -216,16 +221,17 @@ export default function CoverPage() {
                   <div className="space-y-2">
                     {coverParticipants.map(p => {
                       const request = coverRequests.find(r => r.participant_id === p.id)
+                      const coverPost = coverPosts.find(post => post.member_id === p.id && request?.project_code === post.project_code)
                       return (
                         <div key={p.id} className="border rounded-lg p-3">
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-sm font-medium">{p.name}</p>
-                              {p.cover_video_url && (
+                              {coverPost && (
                                 <>
-                                  <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
-                                  {previewUrl === p.cover_video_url && (
-                                    <iframe src={getEmbedUrl(p.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                  <button onClick={() => setPreviewUrl(previewUrl === coverPost.post_url ? '' : coverPost.post_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                  {previewUrl === coverPost.post_url && (
+                                    <iframe src={getEmbedUrl(coverPost.post_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
                                   )}
                                 </>
                               )}
@@ -237,7 +243,7 @@ export default function CoverPage() {
                                 ) : request.status === 'PENDING' ? (
                                   <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
                                 ) : request.status === 'APPROVED' ? (
-                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{coverPost ? '업로드완료' : '업로드전'}</span>
                                 ) : request.status === 'REJECTED' ? (
                                   request.rejected_count < 2 ? (
                                     <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-full">재선택</button>
@@ -303,21 +309,22 @@ export default function CoverPage() {
                 <div className="space-y-2">
                   {coverRequests.filter(r => r.status === 'APPROVED').map(r => {
                     const participant = coverParticipants.find(p => p.id === r.participant_id)
+                    const coverPost = coverPosts.find(post => post.member_id === r.participant_id && post.project_code === r.project_code)
                     return (
                       <div key={r.id} className="border rounded-lg p-3">
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-sm font-medium">{participant?.name ?? '-'}</p>
-                            {participant?.cover_video_url && (
+                            {coverPost && (
                               <>
-                                <button onClick={() => setPreviewUrl(previewUrl === participant.cover_video_url ? '' : participant.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
-                                {previewUrl === participant.cover_video_url && (
-                                  <iframe src={getEmbedUrl(participant.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                <button onClick={() => setPreviewUrl(previewUrl === coverPost.post_url ? '' : coverPost.post_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                {previewUrl === coverPost.post_url && (
+                                  <iframe src={getEmbedUrl(coverPost.post_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
                                 )}
                               </>
                             )}
                           </div>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{coverPost ? '업로드완료' : '업로드전'}</span>
                         </div>
                       </div>
                     )
