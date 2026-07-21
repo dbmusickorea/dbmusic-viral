@@ -1358,24 +1358,29 @@ useEffect(() => {
                         }
                       }}>
                         <div className="flex justify-between items-start gap-2">
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
-                            <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
-                            <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
-                            {p.projects?.end_date && (
-                              <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
+                          <div className="flex items-start gap-2 min-w-0 flex-1">
+                            {p.projects?.cover_image_url && (
+                              <img src={p.projects.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0 mt-0.5" />
                             )}
-                            {myRankMap[p.project_code] && (
-                              <div className="mt-1">
-                                <p className="text-xs font-medium text-blue-600">
-                                  {myRankMap[p.project_code].rank}위 / 전체 {myRankMap[p.project_code].total}명 중
-                                </p>
-                                {!myRankMap[p.project_code].isEligible && (
-                                  <p className="text-xs text-gray-400">(좋아요 1,000건 미만 시상 제외)</p>
-                                )}
-                                <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
-                              </div>
-                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
+                              <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
+                              <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                              {p.projects?.end_date && (
+                                <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
+                              )}
+                              {myRankMap[p.project_code] && (
+                                <div className="mt-1">
+                                  <p className="text-xs font-medium text-blue-600">
+                                    {myRankMap[p.project_code].rank}위 / 전체 {myRankMap[p.project_code].total}명 중
+                                  </p>
+                                  {!myRankMap[p.project_code].isEligible && (
+                                    <p className="text-xs text-gray-400">(좋아요 1,000건 미만 시상 제외)</p>
+                                  )}
+                                  <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${
                             p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' :
