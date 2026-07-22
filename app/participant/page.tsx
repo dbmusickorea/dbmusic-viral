@@ -1267,8 +1267,8 @@ useEffect(() => {
                 <div className="bg-white rounded-2xl shadow p-4 mb-4">
                   <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
                   <div className="flex gap-2 mb-3">
-                    <button onClick={() => setParticipationFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행중</button>
-                    <button onClick={() => setParticipationFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체</button>
+                    <button onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행중</button>
+                    <button onClick={() => { setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체</button>
                   </div>
                   <div className="space-y-2">
                     {filteredParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
