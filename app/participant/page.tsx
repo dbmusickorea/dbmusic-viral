@@ -150,7 +150,7 @@ useEffect(() => {
         setMyParticipations([])
       }
 
-      await fetchAvailableBalance(parsed.id)
+      await fetchAvailableBalance(parsed.id, participant?.balance ?? 0)
       // 커버 요청 확인
       const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
       const coverData = await coverRes.json()
@@ -390,7 +390,7 @@ useEffect(() => {
         setMyParticipations([])
       }
 
-      await fetchAvailableBalance(parsed.id)
+      await fetchAvailableBalance(parsed.id, participant?.balance ?? 0)
       // 커버 요청 확인
       const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
       const coverData = await coverRes.json()
