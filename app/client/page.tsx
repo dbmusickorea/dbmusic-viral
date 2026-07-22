@@ -845,20 +845,28 @@ export default function Page3() {
                         <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                         <YAxis tick={{ fontSize: 10 }} />
                         <Tooltip />
-                        <Legend />
+                        <Legend
+                          layout="horizontal"
+                          verticalAlign="bottom"
+                          align="left"
+                          wrapperStyle={{ fontSize: '10px', paddingTop: '8px' }}
+                          formatter={(value, entry: any) => (
+                            <span style={{ color: entry.color, fontSize: '10px', marginRight: '8px' }}>{value}</span>
+                          )}
+                        />
                         <Line type="monotone" dataKey="ig_likes" stroke="#E1306C" name="인스타 하트" dot={false} />
-                        <Line type="monotone" dataKey="ig_comments" stroke="#E1306C" name="인스타 댓글" dot={false} strokeDasharray="5 5" />
-                        <Line type="monotone" dataKey="yt_likes" stroke="#FF0000" name="유튜브 좋아요" dot={false} />
-                        <Line type="monotone" dataKey="yt_comments" stroke="#FF0000" name="유튜브 댓글" dot={false} strokeDasharray="5 5" />
-                        <Line type="monotone" dataKey="tt_likes" stroke="#000000" name="틱톡 하트" dot={false} />
-                        <Line type="monotone" dataKey="tt_comments" stroke="#000000" name="틱톡 댓글" dot={false} strokeDasharray="5 5" />
-                        <Line type="monotone" dataKey="ig_audio" stroke="#E1306C" name="인스타 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
-                        <Line type="monotone" dataKey="tt_audio" stroke="#000000" name="틱톡 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
-                        <Line type="monotone" dataKey="yt_audio" stroke="#FF0000" name="유튜브 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
+                        <Line type="monotone" dataKey="ig_comments" stroke="#F77737" name="인스타 댓글" dot={false} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="ig_views" stroke="#FCAF45" name="인스타 조회수" dot={false} strokeDasharray="3 3" />
+                        <Line type="monotone" dataKey="yt_likes" stroke="#CC0000" name="유튜브 좋아요" dot={false} />
+                        <Line type="monotone" dataKey="yt_comments" stroke="#FF6B6B" name="유튜브 댓글" dot={false} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="yt_views" stroke="#FF9999" name="유튜브 조회수" dot={false} strokeDasharray="3 3" />
+                        <Line type="monotone" dataKey="tt_likes" stroke="#00F2EA" name="틱톡 하트" dot={false} />
+                        <Line type="monotone" dataKey="tt_comments" stroke="#008080" name="틱톡 댓글" dot={false} strokeDasharray="5 5" />
+                        <Line type="monotone" dataKey="tt_views" stroke="#004D4D" name="틱톡 조회수" dot={false} strokeDasharray="3 3" />
+                        <Line type="monotone" dataKey="ig_audio" stroke="#833AB4" name="인스타 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
+                        <Line type="monotone" dataKey="tt_audio" stroke="#405DE6" name="틱톡 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
+                        <Line type="monotone" dataKey="yt_audio" stroke="#FF0076" name="유튜브 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                         <Line type="monotone" dataKey="cover_count" stroke="#9333ea" name="커버영상" dot={true} connectNulls={false} />
-                        <Line type="monotone" dataKey="ig_views" stroke="#E1306C" name="인스타 조회수" dot={false} strokeDasharray="3 3" />
-                        <Line type="monotone" dataKey="yt_views" stroke="#FF0000" name="유튜브 조회수" dot={false} strokeDasharray="3 3" />
-                        <Line type="monotone" dataKey="tt_views" stroke="#000000" name="틱톡 조회수" dot={false} strokeDasharray="3 3" />
                       </LineChart>
                     </ResponsiveContainer>
                     <p className="text-xs text-gray-400 mt-1 text-center">※ 데이터는 선택하신 상품에 따라 1~12시간 간격으로 갱신됩니다</p>
