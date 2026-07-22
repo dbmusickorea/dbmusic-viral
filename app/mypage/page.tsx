@@ -25,6 +25,10 @@ export default function MyPage() {
   const [referralCode, setReferralCode] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [snsChangeRequest, setSnsChangeRequest] = useState<{platform: string, newId: string} | null>(null)
+  const [requests, setRequests] = useState<any[]>([])
+  const [requestTitle, setRequestTitle] = useState('')
+  const [requestContent, setRequestContent] = useState('')
+  const [showRequestForm, setShowRequestForm] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -50,6 +54,10 @@ export default function MyPage() {
       setBalance(p.balance ?? 0)
       setReferralCode(p.referral_code ?? '')
     }
+    // 문의 내역 불러오기
+    const reqRes = await fetch(`/api/client_requests?member_id=${id}`)
+    const reqData = await reqRes.json()
+    setRequests(reqData ?? [])
   }
 
   const handleUpdateMyInfo = async () => {
@@ -81,6 +89,29 @@ export default function MyPage() {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
     router.push('/')
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
+    const res = await fetch('/api/client_requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        member_id: userInfo?.id,
+        client_name: userInfo?.name,
+        client_mobile: userInfo?.mobile,
+        title: requestTitle,
+        content: requestContent,
+        user_type: 'participant'
+      })
+    })
+    if (!res.ok) { alert('등록 실패!'); return }
+    alert('✅ 문의가 등록됐어요!')
+    setRequestTitle('')
+    setRequestContent('')
+    setShowRequestForm(false)
+    const reqRes = await fetch(`/api/client_requests?member_id=${userInfo?.id}`)
+    setRequests(await reqRes.json())
   }
 
   return (
@@ -217,6 +248,47 @@ export default function MyPage() {
                 <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">저장하기</button>
                 <button onClick={() => setIsEditing(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* 문의하기 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-bold">💬 문의하기</h2>
+            <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">
+              {showRequestForm ? '닫기' : '문의 등록'}
+            </button>
+          </div>
+          {showRequestForm && (
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="text-sm font-medium">제목</label>
+                <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">내용</label>
+                <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1 h-24" placeholder="문의 내용" />
+              </div>
+              <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록하기</button>
+            </div>
+          )}
+          {requests.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
+          ) : (
+            <div className="space-y-2">
+              {requests.map((r) => (
+                <div key={r.id} className="border rounded-lg p-3">
+                  <p className="text-sm font-medium">{r.title}</p>
+                  <p className="text-xs text-gray-500 mt-1">{new Date(r.created_at).toLocaleDateString('ko-KR')}</p>
+                  {r.reply && (
+                    <div className="mt-2 bg-blue-50 rounded p-2">
+                      <p className="text-xs text-blue-800 font-medium">📝 답변</p>
+                      <p className="text-xs text-blue-700 mt-0.5">{r.reply}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>

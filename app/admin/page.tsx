@@ -1100,7 +1100,7 @@ export default function Page1() {
 
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold">📋 의뢰인 프로젝트 문의</h2>
+                <h2 className="font-bold">📋 문의 내역</h2>
                 <div className="flex gap-2 text-xs">
                   <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
                   <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
@@ -1116,8 +1116,11 @@ export default function Page1() {
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="text-sm font-medium">{req.title}</p>
-                            <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · 게시물 {req.requested_posts ?? 1}개 · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                            <p className="text-xs text-gray-600 mt-1">{req.content}</p>                            
+                            <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                            <p className="text-xs text-gray-600 mt-1">{req.content}</p>
+                            <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${req.user_type === 'participant' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+                              {req.user_type === 'participant' ? '체험단' : '의뢰인'}
+                            </span>                         
                           </div>
                           <div className="flex flex-col gap-1 shrink-0 ml-2">
                             <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>

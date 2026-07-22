@@ -20,6 +20,11 @@ export default function ClientMyPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isEditing, setIsEditing] = useState(false)
+  const [requests, setRequests] = useState<any[]>([])
+  const [requestTitle, setRequestTitle] = useState('')
+  const [requestContent, setRequestContent] = useState('')
+  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [requestedPosts, setRequestedPosts] = useState('1')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -31,6 +36,15 @@ export default function ClientMyPage() {
     setMyArtist(parsed.artist ?? '')
     setMyPhone(parsed.phone ?? '')
     setMyMobile(parsed.mobile ?? '')
+
+    const loadData = async () => {
+      if (parsed.client_id) {
+        const reqRes = await fetch(`/api/client_requests?client_id=${parsed.client_id}`)
+        const reqData = await reqRes.json()
+        setRequests(reqData ?? [])
+      }
+    }
+    loadData()
   }, [])
 
   const handleUpdateMyInfo = async () => {
@@ -59,6 +73,29 @@ export default function ClientMyPage() {
     setMyPassword('')
     setMyCurrentPassword('')
     setIsEditing(false)
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
+    const res = await fetch('/api/client_requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: userInfo?.client_id,
+        client_name: userInfo?.name,
+        client_mobile: userInfo?.mobile,
+        title: requestTitle,
+        content: requestContent,
+        requested_posts: Number(requestedPosts)
+      })
+    })
+    if (!res.ok) { alert('등록 실패!'); return }
+    alert('✅ 문의가 등록됐어요!')
+    setRequestTitle('')
+    setRequestContent('')
+    setShowRequestForm(false)
+    const reqRes = await fetch(`/api/client_requests?client_id=${userInfo?.client_id}`)
+    setRequests(await reqRes.json())
   }
 
   const handleLogout = () => {
@@ -146,6 +183,46 @@ export default function ClientMyPage() {
           )}
         </div>
 
+        {/* 문의하기 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-bold">💬 문의하기</h2>
+            <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">
+              {showRequestForm ? '닫기' : '문의 등록'}
+            </button>
+          </div>
+          {showRequestForm && (
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="text-sm font-medium">제목</label>
+                <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">내용</label>
+                <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1 h-24" placeholder="문의 내용" />
+              </div>
+              <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록하기</button>
+            </div>
+          )}
+          {requests.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
+          ) : (
+            <div className="space-y-2">
+              {requests.map((r) => (
+                <div key={r.id} className="border rounded-lg p-3">
+                  <p className="text-sm font-medium">{r.title}</p>
+                  <p className="text-xs text-gray-500 mt-1">{new Date(r.created_at).toLocaleDateString('ko-KR')}</p>
+                  {r.reply && (
+                    <div className="mt-2 bg-blue-50 rounded p-2">
+                      <p className="text-xs text-blue-800 font-medium">📝 답변</p>
+                      <p className="text-xs text-blue-700 mt-0.5">{r.reply}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>

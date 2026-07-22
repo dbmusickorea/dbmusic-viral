@@ -9,9 +9,11 @@ const supabaseAdmin = createClient(
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get('client_id')
+  const memberId = searchParams.get('member_id')
 
   let query = supabaseAdmin.from('client_requests').select('*').order('created_at', { ascending: false })
   if (clientId) query = query.eq('client_id', clientId)
+  if (memberId) query = query.eq('member_id', memberId)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
