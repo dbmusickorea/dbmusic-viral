@@ -52,6 +52,7 @@ export default function Page3() {
   const [artistList, setArtistList] = useState<any[]>([])
   const [newArtistName, setNewArtistName] = useState('')
   const [showSidebar, setShowSidebar] = useState(false)
+  const [ytAudioCount, setYtAudioCount] = useState<number | null>(null)
   const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -77,16 +78,17 @@ export default function Page3() {
   }, [])
 
   useEffect(() => {
-    if (dailyStats.length > 0 && (igAudioCount !== null || ttAudioCount !== null)) {
+    if (dailyStats.length > 0 && (igAudioCount !== null || ttAudioCount !== null || ytAudioCount !== null)) {
       const updated = [...dailyStats]
       updated[updated.length - 1] = {
         ...updated[updated.length - 1],
         ig_audio: igAudioCount,
-        tt_audio: ttAudioCount
+        tt_audio: ttAudioCount,
+        yt_audio: ytAudioCount
       }
       setDailyStats(updated)
     }
-  }, [igAudioCount, ttAudioCount])
+  }, [igAudioCount, ttAudioCount, ytAudioCount])
 
   const fetchRequests = async (clientId: string) => {
     const res = await fetch(`/api/client_requests?client_id=${clientId}`)
@@ -197,6 +199,7 @@ export default function Page3() {
     setClientCode(project.project_code)
     setIgAudioCount(project.instagram_audio_id ? (project.instagram_audio_count ?? null) : null)
     setTtAudioCount(project.tiktok_audio_id ? (project.tiktok_audio_count ?? null) : null)
+    setYtAudioCount(project.youtube_audio_id ? (project.youtube_audio_count ?? null) : null)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
     fetchDailyStats(project.project_code)
@@ -851,6 +854,7 @@ export default function Page3() {
                         <Line type="monotone" dataKey="tt_comments" stroke="#000000" name="틱톡 댓글" dot={false} strokeDasharray="5 5" />
                         <Line type="monotone" dataKey="ig_audio" stroke="#E1306C" name="인스타 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                         <Line type="monotone" dataKey="tt_audio" stroke="#000000" name="틱톡 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
+                        <Line type="monotone" dataKey="yt_audio" stroke="#FF0000" name="유튜브 음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                         <Line type="monotone" dataKey="cover_count" stroke="#9333ea" name="커버영상" dot={true} connectNulls={false} />
                         <Line type="monotone" dataKey="ig_views" stroke="#E1306C" name="인스타 조회수" dot={false} strokeDasharray="3 3" />
                         <Line type="monotone" dataKey="yt_views" stroke="#FF0000" name="유튜브 조회수" dot={false} strokeDasharray="3 3" />
@@ -889,7 +893,7 @@ export default function Page3() {
                           <p className="text-sm font-bold text-purple-600">
                             {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
                             {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
-                            {label === '유튜브' ? '준비중' : ''}
+                            {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
                           </p>
                         </div>
                       </div>

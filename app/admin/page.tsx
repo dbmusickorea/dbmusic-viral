@@ -80,6 +80,7 @@ export default function Page1() {
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
+  const [youtubeAudioId, setYoutubeAudioId] = useState('')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -391,6 +392,7 @@ export default function Page1() {
     setMonitoringExtension(project.monitoring_extension ?? 0)
     setCoverVideoCount(project.cover_video_count ?? 0)
     setSelectedClientId(project.client_id ?? '')
+    setYoutubeAudioId(project.youtube_audio_id ?? '')
     setShortsUrl1('')
     setShortsUrl2('')
     setPlaylistUrl('')
@@ -531,6 +533,7 @@ export default function Page1() {
         cover_image_url: uploadedImageUrl || null,
         instagram_audio_id: instagramAudioId || null,
         tiktok_audio_id: tiktokAudioId || null,
+        youtube_audio_id: youtubeAudioId || null,
         requirements,
         status,
         start_date: startDate || null,
@@ -633,6 +636,7 @@ export default function Page1() {
         cover_image_url: uploadedImageUrl || null,
         instagram_audio_id: instagramAudioId || null,
         tiktok_audio_id: tiktokAudioId || null,
+        youtube_audio_id: youtubeAudioId || null,
         requirements,
         status,
         start_date: startDate || null,
@@ -844,6 +848,7 @@ export default function Page1() {
     setSongTitle('')
     setInstagramAudioId('')
     setTiktokAudioId('')
+    setYoutubeAudioId('')
     setPosts([])
     setStartTime('')
     setEndTime('')
@@ -1465,6 +1470,13 @@ export default function Page1() {
                         const match = e.target.value.match(/(\d{10,})/)
                         setTiktokAudioId(match ? match[1] : e.target.value)
                       }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">유튜브 음원 URL</label>
+                      <input value={youtubeAudioId} onChange={(e) => {
+                        const match = e.target.value.match(/[?&]v=([^&]+)/)
+                        setYoutubeAudioId(match ? match[1] : e.target.value)
+                      }} className={inputClass} placeholder="https://www.youtube.com/watch?v=..." />
                     </div>
                     <div>
                       <label className="text-sm font-medium">상품내용</label>

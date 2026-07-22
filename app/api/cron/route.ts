@@ -778,8 +778,8 @@ export async function GET() {
     if (currentHour === 3) {
       const { data: projectsWithAudio } = await supabase
         .from('projects')
-        .select('project_code, instagram_audio_id, tiktok_audio_id')
-        .or('instagram_audio_id.not.is.null,tiktok_audio_id.not.is.null')
+        .select('project_code, instagram_audio_id, tiktok_audio_id, youtube_audio_id')
+        .or('instagram_audio_id.not.is.null,tiktok_audio_id.not.is.null,youtube_audio_id.not.is.null')
         .in('status', ['ONGOING', 'PAUSED'])
 
       if (projectsWithAudio) {
@@ -804,6 +804,14 @@ export async function GET() {
               })
               const data = await res.json()
               updates.tiktok_audio_count = data?.data?.music_info?.user_count ?? 0
+            } catch { }
+          }
+
+          if (project.youtube_audio_id) {
+            try {
+              const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${project.youtube_audio_id}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+              const data = await res.json()
+              updates.youtube_audio_count = Number(data?.items?.[0]?.statistics?.viewCount ?? 0)
             } catch { }
           }
 
