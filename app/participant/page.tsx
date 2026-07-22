@@ -83,6 +83,8 @@ export default function Page2() {
   const [participationFilter, setParticipationFilter] = useState<'current' | 'all'>('current')
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
+  const [showCommentMission, setShowCommentMission] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -870,6 +872,25 @@ useEffect(() => {
   }
 
   return (
+   <> 
+    {/* 사이드바 오버레이 */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-bold text-lg">더블비뮤직</h2>
+              <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
+            </div>
+            <div className="space-y-2 flex-1">
+              <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📊 내 현황</button>
+              <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>🎯 프로젝트</button>
+              <button onClick={() => { setActiveTab('mypage'); if (!myName) loadMyInfo(); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'mypage' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>👤 마이페이지</button>
+            </div>
+            <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
+          </div>
+          <div className="flex-1 bg-black bg-opacity-50" onClick={() => setShowSidebar(false)} />
+        </div>
+      )}
     <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
@@ -897,7 +918,14 @@ useEffect(() => {
             </div>
           )}
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">더블비뮤직 체험단</h1>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold">더블비뮤직 체험단</h1>
+            </div>
             <div className="relative">
               <button onClick={() => { 
                 if (showNotifications) {
@@ -1229,6 +1257,7 @@ useEffect(() => {
                 </div>
               )}
             </div>
+
             {/* 내 참여 현황 */}
             {myParticipations.length > 0 && (() => {
               const filteredParticipations = participationFilter === 'current'
@@ -1374,6 +1403,87 @@ useEffect(() => {
                                 </button>
                               </>
                             )}
+                            {projectLinks.length > 0 && (
+                              <button onClick={() => setShowCommentMission(!showCommentMission)} className="w-full mt-2 border border-orange-400 text-orange-500 rounded-lg py-2 text-sm font-medium">
+                                {showCommentMission ? '댓글 미션 닫기 ▲' : '💬 댓글 미션 하러가기 ▼'}
+                              </button>
+                            )}
+                            {showCommentMission && projectLinks.length > 0 && (
+                              <div className="mt-3 border-t pt-3">
+                                {/* 댓글 미션 */}
+                                {projectCode && projectLinks.length > 0 && (
+                                  <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                                    <h2 className="font-bold mb-3">💬 댓글 미션</h2>
+                                    <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300P를 받으세요!</p>
+                                    <p className="text-xs text-red-400 mb-3">⚠️ 댓글 삭제 시 적립금이 차감됩니다.</p>
+                                    <div className="space-y-3">
+                                      {/* 영상 선택 버튼 */}
+                                      <div className="space-y-2">
+                                        {projectLinks.map((link, i) => {
+                                          const isDone = commentMissions.some(m => m.video_id === link.video_id)
+                                          
+                                          const sameplatformLinks = projectLinks.filter(l => l.platform === link.platform)
+                                          const platformIndex = sameplatformLinks.findIndex(l => l === link) + 1
+                                          const showNumber = sameplatformLinks.length > 1
+                                          
+                                          const platformName = 
+                                            link.platform === 'youtube_shorts' ? '숏츠 영상' :
+                                            link.platform === 'youtube_long' ? '유튜브 영상' :
+                                            '플레이리스트'
+                                          
+                                          const platformLabel = showNumber 
+                                            ? `${platformName} ${platformIndex} 보러가기`
+                                            : `${platformName} 보러가기`
+
+                                          return (
+                                            <button key={i} onClick={() => {
+                                              setSelectedVideoIndex(i + 1)
+                                              setVideoWatched(false)
+                                              window.open(link.url, '_blank')
+                                              setTimeout(() => { setVideoWatched(true) }, 30000)
+                                            }} className={`w-full rounded-lg py-2 font-medium text-sm flex items-center px-3 ${selectedVideoIndex === i + 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
+                                              <span className="w-5 flex items-center">
+                                                {isDone ? '✅' : <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}
+                                              </span>
+                                              <span className="flex-1 text-center">{platformLabel}</span>
+                                              <span className="w-5"></span>
+                                            </button>
+                                          )
+                                        })}
+                                      </div>
+
+                                      {selectedVideoIndex && !videoWatched && (
+                                        <div className="bg-yellow-50 rounded-lg p-3">
+                                          <p className="text-xs text-yellow-700 text-center">
+                                            ⏱ 30초 이상 시청하셔야 인증창이 활성화 됩니다.
+                                            시청 후 댓글을 작성하고 돌아오세요!
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {selectedVideoIndex && videoWatched && (
+                                        <p className="text-xs text-green-600 text-center font-medium">✅ 시청 완료! 아래에서 인증해주세요.</p>
+                                      )}
+
+                                      <div>
+                                        <label className="text-sm font-medium">유튜브 계정명</label>
+                                        <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
+                                      </div>
+                                      <button onClick={async () => {
+                                        if (!videoWatched) { alert('먼저 영상을 시청해주세요!'); return }
+                                        if (!projectLinks.length) { alert('등록된 영상이 없어요.'); return }
+                                        const selectedLink = projectLinks[selectedVideoIndex! - 1]
+                                        const videoId = selectedLink?.video_id
+                                        if (videoId) await handleCommentVerify(videoId, projectCode)
+                                        else alert('등록된 영상이 없어요.')
+                                      }} disabled={isVerifying || !videoWatched} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                                        {isVerifying ? '인증 중...' : !videoWatched ? '영상 시청 후 인증 가능' : '댓글 인증 및 보상 받기'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1508,8 +1618,6 @@ useEffect(() => {
                         return <button onClick={() => { 
                           setProjectCode(project.project_code)
                           getRequirements(project.project_code)
-                          setActiveTab('home')
-                          setTimeout(() => missionRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
                         }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">참여</button>
                       }
 
@@ -1550,79 +1658,37 @@ useEffect(() => {
               )}
             </div>
 
-
-            {/* 댓글 미션 */}
-            {projectCode && projectLinks.length > 0 && (
+            {/* 프로젝트 참여하기 */}
+            {projectInfo && !myParticipations.some(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase()) && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">💬 댓글 미션</h2>
-                <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300P를 받으세요!</p>
-                <p className="text-xs text-red-400 mb-3">⚠️ 댓글 삭제 시 적립금이 차감됩니다.</p>
+                <h2 className="font-bold mb-3">🎯 프로젝트 참여</h2>
                 <div className="space-y-3">
-                  {/* 영상 선택 버튼 */}
-                  <div className="space-y-2">
-                    {projectLinks.map((link, i) => {
-                      const isDone = commentMissions.some(m => m.video_id === link.video_id)
-                      
-                      const sameplatformLinks = projectLinks.filter(l => l.platform === link.platform)
-                      const platformIndex = sameplatformLinks.findIndex(l => l === link) + 1
-                      const showNumber = sameplatformLinks.length > 1
-                      
-                      const platformName = 
-                        link.platform === 'youtube_shorts' ? '숏츠 영상' :
-                        link.platform === 'youtube_long' ? '유튜브 영상' :
-                        '플레이리스트'
-                      
-                      const platformLabel = showNumber 
-                        ? `${platformName} ${platformIndex} 보러가기`
-                        : `${platformName} 보러가기`
-
-                      return (
-                        <button key={i} onClick={() => {
-                          setSelectedVideoIndex(i + 1)
-                          setVideoWatched(false)
-                          window.open(link.url, '_blank')
-                          setTimeout(() => { setVideoWatched(true) }, 30000)
-                        }} className={`w-full rounded-lg py-2 font-medium text-sm flex items-center px-3 ${selectedVideoIndex === i + 1 ? 'bg-red-600 text-white' : 'border border-red-600 text-red-600'}`}>
-                          <span className="w-5 flex items-center">
-                            {isDone ? '✅' : <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}
-                          </span>
-                          <span className="flex-1 text-center">{platformLabel}</span>
-                          <span className="w-5"></span>
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  {selectedVideoIndex && !videoWatched && (
-                    <div className="bg-yellow-50 rounded-lg p-3">
-                      <p className="text-xs text-yellow-700 text-center">
-                        ⏱ 30초 이상 시청하셔야 인증창이 활성화 됩니다.
-                        시청 후 댓글을 작성하고 돌아오세요!
-                      </p>
+                  {(requirements || projectInfo?.required_posts > 1) && (
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
+                      {requirements && <p className="text-sm text-blue-700 mt-1">{requirements}</p>}
+                      {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
                     </div>
                   )}
-
-                  {selectedVideoIndex && videoWatched && (
-                    <p className="text-xs text-green-600 text-center font-medium">✅ 시청 완료! 아래에서 인증해주세요.</p>
-                  )}
-
-                  <div>
-                    <label className="text-sm font-medium">유튜브 계정명</label>
-                    <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-sm font-medium mb-1">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
+                    {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                      {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
+                        <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
+                      ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
+                        <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
+                      ) : (
+                        <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
+                      )}
+                    </div>
                   </div>
-                  <button onClick={async () => {
-                    if (!videoWatched) { alert('먼저 영상을 시청해주세요!'); return }
-                    if (!projectLinks.length) { alert('등록된 영상이 없어요.'); return }
-                    const selectedLink = projectLinks[selectedVideoIndex! - 1]
-                    const videoId = selectedLink?.video_id
-                    if (videoId) await handleCommentVerify(videoId, projectCode)
-                    else alert('등록된 영상이 없어요.')
-                  }} disabled={isVerifying || !videoWatched} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
-                    {isVerifying ? '인증 중...' : !videoWatched ? '영상 시청 후 인증 가능' : '댓글 인증 및 보상 받기'}
-                  </button>
                 </div>
               </div>
             )}
+
+            
           </div>
         </div>        
       </div>
@@ -1708,7 +1774,7 @@ useEffect(() => {
             </div>
           )}
         </div>
-      </div>
+        </div>
    {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -1735,5 +1801,6 @@ useEffect(() => {
       {/* 하단 탭바 높이만큼 여백 */}
       <div className="h-16 md:hidden" />
     </div>
+    </> 
   )
 }
