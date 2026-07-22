@@ -623,7 +623,10 @@ export default function LoginPage() {
                   { label: '틱톡 ID', value: p_tiktok, setter: setPTiktok, placeholder: '@아이디' },
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
-                    <label className="text-sm font-medium">{label}</label>
+                    <label className="text-sm font-medium">
+                      {label.replace(' *', '')}
+                      {label.includes('*') && <span className="text-red-500"> *</span>}
+                    </label>
                     {type === 'password' ? (
                       <div className="relative mt-1">
                         <input 
@@ -643,7 +646,7 @@ export default function LoginPage() {
                   </div>
                 ))}
                 <div>
-                  <label className="text-sm font-medium">휴대전화 *</label>
+                  <label className="text-sm font-medium">휴대전화 <span className="text-red-500">*</span></label>
                   <div className="flex gap-2 mt-1">
                     <input value={p_mobile} onChange={(e) => setPMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="01012345678" disabled={p_verified} />
                     <button onClick={handleSendVerifyCode} disabled={p_sending || p_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
@@ -698,7 +701,10 @@ export default function LoginPage() {
                   { label: '비밀번호 확인 *', value: c_passwordConfirm, setter: setCPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
-                    <label className="text-sm font-medium">{label}</label>
+                    <label className="text-sm font-medium">
+                      {label.replace(' *', '')}
+                      {label.includes('*') && <span className="text-red-500"> *</span>}
+                    </label>
                     {type === 'password' ? (
                       <div className="relative mt-1">
                         <input 

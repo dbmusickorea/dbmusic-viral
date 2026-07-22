@@ -488,7 +488,10 @@ export default function Page4() {
                       { label: '틱톡 ID', value: tiktok, setter: setTiktok },
                     ].map(({ label, value, setter, type }) => (
                       <div key={label}>
-                        <label className="text-sm font-medium">{label}</label>
+                        <label className="text-sm font-medium">
+                          {label.replace(' *', '')}
+                          {label.includes('*') && <span className="text-red-500"> *</span>}
+                        </label>
                         <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                       </div>
                     ))}
@@ -653,7 +656,10 @@ export default function Page4() {
                       { label: '이메일 *', value: newClientEmail, setter: setNewClientEmail, type: 'email' },
                     ].map(({ label, value, setter, type }) => (
                       <div key={label}>
-                        <label className="text-sm font-medium">{label}</label>
+                        <label className="text-sm font-medium">
+                          {label.replace(' *', '')}
+                          {label.includes('*') && <span className="text-red-500"> *</span>}
+                        </label>
                         <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                       </div>
                     ))}
@@ -677,7 +683,10 @@ export default function Page4() {
                     { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
                   ].map(({ label, value, setter, type }) => (
                     <div key={label}>
-                      <label className="text-sm font-medium">{label}</label>
+                      <label className="text-sm font-medium">
+                        {label.replace(' *', '')}
+                        {label.includes('*') && <span className="text-red-500"> *</span>}
+                      </label>
                       <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                     </div>
                   ))}
