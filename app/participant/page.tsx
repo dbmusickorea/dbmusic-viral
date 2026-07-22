@@ -82,6 +82,7 @@ export default function Page2() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showCommentMission, setShowCommentMission] = useState(false)
   const [isCoverPossible, setIsCoverPossible] = useState(false)
+  const [showParticipation, setShowParticipation] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -982,8 +983,8 @@ useEffect(() => {
                 <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
               </div>
               <div className="flex gap-2 mb-3">
-                <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-                <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
+                <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'current' || !showParticipation) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
+                <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'all' || !showParticipation) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
               </div>
               <div className="grid grid-cols-3 gap-3 mb-3">
                 <div className="bg-gray-50 rounded-lg p-3 col-span-3">
@@ -1057,7 +1058,7 @@ useEffect(() => {
             </div>
 
             {/* 내 참여 현황 */}
-            {myParticipations.length > 0 && (() => {
+            {showParticipation && myParticipations.length > 0 && (() => {
               const filteredParticipations = participationFilter === 'current'
                 ? myParticipations.filter(p => ['ONGOING', 'PENDING'].includes(p.projects?.status))
                 : myParticipations
