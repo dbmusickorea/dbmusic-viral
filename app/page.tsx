@@ -680,6 +680,10 @@ export default function LoginPage() {
                     </div>
                   )}
                 </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                  <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 입력 안내</p>
+                  <p className="text-xs text-orange-600 mt-1">반드시 본인 SNS 계정을 입력해주세요. 타인 계정 사용 시 미션 심사 반려 및 계정 정지될 수 있습니다.</p>
+                </div>
                 <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                   <input type="checkbox" checked={agreedAge} onChange={(e) => setAgreedAge(e.target.checked)} className="w-4 h-4" />
                   만 18세 이상임을 확인합니다. (필수)

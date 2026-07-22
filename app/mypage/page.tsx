@@ -24,6 +24,7 @@ export default function MyPage() {
   const [balance, setBalance] = useState(0)
   const [referralCode, setReferralCode] = useState('')
   const [isEditing, setIsEditing] = useState(false)
+  const [snsChangeRequest, setSnsChangeRequest] = useState<{platform: string, newId: string} | null>(null)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -152,16 +153,48 @@ export default function MyPage() {
                 </div>
               ))}
               <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
+                <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 변경 안내</p>
+                <p className="text-xs text-orange-600 mt-1">SNS 계정 변경은 관리자 승인 후 반영됩니다. 반드시 본인 계정을 입력해주세요.</p>
+              </div>
               {[
-                { label: '인스타그램 ID', value: myInstagram, setter: setMyInstagram },
-                { label: '유튜브 ID', value: myYoutube, setter: setMyYoutube },
-                { label: '틱톡 ID', value: myTiktok, setter: setMyTiktok },
-              ].map(({ label, value, setter }) => (
+                { label: '인스타그램 ID', value: myInstagram, platform: 'instagram' },
+                { label: '유튜브 ID', value: myYoutube, platform: 'youtube' },
+                { label: '틱톡 ID', value: myTiktok, platform: 'tiktok' },
+              ].map(({ label, value, platform }) => (
                 <div key={label}>
                   <label className="text-sm font-medium">{label}</label>
-                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                  <div className="flex gap-2 mt-1">
+                    <input disabled value={value} className="flex-1 border rounded-lg px-3 py-2 text-sm bg-gray-50" />
+                    <button onClick={() => setSnsChangeRequest({ platform, newId: value })} className="text-xs bg-gray-200 rounded-lg px-3 py-2">변경 요청</button>
+                  </div>
                 </div>
               ))}
+              {snsChangeRequest && (
+                <div className="border border-blue-200 rounded-lg p-3 bg-blue-50">
+                  <p className="text-xs font-medium text-blue-800 mb-2">SNS 계정 변경 요청</p>
+                  <input value={snsChangeRequest.newId} onChange={(e) => setSnsChangeRequest({...snsChangeRequest, newId: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm mb-2" placeholder="새 계정 입력" />
+                  <div className="flex gap-2">
+                    <button onClick={async () => {
+                      const oldId = snsChangeRequest.platform === 'instagram' ? myInstagram : snsChangeRequest.platform === 'youtube' ? myYoutube : myTiktok
+                      await fetch('/api/sns_change_requests', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          member_id: userInfo?.id,
+                          platform: snsChangeRequest.platform,
+                          old_id: oldId,
+                          new_id: snsChangeRequest.newId,
+                          status: 'PENDING'
+                        })
+                      })
+                      alert('변경 요청이 접수됐어요. 관리자 승인 후 반영됩니다.')
+                      setSnsChangeRequest(null)
+                    }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">요청 제출</button>
+                    <button onClick={() => setSnsChangeRequest(null)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm">취소</button>
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium">기존 비밀번호</label>
                 <div className="relative mt-1">

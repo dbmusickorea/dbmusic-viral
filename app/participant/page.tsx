@@ -632,6 +632,56 @@ useEffect(() => {
         return
       }
     }
+
+    // 인스타그램 게시물 작성자 확인
+    if (platform === 'instagram' && snsAccount) {
+      for (const url of validUrls) {
+        const shortcode = url.split('/p/')[1]?.split('/')[0] || url.split('/reel/')[1]?.split('/')[0]
+        if (shortcode) {
+          const igRes = await fetch(`/api/instagram?shortcode=${shortcode}`)
+          const igData = await igRes.json()
+          const postOwner = igData?.user?.username?.toLowerCase()
+          const myAccount = snsAccount.replace('@', '').toLowerCase()
+          if (postOwner && postOwner !== myAccount) {
+            alert(`게시물 작성자(${postOwner})와 등록된 계정(${myAccount})이 일치하지 않아요. 본인 계정의 게시물만 제출 가능합니다.`)
+            return
+          }
+        }
+      }
+    }
+    
+    // 유튜브 게시물 작성자 확인
+    if (platform === 'youtube' && snsAccount) {
+      for (const url of validUrls) {
+        const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
+        if (videoId) {
+          const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+          const ytData = await ytRes.json()
+          const channelTitle = ytData?.items?.[0]?.snippet?.channelTitle?.toLowerCase()
+          const myAccount = snsAccount.replace('@', '').toLowerCase()
+          if (channelTitle && !channelTitle.includes(myAccount) && !myAccount.includes(channelTitle)) {
+            alert(`게시물 채널(${channelTitle})과 등록된 계정(${myAccount})이 일치하지 않아요.`)
+            return
+          }
+        }
+      }
+    }
+
+    // 틱톡 게시물 작성자 확인
+    if (platform === 'tiktok' && snsAccount) {
+      for (const url of validUrls) {
+        const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(url)}&hd=1`,
+          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
+        )
+        const ttData = await ttRes.json()
+        const author = ttData?.data?.author?.unique_id?.toLowerCase()
+        const myAccount = snsAccount.replace('@', '').toLowerCase()
+        if (author && author !== myAccount) {
+          alert(`게시물 작성자(${author})와 등록된 계정(${myAccount})이 일치하지 않아요.`)
+          return
+        }
+      }
+    }
     setIsSubmitting(true)
 
     for (const postUrl of validUrls) {
