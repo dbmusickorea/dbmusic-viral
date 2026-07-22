@@ -52,6 +52,7 @@ export default function Page4() {
   const [coverFilter, setCoverFilter] = useState('all')
   const [artistList, setArtistList] = useState<any[]>([])
   const [newArtistName, setNewArtistName] = useState('')
+  const [snsRequests, setSnsRequests] = useState<any[]>([])
   const PAGE_SIZE = 10
 
   const router = useRouter()
@@ -98,6 +99,11 @@ export default function Page4() {
       .then(({ data }) => setMemberPosts(data ?? []))
     supabase.from('comment_missions').select('*').eq('member_id', p.id).eq('status', 'APPROVED')
       .then(({ data }) => setMemberCommentMissions(data ?? []))
+
+    // SNS 변경 요청 불러오기
+    const snsRes = await fetch(`/api/sns_change_requests?member_id=${p.id}`)
+    const snsData = await snsRes.json()
+    setSnsRequests(snsData ?? [])
   }
 
   const clearForm = () => {
@@ -556,6 +562,48 @@ export default function Page4() {
                             alert('승인 취소 완료!')
                             fetchParticipants()
                           }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-xs font-medium">승인취소</button>
+                        </div>
+                      </div>
+                    )}
+                    {snsRequests.length > 0 && (
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-blue-700 mb-2">📱 SNS 계정 변경 요청</p>
+                        <div className="space-y-2">
+                          {snsRequests.map((req) => (
+                            <div key={req.id} className="border border-blue-200 rounded-lg p-2 bg-white">
+                              <p className="text-xs text-gray-500">{req.platform} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                              <p className="text-xs">{req.old_id} → <span className="font-bold text-blue-600">{req.new_id}</span></p>
+                              <div className="flex gap-2 mt-2">
+                                {req.status === 'PENDING' ? (
+                                  <>
+                                    <button onClick={async () => {
+                                      await fetch(`/api/sns_change_requests?id=${req.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ status: 'APPROVED' })
+                                      })
+                                      setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
+                                      setSelected((prev: any) => ({...prev, [`${req.platform}_id`]: req.new_id}))
+                                      alert('승인됐어요!')
+                                    }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
+                                    <button onClick={async () => {
+                                      await fetch(`/api/sns_change_requests?id=${req.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ status: 'REJECTED' })
+                                      })
+                                      setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'REJECTED'} : r))
+                                      alert('거절됐어요.')
+                                    }} className="flex-1 bg-gray-400 text-white rounded-lg py-1 text-xs">거절</button>
+                                  </>
+                                ) : (
+                                  <span className={`text-xs px-2 py-1 rounded-full ${req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                                    {req.status === 'APPROVED' ? '승인됨' : '거절됨'}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
