@@ -884,7 +884,7 @@ useEffect(() => {
             <div className="space-y-2 flex-1">
               <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📊 내 현황</button>
               <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>🎯 프로젝트</button>
-              <button onClick={() => { setActiveTab('mypage'); if (!myName) loadMyInfo(); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'mypage' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>👤 마이페이지</button>
+              <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 마이페이지</button>
             </div>
             <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
           </div>
@@ -1792,7 +1792,7 @@ useEffect(() => {
           <span className="text-lg mb-0.5">🎯</span>
           프로젝트
         </button>
-        <button onClick={() => { setActiveTab('mypage'); if (!myName) loadMyInfo() }} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'mypage' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => router.push('/mypage')} className={`flex-1 flex flex-col items-center py-3 text-xs text-gray-400`}>
           <span className="text-lg mb-0.5">👤</span>
           마이페이지
         </button>
