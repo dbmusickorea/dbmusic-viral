@@ -85,6 +85,7 @@ export default function Page2() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [showCommentMission, setShowCommentMission] = useState(false)
+  const [isCoverPossible, setIsCoverPossible] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -122,6 +123,7 @@ useEffect(() => {
       setMyPosts(data.posts)
       setMySettlements(data.settlements)
       setCommentMissions(data.commentMissions)
+      setIsCoverPossible(participant?.is_cover_possible ?? false)
       setAllProjects(data.allProjects)
       setUnlockVideos(data.unlockVideos)
       setNotifications(data.notifications)
@@ -357,6 +359,7 @@ useEffect(() => {
       setInfluencerName(participant?.name ?? '')
       setIsLocked(participant?.is_locked ?? false)
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
+      setIsCoverPossible(participant?.is_cover_possible ?? false)
 
       setMyPosts(data.posts)
       // projectsMap 업데이트
@@ -1292,6 +1295,9 @@ useEffect(() => {
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
                               <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
+                              {myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
+                                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 COVER</span>
+                              )}
                               <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
                               {p.projects?.end_date && (
                                 <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
@@ -1439,10 +1445,12 @@ useEffect(() => {
                                     <input key={i} value={postUrls[i] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[i] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${(projectInfo?.required_posts ?? 1) > 1 ? `${i + 1}` : ''}`} />
                                   ))}
                                 </div>
-                                <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                                  <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
-                                  커버영상 제출 (관리자 승인 후 별도 금액 지급)
-                                </label>
+                                {isCoverPossible && (
+                                  <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                                    <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
+                                    커버영상 제출 (관리자 승인 후 별도 금액 지급)
+                                  </label>
+                                )}
                                 <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
                                   {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
                                 </button>
