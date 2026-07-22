@@ -1276,7 +1276,7 @@ useEffect(() => {
                   </div>
                   <div className="space-y-2">
                     {filteredParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
-                      <div key={p.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => { 
+                      <div key={p.id} className={`border rounded-lg p-3 cursor-pointer ${selectedParticipation?.project_code === p.project_code ? 'border-blue-500 bg-blue-50' : ''}`} onClick={() => {
                         if (selectedParticipation?.project_code === p.project_code) {
                           setSelectedParticipation(null)
                           setProjectCode('')
