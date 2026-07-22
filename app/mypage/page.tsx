@@ -23,6 +23,7 @@ export default function MyPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [balance, setBalance] = useState(0)
+  const [referralCode, setReferralCode] = useState('')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -46,6 +47,7 @@ export default function MyPage() {
       setMyYoutube(p.youtube_id ?? '')
       setMyTiktok(p.tiktok_id ?? '')
       setBalance(p.balance ?? 0)
+      setReferralCode(p.referral_code ?? '')
     }
   }
 
@@ -94,6 +96,31 @@ export default function MyPage() {
 
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold mb-4">👤 내 정보</h2>
+          {referralCode && (
+                <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                  <p className="text-xs text-gray-500">나의 추천인 코드</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-lg font-bold text-blue-600">{referralCode}</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('추천인 코드가 복사됐어요!') }} className="text-xs border rounded px-2 py-1 text-gray-600">복사</button>
+                      {/* 공유 버튼 - 구글플레이 심사 통과 후 활성화
+                      <button onClick={async () => {
+                        const shareUrl = `https://app.doubleb.kr?ref=${referralCode}`
+                        try {
+                          const { Share } = await import('@capacitor/share')
+                          await Share.share({
+                            title: '더블비뮤직 체험단 가입',
+                            text: `더블비뮤직 체험단에 가입하고 함께 활동해요! 추천인 코드: ${referralCode}`,
+                            url: shareUrl
+                          })
+                        } catch (e) {}
+                      }} className="text-xs bg-blue-600 text-white border rounded px-2 py-1">공유</button>
+                      */}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+                </div>
+              )}
           <div className="space-y-3">
             <div className="bg-gray-50 rounded-lg px-3 py-2">
               <p className="text-xs text-gray-500">로그인 아이디 (이메일)</p>
