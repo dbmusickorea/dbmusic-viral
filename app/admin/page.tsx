@@ -984,7 +984,7 @@ export default function Page1() {
                             <div className="flex-1">
                               <p className="text-sm font-medium">{n.title}</p>
                               <p className="text-xs text-gray-500 mt-1">{n.body}</p>
-                              <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString('ko-KR')}</p>
+                              <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                             <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
                           </div>
