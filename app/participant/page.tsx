@@ -649,7 +649,7 @@ useEffect(() => {
         }
       }
     }
-    
+
     // 유튜브 게시물 작성자 확인
     if (platform === 'youtube' && snsAccount) {
       for (const url of validUrls) {
@@ -982,8 +982,8 @@ useEffect(() => {
                 <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
               </div>
               <div className="flex gap-2 mb-3">
-                <button onClick={() => setPostFilter('current')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-                <button onClick={() => setPostFilter('all')} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
+                <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
+                <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
               </div>
               <div className="grid grid-cols-3 gap-3 mb-3">
                 <div className="bg-gray-50 rounded-lg p-3 col-span-3">
