@@ -1726,7 +1726,7 @@ useEffect(() => {
           <span className="text-lg mb-0.5">🎯</span>
           프로젝트
         </button>
-        <button onClick={() => setActiveTab('mypage')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'mypage' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => { setActiveTab('mypage'); if (!myName) loadMyInfo() }} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'mypage' ? 'text-blue-600' : 'text-gray-400'}`}>
           <span className="text-lg mb-0.5">👤</span>
           마이페이지
         </button>
