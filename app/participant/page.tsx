@@ -1331,6 +1331,7 @@ useEffect(() => {
                           </span>
                         </div>
                         {/* 미션 제출 폼 */}
+                        {selectedParticipation.projects?.status === 'ONGOING' && selectedParticipation.status !== 'CANCELLED' && (
                         <div className="mt-3">
                           <div className="space-y-3">
                             {projectInfo && (requirements || projectInfo?.required_posts > 1) && (
@@ -1486,6 +1487,7 @@ useEffect(() => {
                             )}
                           </div>
                         </div>
+                        )}
                       </div>
                     )}
                   </div>
