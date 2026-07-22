@@ -24,10 +24,7 @@ export default function Page2() {
   const [snsAccount, setSnsAccount] = useState('')
   const [postUrls, setPostUrls] = useState<string[]>([''])
   const [platform, setPlatform] = useState('')
-  const [showExchange, setShowExchange] = useState(false)
-  const [residentNumber, setResidentNumber] = useState('')
   const [address, setAddress] = useState('')
-  const [exchangeAmount, setExchangeAmount] = useState('')
   const [showMyInfo, setShowMyInfo] = useState(false)
   const [myName, setMyName] = useState('')
   const [myMobile, setMyMobile] = useState('')
@@ -72,7 +69,6 @@ export default function Page2() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [agreedTax, setAgreedTax] = useState(false)
   const [participationPage, setParticipationPage] = useState(0)
   const [projectListPage, setProjectListPage] = useState(0)
   const [activeTab, setActiveTab] = useState<'home' | 'project'>('home')
@@ -713,75 +709,6 @@ useEffect(() => {
     fetchMyPostsAndProjects(userInfo?.id)
     setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrls([''])
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null)
-  }
-
- const handleExchange = async () => {
-    if (!agreedTax) { alert('개인정보 수집 및 원천징수에 동의해주세요.'); return }
-    if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
-    if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
-    const amount = Number(exchangeAmount)
-    if (amount < 10000) { alert('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
-    if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
-
-    // 계좌번호 확인
-    const participantRes = await fetch(`/api/participants?ids=${userInfo?.id}`)
-    const participants = await participantRes.json()
-    const participantData = participants?.[0]
-    
-    if (!participantData?.account_number || !participantData?.bank_name || !participantData?.account_holder) {
-      alert('계좌번호가 등록되지 않았어요. 내 정보 보기에서 계좌를 먼저 등록해주세요!')
-      setShowExchange(false)
-      setShowMyInfo(true)
-      if (!myName) loadMyInfo()
-      return
-    }
-    
-    if (participantData?.account_holder && participantData?.name) {
-      if (participantData.account_holder !== participantData.name) {
-        alert('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
-        return
-      }
-    }
-
-    const taxAmount = Math.floor(amount * 0.033)
-    const netAmount = amount - taxAmount
-    
-    // 주민번호 암호화
-    const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
-    
-    const settlementRes = await fetch('/api/settlements', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
-        resident_number: encryptedResident, status: 'PENDING',
-        is_privacy_agreed: true,
-        agreed_at: new Date().toISOString(),
-        user_ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown')
-      })
-    })
-    if (!settlementRes.ok) { alert('환전 신청 실패!'); return }
-    
-    // 관리자에게 환전 신청 푸시
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
-    const adminTokens = await adminTokensRes.json()
-    if (adminTokens && adminTokens.length > 0) {
-      await fetch('/api/push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: '💰 환전 신청이 들어왔어요!',
-          body: `${userInfo?.name}님이 ${amount.toLocaleString()}P 환전을 신청했어요.`,
-          tokens: adminTokens.map((t: any) => t.token),
-          userIds: adminTokens.map((t: any) => t.user_id)
-        })
-      })
-    }
-
-    alert('환전 신청 완료!\n\n💰 휴일 제외 1영업일 이내 입금됩니다.')
-    fetchMySettlements(userInfo?.id)
-    fetchAvailableBalance(userInfo?.id)
-    setShowExchange(false); setResidentNumber(''); setAddress(''); setExchangeAmount('')
   }
 
   const loadMyInfo = async () => {
