@@ -1322,9 +1322,6 @@ useEffect(() => {
                     {selectedParticipation && (
                       <div className="mt-3 border-t pt-3">
                         <div className="bg-gray-50 rounded-lg p-3 mb-3 flex gap-3">
-                          {selectedParticipation.projects?.cover_image_url && (
-                            <img src={selectedParticipation.projects.cover_image_url} className="w-16 h-16 rounded-lg object-cover shrink-0" />
-                          )}
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-bold mb-2">{selectedParticipation.projects?.artist_name || selectedParticipation.projects?.client_name} - {selectedParticipation.projects?.song_title}</p>
                             <p className="text-xs text-gray-500">시작일: {selectedParticipation.projects?.start_date ?? '미정'}{selectedParticipation.projects?.start_time ? ` ${selectedParticipation.projects.start_time}` : ''}</p>
@@ -1334,6 +1331,9 @@ useEffect(() => {
                               {selectedParticipation.projects?.status === 'ONGOING' ? '진행중' : selectedParticipation.projects?.status === 'PENDING' ? '대기중' : '완료'}
                             </span>
                           </div>
+                          {selectedParticipation.projects?.cover_image_url && (
+                            <img src={selectedParticipation.projects.cover_image_url} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                          )}
                         </div>
                         {/* 미션 제출 폼 */}
                         {selectedParticipation.projects?.status === 'ONGOING' && selectedParticipation.status !== 'CANCELLED' && (
