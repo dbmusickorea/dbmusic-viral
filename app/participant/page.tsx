@@ -856,7 +856,10 @@ useEffect(() => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold">더블비뮤직 체험단</h1>
+              <div>
+                <p className="text-xs text-gray-500">안녕하세요</p>
+                <h1 className="text-lg font-bold">{influencerName || userInfo?.name}님 👋</h1>
+              </div>
             </div>
             <div className="relative">
               <button onClick={() => { 

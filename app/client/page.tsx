@@ -391,7 +391,10 @@ export default function Page3() {
             </div>
           )}
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">더블비뮤직 의뢰인</h1>
+            <div>
+              <p className="text-xs text-gray-500">안녕하세요</p>
+              <h1 className="text-lg font-bold">{userInfo?.name}님 👋</h1>
+            </div>
             <div className="relative">
               <button onClick={() => { 
                 if (showNotifications) {
