@@ -1332,7 +1332,7 @@ useEffect(() => {
                             </span>
                           </div>
                           {selectedParticipation.projects?.cover_image_url && (
-                            <img src={selectedParticipation.projects.cover_image_url} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                            <img src={selectedParticipation.projects.cover_image_url} className="max-h-24 aspect-square rounded-lg object-cover shrink-0" />
                           )}
                         </div>
                         {/* 미션 제출 폼 */}
