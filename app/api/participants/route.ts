@@ -9,8 +9,10 @@ const supabaseAdmin = createClient(
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const ids = searchParams.get('ids')
+  const id = searchParams.get('id')
   let query = supabaseAdmin.from('participants').select('*').order('id', { ascending: false })
-  if (ids) query = query.in('id', ids.split(',').map(Number))
+  if (id) query = query.eq('id', Number(id))
+  else if (ids) query = query.in('id', ids.split(',').map(Number))
   const email = searchParams.get('email')
   const mobile = searchParams.get('mobile')
   if (mobile) query = query.eq('mobile', mobile)
