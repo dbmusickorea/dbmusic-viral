@@ -79,6 +79,7 @@ export default function Page1() {
   const [expandedReply, setExpandedReply] = useState<{[key: number]: boolean}>({})
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [coverImageUrl, setCoverImageUrl] = useState('')
+  const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -1099,19 +1100,26 @@ export default function Page1() {
             </div>
 
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold">📋 문의 내역</h2>
-                <div className="flex gap-2 text-xs">
-                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
-                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
-                </div>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold">📋 문의 내역</h2>
+              <div className="flex gap-2 text-xs">
+                <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
+                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
               </div>
+            </div>
+            <div className="flex gap-2 mb-3">
+              <button onClick={() => setRequestFilter('all')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'all' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>전체</button>
+              <button onClick={() => setRequestFilter('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500'}`}>의뢰인</button>
+              <button onClick={() => setRequestFilter('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>체험단</button>
+            </div>
               {clientRequests.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
               ) : (
                 <>
                   <div className="space-y-2">
-                    {clientRequests.slice(requestPage * PAGE_SIZE, (requestPage + 1) * PAGE_SIZE).map((req) => (
+                    {clientRequests
+                      .filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client'))
+                      .slice(requestPage * PAGE_SIZE, (requestPage + 1) * PAGE_SIZE).map((req) => (
                       <div key={req.id} className="border rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <div>
@@ -1205,11 +1213,11 @@ export default function Page1() {
                   <div className="flex justify-between items-center mt-3">
                     <button onClick={() => setRequestPage(p => Math.max(0, p - 1))} disabled={requestPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
                     <div className="flex gap-1">
-                      {Array.from({length: Math.ceil(clientRequests.length / PAGE_SIZE)}, (_, i) => (
+                      {Array.from({length: Math.ceil(clientRequests.filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client')).length / PAGE_SIZE)}, (_, i) => (
                         <button key={i} onClick={() => setRequestPage(i)} className={`text-xs px-2 py-1 border rounded ${requestPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
                       ))}
                     </div>
-                    <button onClick={() => setRequestPage(p => Math.min(Math.ceil(clientRequests.length / PAGE_SIZE) - 1, p + 1))} disabled={(requestPage + 1) * PAGE_SIZE >= clientRequests.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                    <button onClick={() => setRequestPage(p => Math.min(Math.ceil(clientRequests.filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client')).length / PAGE_SIZE) - 1, p + 1))} disabled={(requestPage + 1) * PAGE_SIZE >= clientRequests.filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client')).length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                   </div>
                 </>
               )}
