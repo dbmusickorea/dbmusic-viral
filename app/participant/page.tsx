@@ -892,7 +892,7 @@ useEffect(() => {
             </div>
             <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
           </div>
-          <div className="flex-1 bg-black bg-opacity-50" onClick={() => setShowSidebar(false)} />
+          <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
         </div>
       )}
     <div className="min-h-screen bg-gray-50 p-4"
