@@ -275,8 +275,22 @@ export default function WalletPage() {
                 <span className="text-sm">개인정보 수집 및 원천징수에 동의합니다 (필수)</span>
               </label>
               <div>
-                <label className="text-sm font-medium">주민번호</label>
-                <input value={residentNumber} onChange={(e) => setResidentNumber(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="주민번호 입력" />
+                <label className="text-sm font-medium">주민번호 <span className="text-red-500">*</span></label>
+                <p className="text-xs text-gray-400 mt-0.5">하이픈(-) 없이 13자리 숫자만 입력해주세요. (예: 9001011234567)</p>
+                <input 
+                  value={residentNumber} 
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 13)
+                    setResidentNumber(val)
+                  }} 
+                  className="w-full border rounded-lg px-3 py-2 text-sm mt-1" 
+                  placeholder="주민번호 13자리 입력" 
+                  maxLength={13}
+                  inputMode="numeric"
+                />
+                {residentNumber && residentNumber.length !== 13 && (
+                  <p className="text-xs text-red-400 mt-1">주민번호 13자리를 모두 입력해주세요.</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium">신청 금액</label>
