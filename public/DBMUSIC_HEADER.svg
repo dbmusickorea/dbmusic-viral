@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1200 266" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1.160026,0,0,1.160026,-364.248228,-460.790569)">
+        <g transform="matrix(0.614218,0,0,0.614218,97.181198,223.420896)">
+            <path d="M658,488L635,466L632,466L567,528L566,544L545,565L487,565L486,624L456,652L455,655L581,655L658,581L658,488Z"/>
+        </g>
+        <g transform="matrix(0.614218,0,0,0.614218,97.181198,223.420896)">
+            <path d="M456,283L456,285L486,314L486,361L536,361L561,385L534,411L486,412L486,499L548,499L655,398L655,355L581,283L456,283Z"/>
+        </g>
+        <g transform="matrix(0.614218,0,0,0.614218,97.181198,223.420896)">
+            <rect x="353" y="283" width="93" height="372"/>
+        </g>
+        <g transform="matrix(15.992822,0,0,14.358913,-3798.101128,-11110.788806)">
+            <g transform="matrix(11.811153,0,0,11.811153,323.080016,810.739324)">
+            </g>
+            <text x="269.339px" y="810.739px" style="font-family:'NanumSquareOTFEB', 'NanumSquareOTF', sans-serif;font-weight:800;font-size:11.811px;">더블비뮤직</text>
+        </g>
+        <g transform="matrix(3.978149,0,0,5.217755,-551.167378,-3605.695638)">
+            <g transform="matrix(12,0,0,12,477.647269,810.739324)">
+            </g>
+            <text x="269.339px" y="810.739px" style="font-family:'Copperplate';font-size:12px;">MUSIC VIRAL MARKETING AGENCY</text>
+        </g>
+    </g>
+</svg>
