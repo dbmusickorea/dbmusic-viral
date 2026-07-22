@@ -246,6 +246,14 @@ export default function ClientMyPage() {
             </div>
           )}
         </div>
+        {/* 사업자 정보 */}
+        <div className="text-center py-6 border-t border-gray-200 mt-2">
+          <p className="text-xs text-gray-500 font-medium mb-2">더블비뮤직 · 대표: 최병민 · 사업자등록번호: 280-02-02331</p>
+          <p className="text-xs text-gray-400 mb-1">서울특별시 송파구 백제고분로 116, 3층 611호</p>
+          <p className="text-xs text-gray-400 mb-1">고객센터: 010-7593-7966</p>
+          <p className="text-xs text-gray-400 mb-3">제휴 및 광고 문의: db.music.korea@gmail.com</p>
+          <p className="text-xs text-gray-300">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
+        </div>
       </div>
     </div>
   )
