@@ -83,6 +83,8 @@ export default function Page2() {
   const [showCommentMission, setShowCommentMission] = useState(false)
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [showParticipation, setShowParticipation] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
+  const [guideStep, setGuideStep] = useState(0)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -96,6 +98,10 @@ useEffect(() => {
     setYoutubeHandle(accounts.youtube ?? '')
     setUserInfo(parsed)
     setUserRole(role ?? '')
+
+    // 가이드 팝업 첫 로그인 시 표시
+    const guideShown = localStorage.getItem('guideShown')
+    if (!guideShown) setShowGuide(true)
 
     const loadData = async () => {
       const res = await fetch(`/api/participant-data?id=${parsed.id}`)
@@ -855,6 +861,70 @@ useEffect(() => {
 
   return (
    <> 
+      {showGuide && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
+            {guideStep === 0 && (
+              <div>
+                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
+                <h2 className="text-lg font-bold mb-3">1. 기본 활동 규칙</h2>
+                <p className="text-sm text-gray-600 mb-2">• 내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드</p>
+                <p className="text-sm text-gray-600">• 미션 성공 시 현금 리워드 즉시 적립</p>
+              </div>
+            )}
+            {guideStep === 1 && (
+              <div>
+                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
+                <h2 className="text-lg font-bold mb-3">2. 체험단 유형 선택</h2>
+                <p className="text-sm text-gray-600 mb-2">• <span className="font-medium">일반 체험단:</span> 게시물에 신곡 음원(BGM)만 입혀 업로드하는 유저</p>
+                <p className="text-sm text-gray-600">• <span className="font-medium">커버 체험단:</span> 게시물 포함 직접 가창하여 업로드하는 유저</p>
+              </div>
+            )}
+            {guideStep === 2 && (
+              <div>
+                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
+                <h2 className="text-lg font-bold mb-3">3. 미션 참여 및 제출 동선</h2>
+                <p className="text-sm text-gray-600 mb-2">• 새 캠페인 알림 푸시 수령 후 앱 내 [참여] 버튼 클릭</p>
+                <p className="text-sm text-gray-600 mb-2">• 본인 SNS에 사진 또는 영상과 음원 매칭 후 릴스, 숏츠로 업로드</p>
+                <p className="text-sm text-gray-600">• 업로드한 게시물 [링크 복사] 후 더블비뮤직 앱에 등록 제출</p>
+              </div>
+            )}
+            {guideStep === 3 && (
+              <div>
+                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
+                <h2 className="text-lg font-bold mb-3">4. 리워드 및 레벨업 치트키</h2>
+                <p className="text-sm text-gray-600 mb-2">• 게시물 1개당 본인 레벨에 매칭되는 정찰제 금액 적립</p>
+                <p className="text-sm text-gray-600 mb-2">• 내 추천인 코드로 가입 시 1명당 1단계 즉시 상승</p>
+                <p className="text-sm text-gray-600 mb-2">• 레벨 1~50단계로 2,500원부터 1만원까지 미션 수행 단가 파격 상향</p>
+                <p className="text-sm text-gray-600">• 커버 체험단의 경우 리워드 추가지급</p>
+              </div>
+            )}
+
+            {/* 인디케이터 */}
+            <div className="flex justify-center gap-1.5 my-4">
+              {[0,1,2,3].map(i => (
+                <div key={i} className={`w-2 h-2 rounded-full ${guideStep === i ? 'bg-blue-600' : 'bg-gray-200'}`} />
+              ))}
+            </div>
+
+            {/* 버튼 */}
+            <div className="flex gap-2">
+              {guideStep < 3 ? (
+                <>
+                  <button onClick={() => { localStorage.setItem('guideShown', 'true'); setShowGuide(false) }} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">다시 보지 않기</button>
+                  <button onClick={() => setGuideStep(guideStep + 1)} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">다음 →</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => { localStorage.setItem('guideShown', 'true'); setShowGuide(false) }} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">다시 보지 않기</button>
+                  <button onClick={() => router.push('/guide')} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">자세히 보기</button>
+                </>
+              )}
+            </div>
+            <button onClick={() => setShowGuide(false)} className="w-full text-center text-xs text-gray-400 mt-2">닫기</button>
+          </div>
+        </div>
+      )}
     {/* 사이드바 오버레이 */}
       {showSidebar && (
         <div className="fixed inset-0 z-50 flex">
