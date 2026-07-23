@@ -308,6 +308,14 @@ export default function MyPage() {
             </div>
           )}
         </div>
+        
+        {/* 사용 가이드 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <button onClick={() => router.push('/guide')} className="w-full flex justify-between items-center">
+            <span className="font-medium text-sm">📖 크리에이터 사용 가이드</span>
+            <span className="text-gray-400">→</span>
+          </button>
+        </div>
 
         {/* 문의하기 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
