@@ -344,19 +344,24 @@ export default function LoginPage() {
     // SNS 팔로워 100명 이상 확인 (셋 중 하나라도 100명 이상이면 통과)
     let hasEnoughFollowers = false
     let igFollowers = 0
+    let igProfileImage = ''
     let ytSubscribers = 0
+    let ytProfileImage = ''
     let ttFollowers = 0
-
+    let ttProfileImage = ''
+    
     if (p_instagram) {
       const igRes = await fetch(`/api/instagram-user?username=${p_instagram}`)
       const igData = await igRes.json()
       igFollowers = igData.followers ?? 0
+      igProfileImage = igData.thumbnail ?? ''
       if (igFollowers >= 100) hasEnoughFollowers = true
     }
     if (p_youtube) {
       const ytRes = await fetch(`/api/youtube-channel?handle=${p_youtube}`)
       const ytData = await ytRes.json()
       ytSubscribers = ytData.subscriberCount ?? 0
+      ytProfileImage = ytData.thumbnail ?? ''
       if (ytSubscribers >= 100) hasEnoughFollowers = true
     }
     if (p_tiktok) {
@@ -368,6 +373,7 @@ export default function LoginPage() {
       })
       const ttData = await ttRes.json()
       ttFollowers = ttData?.data?.stats?.followerCount ?? 0
+      ttProfileImage = ttData?.data?.user?.avatarLarger ?? ''
       if (ttFollowers >= 100) hasEnoughFollowers = true
     }
 
@@ -432,8 +438,11 @@ export default function LoginPage() {
         bank_name: p_bank, account_holder: p_holder, account_number: p_account,
         instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
         instagram_followers: igFollowers || null,
+        instagram_profile_image: igProfileImage || null,
         youtube_subscribers: ytSubscribers || null,
+        youtube_profile_image: ytProfileImage || null,
         tiktok_followers: ttFollowers || null,
+        tiktok_profile_image: ttProfileImage || null,
         referral_code: referralCode, level: 1,
         is_cover_possible: isCoverPossible,
         cover_video_url: coverVideoUrl || null,
