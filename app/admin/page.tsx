@@ -1321,7 +1321,7 @@ export default function Page1() {
                   <label className="text-sm font-medium">내용</label>
                   <textarea value={pushBody} onChange={(e) => setPushBody(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="알림 내용" />
                 </div>
-                <button onClick={handleSendPush} disabled={isSendingPush} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                <button onClick={handleSendPush} disabled={isSendingPush} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">
                   {isSendingPush ? '발송 중...' : `${pushTarget === 'all' ? '전체' : pushTarget === 'participant' ? '체험단' : '의뢰인'} 발송`}
                 </button>
               </div>
@@ -1345,7 +1345,7 @@ export default function Page1() {
                   await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: notJoined.map((p: any) => String(p.id)) }) })
                   alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
-                }} disabled={isSendingPush} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                }} disabled={isSendingPush} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">
                   {isSendingPush ? '발송 중...' : '미참여자에게 발송'}
                 </button>
                 <button onClick={async () => {
@@ -1370,7 +1370,7 @@ export default function Page1() {
                   await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: inactive.map(id => String(id)) }) })
                   alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
-                }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
+                }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">
                   {isSendingPush ? '발송 중...' : '미활동자에게 발송'}
                 </button>
               </div>
@@ -1829,7 +1829,7 @@ export default function Page1() {
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold">📋 게시물 목록 ({selectedParticipantId ? posts.filter(p => p.member_id === selectedParticipantId).length : posts.length}개)</h2>
                   {posts.length > 0 && (
-                    <button onClick={handleUpdateProjectLikes} disabled={isUpdatingLikes} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg disabled:bg-gray-400">
+                    <button onClick={handleUpdateProjectLikes} disabled={isUpdatingLikes} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg disabled:bg-gray-400 cursor-pointer">
                       {isUpdatingLikes ? '갱신 중...' : <><RefreshCw size={14} className="inline mr-1" />좋아요 갱신</>}
                     </button>
                   )}
@@ -1896,7 +1896,7 @@ export default function Page1() {
                                 {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
                               </div>
                             </div>
-                              <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
+                              <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 cursor-pointer shrink-0">
                                 {updatingPostId === post.id ? '...' : '갱신'}
                               </button>
                             </div>
