@@ -246,7 +246,8 @@ export default function WalletPage() {
           </button>
           <h1 className="text-xl font-bold">적립금</h1>
         </div>
-
+      </div>
+      <div className="max-w-lg mx-auto"> 
         {isLocked && (
           <div className="bg-red-50 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-2 text-red-600">⚠️ 계정 잠금 상태</h2>
