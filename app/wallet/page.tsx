@@ -183,7 +183,7 @@ export default function WalletPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
       <div className="max-w-lg mx-auto">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="sticky top-0 z-10 bg-gray-50 py-3 mb-3 flex items-center gap-3">
           <button onClick={() => router.back()} className="text-gray-500 text-xl">←</button>
           <h1 className="text-xl font-bold">적립금</h1>
         </div>
