@@ -774,18 +774,19 @@ export async function GET() {
       }
     }
 
-    // 음원 사용량 갱신 (하루 1회)
-    if (currentHour === 3) {
+      // 음원 사용량 갱신 (refresh_interval 기준)
       const { data: projectsWithAudio } = await supabase
         .from('projects')
-        .select('project_code, instagram_audio_id, tiktok_audio_id, youtube_audio_id')
+        .select('project_code, instagram_audio_id, tiktok_audio_id, youtube_audio_id, refresh_interval')
         .or('instagram_audio_id.not.is.null,tiktok_audio_id.not.is.null,youtube_audio_id.not.is.null')
         .in('status', ['ONGOING', 'PAUSED'])
 
       if (projectsWithAudio) {
         for (const project of projectsWithAudio) {
-          const updates: any = { audio_updated_at: new Date().toISOString() }
-          
+          const interval = project.refresh_interval ?? 12
+          if (currentHour % interval !== 0) continue
+          const updates: any = {}
+                   
           if (project.instagram_audio_id) {
             try {
               const res = await fetch(`https://api.sociavault.com/v1/scrape/instagram/reels-by-song?audio_id=${project.instagram_audio_id}`, {
@@ -799,7 +800,8 @@ export async function GET() {
 
           if (project.tiktok_audio_id) {
             try {
-              const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/details?clipId=${project.tiktok_audio_id}`, {
+              const tiktokId = project.tiktok_audio_id.match(/(\d{10,})/)?.[1] ?? project.tiktok_audio_id
+              const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/details?clipId=${tiktokId}`, {
                 headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
               })
               const data = await res.json()
@@ -818,7 +820,8 @@ export async function GET() {
           await supabase.from('projects').update(updates).eq('project_code', project.project_code)
         }
       }
-    }
+          
+    
 
     return NextResponse.json({ success: true, updated })
   } catch (error) {
