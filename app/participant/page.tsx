@@ -1340,12 +1340,28 @@ useEffect(() => {
                                     )
                                   })()}
                                 </div>
-                                {isCoverPossible && (
-                                  <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                                    <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
-                                    커버영상 제출 (관리자 승인 후 별도 금액 지급)
-                                  </label>
-                                )}
+                                {isCoverPossible && (() => {
+                                  const alreadySubmittedCover = myPosts.some(p => 
+                                    p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover
+                                  )
+                                  return (
+                                    <>
+                                      {alreadySubmittedCover ? (
+                                        <p className="text-xs text-gray-400 mt-2">✅ 커버영상은 이미 제출됐어요. 나머지는 일반 게시물로 올려주세요.</p>
+                                      ) : (
+                                        <>
+                                          {projectInfo?.required_posts > 1 && (
+                                            <p className="text-xs text-orange-500 mt-2">⚠️ 커버영상은 1인 1개입니다. 나머지 게시물은 일반 게시물로 올려주세요.</p>
+                                          )}
+                                          <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                                            <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
+                                            커버영상 제출 (관리자 승인 후 별도 금액 지급)
+                                          </label>
+                                        </>
+                                      )}
+                                    </>
+                                  )
+                                })()}
                                 <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
                                   {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
                                 </button>
