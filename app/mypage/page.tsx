@@ -116,12 +116,14 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
-      <div className="max-w-lg mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 py-3 mb-3 flex items-center gap-3">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => router.back()} className="text-gray-500 text-xl">←</button>
           <h1 className="text-xl font-bold">마이페이지</h1>
         </div>
+      </div>
+      <div className="max-w-lg mx-auto">
 
         {/* 추천인 코드 */}
         {referralCode && (
