@@ -1484,6 +1484,7 @@ export default function Page1() {
                       }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
                     </div>
                     <div>
+                      <label className="text-sm font-medium">유튜브 음원 URL</label>
                       <input value={youtubeAudioId} onChange={(e) => {
                         const watchMatch = e.target.value.match(/[?&]v=([^&]+)/)
                         const sourceMatch = e.target.value.match(/source\/([^/]+)\/shorts/)
@@ -1572,7 +1573,15 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">모니터링 기간 연장 (추가 옵션)</label>
-                      <select value={monitoringExtension} onChange={(e) => setMonitoringExtension(Number(e.target.value))} className={inputClass}>
+                      <select value={monitoringExtension} onChange={(e) => {
+                        const days = Number(e.target.value)
+                        setMonitoringExtension(days)
+                        if (startDate) {
+                          const end = new Date(startDate)
+                          end.setDate(end.getDate() + 15 + days)
+                          setEndDate(end.toISOString().split('T')[0])
+                        }
+                      }} className={inputClass}>
                         <option value="0">없음</option>
                         <option value="15">15일 연장 (200,000원)</option>
                         <option value="30">30일 연장 (400,000원)</option>
