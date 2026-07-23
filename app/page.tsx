@@ -323,6 +323,7 @@ export default function LoginPage() {
   }
   const handleSignupParticipant = async () => {
     if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
+    if (isCoverPossible && !coverVideoUrl) { alert('커버영상 촬영 가능 선택 시 영상 링크를 입력해주세요.'); return }
     if (p_password !== p_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
 
     // 이메일/전화번호 중복 체크
