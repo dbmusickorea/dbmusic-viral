@@ -108,6 +108,15 @@ useEffect(() => {
       const data = await res.json()
       
       const participant = data.participant
+
+      // 계정 존재 여부 확인
+      if (!participant || participant.is_deleted) {
+        localStorage.removeItem('userInfo')
+        localStorage.removeItem('userRole')
+        router.push('/')
+        return
+      }
+      
       setCoverReward(participant?.cover_reward ?? 0)
       setBalance(participant?.balance ?? 0)
       setLevel(participant?.level ?? 1)
