@@ -1895,7 +1895,7 @@ export default function Page1() {
                                 </p>
                                 {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
                               </div>
-                              </div>
+                            </div>
                               <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 shrink-0">
                                 {updatingPostId === post.id ? '...' : '갱신'}
                               </button>
