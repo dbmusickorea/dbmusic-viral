@@ -294,10 +294,29 @@ export default function Page5() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50"
+        className="fixed bottom-20 right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50"
       >
         ↑
       </button>
+      {/* 하단 탭바 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
+        <button onClick={() => router.push('/participant')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">👥</span>체험단
+        </button>
+        <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">🏢</span>의뢰인
+        </button>
+        <button onClick={() => router.push('/members')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">👤</span>회원관리
+        </button>
+        <button onClick={() => router.push('/settlement')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">💰</span>정산
+        </button>
+        <button onClick={() => router.push('/cover')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">🎵</span>커버
+        </button>
+      </div>
+      <div className="h-16 md:hidden" />
     </div>
   )
 }

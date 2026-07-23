@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
+import Sidebar from '../../components/Sidebar'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
@@ -81,6 +82,7 @@ export default function Page1() {
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
   const [youtubeAudioId, setYoutubeAudioId] = useState('')
+  const [showSidebar, setShowSidebar] = useState(false)
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -921,7 +923,19 @@ export default function Page1() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4"
+    <>
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        items={[
+          { icon: '👥', label: '체험단', onClick: () => router.push('/participant') },
+          { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
+          { icon: '👤', label: '회원관리', onClick: () => router.push('/members') },
+          { icon: '💰', label: '정산', onClick: () => router.push('/settlement') },
+          { icon: '🎵', label: '커버', onClick: () => router.push('/cover') },
+        ]}
+      />     
+      <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -948,7 +962,14 @@ export default function Page1() {
             </div>
           )}
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">프로젝트 관리</h1>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold">프로젝트 관리</h1>
+            </div>
             <div className="relative">
               <button onClick={() => { 
                 if (showNotifications) {
@@ -1000,13 +1021,6 @@ export default function Page1() {
                 </div>
               )}
             </div>
-          </div>
-          <div className="flex gap-1 mb-2">
-            <button onClick={() => router.push('/participant')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
-            <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
-            <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
-            <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
-            <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버</button>
           </div>
         </div>
 
@@ -1906,10 +1920,30 @@ export default function Page1() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50"
+        className="fixed bottom-20 right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50"
       >
         ↑
       </button>
+      {/* 하단 탭바 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
+        <button onClick={() => router.push('/participant')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">👥</span>체험단
+        </button>
+        <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">🏢</span>의뢰인
+        </button>
+        <button onClick={() => router.push('/members')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">👤</span>회원관리
+        </button>
+        <button onClick={() => router.push('/settlement')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">💰</span>정산
+        </button>
+        <button onClick={() => router.push('/cover')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <span className="text-lg mb-0.5">🎵</span>커버
+        </button>
+      </div>
+      <div className="h-16 md:hidden" />
     </div>
+    </>
   )
 }
