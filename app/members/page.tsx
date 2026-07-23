@@ -356,8 +356,30 @@ export default function Page4() {
   }
 
   const handleDelete = async () => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-    const res = await fetch(`/api/participants?id=${selected.id}`, { method: 'DELETE' })
+    if (!confirm('탈퇴 시 추천인의 적립금 150P와 레벨 1이 차감됩니다. 정말 삭제하시겠습니까?')) return
+    
+    // 추천인 적립금/레벨 차감
+    if (selected.referred_by) {
+      const referrerRes = await fetch(`/api/participants?referral_code=${selected.referred_by}`)
+      const referrerData = await referrerRes.json()
+      const referrer = referrerData?.[0]
+      if (referrer) {
+        const newBalance = Math.max(0, (referrer.balance ?? 0) - 150)
+        const newLevel = Math.max(1, (referrer.level ?? 1) - 1)
+        await fetch(`/api/participants?id=${referrer.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ balance: newBalance, level: newLevel })
+        })
+      }
+    }
+
+    // 소프트 삭제
+    const res = await fetch(`/api/participants?id=${selected.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_deleted: true, balance: 0 })
+    })
     if (!res.ok) { alert('삭제 실패!'); return }
     alert('삭제 완료!')
     fetchParticipants()
