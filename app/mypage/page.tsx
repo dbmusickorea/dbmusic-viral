@@ -99,6 +99,23 @@ export default function MyPage() {
         ...(myPassword ? { password: myPassword } : {})
       })
     })
+    // 커버 링크 새로 입력 시 관리자 푸시
+    if (coverVideoUrl && !userInfo?.cover_video_url) {
+      const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+      const adminTokens = await adminTokensRes.json()
+      if (adminTokens && adminTokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '🎵 커버영상 신청이 왔어요!',
+            body: `${myName}님이 커버영상 링크를 등록했어요. 확인하고 승인해주세요.`,
+            tokens: adminTokens.map((t: any) => t.token),
+            userIds: adminTokens.map((t: any) => t.user_id)
+          })
+        })
+      }
+    }
     alert('정보 수정 완료!')
     setMyPassword('')
     setMyCurrentPassword('')
@@ -288,6 +305,21 @@ export default function MyPage() {
                           status: 'PENDING'
                         })
                       })
+                      // 관리자 푸시
+                      const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+                      const adminTokens = await adminTokensRes.json()
+                      if (adminTokens && adminTokens.length > 0) {
+                        await fetch('/api/push', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title: '📱 SNS 계정 변경 요청이 왔어요!',
+                            body: `${myName}님이 ${snsChangeRequest.platform} 계정 변경을 요청했어요.`,
+                            tokens: adminTokens.map((t: any) => t.token),
+                            userIds: adminTokens.map((t: any) => t.user_id)
+                          })
+                        })
+                      }
                       alert('변경 요청이 접수됐어요. 관리자 승인 후 반영됩니다.')
                       setSnsChangeRequest(null)
                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">요청 제출</button>
