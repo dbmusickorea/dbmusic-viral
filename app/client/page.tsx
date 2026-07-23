@@ -856,7 +856,7 @@ export default function Page3() {
                                   <p style={{ marginBottom: '4px', fontWeight: 'bold', color: '#374151' }}>{label}</p>
                                   {payload.map((entry: any, i: number) => (
                                     <p key={i} style={{ color: entry.color, margin: '2px 0' }}>
-                                      {entry.name}: {entry.value?.toLocaleString()}
+                                      {entry.name}: {entry.value != null ? entry.value.toLocaleString() : '-'}
                                     </p>
                                   ))}
                                 </div>
