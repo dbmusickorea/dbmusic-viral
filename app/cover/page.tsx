@@ -180,7 +180,6 @@ export default function CoverPage() {
             {userRole === 'admin' && (
               <>
                 <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
-                <button onClick={() => router.push('/participant')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
                 <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
                 <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
                 <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
@@ -392,10 +391,7 @@ export default function CoverPage() {
         ↑
       </button>
       {/* 하단 탭바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
-        <button onClick={() => router.push('/participant')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">👥</span>체험단
-        </button>
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">        
         <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
           <span className="text-lg mb-0.5">🏢</span>의뢰인
         </button>

@@ -928,7 +928,6 @@ export default function Page1() {
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
         items={[
-          { icon: '👥', label: '체험단', onClick: () => router.push('/participant') },
           { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
           { icon: '👤', label: '회원관리', onClick: () => router.push('/members') },
           { icon: '💰', label: '정산', onClick: () => router.push('/settlement') },
@@ -1925,10 +1924,7 @@ export default function Page1() {
         ↑
       </button>
       {/* 하단 탭바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
-        <button onClick={() => router.push('/participant')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">👥</span>체험단
-        </button>
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">        
         <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
           <span className="text-lg mb-0.5">🏢</span>의뢰인
         </button>
