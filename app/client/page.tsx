@@ -922,6 +922,16 @@ export default function Page3() {
                             {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
                             {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
                           </p>
+                          <p className="text-sm font-bold text-purple-600">
+                            {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
+                            {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
+                            {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
+                          </p>
+                          {label === '유튜브' && projectInfo?.youtube_audio_id && (
+                            <a href={`https://www.youtube.com/source/${projectInfo.youtube_audio_id}/shorts`} target="_blank" className="text-xs text-red-500 border border-red-300 rounded-lg px-3 py-1.5 mt-2 inline-block">
+                              🎵 숏츠 재사용 현황 보기 →
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
