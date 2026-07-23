@@ -908,57 +908,65 @@ useEffect(() => {
             </div>
 
             {/* 버튼 */}
-            <div className="flex gap-2">
-              {guideStep < 3 ? (
-                <>
-                  <button onClick={() => { localStorage.setItem('guideShown', 'true'); setShowGuide(false) }} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">다시 보지 않기</button>
+            <div className="mt-4">
+              <div className="flex gap-2 mb-3">
+                {guideStep > 0 && (
+                  <button onClick={() => setGuideStep(guideStep - 1)} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">← 이전</button>
+                )}
+                {guideStep < 3 ? (
                   <button onClick={() => setGuideStep(guideStep + 1)} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">다음 →</button>
-                </>
-              ) : (
-                <>
-                  <button onClick={() => { localStorage.setItem('guideShown', 'true'); setShowGuide(false) }} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">다시 보지 않기</button>
+                ) : (
                   <button onClick={() => router.push('/guide')} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">자세히 보기</button>
-                </>
-              )}
+                )}
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" onChange={(e) => {
+                    if (e.target.checked) localStorage.setItem('guideShown', 'true')
+                    else localStorage.removeItem('guideShown')
+                  }} className="w-4 h-4" />
+                  <span className="text-xs text-gray-400">다시 보지 않기</span>
+                </label>
+                <button onClick={() => setShowGuide(false)} className="text-xs text-gray-400">닫기</button>
+              </div>
             </div>
-            <button onClick={() => setShowGuide(false)} className="w-full text-center text-xs text-gray-400 mt-2">닫기</button>
           </div>
         </div>
       )}
-    {/* 사이드바 오버레이 */}
-      {showSidebar && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-bold text-lg">더블비뮤직</h2>
-              <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
+      {/* 사이드바 오버레이 */}
+        {showSidebar && (
+          <div className="fixed inset-0 z-50 flex">
+            <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-bold text-lg">더블비뮤직</h2>
+                <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
+              </div>
+              <div className="space-y-2 flex-1">
+                <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📊 내 현황</button>
+                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>🎯 프로젝트</button>
+                <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">💰 적립금</button>
+                <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 마이페이지</button>
+              </div>
+              <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
             </div>
-            <div className="space-y-2 flex-1">
-              <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📊 내 현황</button>
-              <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>🎯 프로젝트</button>
-              <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">💰 적립금</button>
-              <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 마이페이지</button>
-            </div>
-            <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
+            <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
           </div>
-          <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
-        </div>
-      )}
-    <div className="min-h-screen bg-gray-50 p-4"
-      onTouchStart={(e) => {
-        if (document.documentElement.scrollTop === 0) {
-          setPullStartY(e.touches[0].clientY)
-        }
-      }}
-      onTouchMove={(e) => {
-        const pullDistance = e.touches[0].clientY - pullStartY
-        if (pullDistance > 70) setIsPulling(true)
-      }}
-      onTouchEnd={() => {
-        if (isPulling) handleRefresh()
-        setIsPulling(false)
-      }}
-    >
+        )}
+      <div className="min-h-screen bg-gray-50 p-4"
+        onTouchStart={(e) => {
+          if (document.documentElement.scrollTop === 0) {
+            setPullStartY(e.touches[0].clientY)
+          }
+        }}
+        onTouchMove={(e) => {
+          const pullDistance = e.touches[0].clientY - pullStartY
+          if (pullDistance > 70) setIsPulling(true)
+        }}
+        onTouchEnd={() => {
+          if (isPulling) handleRefresh()
+          setIsPulling(false)
+        }}
+      >
       <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (

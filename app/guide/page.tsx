@@ -9,7 +9,10 @@ export default function GuidePage() {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-lg mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
-          <h1 className="text-xl font-bold">📖 크리에이터 공식 사용설명서</h1>
+          <div className="flex items-center gap-3">
+            <a href="javascript:history.back()" className="text-gray-500 text-xl">←</a>
+            <h1 className="text-xl font-bold">📖 크리에이터 공식 사용설명서</h1>
+          </div>
         </div>
 
         {/* 1. 서비스 개요 */}
