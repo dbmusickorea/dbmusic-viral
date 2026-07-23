@@ -85,6 +85,7 @@ export default function Page2() {
   const [showParticipation, setShowParticipation] = useState(false)
   const [showGuide, setShowGuide] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
+  const [isCoverApproved, setIsCoverApproved] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -1327,20 +1328,17 @@ useEffect(() => {
                                   <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
                                   {(() => {
                                     const existingPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())
-                                    const remaining = (projectInfo?.required_posts ?? 1) - existingPosts.length
                                     return (
                                       <>
                                         {existingPosts.length > 0 && (
                                           <p className="text-xs text-green-600 mt-1 mb-1">✅ {existingPosts.length}차 게시물 제출 완료</p>
                                         )}
-                                        {Array.from({ length: remaining > 0 ? remaining : 1 }).map((_, i) => (
-                                          <input key={i} value={postUrls[i] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[i] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${existingPosts.length + i + 1}`} />
-                                        ))}
+                                        <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${existingPosts.length + 1}차`} />
                                       </>
                                     )
                                   })()}
                                 </div>
-                                {isCoverPossible && (() => {
+                                {isCoverPossible && isCoverApproved && (() => {
                                   const alreadySubmittedCover = myPosts.some(p => 
                                     p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover
                                   )
