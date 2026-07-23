@@ -805,8 +805,8 @@ export async function GET() {
                 headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
               })
               const data = await res.json()
-              const videos = data?.data?.aweme_list ?? []
-              updates.tiktok_audio_count = Array.isArray(videos) ? videos.length : 0
+              const videos = data?.data?.aweme_list ?? {}
+              updates.tiktok_audio_count = Object.keys(videos).length
             } catch { }
           }
 
