@@ -863,7 +863,7 @@ useEffect(() => {
    <> 
       {showGuide && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full flex flex-col" style={{minHeight: '380px'}}>
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full flex flex-col" style={{minHeight: '380px', wordBreak: 'keep-all'}}>
             <div className="flex-1">
               <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
               {guideStep === 0 && (
