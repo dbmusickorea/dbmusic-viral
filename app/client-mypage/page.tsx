@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import Sidebar from '../../components/Sidebar'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -30,6 +31,7 @@ export default function ClientMyPage() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -123,7 +125,18 @@ export default function ClientMyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4"
+    <>
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onLogout={handleLogout}
+        items={[
+          { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
+          { icon: '📊', label: '현황', onClick: () => router.push('/client') },
+          { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
+        ]}
+      />
+      <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -150,6 +163,11 @@ export default function ClientMyPage() {
         )}
         <div className="max-w-lg mx-auto flex items-center gap-3">
           
+          <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <h1 className="text-xl font-bold">마이페이지</h1>
         </div>
       </div>
@@ -304,5 +322,6 @@ export default function ClientMyPage() {
         { icon: '👤', label: '마이페이지', href: '/client-mypage', active: true },
       ]} />
     </div>
+    </>
   )
 }
