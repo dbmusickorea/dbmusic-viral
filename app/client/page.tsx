@@ -77,18 +77,7 @@ export default function Page3() {
     loadData()
   }, [])
 
-  useEffect(() => {
-    if (dailyStats.length > 0 && (igAudioCount !== null || ttAudioCount !== null || ytAudioCount !== null)) {
-      const updated = [...dailyStats]
-      updated[updated.length - 1] = {
-        ...updated[updated.length - 1],
-        ig_audio: igAudioCount,
-        tt_audio: ttAudioCount,
-        yt_audio: ytAudioCount
-      }
-      setDailyStats(updated)
-    }
-  }, [igAudioCount, ttAudioCount, ytAudioCount])
+
 
   const fetchRequests = async (clientId: string) => {
     const res = await fetch(`/api/client_requests?client_id=${clientId}`)
@@ -303,7 +292,7 @@ export default function Page3() {
     
     if (data && data.length > 0) {
       const dates = [...new Set(data.map((h: any) => h.recorded_at.includes('_') ? h.recorded_at.split('_')[0] : h.recorded_at))].sort()
-      const stats = dates.map(date => {
+      const stats: any[] = dates.map(date => {
         const dayData = data.filter((h: any) => h.recorded_at === date || h.recorded_at.startsWith(date + '_'))
         const igData = dayData.filter((h: any) => h.platform === 'instagram')
         const ytData = dayData.filter((h: any) => h.platform === 'youtube')
@@ -323,6 +312,14 @@ export default function Page3() {
           cover_count: coverCount > 0 ? coverCount : null,
         }
       })
+      if (stats.length > 0) {
+        stats[stats.length - 1] = {
+          ...stats[stats.length - 1],
+          ig_audio: igAudioCount,
+          tt_audio: ttAudioCount,
+          yt_audio: ytAudioCount
+        }
+      }
       setDailyStats(stats)
     }
   }
