@@ -38,6 +38,7 @@ export default function MyPage() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [coverVideoUrl, setCoverVideoUrl] = useState('')
   const [isCoverPossible, setIsCoverPossible] = useState(false)
+  const [referredUsers, setReferredUsers] = useState<any[]>([])
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -69,6 +70,10 @@ export default function MyPage() {
     const reqRes = await fetch(`/api/client_requests?member_id=${id}`)
     const reqData = await reqRes.json()
     setRequests(reqData ?? [])
+    // 추천한 사람 목록
+    const refRes = await fetch(`/api/participants?referral_code=${p.referral_code}`)
+    const refData = await refRes.json()
+    setReferredUsers(refData?.filter((u: any) => u.id !== id) ?? [])
   }
 
   const handleRefresh = async () => {
@@ -210,6 +215,19 @@ export default function MyPage() {
               <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
             </div>
             <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+            {referredUsers.length > 0 && (
+              <div className="mt-3 border-t pt-3">
+                <p className="text-xs font-medium text-gray-600 mb-2">추천한 친구 ({referredUsers.length}명)</p>
+                <div className="space-y-1">
+                  {referredUsers.map(u => (
+                    <div key={u.id} className="flex justify-between items-center text-xs text-gray-500">
+                      <span>{u.name}</span>
+                      <span>{new Date(u.created_at).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
