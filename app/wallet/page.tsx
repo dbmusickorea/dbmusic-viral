@@ -90,7 +90,7 @@ export default function WalletPage() {
     }
     setLoading(false)
     // 추천 내역
-    const refRes = await fetch(`/api/participants?referral_code=${participant?.referral_code}`)
+    const refRes = await fetch(`/api/participants?referred_by=${participant?.referral_code}`)
     const refData = await refRes.json()
     setReferredUsers(refData?.filter((u: any) => u.id !== id) ?? [])
   }

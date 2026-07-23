@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
   const coverApproved = searchParams.get('cover_approved')
   if (email) query = query.eq('email', email)
   if (referralCode) query = query.eq('referral_code', referralCode)
+  const referredBy = searchParams.get('referred_by')
+  if (referredBy) query = query.eq('referred_by', referredBy)
   if (coverApproved === 'true') query = query.eq('cover_approved', true)
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
