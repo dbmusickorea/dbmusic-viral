@@ -275,6 +275,7 @@ export default function Page4() {
     setAccountHolder(''); setAccountNumber(''); setInstagram('')
     setYoutube(''); setTiktok(''); setPassword(''); setLevel(1)
     setShowParticipantInsert(false)
+    setMemberDetailTab('activity')
   }
 
   const handleInsert = async () => {
@@ -683,7 +684,7 @@ export default function Page4() {
                     <button onClick={() => setMemberDetailTab('info')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'info' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>정보 수정</button>                    
                   </div>
                 )}
-                {(selected || showParticipantInsert) && memberDetailTab === 'info' && (
+                {(selected || showParticipantInsert) && (memberDetailTab === 'info' || !selected) && (
                   <div className="space-y-3">
                     {[
                       { label: '이름 *', value: name, setter: setName },
