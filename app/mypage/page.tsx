@@ -288,6 +288,11 @@ export default function MyPage() {
               {isCoverPossible && (
                 <div>
                   <label className="text-sm font-medium">커버영상 링크</label>
+                  {!coverVideoUrl && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-2 mb-1 mt-1">
+                      <p className="text-xs text-orange-600 font-medium">⚠️ 커버영상 링크를 등록해야 승인을 받을 수 있어요!</p>
+                    </div>
+                  )}
                   <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="본인 가창 영상 링크 입력" />
                   <p className="text-xs text-gray-400 mt-1">관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
                 </div>
