@@ -1484,11 +1484,11 @@ export default function Page1() {
                       }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">유튜브 음원 URL</label>
                       <input value={youtubeAudioId} onChange={(e) => {
-                        const match = e.target.value.match(/[?&]v=([^&]+)/)
-                        setYoutubeAudioId(match ? match[1] : e.target.value)
-                      }} className={inputClass} placeholder="https://www.youtube.com/watch?v=..." />
+                        const watchMatch = e.target.value.match(/[?&]v=([^&]+)/)
+                        const sourceMatch = e.target.value.match(/source\/([^/]+)\/shorts/)
+                        setYoutubeAudioId(watchMatch ? watchMatch[1] : sourceMatch ? sourceMatch[1] : e.target.value)
+                      }} className={inputClass} placeholder="https://youtube.com/source/ID/shorts 또는 watch?v=..." />
                     </div>
                     <div>
                       <label className="text-sm font-medium">상품내용</label>
