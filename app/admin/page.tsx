@@ -490,6 +490,26 @@ export default function Page1() {
             video_id: videoId || null
           })
         })
+        // 참여중인 체험단 푸시
+        const participantsRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
+        const participants = await participantsRes.json()
+        if (participants && participants.length > 0) {
+          const memberIds = participants.map((p: any) => String(p.member_id))
+          const tokenRes = await fetch(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
+          const tokens = await tokenRes.json()
+          if (tokens && tokens.length > 0) {
+            await fetch('/api/push', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: '💬 댓글 미션이 추가됐어요!',
+                body: `댓글을 달고 300P를 받으세요!`,
+                tokens: tokens.map((t: any) => t.token),
+                userIds: memberIds
+              })
+            })
+          }
+        }
       } else if (link.id) {
         await fetch(`/api/project_links?id=${link.id}`, {
           method: 'PATCH',
