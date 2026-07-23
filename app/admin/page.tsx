@@ -1400,7 +1400,7 @@ export default function Page1() {
                         {optionPrice && <p>추가 옵션: +{Number(optionPrice).toLocaleString()}원</p>}
                         {Number(requiredPosts) === 2 && <p>게시물 2개 (+50%): +{Math.floor(getSelectedProductPrice() * 0.5).toLocaleString()}원</p>}
                         {monitoringExtension > 0 && <p>모니터링 연장 ({monitoringExtension}일): +{(monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
-                        {refreshInterval && <p>트래픽 부스터: +{(refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
+                        {refreshInterval && refreshInterval !== '' && refreshInterval !== '0' && refreshInterval !== '12' && <p>트래픽 부스터: +{(refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
                         {coverVideoCount > 0 && <p>커버영상 ({coverVideoCount}개): +{(coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
                       </div>
                     </div>
