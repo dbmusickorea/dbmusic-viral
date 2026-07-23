@@ -837,14 +837,33 @@ export default function Page3() {
                   )}
                 </div>
                 {dailyStats.length > 0 && (
-                  <div className="mt-4">
+                  <div className="mt-4 relative z-10">
                     <p className="text-sm font-medium mb-2">📈 일별 변화 추이</p>
                     <ResponsiveContainer width="100%" height={200}>
                       <LineChart data={dailyStats}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                         <YAxis tick={{ fontSize: 10 }} />
-                        <Tooltip />
+                        <Tooltip 
+                          wrapperStyle={{ zIndex: 9999 }}
+                          isAnimationActive={false}
+                          filterNull={false}
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px 12px', fontSize: '11px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', zIndex: 9999 }}>
+                                  <p style={{ marginBottom: '4px', fontWeight: 'bold', color: '#374151' }}>{label}</p>
+                                  {payload.map((entry: any, i: number) => (
+                                    <p key={i} style={{ color: entry.color, margin: '2px 0' }}>
+                                      {entry.name}: {entry.value?.toLocaleString()}
+                                    </p>
+                                  ))}
+                                </div>
+                              )
+                            }
+                            return null
+                          }}
+                        />
                         <Legend
                           layout="horizontal"
                           verticalAlign="bottom"
