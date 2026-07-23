@@ -141,7 +141,7 @@ export default function Page3() {
       setYtAudioCount(active[0].youtube_audio_count ?? null)
       fetchPosts(active[0].project_code)
       fetchCommentMissionData(active[0].project_code)
-      fetchDailyStats(active[0].project_code)
+      fetchDailyStats(active[0].project_code, active[0].instagram_audio_count ?? null, active[0].tiktok_audio_count ?? null, active[0].youtube_audio_count ?? null)
     }
   }
 
@@ -192,7 +192,7 @@ export default function Page3() {
     setYtAudioCount(project.youtube_audio_id ? (project.youtube_audio_count ?? null) : null)
     fetchPosts(project.project_code)
     fetchCommentMissionData(project.project_code)
-    fetchDailyStats(project.project_code)
+    fetchDailyStats(project.project_code, project.instagram_audio_id ? (project.instagram_audio_count ?? null) : null, project.tiktok_audio_id ? (project.tiktok_audio_count ?? null) : null, project.youtube_audio_id ? (project.youtube_audio_count ?? null) : null)
     setActiveTab('stats')
     setPostPage(0)
     setTimeout(() => postsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300)
@@ -282,7 +282,7 @@ export default function Page3() {
     setUnreadCount(data?.filter((n: any) => !n.is_read).length ?? 0)
   }
 
-  const fetchDailyStats = async (projectCode: string) => {
+  const fetchDailyStats = async (projectCode: string, igAudio: number | null = null, ttAudio: number | null = null, ytAudio: number | null = null) => {
     const res = await fetch(`/api/post_stats_history?project_code=${projectCode}`)
     const data = await res.json()
     
@@ -315,9 +315,9 @@ export default function Page3() {
       if (stats.length > 0) {
         stats[stats.length - 1] = {
           ...stats[stats.length - 1],
-          ig_audio: igAudioCount,
-          tt_audio: ttAudioCount,
-          yt_audio: ytAudioCount
+          ig_audio: igAudio,
+          tt_audio: ttAudio,
+          yt_audio: ytAudio
         }
       }
       setDailyStats(stats)
