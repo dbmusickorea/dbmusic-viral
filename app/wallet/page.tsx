@@ -44,6 +44,7 @@ export default function WalletPage() {
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [referredUsers, setReferredUsers] = useState<any[]>([])
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -88,6 +89,10 @@ export default function WalletPage() {
       setProjectsMap(map)
     }
     setLoading(false)
+    // 추천 내역
+    const refRes = await fetch(`/api/participants?referral_code=${participant?.referral_code}`)
+    const refData = await refRes.json()
+    setReferredUsers(refData?.filter((u: any) => u.id !== id) ?? [])
   }
 
   const handleLogout = () => {
@@ -174,6 +179,14 @@ export default function WalletPage() {
     }
   })
 
+  const referralHistory = referredUsers.map(u => ({
+    type: 'referral',
+    date: u.created_at,
+    label: `추천 보상`,
+    sub: `${u.name} 가입`,
+    amount: 150,
+  }))
+
   const exchangeHistory = settlements.map(s => ({
     type: 'exchange',
     date: s.requested_at,
@@ -184,12 +197,12 @@ export default function WalletPage() {
     memo: s.memo,
   }))
 
-  const allHistory = [...earnHistory, ...exchangeHistory].sort(
+  const allHistory = [...earnHistory, ...exchangeHistory, ...referralHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
   const filteredHistory = filter === 'earn'
-    ? [...earnHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    ? [...earnHistory, ...referralHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : filter === 'exchange'
     ? [...exchangeHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : allHistory
