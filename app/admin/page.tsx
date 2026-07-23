@@ -752,7 +752,7 @@ export default function Page1() {
 
   const getInstagramStats = async (url: string) => {
     try {
-      const shortcode = url.split('/p/')[1]?.split('/')[0]
+      const shortcode = url.split('/p/')[1]?.split('/')[0] || url.split('/reel/')[1]?.split('/')[0]
       if (!shortcode) return null
       const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
       const data = await response.json()
