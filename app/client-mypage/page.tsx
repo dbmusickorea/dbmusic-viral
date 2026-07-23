@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
+import BottomNav from '../../components/BottomNav'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -255,6 +256,11 @@ export default function ClientMyPage() {
           <p className="text-xs text-gray-300">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
         </div>
       </div>
+      <BottomNav tabs={[
+        { icon: '📋', label: '프로젝트', href: '/client' },
+        { icon: '📊', label: '현황', href: '/client' },
+        { icon: '👤', label: '마이페이지', href: '/client-mypage', active: true },
+      ]} />
     </div>
   )
 }

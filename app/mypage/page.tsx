@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
+import BottomNav from '../../components/BottomNav'
 
 export default function MyPage() {
   const router = useRouter()
@@ -329,6 +330,12 @@ export default function MyPage() {
           <p className="text-xs text-gray-300">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
         </div>
       </div>
+      <BottomNav tabs={[
+        { icon: '📊', label: '내 현황', href: '/participant' },
+        { icon: '🎯', label: '프로젝트', href: '/participant' },
+        { icon: '💰', label: '적립금', href: '/wallet' },
+        { icon: '👤', label: '마이페이지', href: '/mypage', active: true },
+      ]} />
     </div>
   )
 }

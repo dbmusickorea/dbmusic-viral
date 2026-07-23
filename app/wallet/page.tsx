@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { encryptText } from '../lib/crypto'
+import BottomNav from '../../components/BottomNav'
 
 const getLevelAmount = (base: number, level: number) => {
   if (level === 50) return 10000
@@ -359,6 +360,12 @@ export default function WalletPage() {
           )}
         </div>
       </div>
+      <BottomNav tabs={[
+        { icon: '📊', label: '내 현황', href: '/participant' },
+        { icon: '🎯', label: '프로젝트', href: '/participant' },
+        { icon: '💰', label: '적립금', href: '/wallet', active: true },
+        { icon: '👤', label: '마이페이지', href: '/mypage' },
+      ]} />
     </div>
   )
 }
