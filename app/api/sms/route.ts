@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     from: process.env.SOLAPI_SENDER!,
     kakaoOptions: {
       pfId: process.env.SOLAPI_KAKAO_PFID!,
-      templateId: isTemp ? 'KA01TP260709041453214iRFJWibnLFt' : 'KA01TP2607080729444147DLp8YDtiD4',
+      templateId: isTemp ? 'KA01TP260721115447383iGQxYoOqqX6' : 'KA01TP2607080729444147DLp8YDtiD4',
       variables: {
         '#{고객명}': name || '고객',
         '#{code}': code || '',
