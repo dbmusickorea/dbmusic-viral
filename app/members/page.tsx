@@ -274,6 +274,7 @@ export default function Page4() {
     setName(''); setMobile(''); setEmail(''); setBankName('')
     setAccountHolder(''); setAccountNumber(''); setInstagram('')
     setYoutube(''); setTiktok(''); setPassword(''); setLevel(1)
+    setShowParticipantInsert(false)
   }
 
   const handleInsert = async () => {
