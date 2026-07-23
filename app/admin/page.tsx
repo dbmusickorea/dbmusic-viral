@@ -1874,28 +1874,28 @@ export default function Page1() {
                                   <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                                   <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
                                   <button onClick={() => {
-                                  const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                                  if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
-                                }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
-                                <p className="text-xs mt-1 flex items-center gap-2">
-                                  <span className="flex items-center gap-1">
-                                    {post.platform === 'youtube' ? <ThumbsUp size={12} className="text-red-500" /> : <Heart size={12} className="text-red-500" />}
-                                    {post.likes_count?.toLocaleString()}
-                                  </span>
-                                  <span className="flex items-center gap-1 text-gray-500">
-                                    <MessageCircle size={12} />
-                                    {post.comments_count?.toLocaleString()}
-                                  </span>
-                                  {post.views_count > 0 && (
-                                    <span className="flex items-center gap-1 text-gray-500">
-                                      <PlayCircle size={12} />
-                                      {post.views_count?.toLocaleString()}
+                                    const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                                    if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
+                                  }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
+                                  <p className="text-xs mt-1 flex items-center gap-2">
+                                    <span className="flex items-center gap-1">
+                                      {post.platform === 'youtube' ? <ThumbsUp size={12} className="text-red-500" /> : <Heart size={12} className="text-red-500" />}
+                                      {post.likes_count?.toLocaleString()}
                                     </span>
-                                  )}
-                                </p>
-                                {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
+                                    <span className="flex items-center gap-1 text-gray-500">
+                                      <MessageCircle size={12} />
+                                      {post.comments_count?.toLocaleString()}
+                                    </span>
+                                    {post.views_count > 0 && (
+                                      <span className="flex items-center gap-1 text-gray-500">
+                                        <PlayCircle size={12} />
+                                        {post.views_count?.toLocaleString()}
+                                      </span>
+                                    )}
+                                  </p>
+                                  {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
+                                </div>
                               </div>
-                            </div>
                               <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 cursor-pointer shrink-0">
                                 {updatingPostId === post.id ? '...' : '갱신'}
                               </button>
