@@ -6,6 +6,123 @@ import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 
+function ActivityDetail({ memberId }: { memberId: number }) {
+  const [activityTab, setActivityTab] = useState<'missions' | 'points' | 'penalty'>('missions')
+  const [participations, setParticipations] = useState<any[]>([])
+  const [posts, setPosts] = useState<any[]>([])
+  const [settlements, setSettlements] = useState<any[]>([])
+  const [participant, setParticipant] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      const [partRes, postRes, settleRes, memberRes] = await Promise.all([
+        fetch(`/api/project_participants?member_id=${memberId}`),
+        fetch(`/api/posts?member_id=${memberId}`),
+        fetch(`/api/settlements?member_id=${memberId}`),
+        fetch(`/api/participants?id=${memberId}`)
+      ])
+      setParticipations(await partRes.json())
+      setPosts(await postRes.json())
+      setSettlements(await settleRes.json())
+      const data = await memberRes.json()
+      setParticipant(data?.[0])
+      setLoading(false)
+    }
+    load()
+  }, [memberId])
+
+  if (loading) return <p className="text-sm text-gray-400 text-center py-4">로딩 중...</p>
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-3">
+        {(['missions', 'points', 'penalty'] as const).map(t => (
+          <button key={t} onClick={() => setActivityTab(t)} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${activityTab === t ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>
+            {t === 'missions' ? '미션현황' : t === 'points' ? '포인트' : '페널티'}
+          </button>
+        ))}
+      </div>
+
+      {activityTab === 'missions' && (
+        <div className="space-y-2">
+          {participations.length === 0 ? <p className="text-sm text-gray-400 text-center py-2">참여 내역 없음</p> : 
+          participations.map(p => {
+            const projectPosts = posts.filter(post => post.project_code?.toLowerCase() === p.project_code?.toLowerCase())
+            return (
+              <div key={p.id} className="border rounded-lg p-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-medium">{p.project_code}</p>
+                    <p className="text-xs text-gray-500">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
+                    <p className="text-xs text-gray-500">게시물: {projectPosts.length}개</p>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' : p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
+                    {p.status === 'CANCELLED' ? '취소' : p.projects?.status === 'COMPLETED' ? '완료' : '진행중'}
+                  </span>
+                </div>
+                {projectPosts.map(post => (
+                  <div key={post.id} className="mt-2 bg-gray-50 rounded p-2">
+                    <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                    <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {activityTab === 'points' && (
+        <div className="space-y-2">
+          <div className="bg-blue-50 rounded-lg p-3 mb-2">
+            <p className="text-xs text-gray-500">현재 잔액</p>
+            <p className="text-lg font-bold text-blue-600">{participant?.balance?.toLocaleString()}P</p>
+          </div>
+          {settlements.length === 0 ? <p className="text-sm text-gray-400 text-center py-2">환전 내역 없음</p> :
+          settlements.map(s => (
+            <div key={s.id} className="border rounded-lg p-3 flex justify-between items-center">
+              <div>
+                <p className="text-sm font-medium">환전 신청</p>
+                <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${s.status === 'APPROVED' ? 'bg-green-100 text-green-700' : s.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
+                  {s.status === 'APPROVED' ? '승인' : s.status === 'PENDING' ? '검토중' : '반려'}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-red-500">-{s.amount?.toLocaleString()}P</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activityTab === 'penalty' && (
+        <div className="space-y-2">
+          <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : 'bg-green-50'}`}>
+            <p className="text-sm font-medium">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
+            {participant?.is_locked && <p className="text-xs text-gray-500 mt-1">댓글 인증 {participant?.comment_count_for_unlock ?? 0}/10</p>}
+          </div>
+          {participant?.banned_until && new Date(participant.banned_until) > new Date() && (
+            <div className="bg-red-50 rounded-lg p-3">
+              <p className="text-sm font-medium text-red-600">🚫 활동 제한 중</p>
+              <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.banned_until).toLocaleDateString('ko-KR')}</p>
+            </div>
+          )}
+          {participant?.cover_penalty_until && new Date(participant.cover_penalty_until) > new Date() && (
+            <div className="bg-orange-50 rounded-lg p-3">
+              <p className="text-sm font-medium text-orange-600">🎵 커버 페널티 중</p>
+              <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
+            </div>
+          )}
+          {!participant?.banned_until && !participant?.is_locked && !participant?.cover_penalty_until && (
+            <p className="text-sm text-gray-400 text-center py-2">페널티 없음</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Page4() {
   const [tab, setTab] = useState<'participant' | 'client'>('participant')
   
@@ -53,6 +170,9 @@ export default function Page4() {
   const [artistList, setArtistList] = useState<any[]>([])
   const [newArtistName, setNewArtistName] = useState('')
   const [snsRequests, setSnsRequests] = useState<any[]>([])
+  const [participantSearch, setParticipantSearch] = useState('')
+  const [clientSearch, setClientSearch] = useState('')
+  const [memberDetailTab, setMemberDetailTab] = useState<'info' | 'activity'>('info')
   const PAGE_SIZE = 10
 
   const router = useRouter()
@@ -328,7 +448,25 @@ export default function Page4() {
   const filteredParticipants = participants.filter(p => {
     if (coverFilter === 'cover') return p.is_cover_possible
     if (coverFilter === 'normal') return !p.is_cover_possible
+    if (participantSearch) {
+      const s = participantSearch.toLowerCase()
+      return p.name?.toLowerCase().includes(s) || 
+             p.email?.toLowerCase().includes(s) || 
+             p.mobile?.includes(s) ||
+             p.instagram_id?.toLowerCase().includes(s) ||
+             p.youtube_id?.toLowerCase().includes(s) ||
+             p.tiktok_id?.toLowerCase().includes(s)
+    }
     return true
+  })
+
+  const filteredClients = clients.filter(c => {
+  if (!clientSearch) return true
+  const s = clientSearch.toLowerCase()
+  return c.name?.toLowerCase().includes(s) ||
+         c.email?.toLowerCase().includes(s) ||
+         c.mobile?.includes(s) ||
+         c.company?.toLowerCase().includes(s)
   })
 
   return (
@@ -387,6 +525,13 @@ export default function Page4() {
                     <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : ''}`}>일반회원</button>
                   </div>
                 </div>
+                <input 
+                  value={participantSearch} 
+                  onChange={(e) => { setParticipantSearch(e.target.value); setParticipantPage(0) }} 
+                  className="w-full border rounded-lg px-3 py-2 text-sm mb-3" 
+                  placeholder="이름, 이메일, 연락처, SNS ID 검색" 
+                />
+                
                 {filteredParticipants.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">회원이 없습니다.</p>
                 ) : (
@@ -431,13 +576,19 @@ export default function Page4() {
 
             {tab === 'client' && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({clients.length}명)</span></h2>
-                {clients.length === 0 ? (
+                <h2 className="font-bold mb-3">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({filteredClients.length}명)</span></h2>
+                <input 
+                  value={clientSearch} 
+                  onChange={(e) => { setClientSearch(e.target.value) }} 
+                  className="w-full border rounded-lg px-3 py-2 text-sm mb-3" 
+                  placeholder="이름, 이메일, 연락처 검색" 
+                />
+                {filteredClients.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">의뢰인이 없습니다.</p>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      {clients.slice(clientPage * PAGE_SIZE, (clientPage + 1) * PAGE_SIZE).map((c) => (
+                      {filteredClients.slice(clientPage * PAGE_SIZE, (clientPage + 1) * PAGE_SIZE).map((c) => (
                         <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50' : ''}`}>
                           <div className="flex justify-between items-center">
                             <div>
@@ -453,15 +604,15 @@ export default function Page4() {
                         </div>
                       ))}
                     </div>
-                    {clients.length > PAGE_SIZE && (
+                    {filteredClients.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
                         <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
-                          {Array.from({length: Math.ceil(clients.length / PAGE_SIZE)}, (_, i) => (
+                          {Array.from({length: Math.ceil(filteredClients.length / PAGE_SIZE)}, (_, i) => (
                             <button key={i} onClick={() => setClientPage(i)} className={`text-xs px-2 py-1 border rounded ${clientPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(clients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= clients.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(filteredClients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= filteredClients.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
@@ -483,7 +634,13 @@ export default function Page4() {
                     </button>}
                   </div>
                 </div>
-                {(selected || showParticipantInsert) && (
+                {selected && (
+                  <div className="flex gap-2 mb-3">
+                    <button onClick={() => setMemberDetailTab('info')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'info' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>정보 수정</button>
+                    <button onClick={() => setMemberDetailTab('activity')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'activity' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>활동 내역</button>
+                  </div>
+                )}
+                {(selected || showParticipantInsert) && memberDetailTab === 'info' && (
                   <div className="space-y-3">
                     {[
                       { label: '이름 *', value: name, setter: setName },
@@ -618,6 +775,9 @@ export default function Page4() {
                       )}
                     </div>
                   </div>
+                )}
+                {selected && memberDetailTab === 'activity' && (
+                  <ActivityDetail memberId={selected.id} />
                 )}
               </div>
             )}
