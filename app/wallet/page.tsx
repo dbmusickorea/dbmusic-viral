@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { encryptText } from '../lib/crypto'
 import BottomNav from '../../components/BottomNav'
+import { RefreshCw, ArrowDown } from 'lucide-react'
 
 const getLevelAmount = (base: number, level: number) => {
   if (level === 50) return 10000
@@ -38,6 +39,9 @@ export default function WalletPage() {
   const [exchangeAmount, setExchangeAmount] = useState('')
   const [loading, setLoading] = useState(true)
   const [showLevelGuide, setShowLevelGuide] = useState(false)
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -46,6 +50,14 @@ export default function WalletPage() {
     setUserInfo(parsed)
     loadData(parsed.id)
   }, [])
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    await loadData(userInfo?.id)
+    setIsRefreshing(false)
+    setIsPulling(false)
+  }
 
   const loadData = async (id: number) => {
     setLoading(true)
@@ -181,10 +193,33 @@ export default function WalletPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4"
+      onTouchStart={(e) => {
+        if (document.documentElement.scrollTop === 0) {
+          setPullStartY(e.touches[0].clientY)
+        }
+      }}
+      onTouchMove={(e) => {
+        const pullDistance = e.touches[0].clientY - pullStartY
+        if (pullDistance > 70) setIsPulling(true)
+      }}
+      onTouchEnd={() => {
+        if (isPulling) handleRefresh()
+        setIsPulling(false)
+      }}
+    >
       <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        {(isPulling || isRefreshing) && (
+          <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+            {isRefreshing ? (
+              <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+            ) : (
+              <><ArrowDown size={14} /> 놓으면 새로고침</>
+            )}
+          </div>
+        )}
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-500 text-xl">←</button>
+          
           <h1 className="text-xl font-bold">적립금</h1>
         </div>
       </div>

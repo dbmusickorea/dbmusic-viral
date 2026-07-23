@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
+import { RefreshCw, ArrowDown } from 'lucide-react'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -26,6 +27,9 @@ export default function ClientMyPage() {
   const [requestContent, setRequestContent] = useState('')
   const [showRequestForm, setShowRequestForm] = useState(false)
   const [requestedPosts, setRequestedPosts] = useState('1')
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -47,6 +51,19 @@ export default function ClientMyPage() {
     }
     loadData()
   }, [])
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    const info = localStorage.getItem('userInfo')
+    if (info) {
+      const parsed = JSON.parse(info)
+      const reqRes = await fetch(`/api/client_requests?client_id=${parsed.client_id}`)
+      setRequests(await reqRes.json())
+    }
+    setIsRefreshing(false)
+    setIsPulling(false)
+  }
 
   const handleUpdateMyInfo = async () => {
     if (myPassword) {
@@ -106,10 +123,33 @@ export default function ClientMyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4"
+      onTouchStart={(e) => {
+        if (document.documentElement.scrollTop === 0) {
+          setPullStartY(e.touches[0].clientY)
+        }
+      }}
+      onTouchMove={(e) => {
+        const pullDistance = e.touches[0].clientY - pullStartY
+        if (pullDistance > 70) setIsPulling(true)
+      }}
+      onTouchEnd={() => {
+        if (isPulling) handleRefresh()
+        setIsPulling(false)
+      }}
+    >
       <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        {(isPulling || isRefreshing) && (
+          <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+            {isRefreshing ? (
+              <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+            ) : (
+              <><ArrowDown size={14} /> 놓으면 새로고침</>
+            )}
+          </div>
+        )}
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-500 text-xl">←</button>
+          
           <h1 className="text-xl font-bold">마이페이지</h1>
         </div>
       </div>
