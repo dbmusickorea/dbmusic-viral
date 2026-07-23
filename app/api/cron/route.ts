@@ -774,53 +774,54 @@ export async function GET() {
       }
     }
 
-      // 음원 사용량 갱신 (refresh_interval 기준)
-      const { data: projectsWithAudio } = await supabase
-        .from('projects')
-        .select('project_code, instagram_audio_id, tiktok_audio_id, youtube_audio_id, refresh_interval')
-        .or('instagram_audio_id.not.is.null,tiktok_audio_id.not.is.null,youtube_audio_id.not.is.null')
-        .in('status', ['ONGOING', 'PAUSED'])
+        // 음원 사용량 갱신 (refresh_interval 기준)
+        const { data: projectsWithAudio } = await supabase
+          .from('projects')
+          .select('project_code, instagram_audio_id, tiktok_audio_id, youtube_audio_id, refresh_interval')
+          .or('instagram_audio_id.not.is.null,tiktok_audio_id.not.is.null,youtube_audio_id.not.is.null')
+          .in('status', ['ONGOING', 'PAUSED'])
 
-      if (projectsWithAudio) {
-        for (const project of projectsWithAudio) {
-          const interval = project.refresh_interval ?? 12
-          if (currentHour % interval !== 0) continue
-          const updates: any = {}
-                   
-          if (project.instagram_audio_id) {
-            try {
-              const res = await fetch(`https://api.sociavault.com/v1/scrape/instagram/reels-by-song?audio_id=${project.instagram_audio_id}`, {
-                headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
-              })
-              const data = await res.json()
-              const reels = data?.data?.reels ?? {}
-              updates.instagram_audio_count = Object.keys(reels).length
-            } catch { }
+        if (projectsWithAudio) {
+          for (const project of projectsWithAudio) {
+            const interval = project.refresh_interval ?? 12
+            if (currentHour % interval !== 0) continue
+            const updates: any = {}
+                    
+            if (project.instagram_audio_id) {
+              try {
+                const res = await fetch(`https://api.sociavault.com/v1/scrape/instagram/reels-by-song?audio_id=${project.instagram_audio_id}`, {
+                  headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
+                })
+                const data = await res.json()
+                const reels = data?.data?.reels ?? {}
+                updates.instagram_audio_count = Object.keys(reels).length
+              } catch { }
+            }
+
+            if (project.tiktok_audio_id) {
+              try {
+                const tiktokId = project.tiktok_audio_id.match(/(\d{10,})/)?.[1] ?? project.tiktok_audio_id
+                const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/videos?clipId=${tiktokId}`, {
+                  headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
+                })
+                const data = await res.json()
+                const videos = data?.data?.aweme_list ?? {}
+                updates.tiktok_audio_count = Object.keys(videos).length
+              } catch { }
+            }
+
+            if (project.youtube_audio_id) {
+              try {
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${project.youtube_audio_id}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+                const data = await res.json()
+                updates.youtube_audio_count = Number(data?.items?.[0]?.statistics?.viewCount ?? 0)
+              } catch { }
+            }
+
+            const { error: updateError } = await supabase.from('projects').update(updates).eq('project_code', project.project_code)
+            console.log('audio update:', project.project_code, updates, updateError)
           }
-
-          if (project.tiktok_audio_id) {
-            try {
-              const tiktokId = project.tiktok_audio_id.match(/(\d{10,})/)?.[1] ?? project.tiktok_audio_id
-              const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/videos?clipId=${tiktokId}`, {
-                headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
-              })
-              const data = await res.json()
-              const videos = data?.data?.aweme_list ?? {}
-              updates.tiktok_audio_count = Object.keys(videos).length
-            } catch { }
-          }
-
-          if (project.youtube_audio_id) {
-            try {
-              const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${project.youtube_audio_id}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
-              const data = await res.json()
-              updates.youtube_audio_count = Number(data?.items?.[0]?.statistics?.viewCount ?? 0)
-            } catch { }
-          }
-
-          await supabase.from('projects').update(updates).eq('project_code', project.project_code)
         }
-      }
           
     
 
