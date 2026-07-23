@@ -446,6 +446,7 @@ export default function LoginPage() {
         referral_code: referralCode, level: 1,
         is_cover_possible: isCoverPossible,
         cover_video_url: coverVideoUrl || null,
+        referred_by: p_referral || null,
       })
     })
     if (!res.ok) { alert('회원가입 실패!'); return }
