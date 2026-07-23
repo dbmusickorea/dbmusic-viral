@@ -819,7 +819,6 @@ export async function GET() {
             }
 
             const { error: updateError } = await supabase.from('projects').update(updates).eq('project_code', project.project_code)
-            console.log('audio update:', project.project_code, updates, updateError)
           }
         }
           
