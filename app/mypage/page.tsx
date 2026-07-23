@@ -36,6 +36,8 @@ export default function MyPage() {
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [coverVideoUrl, setCoverVideoUrl] = useState('')
+  const [isCoverPossible, setIsCoverPossible] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -60,6 +62,8 @@ export default function MyPage() {
       setMyTiktok(p.tiktok_id ?? '')
       setBalance(p.balance ?? 0)
       setReferralCode(p.referral_code ?? '')
+      setCoverVideoUrl(p.cover_video_url ?? '')
+      setIsCoverPossible(p.is_cover_possible ?? false)
     }
     // 문의 내역 불러오기
     const reqRes = await fetch(`/api/client_requests?member_id=${id}`)
@@ -91,6 +95,7 @@ export default function MyPage() {
         name: myName, mobile: myMobile, bank_name: myBankName,
         account_holder: myAccountHolder, account_number: myAccountNumber,
         instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
+        cover_video_url: coverVideoUrl || null,
         ...(myPassword ? { password: myPassword } : {})
       })
     })
@@ -245,6 +250,13 @@ export default function MyPage() {
                 <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 변경 안내</p>
                 <p className="text-xs text-orange-600 mt-1">SNS 계정 변경은 관리자 승인 후 반영됩니다. 반드시 본인 계정을 입력해주세요.</p>
               </div>
+              {isCoverPossible && (
+                <div>
+                  <label className="text-sm font-medium">커버영상 링크</label>
+                  <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="본인 가창 영상 링크 입력" />
+                  <p className="text-xs text-gray-400 mt-1">관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
+                </div>
+              )}
               {[
                 { label: '인스타그램 ID', value: myInstagram, platform: 'instagram' },
                 { label: '유튜브 ID', value: myYoutube, platform: 'youtube' },
@@ -308,7 +320,7 @@ export default function MyPage() {
             </div>
           )}
         </div>
-        
+
         {/* 사용 가이드 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <button onClick={() => router.push('/guide')} className="w-full flex justify-between items-center">
