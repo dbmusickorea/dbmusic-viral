@@ -123,6 +123,48 @@ function ActivityDetail({ memberId }: { memberId: number }) {
   )
 }
 
+function ClientProjects({ clientId }: { clientId: string }) {
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      const res = await fetch(`/api/projects?client_id=${clientId}`)
+      const data = await res.json()
+      setProjects(data ?? [])
+      setLoading(false)
+    }
+    load()
+  }, [clientId])
+
+  if (loading) return <p className="text-sm text-gray-400 text-center py-4">로딩 중...</p>
+
+  return (
+    <div className="space-y-2">
+      {projects.length === 0 ? (
+        <p className="text-sm text-gray-400 text-center py-2">진행 프로젝트 없음</p>
+      ) : (
+        projects.map(p => (
+          <div key={p.id} className="border rounded-lg p-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium">{p.artist_name || p.client_name} - {p.song_title ?? p.product_content}</p>
+                <p className="text-xs text-gray-500">코드: {p.project_code}</p>
+                <p className="text-xs text-gray-500">기간: {p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
+                <p className="text-xs text-gray-500">참여: {p.current_participants}/{p.max_participants}명</p>
+              </div>
+              <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '완료'}
+              </span>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
 export default function Page4() {
   const [tab, setTab] = useState<'participant' | 'client'>('participant')
   
@@ -172,7 +214,8 @@ export default function Page4() {
   const [snsRequests, setSnsRequests] = useState<any[]>([])
   const [participantSearch, setParticipantSearch] = useState('')
   const [clientSearch, setClientSearch] = useState('')
-  const [memberDetailTab, setMemberDetailTab] = useState<'info' | 'activity'>('info')
+  const [memberDetailTab, setMemberDetailTab] = useState<'activity' | 'info'>('activity')
+  const [clientDetailTab, setClientDetailTab] = useState<'projects' | 'info'>('projects')
   const PAGE_SIZE = 10
 
   const router = useRouter()
@@ -636,8 +679,8 @@ export default function Page4() {
                 </div>
                 {selected && (
                   <div className="flex gap-2 mb-3">
-                    <button onClick={() => setMemberDetailTab('info')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'info' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>정보 수정</button>
                     <button onClick={() => setMemberDetailTab('activity')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'activity' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>활동 내역</button>
+                    <button onClick={() => setMemberDetailTab('info')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'info' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>정보 수정</button>                    
                   </div>
                 )}
                 {(selected || showParticipantInsert) && memberDetailTab === 'info' && (
@@ -883,21 +926,26 @@ export default function Page4() {
                   <h2 className="font-bold">의뢰인 수정</h2>
                   <button onClick={clearClientForm} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
                 </div>
-                <div className="space-y-3">
-                  {[
-                    { label: '대표자명', value: cName, setter: setCName },
-                    { label: '소속사명', value: cCompany, setter: setCCompany },
-                    { label: '휴대전화', value: cMobile, setter: setCMobile },
-                    { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
-                  ].map(({ label, value, setter, type }) => (
-                    <div key={label}>
-                      <label className="text-sm font-medium">
-                        {label.replace(' *', '')}
-                        {label.includes('*') && <span className="text-red-500"> *</span>}
-                      </label>
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                    </div>
-                  ))}
+                <div className="flex gap-2 mb-3">
+                  <button onClick={() => setClientDetailTab('projects')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${clientDetailTab === 'projects' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>프로젝트 현황</button>
+                  <button onClick={() => setClientDetailTab('info')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${clientDetailTab === 'info' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>정보 수정</button>                  
+                </div>
+                {clientDetailTab === 'info' && (
+                  <div className="space-y-3">
+                    {[
+                      { label: '대표자명', value: cName, setter: setCName },
+                      { label: '소속사명', value: cCompany, setter: setCCompany },
+                      { label: '휴대전화', value: cMobile, setter: setCMobile },
+                      { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
+                    ].map(({ label, value, setter, type }) => (
+                      <div key={label}>
+                        <label className="text-sm font-medium">
+                          {label.replace(' *', '')}
+                          {label.includes('*') && <span className="text-red-500"> *</span>}
+                        </label>
+                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      </div>
+                    ))}
                   {/* 아티스트 목록 */}
                   <div>
                     <label className="text-sm font-medium">아티스트 목록</label>
@@ -936,6 +984,10 @@ export default function Page4() {
                     <button onClick={handleDeleteClient} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
                   </div>
                 </div>
+                )}
+                {clientDetailTab === 'projects' && (
+                  <ClientProjects clientId={selectedClient.client_id} />
+                )}
               </div>
             )}
           </div>
