@@ -630,6 +630,14 @@ useEffect(() => {
     const validUrls = postUrls.filter(u => u.trim())
     if (validUrls.some(u => !isValidUrl(u))) { alert('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
 
+    // URL 중복 체크
+    const dupRes = await fetch(`/api/posts?post_url=${encodeURIComponent(validUrls[0])}`)
+    const dupData = await dupRes.json()
+    if (dupData && dupData.length > 0) {
+      alert('이미 다른 체험단이 제출한 링크예요. 본인의 게시물 링크를 입력해주세요.')
+      return
+    }
+
     // 팔로워 100명 이상 확인
     if (platform === 'instagram') {
       const followers = userInfo?.instagram_followers ?? 0

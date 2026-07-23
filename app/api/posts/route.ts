@@ -18,6 +18,9 @@ export async function GET(request: NextRequest) {
   if (projectCode) query = query.ilike('project_code', projectCode)
   if (isCover) query = query.eq('is_cover', isCover === 'true')
 
+  const postUrl = searchParams.get('post_url')
+  if (postUrl) query = query.eq('post_url', postUrl)
+
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json(data ?? [])
