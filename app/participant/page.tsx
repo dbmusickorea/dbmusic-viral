@@ -863,42 +863,41 @@ useEffect(() => {
    <> 
       {showGuide && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
-            {guideStep === 0 && (
-              <div>
-                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
-                <h2 className="text-lg font-bold mb-3">1. 기본 활동 규칙</h2>
-                <p className="text-sm text-gray-600 mb-2">• 내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드</p>
-                <p className="text-sm text-gray-600">• 미션 성공 시 현금 리워드 즉시 적립</p>
-              </div>
-            )}
-            {guideStep === 1 && (
-              <div>
-                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
-                <h2 className="text-lg font-bold mb-3">2. 체험단 유형 선택</h2>
-                <p className="text-sm text-gray-600 mb-2">• <span className="font-medium">일반 체험단:</span> 게시물에 신곡 음원(BGM)만 입혀 업로드하는 유저</p>
-                <p className="text-sm text-gray-600">• <span className="font-medium">커버 체험단:</span> 게시물 포함 직접 가창하여 업로드하는 유저</p>
-              </div>
-            )}
-            {guideStep === 2 && (
-              <div>
-                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
-                <h2 className="text-lg font-bold mb-3">3. 미션 참여 및 제출 동선</h2>
-                <p className="text-sm text-gray-600 mb-2">• 새 캠페인 알림 푸시 수령 후 앱 내 [참여] 버튼 클릭</p>
-                <p className="text-sm text-gray-600 mb-2">• 본인 SNS에 사진 또는 영상과 음원 매칭 후 릴스, 숏츠로 업로드</p>
-                <p className="text-sm text-gray-600">• 업로드한 게시물 [링크 복사] 후 더블비뮤직 앱에 등록 제출</p>
-              </div>
-            )}
-            {guideStep === 3 && (
-              <div>
-                <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
-                <h2 className="text-lg font-bold mb-3">4. 리워드 및 레벨업 치트키</h2>
-                <p className="text-sm text-gray-600 mb-2">• 게시물 1개당 본인 레벨에 매칭되는 정찰제 금액 적립</p>
-                <p className="text-sm text-gray-600 mb-2">• 내 추천인 코드로 가입 시 1명당 1단계 즉시 상승</p>
-                <p className="text-sm text-gray-600 mb-2">• 레벨 1~50단계로 2,500원부터 1만원까지 미션 수행 단가 파격 상향</p>
-                <p className="text-sm text-gray-600">• 커버 체험단의 경우 리워드 추가지급</p>
-              </div>
-            )}
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full flex flex-col" style={{minHeight: '380px'}}>
+            <div className="flex-1">
+              <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
+              {guideStep === 0 && (
+                <div>
+                  <h2 className="text-lg font-bold mb-3">1. 기본 활동 규칙</h2>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span>미션 성공 시 현금 리워드 즉시 적립</span></div>
+                </div>
+              )}
+              {guideStep === 1 && (
+                <div>
+                  <h2 className="text-lg font-bold mb-3">2. 체험단 유형 선택</h2>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span><span className="font-medium">일반 체험단:</span> 게시물에 신곡 음원(BGM)만 입혀 업로드하는 유저</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span><span className="font-medium">커버 체험단:</span> 게시물 포함 직접 가창하여 업로드하는 유저</span></div>
+                </div>
+              )}
+              {guideStep === 2 && (
+                <div>
+                  <h2 className="text-lg font-bold mb-3">3. 미션 참여 및 제출 동선</h2>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>새 캠페인 알림 푸시 수령 후 앱 내 [참여] 버튼 클릭</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>본인 SNS에 사진 또는 영상과 음원 매칭 후 릴스, 숏츠로 업로드</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span>업로드한 게시물 [링크 복사] 후 더블비뮤직 앱에 등록 제출</span></div>
+                </div>
+              )}
+              {guideStep === 3 && (
+                <div>
+                  <h2 className="text-lg font-bold mb-3">4. 리워드 및 레벨업 치트키</h2>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>게시물 1개당 본인 레벨에 매칭되는 정찰제 금액 적립</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>내 추천인 코드로 가입 시 1명당 1단계 즉시 상승</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>레벨 1~50단계로 2,500원부터 1만원까지 미션 수행 단가 파격 상향</span></div>
+                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span>커버 체험단의 경우 리워드 추가지급</span></div>
+                </div>
+              )}
+            </div>
 
             {/* 인디케이터 */}
             <div className="flex justify-center gap-1.5 my-4">
@@ -908,7 +907,7 @@ useEffect(() => {
             </div>
 
             {/* 버튼 */}
-            <div className="mt-4">
+            <div>
               <div className="flex gap-2 mb-3">
                 {guideStep > 0 && (
                   <button onClick={() => setGuideStep(guideStep - 1)} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">← 이전</button>
