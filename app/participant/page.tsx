@@ -158,6 +158,7 @@ useEffect(() => {
         }))
         setMyParticipations(merged)
         setMyRankMap(data.rankMap ?? {})
+        if (merged.length > 0) setShowParticipation(true)
       } else {
         setMyParticipations([])
       }
@@ -346,6 +347,7 @@ useEffect(() => {
         projects: projectData?.find((pd: any) => pd.project_code.toLowerCase() === p.project_code.toLowerCase())
       }))
       setMyParticipations(merged)
+      if (merged.length > 0) setShowParticipation(true)
       for (const p of data) {
         fetchMyRank(p.project_code, id)
       }
@@ -398,6 +400,7 @@ useEffect(() => {
         }))
         setMyParticipations(merged)
         setMyRankMap(data.rankMap ?? {})
+        if (merged.length > 0) setShowParticipation(true)
       } else {
         setMyParticipations([])
       }
@@ -1644,7 +1647,14 @@ useEffect(() => {
           내 현황
         </button>
         <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400'}`}>
-          <span className="text-lg mb-0.5">🎯</span>
+          <div className="relative">
+            <span className="text-lg mb-0.5">🎯</span>
+            {allProjects.filter(p => !myParticipations.some(mp => mp.project_code.toLowerCase() === p.project_code.toLowerCase()) && p.status !== 'COMPLETED').length > 0 && (
+              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" style={{fontSize: '9px'}}>
+                {allProjects.filter(p => !myParticipations.some(mp => mp.project_code.toLowerCase() === p.project_code.toLowerCase()) && p.status !== 'COMPLETED').length}
+              </span>
+            )}
+          </div>
           프로젝트
         </button>
         <button onClick={() => router.push('/wallet')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
