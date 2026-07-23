@@ -1467,8 +1467,7 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">틱톡 음원 URL</label>
                       <input value={tiktokAudioId} onChange={(e) => {
-                        const match = e.target.value.match(/(\d{10,})/)
-                        setTiktokAudioId(match ? match[1] : e.target.value)
+                        setTiktokAudioId(e.target.value)
                       }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
                     </div>
                     <div>

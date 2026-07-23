@@ -805,7 +805,7 @@ export default function Page3() {
                 <button onClick={() => {
                   window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')
                   alert('상세 결과 보고서 작성을 원하시는 경우 문의하기로 요청하시면 2~3일 이내 발송됩니다.')
-                }} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">
+                }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
                   📥 결과 요약 다운로드 (엑셀)
                 </button>
               </div>
@@ -921,15 +921,20 @@ export default function Page3() {
                             {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
                             {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
                             {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
-                          </p>
-                          <p className="text-sm font-bold text-purple-600">
-                            {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
-                            {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
-                            {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
-                          </p>
+                          </p>                          
+                          {label === '인스타그램' && projectInfo?.instagram_audio_id && (
+                            <a href={`https://www.instagram.com/reels/audio/${projectInfo.instagram_audio_id}/`} target="_blank" className="text-xs text-pink-500 border border-pink-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                              재사용 현황
+                            </a>
+                          )}
+                          {label === '틱톡' && projectInfo?.tiktok_audio_id && (
+                            <a href={projectInfo.tiktok_audio_id} target="_blank" className="text-xs text-black border border-gray-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                              재사용 현황
+                            </a>
+                          )}
                           {label === '유튜브' && projectInfo?.youtube_audio_id && (
-                            <a href={`https://www.youtube.com/source/${projectInfo.youtube_audio_id}/shorts`} target="_blank" className="text-xs text-red-500 border border-red-300 rounded-lg px-3 py-1.5 mt-2 inline-block">
-                              🎵 숏츠 재사용 현황 보기 →
+                            <a href={`https://www.youtube.com/source/${projectInfo.youtube_audio_id}/shorts`} target="_blank" className="text-xs text-red-500 border border-red-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                              재사용 현황
                             </a>
                           )}
                         </div>
