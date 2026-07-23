@@ -1643,7 +1643,7 @@ export default function Page1() {
                           setStartDate(e.target.value)
                           if (e.target.value) {
                             const end = new Date(e.target.value)
-                            end.setDate(end.getDate() + 15)
+                            end.setDate(end.getDate() + 15 + Number(monitoringExtension))
                             setEndDate(end.toISOString().split('T')[0])
                           }
                         }} className={inputClass} style={dateInputStyle} />
