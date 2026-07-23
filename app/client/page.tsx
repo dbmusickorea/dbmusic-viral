@@ -149,6 +149,7 @@ export default function Page3() {
       setClientCode(active[0].project_code)
       setIgAudioCount(active[0].instagram_audio_count ?? null)
       setTtAudioCount(active[0].tiktok_audio_count ?? null)
+      setYtAudioCount(active[0].youtube_audio_count ?? null)
       fetchPosts(active[0].project_code)
       fetchCommentMissionData(active[0].project_code)
       fetchDailyStats(active[0].project_code)

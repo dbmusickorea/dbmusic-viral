@@ -801,11 +801,12 @@ export async function GET() {
           if (project.tiktok_audio_id) {
             try {
               const tiktokId = project.tiktok_audio_id.match(/(\d{10,})/)?.[1] ?? project.tiktok_audio_id
-              const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/details?clipId=${tiktokId}`, {
+              const res = await fetch(`https://api.sociavault.com/v1/scrape/tiktok/music/videos?clipId=${tiktokId}`, {
                 headers: { 'x-api-key': process.env.SOCIAVAULT_API_KEY! }
               })
               const data = await res.json()
-              updates.tiktok_audio_count = data?.data?.music_info?.user_count ?? 0
+              const videos = data?.data?.videos ?? data?.data ?? []
+              updates.tiktok_audio_count = Array.isArray(videos) ? videos.length : 0
             } catch { }
           }
 
