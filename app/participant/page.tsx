@@ -1549,7 +1549,10 @@ useEffect(() => {
                         if (isCompleted) return <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">종료</span>
                         if (isJoined) return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
                         if (isFull) return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">미참여</span>
-                        if (isPaused) return <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">대기중</span>
+                        if (isPaused) return <button onClick={() => { 
+                          setProjectCode(project.project_code)
+                          getRequirements(project.project_code)
+                        }} className="text-xs px-3 py-1 rounded-full bg-yellow-500 text-white">참여하기</button>
                         return <button onClick={() => { 
                           setProjectCode(project.project_code)
                           getRequirements(project.project_code)
