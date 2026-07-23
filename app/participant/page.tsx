@@ -1325,9 +1325,20 @@ useEffect(() => {
                                 </div>
                                 <div>
                                   <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
-                                  {Array.from({ length: projectInfo?.required_posts ?? 1 }).map((_, i) => (
-                                    <input key={i} value={postUrls[i] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[i] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${(projectInfo?.required_posts ?? 1) > 1 ? `${i + 1}` : ''}`} />
-                                  ))}
+                                  {(() => {
+                                    const existingPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())
+                                    const remaining = (projectInfo?.required_posts ?? 1) - existingPosts.length
+                                    return (
+                                      <>
+                                        {existingPosts.length > 0 && (
+                                          <p className="text-xs text-green-600 mt-1 mb-1">✅ {existingPosts.length}차 게시물 제출 완료</p>
+                                        )}
+                                        {Array.from({ length: remaining > 0 ? remaining : 1 }).map((_, i) => (
+                                          <input key={i} value={postUrls[i] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[i] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${existingPosts.length + i + 1}`} />
+                                        ))}
+                                      </>
+                                    )
+                                  })()}
                                 </div>
                                 {isCoverPossible && (
                                   <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
