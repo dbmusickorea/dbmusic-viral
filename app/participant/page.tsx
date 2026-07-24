@@ -595,7 +595,7 @@ useEffect(() => {
 
   const getInstagramStats = async (url: string) => {
     try {
-      const shortcode = url.split('/p/')[1]?.split('/')[0]
+      const shortcode = url.split('/p/')[1]?.split('/')[0] ?? url.split('/reel/')[1]?.split('/')[0]
       if (!shortcode) return { likes: 0, comments: 0 }
       const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
       const data = await response.json()

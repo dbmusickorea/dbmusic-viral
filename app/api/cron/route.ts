@@ -15,7 +15,7 @@ async function updatePostStats(posts: any[]) {
       let views = 0
 
       if (post.platform === 'instagram') {
-        const shortcode = post.post_url.split('/p/')[1]?.split('/')[0]
+        const shortcode = post.post_url.split('/p/')[1]?.split('/')[0] ?? post.post_url.split('/reel/')[1]?.split('/')[0]
         if (!shortcode) continue
         const res = await fetch(
           `https://instagram-api-fast-reliable-data-scraper.p.rapidapi.com/post?shortcode=${shortcode}`,
