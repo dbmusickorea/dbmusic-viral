@@ -164,7 +164,7 @@ export default function MyPage() {
         onLogout={handleLogout}
         items={[
           { icon: '📊', label: '내 현황', onClick: () => router.push('/participant') },
-          { icon: '🎯', label: '프로젝트', onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
+          { icon: '🎯', label: '프로젝트', onClick: () => { console.log('프로젝트 클릭'); sessionStorage.setItem('participantTab', 'project'); console.log('저장:', sessionStorage.getItem('participantTab')); router.push('/participant') } },
           { icon: '💰', label: '적립금', onClick: () => router.push('/wallet') },
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/mypage'), active: true },
         ]}
@@ -466,7 +466,7 @@ export default function MyPage() {
       </div>
       <BottomNav tabs={[
         { icon: '📊', label: '내 현황', href: '/participant' },
-        { icon: '🎯', label: '프로젝트', href: '/participant' },
+        { icon: '🎯', label: '프로젝트', onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
         { icon: '💰', label: '적립금', href: '/wallet' },
         { icon: '👤', label: '마이페이지', href: '/mypage', active: true },
       ]} />
