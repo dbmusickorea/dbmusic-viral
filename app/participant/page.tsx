@@ -1134,7 +1134,11 @@ useEffect(() => {
                                   <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                                   {statusBadge(post.project_code)}
                                 </div>
-                                <p className="text-xs text-gray-400">{post.project_code}</p>
+                                <p className="text-xs text-gray-400">
+                                  {projectsMap[post.project_code?.toUpperCase()]?.artist_name 
+                                    ? `${projectsMap[post.project_code?.toUpperCase()].artist_name} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''}`
+                                    : post.project_code}
+                                </p>
                                 <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                                 <button onClick={() => {
                                   const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
