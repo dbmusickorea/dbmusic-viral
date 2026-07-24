@@ -21,6 +21,7 @@ export default function CoverPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [coverPosts, setCoverPosts] = useState<any[]>([])
   const [coverAddApproved, setCoverAddApproved] = useState(false)
+  const [coverRequestedIds, setCoverRequestedIds] = useState<number[]>([])
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
@@ -142,6 +143,11 @@ export default function CoverPage() {
     const res = await fetch(`/api/cover_requests?project_code=${projectCode}`)
     const data = await res.json()
     setCoverRequests(data ?? [])
+
+    // cover_requested 정보 가져오기
+    const ppRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
+    const ppData = await ppRes.json()
+    setCoverRequestedIds(ppData?.filter((p: any) => p.cover_requested).map((p: any) => p.member_id) ?? [])
     
     // 커버 추가 요청 승인 여부 확인
     const reqRes = await fetch(`/api/client_requests?client_id=${userInfo?.client_id}&project_code=${projectCode}`)
@@ -273,13 +279,14 @@ export default function CoverPage() {
                               {/* 정보 */}
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium">{p.name}</p>
+                                {coverRequestedIds.includes(p.id) && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 커버 희망</span>}
                                 {(() => {
                                   const platform = getCoverPlatform(p.cover_video_url)
                                   if (platform === 'instagram' && p.instagram_id) return <p className="text-xs text-gray-500">@{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}</p>
                                   if (platform === 'youtube' && p.youtube_id) return <p className="text-xs text-gray-500">@{p.youtube_id.replace('@','')} {p.youtube_subscribers > 0 && `(${p.youtube_subscribers.toLocaleString()}명)`}</p>
                                   if (platform === 'tiktok' && p.tiktok_id) return <p className="text-xs text-gray-500">@{p.tiktok_id.replace('@','')} {p.tiktok_followers > 0 && `(${p.tiktok_followers.toLocaleString()}명)`}</p>
                                   return null
-                                })()}
+                                })()}                                
                                 <p className="text-xs text-gray-400">※ 팔로워수는 오차가 있을 수 있습니다.</p>
                                 {p.cover_video_url && (
                                   <>

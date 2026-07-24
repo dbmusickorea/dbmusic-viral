@@ -1228,6 +1228,25 @@ useEffect(() => {
                             {p.status === 'CANCELLED' ? '취소됨 ❌' : p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
                           </span>
                         </div>
+                        {p.status !== 'CANCELLED' && p.projects?.status === 'ONGOING' && isCoverPossible && !p.is_cover && !p.cover_requested && (
+                          <button onClick={async (e) => {
+                            e.stopPropagation()
+                            if (!confirm('커버영상 신청 의사를 밝히시겠어요? 의뢰인이 확인 후 선택할 수 있어요.')) return
+                            await fetch(`/api/project_participants?project_code=${p.project_code}&member_id=${userInfo?.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ cover_requested: true })
+                            })
+                            alert('커버 신청 의사가 전달됐어요!')
+                            const info = localStorage.getItem('userInfo')
+                            if (info) fetchMyParticipations(JSON.parse(info).id)
+                          }} className="mt-2 text-xs bg-purple-100 text-purple-700 border border-purple-300 rounded-lg px-3 py-1.5 w-full">
+                            🎵 커버영상 신청하기
+                          </button>
+                        )}
+                        {p.cover_requested && !p.is_cover && (
+                          <p className="mt-2 text-xs text-purple-500 text-center">🎵 커버 신청 완료 (의뢰인 검토 중)</p>
+                        )}
                         {p.status !== 'CANCELLED' && p.projects?.status === 'ONGOING' && p.joined_at && 
                           (new Date().getTime() - new Date(p.joined_at).getTime()) < 3 * 60 * 60 * 1000 && (
                           <button onClick={async (e) => {
