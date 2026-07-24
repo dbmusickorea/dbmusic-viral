@@ -173,7 +173,7 @@ export default function WalletPage() {
     return {
       type: 'earn',
       date: post.created_at,
-      label: project?.artist_name || project?.client_name || post.project_code,
+      label: project?.artist_name ? `${project.artist_name} / ${project.song_title ?? ''}` : post.project_code,
       sub: post.project_code,
       amount: earnAmount,
     }
