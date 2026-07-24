@@ -247,6 +247,28 @@ export default function CoverPage() {
             {selectedProject && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">🎤 커버 가능 체험단</h2>
+                {userRole === 'admin' && selectedProject && (() => {
+                  const daysSinceStart = selectedProject.start_date ? Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
+                  const coverClosed = daysSinceStart >= 3 && !selectedProject.cover_deadline_extended
+                  return coverClosed ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 flex justify-between items-center">
+                      <p className="text-xs text-yellow-700">⚠️ 커버 신청 기간이 마감됐어요.</p>
+                      <button onClick={async () => {
+                        await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ cover_deadline_extended: true })
+                        })
+                        alert('커버 신청 기간이 연장됐어요!')
+                        setSelectedProject({ ...selectedProject, cover_deadline_extended: true })
+                      }} className="text-xs bg-yellow-500 text-white rounded px-2 py-1">연장하기</button>
+                    </div>
+                  ) : selectedProject.cover_deadline_extended ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-green-700">✅ 커버 신청 기간이 연장됐어요.</p>
+                    </div>
+                  ) : null
+                })()}
                 {coverParticipants.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">승인된 커버가능 체험단이 없습니다.</p>
                 ) : (

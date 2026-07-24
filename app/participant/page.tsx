@@ -1720,7 +1720,7 @@ useEffect(() => {
                                           <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>
                                         ) : coverFull ? null : (() => {
                                             const daysSinceStart = projectInfo?.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
-                                            const coverClosed = projectInfo?.start_date && new Date() >= new Date(projectInfo.start_date) && daysSinceStart >= 3
+                                            const coverClosed = projectInfo?.start_date && new Date() >= new Date(projectInfo.start_date) && daysSinceStart >= 3 && !projectInfo.cover_deadline_extended
                                             return coverClosed ? (
                                               <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">커버 신청 마감</span>
                                             ) : (
