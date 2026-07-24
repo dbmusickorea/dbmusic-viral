@@ -20,6 +20,7 @@ export default function CoverPage() {
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [coverPosts, setCoverPosts] = useState<any[]>([])
+  const [coverAddApproved, setCoverAddApproved] = useState(false)
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
@@ -141,6 +142,12 @@ export default function CoverPage() {
     const res = await fetch(`/api/cover_requests?project_code=${projectCode}`)
     const data = await res.json()
     setCoverRequests(data ?? [])
+    
+    // 커버 추가 요청 승인 여부 확인
+    const reqRes = await fetch(`/api/client_requests?client_id=${userInfo?.client_id}&project_code=${projectCode}`)
+    const reqData = await reqRes.json()
+    const approved = reqData?.some((r: any) => r.title === '커버 체험단 추가 요청' && r.status === 'APPROVED')
+    setCoverAddApproved(approved)
   }
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><p>로딩 중...</p></div>
 
@@ -287,7 +294,11 @@ export default function CoverPage() {
                             {userRole === 'client' && (
                               <div>
                                 {!request ? (
-                                  <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                                  selectedProject?.status === 'ONGOING' && !coverAddApproved ? (
+                                    <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">미션 진행중</span>
+                                  ) : (
+                                    <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                                  )
                                 ) : request.status === 'PENDING' ? (
                                   <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
                                 ) : request.status === 'APPROVED' ? (

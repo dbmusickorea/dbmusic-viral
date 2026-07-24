@@ -1171,8 +1171,8 @@ export default function Page1() {
                           <div className="flex flex-col gap-1 shrink-0 ml-2">
                             <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                               {req.status === 'PENDING' ? '검토중' : req.status === 'CONFIRMED' ? '확인됨' : req.status === 'APPROVED' ? '승인' : '거절'}
-                            </span>
-                            {req.status === 'PENDING' && (
+                            </span>                            
+                              {req.status === 'PENDING' && (
                               <>
                                 <button onClick={async () => { 
                                   await fetch(`/api/client_requests?id=${req.id}`, {
@@ -1182,7 +1182,34 @@ export default function Page1() {
                                   })
                                   fetchClientRequests()
                                 }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">확인</button>
-                              </>
+                                {req.title === '커버 체험단 추가 요청' && (
+                                  <button onClick={async () => {
+                                    const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
+                                    if (!participantName) return
+                                    const pRes = await fetch(`/api/participants?name=${encodeURIComponent(participantName)}`)
+                                    const pData = await pRes.json()
+                                    const participant = pData?.[0]
+                                    if (!participant) { alert('체험단을 찾을 수 없어요.'); return }
+                                    await fetch('/api/cover_requests', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        project_code: req.project_code ?? projectCode,
+                                        participant_id: participant.id,
+                                        status: 'APPROVED',
+                                        approved_at: new Date().toISOString()
+                                      })
+                                    })
+                                    await fetch(`/api/client_requests?id=${req.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: 'APPROVED' })
+                                    })
+                                    alert('커버 승인 완료!')
+                                    fetchClientRequests()
+                                  }} className="text-xs bg-purple-500 text-white rounded px-2 py-1">커버승인</button>
+                                )}
+                              </>                           
                             )}
                           </div>
                         </div>

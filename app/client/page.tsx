@@ -97,7 +97,8 @@ export default function Page3() {
         client_mobile: userInfo?.mobile,
         title: requestTitle,
         content: requestContent,
-        requested_posts: Number(requestedPosts)
+        requested_posts: Number(requestedPosts),
+        project_code: projectInfo?.project_code ?? null
       })
     })
     if (!res.ok) { alert('등록 실패!'); return }

@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
   let query = supabaseAdmin.from('client_requests').select('*').order('created_at', { ascending: false })
   if (clientId) query = query.eq('client_id', clientId)
   if (memberId) query = query.eq('member_id', memberId)
+  const projectCode = searchParams.get('project_code')
+  if (projectCode) query = query.eq('project_code', projectCode)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
