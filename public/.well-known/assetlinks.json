@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.dbmusic.viral",
+    "sha256_cert_fingerprints": [
+      "22:58:AD:00:2A:8D:3A:73:42:B8:C6:FD:1D:D1:5A:08:1B:F8:5E:A7:E0:D1:E4:E6:E1:EE:5F:A7:76:3D:57:25"
+    ]
+  }
+}]
