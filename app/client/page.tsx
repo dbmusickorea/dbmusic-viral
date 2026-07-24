@@ -150,6 +150,11 @@ export default function Page3() {
       fetchCommentMissionData(active[0].project_code)
       fetchDailyStats(active[0].project_code, active[0].instagram_audio_count ?? null, active[0].tiktok_audio_count ?? null, active[0].youtube_audio_count ?? null)
     }
+    const savedTab = sessionStorage.getItem('clientTab')
+    if (savedTab) {
+      setActiveTab(savedTab as 'project' | 'stats')
+      sessionStorage.removeItem('clientTab')
+    }
   }
 
   const fetchPosts = async (code: string) => {
