@@ -99,19 +99,60 @@ function ActivityDetail({ memberId }: { memberId: number }) {
       {activityTab === 'penalty' && (
         <div className="space-y-2">
           <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : 'bg-green-50'}`}>
-            <p className="text-sm font-medium">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
-            {participant?.is_locked && <p className="text-xs text-gray-500 mt-1">댓글 인증 {participant?.comment_count_for_unlock ?? 0}/10</p>}
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
+                {participant?.is_locked && <p className="text-xs text-gray-500 mt-1">댓글 인증 {participant?.comment_count_for_unlock ?? 0}/10</p>}
+              </div>
+              {participant?.is_locked && (
+                <button onClick={async () => {
+                  await fetch(`/api/participants?id=${memberId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
+                  })
+                  alert('잠금 해제 완료!')
+                }} className="text-xs bg-green-600 text-white rounded px-2 py-1">잠금 해제</button>
+              )}
+            </div>
           </div>
           {participant?.banned_until && new Date(participant.banned_until) > new Date() && (
             <div className="bg-red-50 rounded-lg p-3">
-              <p className="text-sm font-medium text-red-600">🚫 활동 제한 중</p>
-              <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.banned_until).toLocaleDateString('ko-KR')}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm font-medium text-red-600">🚫 활동 제한 중</p>
+                  <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.banned_until).toLocaleDateString('ko-KR')}</p>
+                  <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.banned_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
+                  {participant?.ban_reason && <p className="text-xs text-red-500 mt-1">사유: {participant.ban_reason}</p>}
+                </div>
+                <button onClick={async () => {
+                  await fetch(`/api/participants?id=${memberId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ banned_until: null, ban_reason: null })
+                  })
+                  alert('밴 해제 완료!')
+                }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
+              </div>
             </div>
           )}
           {participant?.cover_penalty_until && new Date(participant.cover_penalty_until) > new Date() && (
             <div className="bg-orange-50 rounded-lg p-3">
-              <p className="text-sm font-medium text-orange-600">🎵 커버 페널티 중</p>
-              <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm font-medium text-orange-600">🎵 커버 페널티 중</p>
+                  <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
+                  <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
+                </div>
+                <button onClick={async () => {
+                  await fetch(`/api/participants?id=${memberId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cover_penalty_until: null })
+                  })
+                  alert('커버 페널티 해제 완료!')
+                }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">페널티 해제</button>
+              </div>
             </div>
           )}
           {!participant?.banned_until && !participant?.is_locked && !participant?.cover_penalty_until && (
