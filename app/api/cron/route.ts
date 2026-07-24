@@ -266,10 +266,11 @@ export async function GET() {
           const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 48 * 60 * 60 * 1000)
           if (now < twentyFourHoursAfter) continue
 
-          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code)
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id, is_cover').ilike('project_code', project.project_code)
           if (!joinedParticipants) continue
 
           for (const jp of joinedParticipants) {
+            if (jp.is_cover) continue  // 커버 체험단은 48시간 체크 제외
             const { data: post } = await supabase.from('posts').select('id').ilike('project_code', project.project_code).eq('member_id', jp.member_id).maybeSingle()
             if (!post) {
               const { data: participant } = await supabase.from('participants').select('id, level').eq('id', jp.member_id).maybeSingle()
@@ -323,10 +324,11 @@ export async function GET() {
           const fortyEightHoursAfter = new Date(secondPostDateTime.getTime() + 48 * 60 * 60 * 1000)
           if (now < fortyEightHoursAfter) continue
 
-          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id, is_cover').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
           if (!joinedParticipants) continue
 
           for (const jp of joinedParticipants) {
+            if (jp.is_cover) continue  // 커버 체험단은 2차 체크 제외
             const { data: posts } = await supabase.from('posts').select('id').ilike('project_code', project.project_code).eq('member_id', jp.member_id)
             if (!posts || posts.length < 2) {
               const { data: participant } = await supabase.from('participants').select('*').eq('id', jp.member_id).maybeSingle()
@@ -538,15 +540,19 @@ export async function GET() {
       }
     }
 
-    // 커버영상 7일 미업로드 패널티
+    // 커버영상 15일 미업로드 패널티 (미션 시작일 기준)
     const { data: approvedCoverRequests } = await supabase
       .from('cover_requests')
-      .select('*')
+      .select('*, projects(start_date)')
       .eq('status', 'APPROVED')
-      .lt('updated_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
 
     if (approvedCoverRequests && approvedCoverRequests.length > 0) {
       for (const r of approvedCoverRequests) {
+        // 미션 시작일로부터 15일 체크
+        const startDate = new Date(r.projects?.start_date)
+        const deadline = new Date(startDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+        if (now < deadline) continue  // 아직 15일 안 지남
+
         // 커버영상 올렸는지 확인
         const { data: coverPost } = await supabase
           .from('posts')
