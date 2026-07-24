@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const memberId = searchParams.get('member_id')
   const status = searchParams.get('status')
 
-  let query = supabaseAdmin.from('project_participants').select('*').order('joined_at', { ascending: false })
+  let query = supabaseAdmin.from('project_participants').select('*, projects(status, start_date, required_posts)').order('joined_at', { ascending: false })
 
   if (projectCode) query = query.ilike('project_code', projectCode)
   if (memberId) query = query.eq('member_id', memberId)
