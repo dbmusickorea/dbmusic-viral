@@ -23,6 +23,10 @@ export async function GET(request: NextRequest) {
   if (mobile) {
     query = supabaseAdmin.from('users').select('*').eq('mobile', mobile)
   }
+  const role = searchParams.get('role')
+  if (role) {
+    query = supabaseAdmin.from('users').select('*').eq('role', role)
+  }
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
