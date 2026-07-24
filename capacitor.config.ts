@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: '더블비뮤직',
   webDir: 'out',
   server: {
-    url: 'https://dbmusic-viral.vercel.app',
+    url: 'https://app.doubleb.kr',
     cleartext: true
   },
   ios: {

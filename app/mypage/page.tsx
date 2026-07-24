@@ -213,10 +213,11 @@ export default function MyPage() {
         {referralCode && (
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <p className="text-xs text-gray-500 mb-1">나의 추천인 코드</p>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <p className="text-2xl font-bold text-blue-600">{referralCode}</p>
-              <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
-              <button onClick={async () => {
+              <div className="flex gap-2 ml-auto">
+                <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
+                <button onClick={async () => {
                 const { Share } = await import('@capacitor/share')
                 await Share.share({
                   title: '더블비뮤직 체험단',
@@ -224,6 +225,7 @@ export default function MyPage() {
                   url: `https://app.doubleb.kr/join?ref=${referralCode}`,
                 })
               }} className="text-xs bg-blue-600 text-white rounded px-3 py-1.5">공유</button>
+            </div>
             </div>
             <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
             {referredUsers.length > 0 && (
