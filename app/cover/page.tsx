@@ -25,6 +25,8 @@ export default function CoverPage() {
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
+    const ytShortsMatch = url.match(/youtube\.com\/shorts\/([^?&\s]+)/)
+    if (ytShortsMatch) return `https://www.youtube.com/embed/${ytShortsMatch[1]}`
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/)
     if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`
     const igMatch = url.match(/instagram\.com\/(?:reel|p)\/([^/?]+)/)
@@ -32,6 +34,14 @@ export default function CoverPage() {
     const ttMatch = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/)
     if (ttMatch) return `https://www.tiktok.com/embed/${ttMatch[1]}`
     return url
+  }
+
+  const getAspectRatio = (url: string) => {
+    if (!url) return '56.25%' // 16:9 기본
+    if (url.includes('/shorts/')) return '177.78%' // 9:16 세로
+    if (url.includes('instagram.com/reel')) return '177.78%' // 9:16 세로
+    if (url.includes('tiktok.com')) return '177.78%' // 9:16 세로
+    return '56.25%' // 16:9 가로
   }
 
   const getCoverPlatform = (url: string) => {
@@ -316,7 +326,9 @@ export default function CoverPage() {
                                   <>
                                     <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
                                     {previewUrl === p.cover_video_url && (
-                                      <iframe src={getEmbedUrl(p.cover_video_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                      <div style={{position: 'relative', paddingBottom: getAspectRatio(p.cover_video_url), height: 0}}>
+                                        <iframe src={getEmbedUrl(p.cover_video_url)} style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} className="mt-2 rounded-lg" allowFullScreen />
+                                      </div>
                                     )}
                                   </>
                                 )}
@@ -411,7 +423,9 @@ export default function CoverPage() {
                               <>
                                 <button onClick={() => setPreviewUrl(previewUrl === coverPost.post_url ? '' : coverPost.post_url)} className="text-xs text-blue-500">영상 보기 →</button>
                                 {previewUrl === coverPost.post_url && (
-                                  <iframe src={getEmbedUrl(coverPost.post_url)} className="w-full mt-2 rounded-lg" style={{height: '200px'}} allowFullScreen />
+                                  <div style={{position: 'relative', paddingBottom: getAspectRatio(coverPost.post_url), height: 0}}>
+                                    <iframe src={getEmbedUrl(coverPost.post_url)} style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} className="mt-2 rounded-lg" allowFullScreen />
+                                  </div>
                                 )}
                               </>
                             )}
