@@ -465,6 +465,19 @@ export default function CoverPage() {
           </button>
         </div>
       )}
+      {userRole === 'client' && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
+          <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+            <span className="text-lg mb-0.5">📋</span>프로젝트
+          </button>
+          <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+            <span className="text-lg mb-0.5">📊</span>현황
+          </button>
+          <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+            <span className="text-lg mb-0.5">👤</span>마이페이지
+          </button>
+        </div>
+      )}
       <div className="h-16 md:hidden" />
     </div>
   )
