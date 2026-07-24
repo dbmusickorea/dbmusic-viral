@@ -27,6 +27,16 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { error } = await supabaseAdmin.from('project_participants').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
+
+  // current_participants 또는 cover_current 증가
+  if (body.is_cover) {
+    const { data: project } = await supabaseAdmin.from('projects').select('cover_current').ilike('project_code', body.project_code).maybeSingle()
+    await supabaseAdmin.from('projects').update({ cover_current: (project?.cover_current ?? 0) + 1 }).ilike('project_code', body.project_code)
+  } else {
+    const { data: project } = await supabaseAdmin.from('projects').select('current_participants').ilike('project_code', body.project_code).maybeSingle()
+    await supabaseAdmin.from('projects').update({ current_participants: (project?.current_participants ?? 0) + 1 }).ilike('project_code', body.project_code)
+  }
+
   return NextResponse.json({ success: true })
 }
 
