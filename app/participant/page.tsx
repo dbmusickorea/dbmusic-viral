@@ -156,6 +156,12 @@ useEffect(() => {
       setIsCoverPossible(participant?.is_cover_possible ?? false)
       setIsCoverApproved(participant?.cover_approved ?? false)
       setAllProjects(data.allProjects)
+      // 미참여 프로젝트 수 localStorage에 저장
+      const unjoined = data.allProjects?.filter((p: any) => 
+        !data.participations?.some((mp: any) => mp.project_code.toLowerCase() === p.project_code.toLowerCase()) && 
+        ['ONGOING', 'PENDING'].includes(p.status)
+      ).length ?? 0
+      localStorage.setItem('unjoinedCount', String(unjoined))
       setUnlockVideos(data.unlockVideos)
       setNotifications(data.notifications)
       setUnreadCount(data.notifications?.filter((n: any) => !n.is_read).length ?? 0)

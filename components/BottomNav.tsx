@@ -8,6 +8,7 @@ type Tab = {
   href?: string
   onClick?: () => void
   active?: boolean
+  badge?: number
 }
 
 export default function BottomNav({ tabs }: { tabs: Tab[] }) {
@@ -25,7 +26,12 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
             }}
             className={`flex-1 flex flex-col items-center py-3 text-xs ${tab.active ? 'text-blue-600' : 'text-gray-400'}`}
           >
-            <span className="text-lg mb-0.5">{tab.icon}</span>
+            <div className="relative">
+              <span className="text-lg mb-0.5">{tab.icon}</span>
+              {tab.badge && tab.badge > 0 ? (
+                <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" style={{fontSize: '9px'}}>{tab.badge}</span>
+              ) : null}
+            </div>
             {tab.label}
           </button>
         ))}
