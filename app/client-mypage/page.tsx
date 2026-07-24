@@ -244,46 +244,6 @@ export default function ClientMyPage() {
           )}
         </div>
 
-        {/* 문의하기 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold">💬 문의하기</h2>
-            <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">
-              {showRequestForm ? '닫기' : '문의 등록'}
-            </button>
-          </div>
-          {showRequestForm && (
-            <div className="space-y-3 mb-4">
-              <div>
-                <label className="text-sm font-medium">제목</label>
-                <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">내용</label>
-                <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1 h-24" placeholder="문의 내용" />
-              </div>
-              <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록하기</button>
-            </div>
-          )}
-          {requests.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
-          ) : (
-            <div className="space-y-2">
-              {requests.map((r) => (
-                <div key={r.id} className="border rounded-lg p-3">
-                  <p className="text-sm font-medium">{r.title}</p>
-                  <p className="text-xs text-gray-500 mt-1">{new Date(r.created_at).toLocaleDateString('ko-KR')}</p>
-                  {r.reply && (
-                    <div className="mt-2 bg-blue-50 rounded p-2">
-                      <p className="text-xs text-blue-800 font-medium">📝 답변</p>
-                      <p className="text-xs text-blue-700 mt-0.5">{r.reply}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
