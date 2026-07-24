@@ -87,6 +87,8 @@ export default function Page2() {
   const [guideStep, setGuideStep] = useState(0)
   const [isCoverApproved, setIsCoverApproved] = useState(false)
   const [joinAsCover, setJoinAsCover] = useState(false)
+  const [coverUrl, setCoverUrl] = useState('')
+  const [isSubmittingCover, setIsSubmittingCover] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -1352,46 +1354,60 @@ useEffect(() => {
                                   <p className="text-xs text-orange-600 mt-1">'더블비뮤직 체험단 선정, 협찬으로 올려요' 라는 문구를 반드시 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.</p>
                                 </div>
                                 <div>
-                                  <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
+                                  {/* 일반 게시물 */}
                                   {(() => {
-                                    const existingPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())
-                                    const isProjectCoverApproved = isCoverPossible && isCoverApproved
-                                    const maxPosts = isProjectCoverApproved ? 1 : (projectInfo?.required_posts ?? 1)
-                                    return (
+                                    const normalPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && !p.is_cover)
+                                    const maxNormal = projectInfo?.required_posts ?? 1
+                                    const hasCoverOption = projectInfo?.cover_video_count > 0
+                                    const normalMax = hasCoverOption && selectedParticipation?.is_cover ? maxNormal - 1 : maxNormal
+                                    return normalMax > 0 && (
                                       <>
-                                        {existingPosts.length > 0 && (
-                                          <p className="text-xs text-green-600 mt-1 mb-1">✅ {existingPosts.length}차 게시물 제출 완료</p>
-                                        )}
-                                        {existingPosts.length < maxPosts && (
-                                          <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={isProjectCoverApproved ? '커버영상 링크 입력' : `게시글 주소 ${existingPosts.length + 1}차`} />
-                                        )}
-                                        {isProjectCoverApproved && existingPosts.length === 0 && (
-                                          <p className="text-xs text-purple-600 mt-1">⚠️ 커버 승인자는 커버영상 1개만 제출합니다. 미션 시작일로부터 7일 내 업로드해주세요.</p>
+                                        <label className="text-sm font-medium">일반 게시물 링크</label>
+                                        {normalPosts.length > 0 ? (
+                                          <p className="text-xs text-green-600 mt-1">✅ 일반 게시물 제출 완료 ({normalPosts.length}개)</p>
+                                        ) : (
+                                          <>
+                                            <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소 입력" />
+                                            <button onClick={() => { setIsCover(false); handleSubmit() }} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mt-2 disabled:bg-gray-400">
+                                              {isSubmitting ? '제출 중...' : '일반 게시물 제출'}
+                                            </button>
+                                          </>
                                         )}
                                       </>
                                     )
                                   })()}
+
+                                  {/* 커버 게시물 */}
+                                  {selectedParticipation?.is_cover && projectInfo?.cover_video_count > 0 && (() => {
+                                    const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
+                                    return (
+                                      <div className="mt-3 pt-3 border-t">
+                                        <label className="text-sm font-medium text-purple-700">🎵 커버 게시물 링크 (7일 내)</label>
+                                        {coverPost ? (
+                                          <p className="text-xs text-green-600 mt-1">✅ 커버 게시물 제출 완료</p>
+                                        ) : (
+                                          <>
+                                            <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className="w-full border border-purple-300 rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 링크 입력" />
+                                            <button onClick={async () => {
+                                              if (!coverUrl) { alert('커버영상 링크를 입력해주세요.'); return }
+                                              setIsSubmittingCover(true)
+                                              setIsCover(true)
+                                              const savedUrl = postUrls[0]
+                                              setPostUrls([coverUrl])
+                                              await handleSubmit()
+                                              setPostUrls([savedUrl ?? ''])
+                                              setCoverUrl('')
+                                              setIsCover(false)
+                                              setIsSubmittingCover(false)
+                                            }} disabled={isSubmittingCover} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium mt-2 disabled:bg-gray-400">
+                                              {isSubmittingCover ? '제출 중...' : '커버 게시물 제출'}
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    )
+                                  })()}
                                 </div>
-                                {selectedParticipation?.is_cover && (() => {
-                                  const alreadySubmittedCover = myPosts.some(p => 
-                                    p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover
-                                  )
-                                  return (
-                                    <>
-                                      {alreadySubmittedCover ? (
-                                        <p className="text-xs text-green-600 mt-2">✅ 커버영상 제출 완료</p>
-                                      ) : (
-                                        <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                                          <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
-                                          커버영상 제출 (승인 후 별도 금액 지급)
-                                        </label>
-                                      )}
-                                    </>
-                                  )
-                                })()}
-                                <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
-                                  {isSubmitting ? getPlatformLabel(platform) : '미션 제출하기'}
-                                </button>
                               </>
                             )}
                             {projectLinks.length > 0 && (
