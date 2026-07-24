@@ -637,7 +637,7 @@ useEffect(() => {
     const isValidUrl = (url: string) => {
       const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+/
       const youtubeRegex = /https?:\/\/(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[A-Za-z0-9_-]+/
-      const tiktokRegex = /https?:\/\/(www\.)?tiktok\.com\/@[^/]+\/video\/[0-9]+/
+      const tiktokRegex = /https?:\/\/(www\.|vm\.|vt\.|lite\.)?tiktok\.com\//
       return instagramRegex.test(url) || youtubeRegex.test(url) || tiktokRegex.test(url)
     }
     
