@@ -1332,6 +1332,10 @@ useEffect(() => {
                                   <label className="text-sm font-medium">본인 SNS 계정</label>
                                   <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
                                 </div>
+                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+                                  <p className="text-xs text-orange-700 font-medium">⚠️ 필수 문구 안내</p>
+                                  <p className="text-xs text-orange-600 mt-1">'더블비뮤직 체험단 선정, 협찬으로 올려요' 라는 문구를 반드시 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.</p>
+                                </div>
                                 <div>
                                   <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
                                   {(() => {
