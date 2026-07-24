@@ -1228,22 +1228,6 @@ useEffect(() => {
                             {p.status === 'CANCELLED' ? '취소됨 ❌' : p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
                           </span>
                         </div>
-                        {p.status !== 'CANCELLED' && p.projects?.status === 'ONGOING' && isCoverPossible && !p.is_cover && !p.cover_requested && (
-                          <button onClick={async (e) => {
-                            e.stopPropagation()
-                            if (!confirm('커버영상 신청 의사를 밝히시겠어요? 의뢰인이 확인 후 선택할 수 있어요.')) return
-                            await fetch(`/api/project_participants?project_code=${p.project_code}&member_id=${userInfo?.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ cover_requested: true })
-                            })
-                            alert('커버 신청 의사가 전달됐어요!')
-                            const info = localStorage.getItem('userInfo')
-                            if (info) fetchMyParticipations(JSON.parse(info).id)
-                          }} className="mt-2 text-xs bg-purple-100 text-purple-700 border border-purple-300 rounded-lg px-3 py-1.5 w-full">
-                            🎵 커버영상 신청하기
-                          </button>
-                        )}
                         {p.cover_requested && !p.is_cover && (
                           <p className="mt-2 text-xs text-purple-500 text-center">🎵 커버 신청 완료 (의뢰인 검토 중)</p>
                         )}
@@ -1643,11 +1627,16 @@ useEffect(() => {
                       }
 
                       return (
-                        <div key={project.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => {
+                        <div key={project.id} className={`border rounded-lg p-3 cursor-pointer ${projectCode === project.project_code ? 'border-blue-500 bg-blue-50' : ''}`} onClick={() => {
                           if (!isCompleted) {
-                            setProjectCode(project.project_code)
-                            setJoinAsCover(false)
-                            getRequirements(project.project_code)
+                            if (projectCode === project.project_code) {
+                              setProjectCode('')
+                              setProjectInfo(null)
+                            } else {
+                              setProjectCode(project.project_code)
+                              setJoinAsCover(false)
+                              getRequirements(project.project_code)
+                            }
                           }
                         }}>
                           <div className="flex justify-between items-center gap-2">
@@ -1685,7 +1674,7 @@ useEffect(() => {
               )}
             </div>
 
-            {projectInfo && !myParticipations.some(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase()) && (
+            {projectInfo && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 {(() => {
                   const isFull = projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants
@@ -1712,13 +1701,40 @@ useEffect(() => {
                             ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
                               <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
                             ) : (
-                              <div className="flex gap-2">
-                                {!isFull && (
-                                  <button onClick={() => { setJoinAsCover(false); handleJoin() }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">일반 참여</button>
-                                )}
-                                {canCover && !coverFull && (
-                                  <button onClick={() => { setJoinAsCover(true); handleJoin() }} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">커버 참여</button>
-                                )}
+                              <div className="flex gap-2 flex-wrap">
+                                {(() => {
+                                  const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase())
+                                  const alreadyCover = alreadyJoined?.is_cover
+                                  const alreadyCoverRequested = alreadyJoined?.cover_requested
+                                  return (
+                                    <>
+                                      {alreadyJoined && !alreadyCover ? (
+                                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                                      ) : !alreadyJoined && !isFull ? (
+                                        <button onClick={() => { setJoinAsCover(false); handleJoin() }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">일반 참여</button>
+                                      ) : null}
+                                      {canCover && (
+                                        alreadyCover ? (
+                                          <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">커버참여중 🎵</span>
+                                        ) : alreadyCoverRequested ? (
+                                          <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>
+                                        ) : !coverFull ? (
+                                          <button onClick={async () => {
+                                            if (!confirm('커버 신청 의사를 밝히시겠어요? 의뢰인이 확인 후 선택할 수 있어요.')) return
+                                            await fetch(`/api/project_participants?project_code=${projectInfo.project_code}&member_id=${userInfo?.id}`, {
+                                              method: 'PATCH',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ cover_requested: true })
+                                            })
+                                            alert('커버 신청 의사가 전달됐어요!')
+                                            const info = localStorage.getItem('userInfo')
+                                            if (info) fetchMyParticipations(JSON.parse(info).id)
+                                          }} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">커버 신청</button>
+                                        ) : null
+                                      )}
+                                    </>
+                                  )
+                                })()}
                               </div>
                             )}
                           </div>
