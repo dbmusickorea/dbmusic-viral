@@ -71,7 +71,16 @@ export default function Page2() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [participationPage, setParticipationPage] = useState(0)
   const [projectListPage, setProjectListPage] = useState(0)
-  const [activeTab, setActiveTab] = useState<'home' | 'project'>('home')
+  const [activeTab, setActiveTab] = useState<'home' | 'project'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('participantTab')
+      if (saved) {
+        sessionStorage.removeItem('participantTab')
+        return saved as 'home' | 'project'
+      }
+    }
+    return 'home'
+  })
   const [myPostPage, setMyPostPage] = useState(0)
   const [projectLinks, setProjectLinks] = useState<any[]>([])
   const [coverRequests, setCoverRequests] = useState<any[]>([])

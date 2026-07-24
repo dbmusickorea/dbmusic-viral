@@ -221,7 +221,7 @@ export default function WalletPage() {
         onLogout={handleLogout}
         items={[
           { icon: '📊', label: '내 현황', onClick: () => router.push('/participant') },
-          { icon: '🎯', label: '프로젝트', onClick: () => router.push('/participant') },
+          { icon: '🎯', label: '프로젝트', onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
           { icon: '💰', label: '적립금', onClick: () => router.push('/wallet'), active: true },
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/mypage') },
         ]}
