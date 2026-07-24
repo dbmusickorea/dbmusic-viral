@@ -737,7 +737,7 @@ export async function GET() {
       }
 
       // 체험단 팔로워 수 갱신 (하루 1회)
-    if (true) {
+    if (currentHour === 3) {
       const { data: allParticipantsForFollowers } = await supabase
         .from('participants')
         .select('id, instagram_id, youtube_id, tiktok_id')
