@@ -1388,24 +1388,19 @@ useEffect(() => {
                                     )
                                   })()}
                                 </div>
-                                {isCoverPossible && isCoverApproved && (() => {
+                                {selectedParticipation?.is_cover && (() => {
                                   const alreadySubmittedCover = myPosts.some(p => 
                                     p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover
                                   )
                                   return (
                                     <>
                                       {alreadySubmittedCover ? (
-                                        <p className="text-xs text-gray-400 mt-2">✅ 커버영상은 이미 제출됐어요. 나머지는 일반 게시물로 올려주세요.</p>
+                                        <p className="text-xs text-green-600 mt-2">✅ 커버영상 제출 완료</p>
                                       ) : (
-                                        <>
-                                          {projectInfo?.required_posts > 1 && (
-                                            <p className="text-xs text-orange-500 mt-2">⚠️ 커버영상은 1인 1개입니다. 나머지 게시물은 일반 게시물로 올려주세요.</p>
-                                          )}
-                                          <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                                            <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
-                                            커버영상 제출 (관리자 승인 후 별도 금액 지급)
-                                          </label>
-                                        </>
+                                        <label className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                                          <input type="checkbox" checked={isCover} onChange={(e) => setIsCover(e.target.checked)} />
+                                          커버영상 제출 (승인 후 별도 금액 지급)
+                                        </label>
                                       )}
                                     </>
                                   )
