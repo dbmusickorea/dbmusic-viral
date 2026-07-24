@@ -230,16 +230,19 @@ export default function WalletPage() {
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
+          } else {
+            setPullStartY(0)
           }
         }}
-      onTouchMove={(e) => {
-        const pullDistance = e.touches[0].clientY - pullStartY
-        if (pullDistance > 70) setIsPulling(true)
-      }}
-      onTouchEnd={() => {
-        if (isPulling) handleRefresh()
-        setIsPulling(false)
-      }}
+        onTouchMove={(e) => {
+          if (pullStartY === 0) return
+          const pullDistance = e.touches[0].clientY - pullStartY
+          if (pullDistance > 70) setIsPulling(true)
+        }}
+        onTouchEnd={() => {
+          if (isPulling) handleRefresh()
+          setIsPulling(false)
+        }}
     >
       <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         {(isPulling || isRefreshing) && (

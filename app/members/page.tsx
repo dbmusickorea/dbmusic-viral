@@ -618,9 +618,12 @@ export default function Page4() {
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
+        } else {
+          setPullStartY(0)
         }
       }}
       onTouchMove={(e) => {
+        if (pullStartY === 0) return
         const pullDistance = e.touches[0].clientY - pullStartY
         if (pullDistance > 70) setIsPulling(true)
       }}
