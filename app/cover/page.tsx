@@ -208,7 +208,7 @@ export default function CoverPage() {
           { icon: '🎵', label: '커버', onClick: () => router.push('/cover') },
         ] : [
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
-          { icon: '📊', label: '현황', onClick: () => router.push('/client') },
+          { icon: '📊', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
@@ -494,7 +494,7 @@ export default function CoverPage() {
           <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
             <span className="text-lg mb-0.5">📋</span>프로젝트
           </button>
-          <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+          <button onClick={() => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') }} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
             <span className="text-lg mb-0.5">📊</span>현황
           </button>
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
