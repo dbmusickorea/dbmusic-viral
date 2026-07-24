@@ -530,8 +530,13 @@ useEffect(() => {
   const handleJoin = async () => {
     if (!projectCode || !userInfo) return
     
+    const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
+    const deadline48 = new Date(new Date(projectInfo?.start_date).getTime() + 48 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
+    
     const joinConfirmed = confirm(
-      `프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내에 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
+      joinAsCover
+        ? `커버 참여로 신청하시겠어요?\n\n⚠️ 미션 시작일로부터 15일 이내(${deadline15}까지) 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
+        : `프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내(${deadline48}까지) 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
     )
     if (!joinConfirmed) return
     
