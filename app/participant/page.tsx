@@ -1295,7 +1295,7 @@ useEffect(() => {
                               <div className="bg-gray-50 rounded-lg p-3">
                                 {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
                                 <div className="flex justify-between items-center mt-2">
-                                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                                   {isJoined ? (
                                     <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
                                   ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
@@ -1639,7 +1639,7 @@ useEffect(() => {
                                 {project.start_date && (
                                   <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
                                 )}
-                                <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}</p>
+                                <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}{project.cover_video_count > 0 ? ` + 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
                               </div>
                             </div>
                             {getStatusButton()}
@@ -1679,7 +1679,7 @@ useEffect(() => {
                     <p className="text-sm font-medium mb-1">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
                     {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
                     <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}</p>
+                      <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                       {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
                         <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
                       ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
