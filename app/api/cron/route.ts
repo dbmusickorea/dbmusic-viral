@@ -145,7 +145,7 @@ export async function GET() {
     }
 
     // 모집 시작일 푸시 (mission_date + mission_time 기준)
-    const { data: recruitProjects } = await supabase.from('projects').select('*').eq('mission_date', today).in('status', ['ONGOING', 'PENDING'])
+    const { data: recruitProjects } = await supabase.from('projects').select('*').eq('mission_date', today).in('status', ['ONGOING', 'PENDING']).eq('recruit_push_sent', false)
     if (recruitProjects && recruitProjects.length > 0) {
       const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
       if (participantTokens && participantTokens.length > 0) {
@@ -165,6 +165,7 @@ export async function GET() {
               saveToRole: 'participant'
             })
           })
+          await supabase.from('projects').update({ recruit_push_sent: true }).eq('project_code', project.project_code)
         }
       }
     }
