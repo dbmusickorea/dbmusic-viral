@@ -89,6 +89,9 @@ export default function Page1() {
   useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (role !== 'admin') { router.push('/'); return }
+    if ((window as any).Capacitor) {
+      import('@capawesome/capacitor-badge').then(({ Badge }) => Badge.clear()).catch(() => {})
+    }
     const userInfo = localStorage.getItem('userInfo')
     const loadData = async () => {
       await Promise.all([

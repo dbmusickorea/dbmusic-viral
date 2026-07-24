@@ -71,6 +71,9 @@ export default function Page3() {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
     if (!info) { router.push('/'); return }
+    if ((window as any).Capacitor) {
+      import('@capawesome/capacitor-badge').then(({ Badge }) => Badge.clear()).catch(() => {})
+    }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')

@@ -10,6 +10,7 @@ const config: CapacitorConfig = {
   },
   ios: {
     contentInset: 'never',
+    scheme: 'dbmusic'
   },
   plugins: {
     SplashScreen: {

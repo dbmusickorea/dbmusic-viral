@@ -107,6 +107,11 @@ useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
+    
+    // 앱 실행 시 뱃지 초기화
+    if ((window as any).Capacitor) {
+      import('@capawesome/capacitor-badge').then(({ Badge }) => Badge.clear()).catch(() => {})
+    }
     const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
     setYoutubeHandle(accounts.youtube ?? '')
     setUserInfo(parsed)
