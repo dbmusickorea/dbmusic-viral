@@ -137,6 +137,8 @@ useEffect(() => {
       setMySettlements(data.settlements)
       setCommentMissions(data.commentMissions)
       setIsCoverPossible(participant?.is_cover_possible ?? false)
+      setIsCoverApproved(participant?.cover_approved ?? false)
+      if (participant?.cover_approved) setIsCover(true)
       setAllProjects(data.allProjects)
       setUnlockVideos(data.unlockVideos)
       setNotifications(data.notifications)
@@ -375,6 +377,9 @@ useEffect(() => {
       setIsLocked(participant?.is_locked ?? false)
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
       setIsCoverPossible(participant?.is_cover_possible ?? false)
+      setIsCoverApproved(participant?.cover_approved ?? false)
+      if (participant?.cover_approved) setIsCover(true)
+      
 
       setMyPosts(data.posts)
       // projectsMap 업데이트
@@ -1340,12 +1345,19 @@ useEffect(() => {
                                   <label className="text-sm font-medium">미션 완료 링크 (URL)</label>
                                   {(() => {
                                     const existingPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())
+                                    const isProjectCoverApproved = isCoverPossible && isCoverApproved
+                                    const maxPosts = isProjectCoverApproved ? 1 : (projectInfo?.required_posts ?? 1)
                                     return (
                                       <>
                                         {existingPosts.length > 0 && (
                                           <p className="text-xs text-green-600 mt-1 mb-1">✅ {existingPosts.length}차 게시물 제출 완료</p>
                                         )}
-                                        <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={`게시글 주소 ${existingPosts.length + 1}차`} />
+                                        {existingPosts.length < maxPosts && (
+                                          <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={isProjectCoverApproved ? '커버영상 링크 입력' : `게시글 주소 ${existingPosts.length + 1}차`} />
+                                        )}
+                                        {isProjectCoverApproved && existingPosts.length === 0 && (
+                                          <p className="text-xs text-purple-600 mt-1">⚠️ 커버 승인자는 커버영상 1개만 제출합니다. 미션 시작일로부터 15일 내 업로드해주세요.</p>
+                                        )}
                                       </>
                                     )
                                   })()}
