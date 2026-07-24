@@ -216,6 +216,14 @@ export default function MyPage() {
             <div className="flex items-center justify-between">
               <p className="text-2xl font-bold text-blue-600">{referralCode}</p>
               <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
+              <button onClick={async () => {
+                const { Share } = await import('@capacitor/share')
+                await Share.share({
+                  title: '더블비뮤직 체험단',
+                  text: `더블비뮤직 체험단에 가입하고 적립금 받으세요! 추천 코드: ${referralCode}`,
+                  url: `https://app.doubleb.kr/join?ref=${referralCode}`,
+                })
+              }} className="text-xs bg-blue-600 text-white rounded px-3 py-1.5">공유</button>
             </div>
             <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
             {referredUsers.length > 0 && (
