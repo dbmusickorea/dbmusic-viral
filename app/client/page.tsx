@@ -11,6 +11,7 @@ import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
 
 export default function Page3() {
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [appVersion, setAppVersion] = useState('0')
   const [userRole, setUserRole] = useState('')
   const [clientCode, setClientCode] = useState('')
   const [posts, setPosts] = useState<any[]>([])
@@ -68,6 +69,11 @@ export default function Page3() {
   const router = useRouter()
 
   useEffect(() => {
+    if ((window as any).Capacitor) {
+      import('@capacitor/app').then(({ App }) => {
+        App.getInfo().then(info => setAppVersion(info.version))
+      }).catch(() => {})
+    }
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
     if (!info) { router.push('/'); return }
@@ -780,7 +786,7 @@ export default function Page3() {
                     <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
                     </div>
                     <div className="mt-auto">
-                    {projectInfo.document_id && typeof window !== 'undefined' && !(window as any).Capacitor && (
+                    {projectInfo.document_id && typeof window !== 'undefined' && (!((window as any).Capacitor) || appVersion >= '1.2') && (
                       <button onClick={async (e) => {
                         e.preventDefault()
                         const btn = e.currentTarget
