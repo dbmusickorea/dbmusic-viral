@@ -795,12 +795,17 @@ export default function Page3() {
                           })
                           const data = await res.json()
                           if (data.dataUrl) {
-                            const a = document.createElement('a')
-                            a.href = data.dataUrl
-                            a.download = fileName + '.pdf'
-                            document.body.appendChild(a)
-                            a.click()
-                            document.body.removeChild(a)
+                            if ((window as any).Capacitor) {
+                              const { Browser } = await import('@capacitor/browser')
+                              await Browser.open({ url: data.dataUrl })
+                            } else {
+                              const a = document.createElement('a')
+                              a.href = data.dataUrl
+                              a.download = fileName + '.pdf'
+                              document.body.appendChild(a)
+                              a.click()
+                              document.body.removeChild(a)
+                            }
                           } else {
                             alert('아직 서명이 완료되지 않았어요.')
                           }
