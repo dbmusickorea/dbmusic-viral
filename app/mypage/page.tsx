@@ -39,12 +39,18 @@ export default function MyPage() {
   const [coverVideoUrl, setCoverVideoUrl] = useState('')
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [referredUsers, setReferredUsers] = useState<any[]>([])
+  const [appVersion, setAppVersion] = useState('0')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
     if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
+    if ((window as any).Capacitor) {
+      import('@capacitor/app').then(({ App }) => {
+        App.getInfo().then(info => setAppVersion(info.version))
+      }).catch(() => {})
+    }
     loadMyInfo(parsed.id)
   }, [])
 
@@ -217,14 +223,16 @@ export default function MyPage() {
               <p className="text-2xl font-bold text-blue-600">{referralCode}</p>
               <div className="flex gap-2 ml-auto">
                 <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
-                <button onClick={async () => {
-                const { Share } = await import('@capacitor/share')
-                await Share.share({
-                  title: '더블비뮤직 체험단',
-                  text: `더블비뮤직 체험단에 가입하고 적립금 받으세요! 추천 코드: ${referralCode}`,
-                  url: `https://app.doubleb.kr/download?ref=${referralCode}`,
-                })
-              }} className="text-xs bg-blue-600 text-white rounded px-3 py-1.5">공유</button>
+                {(!((window as any).Capacitor) || appVersion >= '1.2') && (
+                  <button onClick={async () => {
+                    const { Share } = await import('@capacitor/share')
+                    await Share.share({
+                      title: '더블비뮤직 체험단',
+                      text: `더블비뮤직 체험단에 가입하고 적립금 받으세요! 추천 코드: ${referralCode}`,
+                      url: `https://app.doubleb.kr/download?ref=${referralCode}`,
+                    })
+                  }} className="text-xs bg-blue-600 text-white rounded px-3 py-1.5">공유</button>
+                )}
             </div>
             </div>
             <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
