@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
+import { useSearchParams } from 'next/navigation'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -132,7 +133,7 @@ export default function ClientMyPage() {
         onLogout={handleLogout}
         items={[
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
-          { icon: '📊', label: '현황', onClick: () => router.push('/client') },
+          { icon: '📊', label: '현황', onClick: () => { localStorage.setItem('clientTab', 'stats'); router.push('/client') } },
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
         ]}
       />

@@ -76,6 +76,11 @@ export default function Page3() {
       ])
     }
     loadData()
+    const savedTab = localStorage.getItem('clientTab')
+    if (savedTab === 'stats') {
+      setActiveTab('stats')
+      localStorage.removeItem('clientTab')
+    }
   }, [])
 
 
