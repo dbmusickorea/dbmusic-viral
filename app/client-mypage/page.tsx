@@ -133,7 +133,12 @@ export default function ClientMyPage() {
         onLogout={handleLogout}
         items={[
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
-          { icon: '📊', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
+          { icon: '📊', label: '현황', onClick: () => { 
+            console.log('현황 버튼 클릭')
+            sessionStorage.setItem('clientTab', 'stats')
+            console.log('sessionStorage set:', sessionStorage.getItem('clientTab'))
+            router.push('/client') 
+          }},
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
         ]}
       />
@@ -282,7 +287,7 @@ export default function ClientMyPage() {
       </div>
       <BottomNav tabs={[
         { icon: '📋', label: '프로젝트', href: '/client' },
-        { icon: '📊', label: '현황', href: '/client' },
+        { icon: '📊', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
         { icon: '👤', label: '마이페이지', href: '/client-mypage', active: true },
       ]} />
     </div>

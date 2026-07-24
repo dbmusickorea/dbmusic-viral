@@ -44,7 +44,16 @@ export default function Page3() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [myProjectPage, setMyProjectPage] = useState(0)
   const [allProjectPage, setAllProjectPage] = useState(0)
-  const [activeTab, setActiveTab] = useState<'project' | 'stats'>('project')
+  const [activeTab, setActiveTab] = useState<'project' | 'stats'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('clientTab')
+      if (saved) {
+        sessionStorage.removeItem('clientTab')
+        return saved as 'project' | 'stats'
+      }
+    }
+    return 'project'
+  })
   const [postPage, setPostPage] = useState(0)
   const [topRanker, setTopRanker] = useState<any>(null)
   const [igAudioCount, setIgAudioCount] = useState<number | null>(null)
@@ -136,6 +145,7 @@ export default function Page3() {
   }
 
   const fetchMyProjects = async (clientId: string) => {
+    console.log('fetchMyProjects called')
     const res = await fetch(`/api/projects?client_id=${clientId}`)
     const data = await res.json()
     setMyProjects(data ?? [])
@@ -150,13 +160,6 @@ export default function Page3() {
       fetchCommentMissionData(active[0].project_code)
       fetchDailyStats(active[0].project_code, active[0].instagram_audio_count ?? null, active[0].tiktok_audio_count ?? null, active[0].youtube_audio_count ?? null)
     }
-    setTimeout(() => {
-      const savedTab = sessionStorage.getItem('clientTab')
-      if (savedTab) {
-        setActiveTab(savedTab as 'project' | 'stats')
-        sessionStorage.removeItem('clientTab')
-      }
-    }, 500)
   }
 
   const fetchPosts = async (code: string) => {

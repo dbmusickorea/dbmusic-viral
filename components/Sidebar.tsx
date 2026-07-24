@@ -27,7 +27,7 @@ export default function Sidebar({ show, onClose, items, onLogout, title = 'ÎçîÎ∏
         </div>
         <div className="space-y-2 flex-1">
           {items.map((item, i) => (
-            <button key={i} onClick={() => { item.onClick(); onClose() }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${item.active ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <button key={i} onClick={() => { onClose(); item.onClick() }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${item.active ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}>
               {item.icon} {item.label}
             </button>
           ))}
