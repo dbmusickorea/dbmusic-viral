@@ -1704,7 +1704,7 @@ useEffect(() => {
                         {(requirements || projectInfo?.required_posts > 1) && (
                           <div className="bg-blue-50 rounded-lg p-3">
                             <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                            {requirements && <p className="text-sm text-blue-700 mt-1">{requirements}</p>}
+                            {requirements && <p className="text-sm text-blue-700 mt-1 whitespace-pre-wrap">{requirements}</p>}
                             {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
                           </div>
                         )}
