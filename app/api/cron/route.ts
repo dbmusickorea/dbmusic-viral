@@ -749,14 +749,14 @@ export async function GET() {
             if (p.instagram_id) {
               const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
               const igData = await igRes.json()
-              if (igData.followers !== undefined) {
+              if (igData.followers !== undefined && igData.followers > 0) {
                 await supabase.from('participants').update({ instagram_followers: igData.followers, instagram_profile_image: igData.thumbnail ?? undefined }).eq('id', p.id)
               }
             }
             if (p.youtube_id) {
               const ytRes = await fetch(`https://app.doubleb.kr/api/youtube-channel?handle=${p.youtube_id}`)
               const ytData = await ytRes.json()
-              if (ytData.subscriberCount !== undefined) {
+              if (ytData.subscriberCount !== undefined && ytData.subscriberCount > 0) {
                 await supabase.from('participants').update({ youtube_subscribers: ytData.subscriberCount, youtube_profile_image: ytData.thumbnail ?? undefined }).eq('id', p.id)
               }
             }
@@ -768,7 +768,7 @@ export async function GET() {
                 }
               })
               const ttData = await ttRes.json()
-              if (ttData?.data?.stats?.followerCount !== undefined) {
+              if (ttData?.data?.stats?.followerCount !== undefined && ttData.data.stats.followerCount > 0) {
                 await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount, tiktok_profile_image: ttData.data?.user?.avatarMedium ?? undefined }).eq('id', p.id)
               }
             }
