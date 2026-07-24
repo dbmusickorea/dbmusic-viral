@@ -63,7 +63,7 @@ export async function DELETE(request: NextRequest) {
   // 1) 참여 정보 조회
   const { data: participation } = await supabaseAdmin
     .from('project_participants')
-    .select('project_code, member_id')
+    .select('project_code, member_id, is_cover')
     .eq('id', Number(id))
     .maybeSingle()
 
@@ -81,7 +81,7 @@ export async function DELETE(request: NextRequest) {
   // 3) reward_per_post 조회
   const { data: project } = await supabaseAdmin
     .from('projects')
-    .select('reward_per_post, current_participants')
+    .select('reward_per_post, current_participants, cover_current')
     .ilike('project_code', project_code)
     .maybeSingle()
 
@@ -116,12 +116,21 @@ export async function DELETE(request: NextRequest) {
     .ilike('project_code', project_code)
     .eq('member_id', member_id)
 
-    // 6) current_participants -1
-  if (project && project.current_participants > 0) {
-    await supabaseAdmin
-      .from('projects')
-      .update({ current_participants: project.current_participants - 1 })
-      .ilike('project_code', project_code)
+    // 6) current_participants 또는 cover_current -1
+  if (participation?.is_cover) {
+    if (project && (project.cover_current ?? 0) > 0) {
+      await supabaseAdmin
+        .from('projects')
+        .update({ cover_current: (project.cover_current ?? 1) - 1 })
+        .ilike('project_code', project_code)
+    }
+  } else {
+    if (project && project.current_participants > 0) {
+      await supabaseAdmin
+        .from('projects')
+        .update({ current_participants: project.current_participants - 1 })
+        .ilike('project_code', project_code)
+    }
   }
 
   // 7) 참여 기록 CANCELLED로 변경 (삭제 대신)
