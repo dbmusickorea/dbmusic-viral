@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import Sidebar from '../../components/Sidebar'
 
 export default function CoverPage() {
   const router = useRouter()
@@ -22,6 +23,7 @@ export default function CoverPage() {
   const [coverPosts, setCoverPosts] = useState<any[]>([])
   const [coverAddApproved, setCoverAddApproved] = useState(false)
   const [coverRequestedIds, setCoverRequestedIds] = useState<number[]>([])
+  const [showSidebar, setShowSidebar] = useState(false)
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
@@ -195,11 +197,33 @@ export default function CoverPage() {
           )}
         </div>
       )}
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        items={userRole === 'admin' ? [
+          { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin') },
+          { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
+          { icon: '👤', label: '회원관리', onClick: () => router.push('/members') },
+          { icon: '💰', label: '정산', onClick: () => router.push('/settlement') },
+          { icon: '🎵', label: '커버', onClick: () => router.push('/cover') },
+        ] : [
+          { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
+          { icon: '📊', label: '현황', onClick: () => router.push('/client') },
+          { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage') },
+        ]}
+      />
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">커버 페이지</h1>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold">커버 페이지</h1>
+            </div>
           </div>
           <div className="flex gap-1 mb-2">
             {userRole === 'admin' && (
