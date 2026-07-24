@@ -1623,30 +1623,33 @@ useEffect(() => {
 
                       const getStatusButton = () => {
                         if (isCompleted) return <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">종료</span>
-                        if (isJoined) return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
+                        if (isJoined) {
+                          return (
+                            <div className="flex flex-col gap-1 items-end">
+                              <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중 ✅</span>
+                              {canCover && !myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase() && p.is_cover) && (
+                                <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">커버 가능</span>
+                              )}
+                            </div>
+                          )
+                        }
+                        if (isFull && !canCover) return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">마감</span>
                         return (
-                          <div className="flex flex-col gap-1">
-                            {!isFull && (
-                              <button onClick={() => { 
-                                setProjectCode(project.project_code)
-                                setJoinAsCover(false)
-                                getRequirements(project.project_code)
-                              }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">일반 참여</button>
-                            )}
-                            {canCover && !coverFull && (
-                              <button onClick={() => { 
-                                setProjectCode(project.project_code)
-                                setJoinAsCover(true)
-                                getRequirements(project.project_code)
-                              }} className="text-xs px-3 py-1 rounded-full bg-purple-600 text-white">커버 참여</button>
-                            )}
-                            {isFull && !canCover && <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">마감</span>}
+                          <div className="flex flex-col gap-1 items-end">
+                            {!isFull && <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">참여 가능</span>}
+                            {canCover && !coverFull && <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">커버 가능</span>}
                           </div>
                         )
                       }
 
                       return (
-                        <div key={project.id} className="border rounded-lg p-3">
+                        <div key={project.id} className="border rounded-lg p-3 cursor-pointer" onClick={() => {
+                          if (!isCompleted) {
+                            setProjectCode(project.project_code)
+                            setJoinAsCover(false)
+                            getRequirements(project.project_code)
+                          }
+                        }}>
                           <div className="flex justify-between items-center gap-2">
                             <div className="flex items-center gap-2 min-w-0">
                               {project.cover_image_url && (
@@ -1682,33 +1685,48 @@ useEffect(() => {
               )}
             </div>
 
-            {/* 프로젝트 참여하기 */}
             {projectInfo && !myParticipations.some(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase()) && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">🎯 프로젝트 참여</h2>
-                <div className="space-y-3">
-                  {(requirements || projectInfo?.required_posts > 1) && (
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                      {requirements && <p className="text-sm text-blue-700 mt-1">{requirements}</p>}
-                      {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
-                    </div>
-                  )}
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-sm font-medium mb-1">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
-                    {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
-                    <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
-                      {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
-                        <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
-                      ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
-                      ) : (
-                        <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                {(() => {
+                  const isFull = projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants
+                  const coverFull = projectInfo.cover_video_count > 0 && (projectInfo.cover_current ?? 0) >= projectInfo.cover_video_count
+                  const canCover = isCoverPossible && isCoverApproved && projectInfo.cover_video_count > 0
+                  return (
+                    <>
+                      <h2 className="font-bold mb-3">🎯 프로젝트 참여</h2>
+                      <div className="space-y-3">
+                        {(requirements || projectInfo?.required_posts > 1) && (
+                          <div className="bg-blue-50 rounded-lg p-3">
+                            <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
+                            {requirements && <p className="text-sm text-blue-700 mt-1">{requirements}</p>}
+                            {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
+                          </div>
+                        )}
+                        <div className="bg-gray-50 rounded-lg p-3">
+                          <p className="text-sm font-medium mb-1">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
+                          {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
+                          <div className="flex justify-between items-center mt-2">
+                            <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
+                            {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
+                              <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
+                            ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
+                              <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
+                            ) : (
+                              <div className="flex gap-2">
+                                {!isFull && (
+                                  <button onClick={() => { setJoinAsCover(false); handleJoin() }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">일반 참여</button>
+                                )}
+                                {canCover && !coverFull && (
+                                  <button onClick={() => { setJoinAsCover(true); handleJoin() }} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">커버 참여</button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
             )}
 
