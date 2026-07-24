@@ -155,6 +155,41 @@ function ActivityDetail({ memberId }: { memberId: number }) {
               </div>
             </div>
           )}
+          {participations
+            .filter(p => p.projects?.status === 'ONGOING' && p.status === 'ACTIVE')
+            .map(p => {
+              const projectPosts = posts.filter(post => post.project_code?.toLowerCase() === p.project_code?.toLowerCase())
+              const coverApproved = p.cover_status === 'APPROVED'
+              
+              if (coverApproved) {
+                // 커버 승인자: 15일 기준
+                if (projectPosts.filter((post: any) => post.is_cover).length === 0) {
+                  const startDate = new Date(p.projects?.start_date)
+                  const deadline = new Date(startDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+                  const daysLeft = Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                  if (daysLeft > 0) return (
+                    <div key={p.id} className="bg-purple-50 rounded-lg p-3">
+                      <p className="text-sm font-medium text-purple-700">🎵 {p.project_code} 커버영상 미제출</p>
+                      <p className="text-xs text-gray-500 mt-1">커버 페널티까지 {daysLeft}일 남음</p>
+                    </div>
+                  )
+                }
+              } else {
+                // 일반 체험단: 48시간 기준
+                if (projectPosts.length === 0) {
+                  const startDate = new Date(p.projects?.start_date)
+                  const deadline = new Date(startDate.getTime() + 48 * 60 * 60 * 1000)
+                  const hoursLeft = Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60))
+                  if (hoursLeft > 0) return (
+                    <div key={p.id} className="bg-yellow-50 rounded-lg p-3">
+                      <p className="text-sm font-medium text-yellow-700">⏰ {p.project_code} 미션 미제출</p>
+                      <p className="text-xs text-gray-500 mt-1">밴까지 {hoursLeft}시간 남음</p>
+                    </div>
+                  )
+                }
+              }
+              return null
+            })}
           {!participant?.banned_until && !participant?.is_locked && !participant?.cover_penalty_until && (
             <p className="text-sm text-gray-400 text-center py-2">페널티 없음</p>
           )}
