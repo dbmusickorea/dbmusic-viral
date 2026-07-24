@@ -141,7 +141,6 @@ useEffect(() => {
       setCommentMissions(data.commentMissions)
       setIsCoverPossible(participant?.is_cover_possible ?? false)
       setIsCoverApproved(participant?.cover_approved ?? false)
-      if (participant?.cover_approved) setIsCover(true)
       setAllProjects(data.allProjects)
       setUnlockVideos(data.unlockVideos)
       setNotifications(data.notifications)
@@ -381,7 +380,6 @@ useEffect(() => {
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
       setIsCoverPossible(participant?.is_cover_possible ?? false)
       setIsCoverApproved(participant?.cover_approved ?? false)
-      if (participant?.cover_approved) setIsCover(true)
       
 
       setMyPosts(data.posts)
