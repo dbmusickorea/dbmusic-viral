@@ -86,6 +86,7 @@ export default function Page2() {
   const [showGuide, setShowGuide] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
   const [isCoverApproved, setIsCoverApproved] = useState(false)
+  const [joinAsCover, setJoinAsCover] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -563,7 +564,8 @@ useEffect(() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         project_code: projectCode,
-        member_id: userInfo.id
+        member_id: userInfo.id,
+        is_cover: joinAsCover
       })
     })
     if (!res.ok) { alert('이미 참여하셨거나 오류가 발생했어요.'); return }
@@ -1597,18 +1599,31 @@ useEffect(() => {
                       const isCompleted = project.status === 'COMPLETED'
                       const isPaused = project.status === 'PENDING'
                       
+                      const coverFull = project.cover_video_count > 0 && (project.cover_current ?? 0) >= project.cover_video_count
+                      const canCover = isCoverPossible && isCoverApproved && project.cover_video_count > 0
+
                       const getStatusButton = () => {
                         if (isCompleted) return <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">종료</span>
                         if (isJoined) return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중</span>
-                        if (isFull) return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">미참여</span>
-                        if (isPaused) return <button onClick={() => { 
-                          setProjectCode(project.project_code)
-                          getRequirements(project.project_code)
-                        }} className="text-xs px-3 py-1 rounded-full bg-yellow-500 text-white">참여하기</button>
-                        return <button onClick={() => { 
-                          setProjectCode(project.project_code)
-                          getRequirements(project.project_code)
-                        }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">참여</button>
+                        return (
+                          <div className="flex flex-col gap-1">
+                            {!isFull && (
+                              <button onClick={() => { 
+                                setProjectCode(project.project_code)
+                                setJoinAsCover(false)
+                                getRequirements(project.project_code)
+                              }} className="text-xs px-3 py-1 rounded-full bg-blue-600 text-white">일반 참여</button>
+                            )}
+                            {canCover && !coverFull && (
+                              <button onClick={() => { 
+                                setProjectCode(project.project_code)
+                                setJoinAsCover(true)
+                                getRequirements(project.project_code)
+                              }} className="text-xs px-3 py-1 rounded-full bg-purple-600 text-white">커버 참여</button>
+                            )}
+                            {isFull && !canCover && <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-500">마감</span>}
+                          </div>
+                        )
                       }
 
                       return (
