@@ -23,7 +23,8 @@ function ActivityDetail({ memberId }: { memberId: number }) {
         fetch(`/api/settlements?member_id=${memberId}`),
         fetch(`/api/participants?id=${memberId}`)
       ])
-      setParticipations(await partRes.json())
+      const partData = await partRes.json()
+      setParticipations(Array.isArray(partData) ? partData : [])
       setPosts(await postRes.json())
       setSettlements(await settleRes.json())
       const data = await memberRes.json()
