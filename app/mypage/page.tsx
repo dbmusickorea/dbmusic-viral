@@ -222,7 +222,7 @@ export default function MyPage() {
                 await Share.share({
                   title: '더블비뮤직 체험단',
                   text: `더블비뮤직 체험단에 가입하고 적립금 받으세요! 추천 코드: ${referralCode}`,
-                  url: `https://app.doubleb.kr/join?ref=${referralCode}`,
+                  url: `https://app.doubleb.kr/?ref=${referralCode}`,
                 })
               }} className="text-xs bg-blue-600 text-white rounded px-3 py-1.5">공유</button>
             </div>
