@@ -584,6 +584,50 @@ export async function GET() {
       }
     }
 
+    // project_participants is_cover = true 인 사람 15일 체크
+    const { data: coverParticipants } = await supabase
+      .from('project_participants')
+      .select('member_id, project_code, projects(start_date)')
+      .eq('is_cover', true)
+      .eq('status', 'ACTIVE')
+
+    if (coverParticipants && coverParticipants.length > 0) {
+      for (const cp of coverParticipants) {
+        const projectData = Array.isArray(cp.projects) ? cp.projects[0] : cp.projects
+        const startDate = new Date((projectData as any)?.start_date)
+        const deadline = new Date(startDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+        if (now < deadline) continue
+
+        const { data: coverPost } = await supabase
+          .from('posts')
+          .select('id')
+          .ilike('project_code', cp.project_code)
+          .eq('member_id', cp.member_id)
+          .eq('is_cover', true)
+          .maybeSingle()
+
+        if (!coverPost) {
+          const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+          await supabase.from('participants').update({ cover_penalty_until: penaltyUntil }).eq('id', cp.member_id)
+          await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', cp.project_code).eq('member_id', cp.member_id)
+
+          const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(cp.member_id))
+          if (tokens && tokens.length > 0) {
+            await fetch('https://app.doubleb.kr/api/push', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: '⚠️ 커버영상 미업로드 패널티',
+                body: '15일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
+                tokens: tokens.map((t: any) => t.token),
+                userIds: [String(cp.member_id)]
+              })
+            })
+          }
+        }
+      }
+    }
+
     // BANNED 자동 해제
     const { data: bannedParticipants } = await supabase
       .from('participants')
