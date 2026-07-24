@@ -79,9 +79,10 @@ export default function Page3() {
   }, [])
 
   useEffect(() => {
-    if (window.location.hash === '#stats') {
+    const savedTab = sessionStorage.getItem('clientTab')
+    if (savedTab === 'stats') {
       setActiveTab('stats')
-      window.history.replaceState(null, '', window.location.pathname)
+      sessionStorage.removeItem('clientTab')
     }
   }, [])
 
