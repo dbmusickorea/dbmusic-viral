@@ -20,7 +20,7 @@ if (!getApps().length) {
 }
 
 export async function POST(request: NextRequest) {
-  const { title, body, tokens, userIds, saveToRole } = await request.json()
+  const { title, body, tokens, userIds, saveToRole, data } = await request.json()
 
   if (!title || !body) {
     return NextResponse.json({ error: 'title, body required' }, { status: 400 })
@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       notification.alert = { title, body }
       notification.sound = 'default'
       notification.badge = 1
+      notification.payload = data ?? {}
       notification.topic = 'com.dbmusic.viral'
 
       for (const token of iosTokens) {
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
         const result = await getMessaging().send({
           token,
           notification: { title, body },
+          data: data ? Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])) : {},
           android: {
             notification: {
               sound: 'default',

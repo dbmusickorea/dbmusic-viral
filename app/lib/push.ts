@@ -31,6 +31,12 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
 
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
       console.log('알림 클릭:', action)
+      const data = action.notification.data
+      if (data?.url) {
+        window.location.href = data.url
+      } else if (data?.page) {
+        window.location.href = data.page
+      }
     })
   } catch (error) {
     console.log('푸시 알림 초기화 실패:', error)
