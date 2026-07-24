@@ -75,17 +75,14 @@ export default function Page3() {
         ]) : role === 'admin' ? fetchAllProjects() : Promise.resolve()
       ])
     }
+    loadData()
+  }, [])
+
+  useEffect(() => {
     if (window.location.hash === '#stats') {
       setActiveTab('stats')
       window.history.replaceState(null, '', window.location.pathname)
     }
-    loadData().then(() => {
-      const savedTab = localStorage.getItem('clientTab')
-      if (savedTab === 'stats') {
-        setActiveTab('stats')
-        localStorage.removeItem('clientTab')
-      }
-    })
   }, [])
 
 
