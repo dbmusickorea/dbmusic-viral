@@ -550,7 +550,7 @@ export async function GET() {
       for (const r of approvedCoverRequests) {
         // 미션 시작일로부터 15일 체크
         const startDate = new Date(r.projects?.start_date)
-        const deadline = new Date(startDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+        const deadline = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000)
         if (now < deadline) continue  // 아직 15일 안 지남
 
         // 커버영상 올렸는지 확인
@@ -595,7 +595,7 @@ export async function GET() {
       for (const cp of coverParticipants) {
         const projectData = Array.isArray(cp.projects) ? cp.projects[0] : cp.projects
         const startDate = new Date((projectData as any)?.start_date)
-        const deadline = new Date(startDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+        const deadline = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000)
         if (now < deadline) continue
 
         const { data: coverPost } = await supabase

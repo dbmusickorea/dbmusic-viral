@@ -294,11 +294,13 @@ export default function CoverPage() {
                             {userRole === 'client' && (
                               <div>
                                 {!request ? (
-                                  selectedProject?.status === 'ONGOING' && !coverAddApproved ? (
-                                    <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">미션 진행중</span>
-                                  ) : (
-                                    <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
-                                  )
+                                  (() => {
+                                    const daysSinceStart = Math.floor((new Date().getTime() - new Date(selectedProject?.start_date).getTime()) / (1000 * 60 * 60 * 24))
+                                    if (selectedProject?.status === 'ONGOING' && !coverAddApproved && daysSinceStart >= 3) {
+                                      return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">선택 마감</span>
+                                    }
+                                    return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                                  })()
                                 ) : request.status === 'PENDING' ? (
                                   <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
                                 ) : request.status === 'APPROVED' ? (

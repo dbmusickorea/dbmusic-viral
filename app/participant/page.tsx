@@ -530,12 +530,12 @@ useEffect(() => {
   const handleJoin = async () => {
     if (!projectCode || !userInfo) return
     
-    const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
+    const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     const deadline48 = new Date(new Date(projectInfo?.start_date).getTime() + 48 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     
     const joinConfirmed = confirm(
       joinAsCover
-        ? `커버 참여로 신청하시겠어요?\n\n⚠️ 미션 시작일로부터 15일 이내(${deadline15}까지) 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
+        ? `커버 참여로 신청하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내(${deadline15}까지) 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
         : `프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내(${deadline48}까지) 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
     )
     if (!joinConfirmed) return
@@ -1363,7 +1363,7 @@ useEffect(() => {
                                           <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder={isProjectCoverApproved ? '커버영상 링크 입력' : `게시글 주소 ${existingPosts.length + 1}차`} />
                                         )}
                                         {isProjectCoverApproved && existingPosts.length === 0 && (
-                                          <p className="text-xs text-purple-600 mt-1">⚠️ 커버 승인자는 커버영상 1개만 제출합니다. 미션 시작일로부터 15일 내 업로드해주세요.</p>
+                                          <p className="text-xs text-purple-600 mt-1">⚠️ 커버 승인자는 커버영상 1개만 제출합니다. 미션 시작일로부터 7일 내 업로드해주세요.</p>
                                         )}
                                       </>
                                     )
