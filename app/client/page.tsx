@@ -53,6 +53,7 @@ export default function Page3() {
   const [newArtistName, setNewArtistName] = useState('')
   const [showSidebar, setShowSidebar] = useState(false)
   const [ytAudioCount, setYtAudioCount] = useState<number | null>(null)
+  const [requestCategory, setRequestCategory] = useState('')
   const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -695,9 +696,19 @@ export default function Page3() {
                 {showRequestForm && (
                   <div className="space-y-3 mb-4 border-b pb-4">
                     <div>
-                      <label className="text-sm font-medium">제목</label>
-                      <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
+                      <label className="text-sm font-medium">문의 유형</label>
+                      <select value={requestCategory} onChange={(e) => { setRequestCategory(e.target.value); if (e.target.value !== '기타 문의') setRequestTitle(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                        <option value="">선택해주세요</option>
+                        <option value="커버 체험단 추가 요청">커버 체험단 추가 요청</option>
+                        <option value="기타 문의">기타 문의</option>
+                      </select>
                     </div>
+                    {requestCategory === '기타 문의' && (
+                      <div>
+                        <label className="text-sm font-medium">제목</label>
+                        <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
+                      </div>
+                    )}
                     <div>
                       <label className="text-sm font-medium">내용</label>
                       <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="문의 내용을 입력해주세요" />
