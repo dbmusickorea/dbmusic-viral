@@ -1718,19 +1718,25 @@ useEffect(() => {
                                           <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">커버참여중 🎵</span>
                                         ) : alreadyCoverRequested ? (
                                           <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>
-                                        ) : !coverFull ? (
-                                          <button onClick={async () => {
-                                            if (!confirm('커버 신청 의사를 밝히시겠어요? 의뢰인이 확인 후 선택할 수 있어요.')) return
-                                            await fetch(`/api/project_participants?project_code=${projectInfo.project_code}&member_id=${userInfo?.id}`, {
-                                              method: 'PATCH',
-                                              headers: { 'Content-Type': 'application/json' },
-                                              body: JSON.stringify({ cover_requested: true })
-                                            })
-                                            alert('커버 신청 의사가 전달됐어요!')
-                                            const info = localStorage.getItem('userInfo')
-                                            if (info) fetchMyParticipations(JSON.parse(info).id)
-                                          }} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">커버 신청</button>
-                                        ) : null
+                                        ) : coverFull ? null : (() => {
+                                            const daysSinceStart = projectInfo?.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
+                                            const coverClosed = projectInfo?.start_date && new Date() >= new Date(projectInfo.start_date) && daysSinceStart >= 3
+                                            return coverClosed ? (
+                                              <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">커버 신청 마감</span>
+                                            ) : (
+                                              <button onClick={async () => {
+                                                if (!confirm('커버 신청 의사를 밝히시겠어요? 의뢰인이 확인 후 선택할 수 있어요.')) return
+                                                await fetch(`/api/project_participants?project_code=${projectInfo.project_code}&member_id=${userInfo?.id}`, {
+                                                  method: 'PATCH',
+                                                  headers: { 'Content-Type': 'application/json' },
+                                                  body: JSON.stringify({ cover_requested: true })
+                                                })
+                                                alert('커버 신청 의사가 전달됐어요!')
+                                                const info = localStorage.getItem('userInfo')
+                                                if (info) fetchMyParticipations(JSON.parse(info).id)
+                                              }} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">커버 신청</button>
+                                            )
+                                          })()
                                       )}
                                     </>
                                   )
