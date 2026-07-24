@@ -75,18 +75,14 @@ export default function Page3() {
         ]) : role === 'admin' ? fetchAllProjects() : Promise.resolve()
       ])
     }
-    loadData()
+    loadData().then(() => {
+      const savedTab = sessionStorage.getItem('clientTab')
+      if (savedTab === 'stats') {
+        setActiveTab('stats')
+        sessionStorage.removeItem('clientTab')
+      }
+    })
   }, [])
-
-  useEffect(() => {
-    const savedTab = sessionStorage.getItem('clientTab')
-    if (savedTab === 'stats') {
-      setActiveTab('stats')
-      sessionStorage.removeItem('clientTab')
-    }
-  }, [])
-
-
 
   const fetchRequests = async (clientId: string) => {
     const res = await fetch(`/api/client_requests?client_id=${clientId}`)
