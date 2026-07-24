@@ -11,6 +11,13 @@ export default function LoginPage() {
   const router = useRouter()
 
   useEffect(() => {
+    // localStorage에서 추천인 코드 읽기 (다운로드 페이지에서 저장된 경우)
+    const savedRef = localStorage.getItem('referralCode')
+    if (savedRef) {
+      setPReferral(savedRef)
+      setShowSignup(true)
+      localStorage.removeItem('referralCode')
+    }
     // 저장된 아이디 불러오기
     const savedEmail = localStorage.getItem('savedEmail')
     const savedAutoLogin = localStorage.getItem('autoLogin')

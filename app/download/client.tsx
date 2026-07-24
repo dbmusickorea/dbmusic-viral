@@ -4,6 +4,10 @@ import { useEffect } from 'react'
 
 export default function DownloadClient() {
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    if (ref) localStorage.setItem('referralCode', ref)
+    
     const userAgent = navigator.userAgent.toLowerCase()
     if (/iphone|ipad|ipod/.test(userAgent)) {
       window.location.href = 'https://apps.apple.com/kr/app/id6787446365'
