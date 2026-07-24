@@ -28,7 +28,7 @@ async function updatePostStats(posts: any[]) {
         await new Promise(resolve => setTimeout(resolve, 1000))
 
       } else if (post.platform === 'youtube') {
-        const videoId = post.post_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1]
+        const videoId = post.post_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
         if (!videoId) continue
         const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
         const data = await res.json()
