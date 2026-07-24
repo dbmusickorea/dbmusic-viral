@@ -26,6 +26,20 @@ export default function LoginPage() {
       setSignupType('participant')
     }
 
+    // 딥링크 처리
+    if ((window as any).Capacitor) {
+      import('@capacitor/app').then(({ App }) => {
+        App.addListener('appUrlOpen', (event) => {
+          const url = new URL(event.url)
+          const ref = url.searchParams.get('ref')
+          if (ref) {
+            setPReferral(ref)
+            setShowSignup(true)
+          }
+        })
+      })
+    }
+
     // 자동 로그인 체크
     const checkSession = async () => {
       if (savedAutoLogin !== 'true') return
