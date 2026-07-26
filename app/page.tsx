@@ -9,6 +9,8 @@ import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
+  const [updateStoreUrl, setUpdateStoreUrl] = useState('')
 
   useEffect(() => {
     // 앱 버전 체크
@@ -24,10 +26,8 @@ export default function LoginPage() {
           const storeUrl = platform === 'ios' 
             ? 'https://apps.apple.com/kr/app/id6787446365'
             : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
-          if (confirm('새 버전이 출시됐어요! 지금 업데이트하시겠어요?')) {
-            const { Browser } = await import('@capacitor/browser')
-            await Browser.open({ url: storeUrl })
-          }
+          setUpdateStoreUrl(storeUrl)
+          setShowUpdateModal(true)
         }
       })
     }
@@ -563,6 +563,23 @@ export default function LoginPage() {
   }
 
   return (
+    <>
+      {showUpdateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-xs text-center shadow-xl">
+            <p className="text-3xl mb-3">🎵</p>
+            <h2 className="text-lg font-bold mb-2">업데이트 안내</h2>
+            <p className="text-sm text-gray-500 mb-6">새 버전이 출시됐어요!<br/>더 나은 기능을 위해 업데이트해 주세요.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowUpdateModal(false)} className="flex-1 border rounded-xl py-2.5 text-sm text-gray-500">나중에</button>
+              <button onClick={async () => {
+                const { Browser } = await import('@capacitor/browser')
+                await Browser.open({ url: updateStoreUrl })
+              }} className="flex-1 bg-blue-600 text-white rounded-xl py-2.5 text-sm font-medium">업데이트</button>
+            </div>
+          </div>
+        </div>   
+      )}
     <div className={`min-h-screen flex flex-col items-center bg-gray-50 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       
       {/* 개인정보 동의 모달 */}
@@ -802,5 +819,6 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+    </> 
   )
 }
