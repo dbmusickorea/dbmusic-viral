@@ -45,7 +45,7 @@ export default function Page3() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [myProjectPage, setMyProjectPage] = useState(0)
   const [allProjectPage, setAllProjectPage] = useState(0)
-  const [activeTab, setActiveTab] = useState<'project' | 'stats'>(() => {
+  const [activeTab, setActiveTab] = useState<'project' | 'stats' | 'apply'>(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('clientTab')
       if (saved) {
@@ -68,6 +68,12 @@ export default function Page3() {
   const PAGE_SIZE = 5
   const router = useRouter()
   const { showToast } = useToast()
+  const [applyArtistName, setApplyArtistName] = useState('')
+  const [applySongTitle, setApplySongTitle] = useState('')
+  const [applyHasCover, setApplyHasCover] = useState(false)
+  const [applyCoverCount, setApplyCoverCount] = useState(0)
+  const [applyRequirements, setApplyRequirements] = useState('')
+  const [applyMissionDate, setApplyMissionDate] = useState('')
 
   useEffect(() => {
     if ((window as any).Capacitor) {
@@ -390,6 +396,7 @@ export default function Page3() {
             <div className="space-y-2 flex-1">
               <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📋 프로젝트</button>
               <button onClick={() => { setActiveTab('stats'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'stats' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📊 현황</button>
+              <button onClick={() => { setActiveTab('apply'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'apply' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📝 프로젝트 신청</button>
               <button onClick={() => { router.push('/client-mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 마이페이지</button>
             </div>
             <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
@@ -1047,6 +1054,67 @@ export default function Page3() {
             )}
           </div>
         </div>
+        {/* 프로젝트 신청 탭 */}
+        <div className={`${activeTab === 'apply' ? 'block' : 'hidden'}`}>
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-4">📝 프로젝트 신청</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">가수명/아티스트명</label>
+                <input value={applyArtistName} onChange={(e) => setApplyArtistName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="가수명 또는 아티스트명 입력" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">노래 제목</label>
+                <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="노래 제목 입력" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">희망 미션 시작일 (음원 발매일)</label>
+                <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input type="checkbox" checked={applyHasCover} onChange={(e) => setApplyHasCover(e.target.checked)} />
+                  커버 옵션 추가
+                </label>
+                {applyHasCover && (
+                  <div className="mt-2">
+                    <label className="text-sm font-medium">커버 인원</label>
+                    <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버 인원 수 입력" min={1} />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="text-sm font-medium">요청사항</label>
+                <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
+              </div>
+              <button onClick={async () => {
+                if (!applyArtistName || !applySongTitle) { showToast('가수명과 노래 제목을 입력해주세요.', 'error'); return }
+                await fetch('/api/project_applications', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    client_id: userInfo?.client_id,
+                    client_name: userInfo?.name,
+                    artist_name: applyArtistName,
+                    song_title: applySongTitle,
+                    mission_date: applyMissionDate,
+                    has_cover: applyHasCover,
+                    cover_count: applyCoverCount,
+                    requirements: applyRequirements,
+                    status: 'PENDING'
+                  })
+                })
+                showToast('프로젝트 신청이 완료됐어요!')
+                setApplyArtistName('')
+                setApplySongTitle('')
+                setApplyMissionDate('')
+                setApplyHasCover(false)
+                setApplyCoverCount(0)
+                setApplyRequirements('')
+              }} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
+            </div>
+          </div>
+        </div>
       </div>
     {/* 스크롤 상단 버튼 */}
       <button
@@ -1064,6 +1132,10 @@ export default function Page3() {
         <button onClick={() => setActiveTab('stats')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>
           <span className="text-lg mb-0.5">📊</span>
           현황
+        </button>
+        <button onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
+          <span className="text-lg mb-0.5">📝</span>
+          신청
         </button>
         <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
           <span className="text-lg mb-0.5">👤</span>
