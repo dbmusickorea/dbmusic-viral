@@ -1037,14 +1037,19 @@ useEffect(() => {
               )}
             </div>
           )}
-          <Header href="/participant" onMenuClick={() => setShowSidebar(true)} />
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
               <div>
                 <p className="text-xs text-gray-500">안녕하세요</p>
                 <h1 className="text-lg font-bold">{influencerName || userInfo?.name}님 👋</h1>
               </div>
             </div>
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-6 cursor-pointer" onClick={() => router.push('/participant')} />
             <div className="relative">
               <button onClick={() => { 
                 if (showNotifications) {
