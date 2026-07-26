@@ -513,6 +513,7 @@ export default function Page3() {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-sm font-medium">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
+                </div>
 
                 {myProjects.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
