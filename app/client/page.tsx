@@ -8,6 +8,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
+import { useToast } from '../../components/ToastContext'
 
 export default function Page3() {
   const [userInfo, setUserInfo] = useState<any>(null)
@@ -67,6 +68,7 @@ export default function Page3() {
   const postsRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
+  const { showToast } = useToast()
 
   useEffect(() => {
     if ((window as any).Capacitor) {
@@ -109,7 +111,7 @@ export default function Page3() {
   }
 
   const handleSubmitRequest = async () => {
-    if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
+    if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
     const res = await fetch('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -123,8 +125,8 @@ export default function Page3() {
         project_code: projectInfo?.project_code ?? null
       })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
-    alert('✅ 프로젝트 문의가 등록됐어요!')
+    if (!res.ok) { showToast('등록 실패!'); return }
+    showToast('✅ 프로젝트 문의가 등록됐어요!')
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
@@ -279,7 +281,7 @@ export default function Page3() {
         email: userInfo?.email,
         password: myCurrentPassword
       })
-      if (authError) { alert('기존 비밀번호가 틀렸어요.'); return }
+      if (authError) { showToast('기존 비밀번호가 틀렸어요.'); return }
       await supabase.auth.updateUser({ password: myPassword })
     }
     const updateData: any = {
@@ -291,11 +293,11 @@ export default function Page3() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
     })
-    if (!res.ok) { alert('수정 실패!'); return }
+    if (!res.ok) { showToast('수정 실패!'); return }
     const updated = { ...userInfo, name: myName, company: myCompany, artist: myArtist, phone: myPhone, mobile: myMobile }
     localStorage.setItem('userInfo', JSON.stringify(updated))
     setUserInfo(updated)
-    alert('정보 수정 완료!')
+    showToast('정보 수정 완료!')
     setShowMyInfo(false)
     setMyPassword('')
     setMyCurrentPassword('')
@@ -609,7 +611,7 @@ export default function Page3() {
                       await supabase.auth.signOut()
                       localStorage.removeItem('userInfo')
                       localStorage.removeItem('userRole')
-                      alert('계정이 삭제됐습니다.')
+                      showToast('계정이 삭제됐습니다.')
                       router.push('/')
                     }} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium">계정 삭제</button>
                   </div>
@@ -813,7 +815,7 @@ export default function Page3() {
                               document.body.removeChild(a)
                             }
                           } else {
-                            alert('아직 서명이 완료되지 않았어요.')
+                            showToast('아직 서명이 완료되지 않았어요.')
                           }
                         } finally {
                           btn.textContent = '📄 계약서 다운로드'
@@ -851,7 +853,7 @@ export default function Page3() {
                 <p className="text-sm font-medium text-blue-800 mb-2">📊 프로젝트 결과보고서</p>
                 <button onClick={() => {
                   window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')
-                  alert('상세 결과 보고서 작성을 원하시는 경우 문의하기로 요청하시면 2~3일 이내 발송됩니다.')
+                  showToast('상세 결과 보고서 작성을 원하시는 경우 문의하기로 요청하시면 2~3일 이내 발송됩니다.')
                 }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
                   📥 결과 요약 다운로드 (엑셀)
                 </button>

@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import { useToast } from '../../components/ToastContext'
 
 function ActivityDetail({ memberId }: { memberId: number }) {
   const [activityTab, setActivityTab] = useState<'missions' | 'points' | 'penalty'>('missions')
@@ -121,7 +122,7 @@ function ActivityDetail({ memberId }: { memberId: number }) {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
                     })
-                    alert('잠금 해제 완료!')
+                    showToast('잠금 해제 완료!')
                   }} className="text-xs bg-green-600 text-white rounded px-2 py-1">잠금 해제</button>
                 )}
               </div>
@@ -142,7 +143,7 @@ function ActivityDetail({ memberId }: { memberId: number }) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ banned_until: null, ban_reason: null })
                   })
-                  alert('밴 해제 완료!')
+                  showToast('밴 해제 완료!')
                 }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
               </div>
             </div>
@@ -161,7 +162,7 @@ function ActivityDetail({ memberId }: { memberId: number }) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cover_penalty_until: null })
                   })
-                  alert('커버 페널티 해제 완료!')
+                  showToast('커버 페널티 해제 완료!')
                 }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">페널티 해제</button>
               </div>
             </div>
@@ -306,6 +307,7 @@ export default function Page4() {
   const PAGE_SIZE = 10
 
   const router = useRouter()
+  const { showToast } = useToast()
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
@@ -366,7 +368,7 @@ export default function Page4() {
   }
 
   const handleInsert = async () => {
-    if (!name || !email || !mobile) { alert('이름, 이메일, 휴대전화는 필수입니다.'); return }
+    if (!name || !email || !mobile) { showToast('이름, 이메일, 휴대전화는 필수입니다.'); return }
     
     // 임시 비밀번호 생성
     const tempPassword = 'DB' + Math.random().toString(36).substring(2, 8).toUpperCase() + '!'
@@ -389,7 +391,7 @@ export default function Page4() {
     })
     if (authError) {
       const errorMsg = authError.message.includes('already registered') ? '이미 가입된 이메일이에요.' : authError.message
-      alert('계정 생성 실패! ' + errorMsg)
+      showToast('계정 생성 실패! ' + errorMsg)
       return
     }
 
@@ -405,7 +407,7 @@ export default function Page4() {
         referral_code: referralCode
       })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
+    if (!res.ok) { showToast('등록 실패!'); return }
 
     // 임시 비밀번호 SMS 발송
     await fetch('/api/sms', {
@@ -419,7 +421,7 @@ export default function Page4() {
       })
     })
 
-    alert(`등록 완료! 임시 비밀번호(${tempPassword})가 ${mobile}로 전송됐어요.`)
+    showToast(`등록 완료! 임시 비밀번호(${tempPassword})가 ${mobile}로 전송됐어요.`)
     fetchParticipants()
     clearForm()
   }
@@ -437,8 +439,8 @@ export default function Page4() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
     })
-    if (!res.ok) { alert('수정 실패!'); return }
-    alert('수정 완료!')
+    if (!res.ok) { showToast('수정 실패!'); return }
+    showToast('수정 완료!')
     fetchParticipants()
   }
 
@@ -467,8 +469,8 @@ export default function Page4() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_deleted: true, balance: 0 })
     })
-    if (!res.ok) { alert('삭제 실패!'); return }
-    alert('삭제 완료!')
+    if (!res.ok) { showToast('삭제 실패!'); return }
+    showToast('삭제 완료!')
     fetchParticipants()
     clearForm()
   }
@@ -495,7 +497,7 @@ export default function Page4() {
   }
 
   const handleInsertClient = async () => {
-    if (!newClientName || !newClientEmail || !newClientMobile) { alert('이름, 이메일, 휴대전화는 필수입니다.'); return }
+    if (!newClientName || !newClientEmail || !newClientMobile) { showToast('이름, 이메일, 휴대전화는 필수입니다.'); return }
     
     // 임시 비밀번호 생성
     const tempPassword = 'DB' + Math.random().toString(36).substring(2, 8).toUpperCase() + '!'
@@ -517,7 +519,7 @@ export default function Page4() {
     })
     if (authError) {
       const errorMsg = authError.message.includes('already registered') ? '이미 가입된 이메일이에요.' : authError.message
-      alert('계정 생성 실패! ' + errorMsg)
+      showToast('계정 생성 실패! ' + errorMsg)
       return
     }
 
@@ -531,7 +533,7 @@ export default function Page4() {
         role: 'client', client_id: clientId
       })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
+    if (!res.ok) { showToast('등록 실패!'); return }
 
     // 임시 비밀번호 SMS 발송
     await fetch('/api/sms', {
@@ -545,7 +547,7 @@ export default function Page4() {
       })
     })
 
-    alert(`등록 완료! 의뢰인 코드: ${clientId}\n임시 비밀번호(${tempPassword})가 ${newClientMobile}로 전송됐어요.`)
+    showToast(`등록 완료! 의뢰인 코드: ${clientId}\n임시 비밀번호(${tempPassword})가 ${newClientMobile}로 전송됐어요.`)
     setShowClientInsert(false)
     setNewClientName(''); setNewClientCompany(''); setNewClientArtist('')
     setNewClientPhone(''); setNewClientMobile(''); setNewClientEmail('')
@@ -564,7 +566,7 @@ export default function Page4() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
     })
-    if (!res.ok) { alert('수정 실패!'); return }
+    if (!res.ok) { showToast('수정 실패!'); return }
     if (cProjectCode && selectedClient.client_id) {
       await fetch(`/api/projects?project_code=${cProjectCode.toUpperCase()}`, {
         method: 'PATCH',
@@ -572,15 +574,15 @@ export default function Page4() {
         body: JSON.stringify({ client_id: selectedClient.client_id })
       })
     }
-    alert('수정 완료!')
+    showToast('수정 완료!')
     fetchClients()
   }
 
   const handleDeleteClient = async () => {
     if (!confirm('정말 삭제하시겠습니까?')) return
     const res = await fetch(`/api/users?id=${selectedClient.id}`, { method: 'DELETE' })
-    if (!res.ok) { alert('삭제 실패!'); return }
-    alert('삭제 완료!')
+    if (!res.ok) { showToast('삭제 실패!'); return }
+    showToast('삭제 완료!')
     fetchClients()
     clearClientForm()
   }
@@ -855,7 +857,7 @@ export default function Page4() {
                                 })
                               })
                             }
-                            alert('커버영상 승인 완료!')
+                            showToast('커버영상 승인 완료!')
                             fetchParticipants()
                           }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-xs font-medium">승인</button>
                           <button onClick={async () => {
@@ -878,7 +880,7 @@ export default function Page4() {
                                 })
                               })
                             }
-                            alert('승인 취소 완료!')
+                            showToast('승인 취소 완료!')
                             fetchParticipants()
                           }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-xs font-medium">승인취소</button>
                         </div>
@@ -903,7 +905,7 @@ export default function Page4() {
                                       })
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
                                       setSelected((prev: any) => ({...prev, [`${req.platform}_id`]: req.new_id}))
-                                      alert('승인됐어요!')
+                                      showToast('승인됐어요!')
                                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
                                     <button onClick={async () => {
                                       await fetch(`/api/sns_change_requests?id=${req.id}`, {
@@ -912,7 +914,7 @@ export default function Page4() {
                                         body: JSON.stringify({ status: 'REJECTED' })
                                       })
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'REJECTED'} : r))
-                                      alert('거절됐어요.')
+                                      showToast('거절됐어요.')
                                     }} className="flex-1 bg-gray-400 text-white rounded-lg py-1 text-xs">거절</button>
                                   </>
                                 ) : (

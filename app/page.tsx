@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { initPushNotifications } from './lib/push'
 import { Eye, EyeOff } from 'lucide-react'
+import { useToast } from '../components/ToastContext'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [updateStoreUrl, setUpdateStoreUrl] = useState('')
 
@@ -277,16 +279,16 @@ export default function LoginPage() {
   }
 
   const handleForgotPassword = async () => {
-    if (!forgotEmail) { alert('이메일을 입력해주세요.'); return }
+    if (!forgotEmail) { showToast('이메일을 입력해주세요.'); return }
     const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
       redirectTo: `${window.location.origin}/reset-password`
     })
-    if (error) { alert('이메일 발송 실패! 이메일 주소를 확인해주세요.'); return }
+    if (error) { showToast('이메일 발송 실패! 이메일 주소를 확인해주세요.'); return }
     setForgotSent(true)
   }
 
   const handleSendVerifyCode = async () => {
-    if (!p_mobile) { alert('휴대전화 번호를 입력해주세요.'); return }
+    if (!p_mobile) { showToast('휴대전화 번호를 입력해주세요.'); return }
     setPSending(true)
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     setPSentCode(code)
@@ -304,15 +306,15 @@ export default function LoginPage() {
     })
     const data = await response.json()
     if (data.success) {
-      alert('인증번호가 발송됐어요!')
+      showToast('인증번호가 발송됐어요!')
     } else {
-      alert('발송 실패! 번호를 확인해주세요.')
+      showToast('발송 실패! 번호를 확인해주세요.')
     }
     setPSending(false)
   }
 
   const handleSendVerifyCodeClient = async () => {
-    if (!c_mobile) { alert('휴대전화 번호를 입력해주세요.'); return }
+    if (!c_mobile) { showToast('휴대전화 번호를 입력해주세요.'); return }
     setCSending(true)
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     setCSentCode(code)
@@ -330,57 +332,57 @@ export default function LoginPage() {
     })
     const data = await response.json()
     if (data.success) {
-      alert('인증번호가 발송됐어요!')
+      showToast('인증번호가 발송됐어요!')
     } else {
-      alert('발송 실패! 번호를 확인해주세요.')
+      showToast('발송 실패! 번호를 확인해주세요.')
     }
     setCSending(false)
   }
 
   const handleVerifyCodeClient = () => {
     if (c_codeExpiry && Date.now() > c_codeExpiry) {
-      alert('인증번호가 만료됐어요. 다시 발송해주세요.')
+      showToast('인증번호가 만료됐어요. 다시 발송해주세요.')
       return
     }
     if (c_verifyCode === c_sentCode) {
       setCVerified(true)
-      alert('✅ 인증 완료!')
+      showToast('✅ 인증 완료!')
     } else {
-      alert('❌ 인증번호가 틀렸어요.')
+      showToast('❌ 인증번호가 틀렸어요.')
     }
   }
 
   const handleVerifyCode = () => {
     if (p_codeExpiry && Date.now() > p_codeExpiry) {
-      alert('인증번호가 만료됐어요. 다시 발송해주세요.')
+      showToast('인증번호가 만료됐어요. 다시 발송해주세요.')
       return
     }
     if (p_verifyCode === p_sentCode) {
       setPVerified(true)
-      alert('✅ 인증 완료!')
+      showToast('✅ 인증 완료!')
     } else {
-      alert('❌ 인증번호가 틀렸어요.')
+      showToast('❌ 인증번호가 틀렸어요.')
     }
   }
   const handleSignupParticipant = async () => {
-    if (!p_name || !p_email || !p_password) { alert('이름, 이메일, 비밀번호는 필수입니다.'); return }
-    if (isCoverPossible && !coverVideoUrl) { alert('커버영상 촬영 가능 선택 시 영상 링크를 입력해주세요.'); return }
-    if (p_password !== p_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
+    if (!p_name || !p_email || !p_password) { showToast('이름, 이메일, 비밀번호는 필수입니다.'); return }
+    if (isCoverPossible && !coverVideoUrl) { showToast('커버영상 촬영 가능 선택 시 영상 링크를 입력해주세요.'); return }
+    if (p_password !== p_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); return }
 
     // 이메일/전화번호 중복 체크
     const emailRes = await fetch(`/api/participants?email=${encodeURIComponent(p_email)}`)
     const emailData = await emailRes.json()
-    if (emailData && emailData.length > 0) { alert('이미 사용중인 이메일입니다.'); return }
+    if (emailData && emailData.length > 0) { showToast('이미 사용중인 이메일입니다.'); return }
     
     const mobileRes = await fetch(`/api/participants?mobile=${p_mobile}`)
     const mobileData = await mobileRes.json()
-    if (mobileData && mobileData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
+    if (mobileData && mobileData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
     
     const mobileURes = await fetch(`/api/users?mobile=${p_mobile}`)
     const mobileUData = await mobileURes.json()
-    if (mobileUData && mobileUData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
+    if (mobileUData && mobileUData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
 
-    if (!p_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
+    if (!p_verified) { showToast('휴대전화 인증을 완료해주세요.'); return }
 
     // SNS 팔로워 100명 이상 확인 (셋 중 하나라도 100명 이상이면 통과)
     let hasEnoughFollowers = false
@@ -419,7 +421,7 @@ export default function LoginPage() {
     }
 
     if ((p_instagram || p_youtube || p_tiktok) && !hasEnoughFollowers) {
-      alert('인스타그램/유튜브/틱톡 중 하나 이상 팔로워 100명 이상인 계정이 필요해요.')
+      showToast('인스타그램/유튜브/틱톡 중 하나 이상 팔로워 100명 이상인 계정이 필요해요.')
       return
     }
 
@@ -427,7 +429,7 @@ export default function LoginPage() {
       const referrerRes = await fetch(`/api/participants?referral_code=${p_referral}`)
       const referrerData = await referrerRes.json()
       const referrer = referrerData?.[0]
-      if (!referrer) { alert('유효하지 않은 추천인 코드입니다.'); return }
+      if (!referrer) { showToast('유효하지 않은 추천인 코드입니다.'); return }
       
       // 추천인에게 150원 적립 + 레벨 1 상승
       const newBalance = (referrer.balance ?? 0) + 150
@@ -469,7 +471,7 @@ export default function LoginPage() {
       email: p_email,
       password: p_password
     })
-    if (authError) { alert('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
+    if (authError) { showToast('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
     const res = await fetch('/api/participants', {
       method: 'POST',
@@ -490,7 +492,7 @@ export default function LoginPage() {
         referred_by: p_referral || null,
       })
     })
-    if (!res.ok) { alert('회원가입 실패!'); return }
+    if (!res.ok) { showToast('회원가입 실패!'); return }
     
     // 커버영상 신청 시 관리자에게 푸시
     if (isCoverPossible) {
@@ -510,27 +512,27 @@ export default function LoginPage() {
       }
     }
     
-    alert(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
+    showToast(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
   }
 
   const handleSignupClient = async () => {
-    if (!c_verified) { alert('휴대전화 인증을 완료해주세요.'); return }
-    if (!c_name || !c_email || !c_password) { alert('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
-    if (c_password !== c_passwordConfirm) { alert('비밀번호가 일치하지 않아요.'); return }
+    if (!c_verified) { showToast('휴대전화 인증을 완료해주세요.'); return }
+    if (!c_name || !c_email || !c_password) { showToast('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
+    if (c_password !== c_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); return }
     // 이메일/전화번호 중복 체크
     const emailRes = await fetch(`/api/users?email=${encodeURIComponent(c_email)}`)
     const emailData = await emailRes.json()
-    if (emailData && emailData.length > 0) { alert('이미 사용중인 이메일입니다.'); return }
+    if (emailData && emailData.length > 0) { showToast('이미 사용중인 이메일입니다.'); return }
     
     const mobileRes = await fetch(`/api/users?mobile=${c_mobile}`)
     const mobileData = await mobileRes.json()
-    if (mobileData && mobileData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
+    if (mobileData && mobileData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
     
     const mobilePRes = await fetch(`/api/participants?mobile=${c_mobile}`)
     const mobilePData = await mobilePRes.json()
-    if (mobilePData && mobilePData.length > 0) { alert('이미 사용중인 전화번호입니다.'); return }
+    if (mobilePData && mobilePData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
 
     let clientId = generateClientId()
     let isUnique = false
@@ -545,7 +547,7 @@ export default function LoginPage() {
       email: c_email,
       password: c_password
     })
-    if (authError) { alert('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
+    if (authError) { showToast('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
     const res = await fetch('/api/users', {
       method: 'POST',
@@ -556,8 +558,8 @@ export default function LoginPage() {
         role: 'client', client_id: clientId
       })
     })
-    if (!res.ok) { alert('회원가입 실패!'); return }
-    alert(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
+    if (!res.ok) { showToast('회원가입 실패!'); return }
+    showToast(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
   }

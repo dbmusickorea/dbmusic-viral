@@ -7,6 +7,7 @@ import { Bell } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
+import { useToast } from '../../components/ToastContext'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
@@ -85,6 +86,7 @@ export default function Page1() {
   const [showSidebar, setShowSidebar] = useState(false)
   const PAGE_SIZE = 5
   const router = useRouter()
+  const { showToast } = useToast()
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
@@ -152,7 +154,7 @@ export default function Page1() {
   }
 
   const handleApproveCover = async (post: any, type: string = 'long') => {
-    if (!coverRewardAmount) { alert('지급할 금액을 입력해주세요.'); return }
+    if (!coverRewardAmount) { showToast('지급할 금액을 입력해주세요.'); return }
     const reward = Number(coverRewardAmount)
     
     // 커버영상 승인 처리
@@ -193,7 +195,7 @@ export default function Page1() {
       })
     }
     
-    alert('승인 완료!')
+    showToast('승인 완료!')
     setCoverRewardAmount('')
     fetchCoverPosts()
   }
@@ -204,34 +206,34 @@ export default function Page1() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_status: 'REJECTED' })
     })
-    alert('거절 완료!')
+    showToast('거절 완료!')
     fetchCoverPosts()
   }
 
   const handleAddUnlockVideo = async () => {
-    if (!newUnlockUrl) { alert('URL을 입력해주세요.'); return }
+    if (!newUnlockUrl) { showToast('URL을 입력해주세요.'); return }
     const match = newUnlockUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)
     const videoId = match?.[1] ?? ''
-    if (!videoId) { alert('유효한 유튜브 URL을 입력해주세요.'); return }
+    if (!videoId) { showToast('유효한 유튜브 URL을 입력해주세요.'); return }
     const res = await fetch('/api/unlock_videos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ video_url: newUnlockUrl, video_id: extractVideoId(newUnlockUrl), title: '락 해제용 영상' })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
+    if (!res.ok) { showToast('등록 실패!'); return }
     setNewUnlockUrl('')
     fetchUnlockVideos()
-    alert('등록 완료!')
+    showToast('등록 완료!')
   }
 
   const handleAddProduct = async () => {
-    if (!newProduct) { alert('상품명을 입력해주세요.'); return }
+    if (!newProduct) { showToast('상품명을 입력해주세요.'); return }
     const res = await fetch('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newProduct, price: Number(newProductPrice) || 0 })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
+    if (!res.ok) { showToast('등록 실패!'); return }
     setNewProduct(''); setNewProductPrice('')
     fetchProducts()
   }
@@ -306,7 +308,7 @@ export default function Page1() {
   const handleCancelParticipation = async (participantId: number, name: string, memberId: number) => {
     const reason = prompt(`${name}님의 참여를 취소합니다.\n※ 제출한 게시물 삭제 및 포인트가 회수됩니다.\n\n취소 사유를 입력하세요:`)
     if (reason === null) return
-    if (!reason.trim()) { alert('취소 사유를 입력해주세요.'); return }
+    if (!reason.trim()) { showToast('취소 사유를 입력해주세요.'); return }
 
     const res = await fetch(`/api/project_participants?id=${participantId}`, { method: 'DELETE' })
     if (res.ok) {
@@ -348,13 +350,13 @@ export default function Page1() {
         }
       }
 
-      alert(`${name}님 참여취소 완료\n- 삭제된 게시물: ${result.postsDeleted}건\n- 회수 포인트: ${result.deducted?.toLocaleString() ?? 0}P\n- 푸시 알림 발송됨`)
+      showToast(`${name}님 참여취소 완료\n- 삭제된 게시물: ${result.postsDeleted}건\n- 회수 포인트: ${result.deducted?.toLocaleString() ?? 0}P\n- 푸시 알림 발송됨`)
       if (selectedProject) {
         fetchParticipants(selectedProject.project_code)
         fetchPosts(selectedProject.project_code)
       }
     } else {
-      alert('참여취소 실패')
+      showToast('참여취소 실패')
     }
   }
 
@@ -532,7 +534,7 @@ export default function Page1() {
   }
 
   const handleInsert = async () => {
-    if (!projectCode) { alert('프로젝트 코드를 입력해주세요.'); return }
+    if (!projectCode) { showToast('프로젝트 코드를 입력해주세요.'); return }
     
     // 이미지 업로드
     let uploadedImageUrl = ''
@@ -581,7 +583,7 @@ export default function Page1() {
         second_post_time: secondPostTime || null,
       })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
+    if (!res.ok) { showToast('등록 실패!'); return }
     if (selectedClientId) {
       await fetch(`/api/users?client_id=${selectedClientId}`, {
         method: 'PATCH',
@@ -631,7 +633,7 @@ export default function Page1() {
         }
       }
     }
-    alert('등록 완료!')
+    showToast('등록 완료!')
     fetchProjects()
     fetchClients()
     clearForm()
@@ -684,7 +686,7 @@ export default function Page1() {
         second_post_time: secondPostTime || null,
       })
     })
-    if (!res.ok) { alert('수정 실패!'); return }
+    if (!res.ok) { showToast('수정 실패!'); return }
     if (selectedClientId) {
       await fetch(`/api/users?client_id=${selectedClientId}`, {
         method: 'PATCH',
@@ -732,13 +734,13 @@ export default function Page1() {
       }
     }
 
-    alert('수정 완료!')
+    showToast('수정 완료!')
     fetchProjects()
     fetchClients()
   }
 
   const handleSendPush = async () => {
-    if (!pushTitle || !pushBody) { alert('제목과 내용을 입력해주세요.'); return }
+    if (!pushTitle || !pushBody) { showToast('제목과 내용을 입력해주세요.'); return }
     setIsSendingPush(true)
     
     const url = pushTarget === 'all' 
@@ -749,7 +751,7 @@ export default function Page1() {
     
     const res = await fetch(url)
     const tokens = await res.json()
-    if (!tokens || tokens.length === 0) { alert('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
+    if (!tokens || tokens.length === 0) { showToast('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
     
     const response = await fetch('/api/push', {
       method: 'POST',
@@ -764,11 +766,11 @@ export default function Page1() {
     })
     const data = await response.json()
     if (data.success) {
-      alert(`✅ 푸시 알림 발송 완료! ${tokens.length}명에게 발송됐어요.`)
+      showToast(`✅ 푸시 알림 발송 완료! ${tokens.length}명에게 발송됐어요.`)
       setPushTitle('')
       setPushBody('')
     } else {
-      alert('발송 실패!')
+      showToast('발송 실패!')
     }
     setIsSendingPush(false)
   }
@@ -831,13 +833,13 @@ export default function Page1() {
     }
 
     setIsUpdatingLikes(false)
-    alert('갱신 완료!')
+    showToast('갱신 완료!')
     fetchPosts(selectedProject.project_code)
   }
 
   const handleUpdateSingleLike = async (post: any) => {
     if (!['instagram', 'youtube', 'tiktok'].includes(post.platform)) {
-      alert('인스타그램/유튜브/틱톡 게시물만 갱신 가능해요!')
+      showToast('인스타그램/유튜브/틱톡 게시물만 갱신 가능해요!')
       return
     }
     setUpdatingPostId(post.id)
@@ -857,9 +859,9 @@ export default function Page1() {
           })
         })
         fetchPosts(selectedProject.project_code)
-        alert('갱신 완료!')
+        showToast('갱신 완료!')
       }
-    } catch { alert('갱신 실패!') }
+    } catch { showToast('갱신 실패!') }
     setUpdatingPostId(null)
   }
 
@@ -1195,7 +1197,7 @@ export default function Page1() {
                                     const pRes = await fetch(`/api/participants?name=${encodeURIComponent(participantName)}`)
                                     const pData = await pRes.json()
                                     const participant = pData?.[0]
-                                    if (!participant) { alert('체험단을 찾을 수 없어요.'); return }
+                                    if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
                                     await fetch('/api/cover_requests', {
                                       method: 'POST',
                                       headers: { 'Content-Type': 'application/json' },
@@ -1211,7 +1213,7 @@ export default function Page1() {
                                       headers: { 'Content-Type': 'application/json' },
                                       body: JSON.stringify({ status: 'APPROVED' })
                                     })
-                                    alert('커버 승인 완료!')
+                                    showToast('커버 승인 완료!')
                                     fetchClientRequests()
                                   }} className="text-xs bg-purple-500 text-white rounded px-2 py-1">커버승인</button>
                                 )}
@@ -1391,12 +1393,12 @@ export default function Page1() {
                   const joinedIds = await joinedRes.json()
                   const joinedSet = new Set(joinedIds?.map((j: any) => j.member_id))
                   const notJoined = allParticipants?.filter((p: any) => !joinedSet.has(p.id)) ?? []
-                  if (notJoined.length === 0) { alert('미참여자가 없어요.'); setIsSendingPush(false); return }
+                  if (notJoined.length === 0) { showToast('미참여자가 없어요.'); setIsSendingPush(false); return }
                   const tokensRes = await fetch(`/api/push_tokens?user_ids=${notJoined.map((p: any) => String(p.id)).join(',')}`)
                   const tokens = await tokensRes.json()
-                  if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
+                  if (!tokens || tokens.length === 0) { showToast('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
                   await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 새 프로젝트가 기다리고 있어요!', body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: notJoined.map((p: any) => String(p.id)) }) })
-                  alert(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
+                  showToast(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
                 }} disabled={isSendingPush} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">
                   {isSendingPush ? '발송 중...' : '미참여자에게 발송'}
@@ -1416,12 +1418,12 @@ export default function Page1() {
                     const joins = await joinRes.json()
                     if (!recentPost && joins.length === 0) inactive.push(p.id)
                   }
-                  if (inactive.length === 0) { alert('미활동자가 없어요.'); setIsSendingPush(false); return }
+                  if (inactive.length === 0) { showToast('미활동자가 없어요.'); setIsSendingPush(false); return }
                   const tokensRes = await fetch(`/api/push_tokens?user_ids=${inactive.map(id => String(id)).join(',')}`)
                   const tokens = await tokensRes.json()
-                  if (!tokens || tokens.length === 0) { alert('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
+                  if (!tokens || tokens.length === 0) { showToast('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
                   await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: inactive.map(id => String(id)) }) })
-                  alert(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
+                  showToast(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
                   setIsSendingPush(false)
                 }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">
                   {isSendingPush ? '발송 중...' : '미활동자에게 발송'}
@@ -1747,7 +1749,7 @@ export default function Page1() {
                         <>
                           <button onClick={handleUpdate} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2">정보 수정하기</button>
                           <button onClick={async () => {
-                            if (!selectedClientId) { alert('의뢰인을 선택해주세요.'); return }
+                            if (!selectedClientId) { showToast('의뢰인을 선택해주세요.'); return }
                             
                             // 총비용 계산
                             const totalCost = getTotalCost()
@@ -1773,7 +1775,7 @@ export default function Page1() {
                             const clientRes = await fetch(`/api/users?client_id=${selectedClientId}`)
                             const clientData = await clientRes.json()
                             const client = clientData?.[0]
-                            if (!client) { alert('의뢰인 정보를 찾을 수 없어요.'); return }
+                            if (!client) { showToast('의뢰인 정보를 찾을 수 없어요.'); return }
                             
                             const res = await fetch('/api/eformsign?action=send', {
                               method: 'POST',
@@ -1819,9 +1821,9 @@ export default function Page1() {
                                   })
                                 })
                               }
-                              alert('계약서 발송 완료!')
+                              showToast('계약서 발송 완료!')
                             } else {
-                              alert('계약서 발송 실패!')
+                              showToast('계약서 발송 실패!')
                             }
                           }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium">📄 계약서 발송</button>
                         </>
@@ -1928,7 +1930,7 @@ export default function Page1() {
                                   <a href={post.post_url} target="_blank" className="text-xs text-blue-500 block overflow-hidden text-ellipsis whitespace-nowrap">링크 보기 →</a>
                                   <button onClick={() => {
                                     const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                                    if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { alert('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
+                                    if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
                                   }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
                                   <p className="text-xs mt-1 flex items-center gap-2">
                                     <span className="flex items-center gap-1">

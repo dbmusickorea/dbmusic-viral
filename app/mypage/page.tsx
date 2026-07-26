@@ -6,6 +6,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
+import { useToast } from '../../components/ToastContext'
 
 export default function MyPage() {
   const router = useRouter()
@@ -40,6 +41,7 @@ export default function MyPage() {
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [referredUsers, setReferredUsers] = useState<any[]>([])
   const [appVersion, setAppVersion] = useState('0')
+  const { showToast } = useToast()
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -95,7 +97,7 @@ export default function MyPage() {
       const checkRes = await fetch(`/api/participants?id=${userInfo?.id}`)
       const checkData = await checkRes.json()
       if (checkData?.[0]?.password !== myCurrentPassword) {
-        alert('기존 비밀번호가 올바르지 않아요.')
+        showToast('기존 비밀번호가 올바르지 않아요.')
         return
       }
     }
@@ -127,7 +129,7 @@ export default function MyPage() {
         })
       }
     }
-    alert('정보 수정 완료!')
+    showToast('정보 수정 완료!')
     setMyPassword('')
     setMyCurrentPassword('')
     setIsEditing(false)
@@ -140,7 +142,7 @@ export default function MyPage() {
   }
 
   const handleSubmitRequest = async () => {
-    if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
+    if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
     const res = await fetch('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -153,8 +155,8 @@ export default function MyPage() {
         user_type: 'participant'
       })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
-    alert('✅ 문의가 등록됐어요!')
+    if (!res.ok) { showToast('등록 실패!'); return }
+    showToast('✅ 문의가 등록됐어요!')
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
@@ -222,7 +224,7 @@ export default function MyPage() {
             <div className="flex items-center gap-2">
               <p className="text-2xl font-bold text-blue-600">{referralCode}</p>
               <div className="flex gap-2 ml-auto">
-                <button onClick={() => { navigator.clipboard.writeText(referralCode); alert('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
+                <button onClick={() => { navigator.clipboard.writeText(referralCode); showToast('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
                 {(!((window as any).Capacitor) || appVersion >= '1.2') && (
                   <button onClick={async () => {
                     const { Share } = await import('@capacitor/share')
@@ -364,7 +366,7 @@ export default function MyPage() {
                           })
                         })
                       }
-                      alert('변경 요청이 접수됐어요. 관리자 승인 후 반영됩니다.')
+                      showToast('변경 요청이 접수됐어요. 관리자 승인 후 반영됩니다.')
                       setSnsChangeRequest(null)
                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">요청 제출</button>
                     <button onClick={() => setSnsChangeRequest(null)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm">취소</button>
@@ -466,7 +468,7 @@ export default function MyPage() {
                   await fetch(`/api/participants?id=${userInfo?.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '탈퇴회원', mobile: '', email: '', account_number: '', account_holder: '', bank_name: '', instagram_id: '', youtube_id: '', tiktok_id: '', is_deleted: true }) })
                   localStorage.removeItem('userInfo')
                   localStorage.removeItem('userRole')
-                  alert('계정이 삭제됐습니다.')
+                  showToast('계정이 삭제됐습니다.')
                   router.push('/')
                 }} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">삭제 확인</button>
               </div>

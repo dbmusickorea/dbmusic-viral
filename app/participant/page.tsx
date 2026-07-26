@@ -7,6 +7,7 @@ import { Bell } from 'lucide-react'
 import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import { useToast } from '../../components/ToastContext'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -44,6 +45,7 @@ export default function Page2() {
   const [projectsMap, setProjectsMap] = useState<any>({})
   const [showPosts, setShowPosts] = useState(false)
   const [postFilter, setPostFilter] = useState<'current' | 'all'>('current')
+  const { showToast } = useToast()
   const [isJoined, setIsJoined] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
   const [allProjects, setAllProjects] = useState<any[]>([])
@@ -198,7 +200,7 @@ useEffect(() => {
   }, [])
 
   const handleCommentVerify = async (videoId: string, projectCode: string) => {
-    if (!youtubeHandle) { alert('유튜브 계정명을 입력해주세요.'); return }
+    if (!youtubeHandle) { showToast('유튜브 계정명을 입력해주세요.'); return }
     
     setIsVerifying(true)
     try {
@@ -217,7 +219,7 @@ useEffect(() => {
           if (pData?.is_locked) {
             // 락 해제용 미션 저장 (중복 방지)
             const alreadyUnlock = commentMissions.find(m => m.video_id === videoId)
-            if (alreadyUnlock) { alert('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
+            if (alreadyUnlock) { showToast('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
             
             await fetch('/api/comment_missions', {
               method: 'POST',
@@ -241,7 +243,7 @@ useEffect(() => {
                 body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
               })
               setIsLocked(false)
-              alert('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
+              showToast('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
               
               // 관리자에게 푸시
               const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
@@ -265,13 +267,13 @@ useEffect(() => {
                 body: JSON.stringify({ comment_count_for_unlock: newCount })
               })
               setUnlockCommentCount(newCount)
-              alert(`✅ 댓글 인증 완료! (${newCount}/10)`)
+              showToast(`✅ 댓글 인증 완료! (${newCount}/10)`)
             }
           }
         } else {
           // 일반 댓글 미션 - 300원 적립
           const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
-          if (already) { alert('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
+          if (already) { showToast('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
           
           await fetch('/api/comment_missions', {
             method: 'POST',
@@ -294,13 +296,13 @@ useEffect(() => {
           })
           setBalance(newBalance)
           fetchCommentMissions(userInfo?.id)
-          alert('✅ 댓글 인증 완료! 300P가 적립됐어요!')
+          showToast('✅ 댓글 인증 완료! 300P가 적립됐어요!')
         }
       } else {
-        alert('❌ 댓글을 찾을 수 없어요. 유튜브 계정명을 다시 확인해주세요.')
+        showToast('❌ 댓글을 찾을 수 없어요. 유튜브 계정명을 다시 확인해주세요.')
       }
     } catch {
-      alert('인증 실패! 다시 시도해주세요.')
+      showToast('인증 실패! 다시 시도해주세요.')
     }
     setIsVerifying(false)
     setYoutubeHandle('')
@@ -567,20 +569,20 @@ useEffect(() => {
     
     // 락 여부 체크
     if (participantData?.is_locked) {
-      alert('계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!')
+      showToast('계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!')
       return
     }
 
     // 밴 여부 체크
     if (participantData?.banned_until && new Date(participantData.banned_until) > new Date()) {
       const banDate = new Date(participantData.banned_until).toLocaleDateString('ko-KR')
-      alert(`참여 제한 중이에요. ${banDate}까지 참여할 수 없어요.`)
+      showToast(`참여 제한 중이에요. ${banDate}까지 참여할 수 없어요.`)
       return
     }
 
     const maxP = projectInfo?.max_participants ?? 0
     if (maxP > 0 && participantCount >= maxP) {
-      alert('모집이 마감됐어요.')
+      showToast('모집이 마감됐어요.')
       return
     }
 
@@ -593,7 +595,7 @@ useEffect(() => {
         is_cover: joinAsCover
       })
     })
-    if (!res.ok) { alert('이미 참여하셨거나 오류가 발생했어요.'); return }
+    if (!res.ok) { showToast('이미 참여하셨거나 오류가 발생했어요.'); return }
     setIsJoined(true)
     setParticipantCount(prev => prev + 1)
     const info = localStorage.getItem('userInfo')
@@ -601,7 +603,7 @@ useEffect(() => {
       const parsed = JSON.parse(info)
       await fetchMyParticipations(parsed.id)
     }
-    alert('✅ 참여 완료!')
+    showToast('✅ 참여 완료!')
   }
 
   const getInstagramStats = async (url: string) => {
@@ -637,7 +639,7 @@ useEffect(() => {
   }
 
   const handleSubmit = async () => {
-    if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
+    if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
     const postsRes = await fetch(`/api/posts?project_code=${projectCode}&member_id=${userInfo?.id}`)
     const existingPosts = await postsRes.json()
@@ -645,11 +647,11 @@ useEffect(() => {
     
     const maxPosts = projectInfo?.required_posts ?? 1
     if (postCount >= maxPosts) {
-      alert(`이미 ${maxPosts}개의 게시물을 제출했어요. 더 이상 제출할 수 없어요.`)
+      showToast(`이미 ${maxPosts}개의 게시물을 제출했어요. 더 이상 제출할 수 없어요.`)
       setIsSubmitting(false)
       return
     }
-    if (!projectCode || postUrls.every(u => !u)) { alert('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
+    if (!projectCode || postUrls.every(u => !u)) { showToast('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     
     // 링크 유효성 검사
     const isValidUrl = (url: string) => {
@@ -660,13 +662,13 @@ useEffect(() => {
     }
     
     const validUrls = postUrls.filter(u => u.trim())
-    if (validUrls.some(u => !isValidUrl(u))) { alert('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
+    if (validUrls.some(u => !isValidUrl(u))) { showToast('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
 
     // URL 중복 체크
     const dupRes = await fetch(`/api/posts?post_url=${encodeURIComponent(validUrls[0])}`)
     const dupData = await dupRes.json()
     if (dupData && dupData.length > 0) {
-      alert('이미 다른 체험단이 제출한 링크예요. 본인의 게시물 링크를 입력해주세요.')
+      showToast('이미 다른 체험단이 제출한 링크예요. 본인의 게시물 링크를 입력해주세요.')
       return
     }
 
@@ -674,21 +676,21 @@ useEffect(() => {
     if (platform === 'instagram') {
       const followers = userInfo?.instagram_followers ?? 0
       if (followers < 100) {
-        alert('인스타그램 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
+        showToast('인스타그램 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
         return
       }
     }
     if (platform === 'youtube') {
       const subscribers = userInfo?.youtube_subscribers ?? 0
       if (subscribers < 100) {
-        alert('유튜브 구독자가 100명 미만이에요. 구독자 100명 이상인 채널만 미션 제출이 가능합니다.')
+        showToast('유튜브 구독자가 100명 미만이에요. 구독자 100명 이상인 채널만 미션 제출이 가능합니다.')
         return
       }
     }
     if (platform === 'tiktok') {
       const followers = userInfo?.tiktok_followers ?? 0
       if (followers < 100) {
-        alert('틱톡 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
+        showToast('틱톡 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
         return
       }
     }
@@ -703,7 +705,7 @@ useEffect(() => {
           const postOwner = igData?.user?.username?.toLowerCase()
           const myAccount = snsAccount.replace('@', '').toLowerCase()
           if (postOwner && postOwner !== myAccount) {
-            alert(`게시물 작성자(${postOwner})와 등록된 계정(${myAccount})이 일치하지 않아요. 본인 계정의 게시물만 제출 가능합니다.`)
+            showToast(`게시물 작성자(${postOwner})와 등록된 계정(${myAccount})이 일치하지 않아요. 본인 계정의 게시물만 제출 가능합니다.`)
             return
           }
         }
@@ -720,7 +722,7 @@ useEffect(() => {
           const channelTitle = ytData?.items?.[0]?.snippet?.channelTitle?.toLowerCase()
           const myAccount = snsAccount.replace('@', '').toLowerCase()
           if (channelTitle && !channelTitle.includes(myAccount) && !myAccount.includes(channelTitle)) {
-            alert(`게시물 채널(${channelTitle})과 등록된 계정(${myAccount})이 일치하지 않아요.`)
+            showToast(`게시물 채널(${channelTitle})과 등록된 계정(${myAccount})이 일치하지 않아요.`)
             return
           }
         }
@@ -737,7 +739,7 @@ useEffect(() => {
         const author = ttData?.data?.author?.unique_id?.toLowerCase()
         const myAccount = snsAccount.replace('@', '').toLowerCase()
         if (author && author !== myAccount) {
-          alert(`게시물 작성자(${author})와 등록된 계정(${myAccount})이 일치하지 않아요.`)
+          showToast(`게시물 작성자(${author})와 등록된 계정(${myAccount})이 일치하지 않아요.`)
           return
         }
       }
@@ -806,12 +808,12 @@ useEffect(() => {
       })
       setBalance(newBalance)
       if (isCover) {
-        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
+        showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
       } else {
-        alert(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉`)
+        showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉`)
       }
     } else {
-      alert(isCover ? '미션 제출 완료!\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.' : '미션 제출 완료!')
+      showToast(isCover ? '미션 제출 완료!\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.' : '미션 제출 완료!')
     }
     setIsCover(false)
 
@@ -843,7 +845,7 @@ useEffect(() => {
         email: userInfo?.email,
         password: myCurrentPassword
       })
-      if (authError) { alert('기존 비밀번호가 틀렸어요.'); return }
+      if (authError) { showToast('기존 비밀번호가 틀렸어요.'); return }
       await supabase.auth.updateUser({ password: myPassword })
     }
 
@@ -859,7 +861,7 @@ useEffect(() => {
         instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
       })
     })
-    if (!res.ok) { alert('수정 실패!'); return }
+    if (!res.ok) { showToast('수정 실패!'); return }
     
     const updated = { 
       ...userInfo, 
@@ -873,7 +875,7 @@ useEffect(() => {
       instagram: myInstagram, youtube: myYoutube, tiktok: myTiktok
     }))
     
-    alert('정보 수정 완료!')
+    showToast('정보 수정 완료!')
     setShowMyInfo(false)
     setMyCurrentPassword('')
     setMyPassword('')
@@ -1162,7 +1164,7 @@ useEffect(() => {
                                 <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                                 <button onClick={() => {
                                   const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                                  if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { alert('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
+                                  if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
                                 }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
                               </div>
                               <div className="text-right shrink-0 ml-2">
@@ -1293,7 +1295,7 @@ useEffect(() => {
                             }
                             setMyParticipations(prev => prev.map(mp => mp.project_code === p.project_code ? {...mp, status: 'CANCELLED'} : mp))
                             setSelectedParticipation(null)
-                            alert('참여가 취소됐어요.')
+                            showToast('참여가 취소됐어요.')
                           }} className="mt-2 w-full text-xs text-red-400 border border-red-200 rounded-lg py-1.5">참여 취소 (3시간 이내 가능)</button>
                         )}
                       </div>
@@ -1433,7 +1435,7 @@ useEffect(() => {
                                           <>
                                             <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className="w-full border border-purple-300 rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 링크 입력" />
                                             <button onClick={async () => {
-                                              if (!coverUrl) { alert('커버영상 링크를 입력해주세요.'); return }
+                                              if (!coverUrl) { showToast('커버영상 링크를 입력해주세요.'); return }
                                               setIsSubmittingCover(true)
                                               setIsCover(true)
                                               const savedUrl = postUrls[0]
@@ -1521,12 +1523,12 @@ useEffect(() => {
                                         <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
                                       </div>
                                       <button onClick={async () => {
-                                        if (!videoWatched) { alert('먼저 영상을 시청해주세요!'); return }
-                                        if (!projectLinks.length) { alert('등록된 영상이 없어요.'); return }
+                                        if (!videoWatched) { showToast('먼저 영상을 시청해주세요!'); return }
+                                        if (!projectLinks.length) { showToast('등록된 영상이 없어요.'); return }
                                         const selectedLink = projectLinks[selectedVideoIndex! - 1]
                                         const videoId = selectedLink?.video_id
                                         if (videoId) await handleCommentVerify(videoId, projectCode)
-                                        else alert('등록된 영상이 없어요.')
+                                        else showToast('등록된 영상이 없어요.')
                                       }} disabled={isVerifying || !videoWatched} className="w-full bg-orange-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">
                                         {isVerifying ? '인증 중...' : !videoWatched ? '영상 시청 후 인증 가능' : '댓글 인증 및 보상 받기'}
                                       </button>
@@ -1609,7 +1611,7 @@ useEffect(() => {
                       })
                     })
                   }
-                  alert('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.\n⚠️ 미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.')
+                  showToast('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.\n⚠️ 미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.')
                 }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
                 <button onClick={async () => {
                   await fetch(`/api/cover_requests?id=${r.id}`, {
@@ -1639,7 +1641,7 @@ useEffect(() => {
                       })
                     }
                   }
-                  alert('거절했어요.')
+                  showToast('거절했어요.')
                 }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-sm font-medium">거절</button>
               </div>
             </div>
@@ -1791,7 +1793,7 @@ useEffect(() => {
                                                   headers: { 'Content-Type': 'application/json' },
                                                   body: JSON.stringify({ cover_requested: true })
                                                 })
-                                                alert('커버 신청 의사가 전달됐어요!')
+                                                showToast('커버 신청 의사가 전달됐어요!')
                                                 const info = localStorage.getItem('userInfo')
                                                 if (info) fetchMyParticipations(JSON.parse(info).id)
                                               }} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">커버 신청</button>

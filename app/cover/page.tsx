@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
+import { useToast } from '../../components/ToastContext'
 
 export default function CoverPage() {
   const router = useRouter()
@@ -24,6 +25,7 @@ export default function CoverPage() {
   const [coverAddApproved, setCoverAddApproved] = useState(false)
   const [coverRequestedIds, setCoverRequestedIds] = useState<number[]>([])
   const [showSidebar, setShowSidebar] = useState(false)
+  const { showToast } = useToast()
 
   const getEmbedUrl = (url: string) => {
     if (!url) return ''
@@ -83,7 +85,7 @@ export default function CoverPage() {
       // 커버 옵션 선택한 프로젝트만
       const coverProjects = projects?.filter((p: any) => p.cover_video_count > 0) ?? []
       if (coverProjects.length === 0) {
-        alert('커버 옵션을 선택한 프로젝트가 없어요.')
+        showToast('커버 옵션을 선택한 프로젝트가 없어요.')
         router.push('/client')
         return
       }
@@ -100,23 +102,23 @@ export default function CoverPage() {
   }
 
   const handleSelectParticipant = async (participant: any) => {
-    if (!selectedProject) { alert('먼저 프로젝트를 선택해주세요.'); return }
+    if (!selectedProject) { showToast('먼저 프로젝트를 선택해주세요.'); return }
     
     // 미션 시작일 체크
     if (selectedProject.start_date && selectedProject.start_time) {
       const startDateTime = new Date(`${selectedProject.start_date}T${selectedProject.start_time}:00`)
       if (new Date() >= startDateTime) {
-        alert('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
+        showToast('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
         return
       }
     } else if (selectedProject.start_date && new Date() >= new Date(selectedProject.start_date)) {
-      alert('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
+      showToast('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
       return
     }
     
     // 이미 선택했는지 확인
     const existing = coverRequests.find(r => r.project_code === selectedProject.project_code && r.participant_id === participant.id)
-    if (existing) { alert('이미 선택된 체험단이에요.'); return }
+    if (existing) { showToast('이미 선택된 체험단이에요.'); return }
 
     const res = await fetch('/api/cover_requests', {
       method: 'POST',
@@ -146,7 +148,7 @@ export default function CoverPage() {
           })
         })
       }
-      alert('선택 완료! 체험단에게 알림을 보냈어요.')
+      showToast('선택 완료! 체험단에게 알림을 보냈어요.')
       loadCoverRequests(selectedProject.project_code)
     }
   }
@@ -295,7 +297,7 @@ export default function CoverPage() {
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ cover_deadline_extended: true })
                         })
-                        alert('커버 신청 기간이 연장됐어요!')
+                        showToast('커버 신청 기간이 연장됐어요!')
                         setSelectedProject({ ...selectedProject, cover_deadline_extended: true })
                       }} className="text-xs bg-yellow-500 text-white rounded px-2 py-1">연장하기</button>
                     </div>
@@ -403,7 +405,7 @@ export default function CoverPage() {
                 <p className="text-sm font-medium text-orange-700 mb-2">⚠️ 거절이 2회 발생했어요.</p>
                 <button onClick={async () => {
                   const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id))
-                  if (approvedParticipants.length === 0) { alert('알림 받을 체험단이 없어요.'); return }
+                  if (approvedParticipants.length === 0) { showToast('알림 받을 체험단이 없어요.'); return }
                   const ids = approvedParticipants.map(p => String(p.id))
                   const tokensRes = await fetch(`/api/push_tokens?user_ids=${ids.join(',')}`)
                   const tokens = await tokensRes.json()
@@ -419,7 +421,7 @@ export default function CoverPage() {
                       })
                     })
                   }
-                  alert('모집 푸시를 보냈어요!')
+                  showToast('모집 푸시를 보냈어요!')
                 }} className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium">
                   커버가능 체험단 전체에게 모집 푸시 보내기
                 </button>

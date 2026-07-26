@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, maskResident } from '../lib/crypto'
 import { RefreshCw, ArrowDown } from 'lucide-react'
+import { useToast } from '../../components/ToastContext'
 
 export default function Page5() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -19,6 +20,7 @@ export default function Page5() {
   const [decryptedResident, setDecryptedResident] = useState('')
   const [decryptedAccount, setDecryptedAccount] = useState('')
   const [memberPostPage, setMemberPostPage] = useState(0)
+  const { showToast } = useToast()
   const PAGE_SIZE = 5
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function Page5() {
         })
       })
     }
-    alert('승인 완료!')
+    showToast('승인 완료!')
     fetchSettlements()
     setSelected(null); setSelectedParticipant(null); setMemberPosts([]); setMemo('')
   }
@@ -109,7 +111,7 @@ export default function Page5() {
         })
       })
     }
-    alert('거절 완료!')
+    showToast('거절 완료!')
     fetchSettlements()
     setSelected(null); setSelectedParticipant(null); setMemberPosts([]); setMemo('')
   }
@@ -121,7 +123,7 @@ export default function Page5() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memo })
     })
-    alert('메모 저장 완료!')
+    showToast('메모 저장 완료!')
     fetchSettlements()
   }
 

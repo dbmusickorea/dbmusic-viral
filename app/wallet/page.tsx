@@ -6,6 +6,7 @@ import { encryptText } from '../lib/crypto'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
+import { useToast } from '../../components/ToastContext'
 
 const getLevelAmount = (base: number, level: number) => {
   if (level === 50) return 10000
@@ -45,6 +46,7 @@ export default function WalletPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [referredUsers, setReferredUsers] = useState<any[]>([])
+  const { showToast } = useToast()
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -102,26 +104,26 @@ export default function WalletPage() {
   }
 
   const handleExchange = async () => {
-    if (!agreedTax) { alert('개인정보 수집 및 원천징수에 동의해주세요.'); return }
-    if (isLocked) { alert('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
-    if (!exchangeAmount) { alert('신청 금액을 입력해주세요.'); return }
+    if (!agreedTax) { showToast('개인정보 수집 및 원천징수에 동의해주세요.'); return }
+    if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
+    if (!exchangeAmount) { showToast('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
-    if (amount < 10000) { alert('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
-    if (amount > availableBalance) { alert('환전 가능 금액을 초과합니다.'); return }
+    if (amount < 10000) { showToast('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
+    if (amount > availableBalance) { showToast('환전 가능 금액을 초과합니다.'); return }
 
     const participantRes = await fetch(`/api/participants?ids=${userInfo?.id}`)
     const participants = await participantRes.json()
     const participantData = participants?.[0]
 
     if (!participantData?.account_number || !participantData?.bank_name || !participantData?.account_holder) {
-      alert('계좌번호가 등록되지 않았어요. 마이페이지에서 계좌를 먼저 등록해주세요!')
+      showToast('계좌번호가 등록되지 않았어요. 마이페이지에서 계좌를 먼저 등록해주세요!')
       router.push('/mypage')
       return
     }
 
     if (participantData?.account_holder && participantData?.name) {
       if (participantData.account_holder !== participantData.name) {
-        alert('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
+        showToast('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
         return
       }
     }
@@ -141,7 +143,7 @@ export default function WalletPage() {
         user_ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown')
       })
     })
-    if (!settlementRes.ok) { alert('환전 신청 실패!'); return }
+    if (!settlementRes.ok) { showToast('환전 신청 실패!'); return }
 
     const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
@@ -158,7 +160,7 @@ export default function WalletPage() {
       })
     }
 
-    alert(`환전 신청 완료! ${netAmount.toLocaleString()}P (세후)가 신청됐어요.`)
+    showToast(`환전 신청 완료! ${netAmount.toLocaleString()}P (세후)가 신청됐어요.`)
     setExchangeAmount('')
     setAgreedTax(false)
     setResidentNumber('')

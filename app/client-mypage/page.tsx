@@ -8,6 +8,7 @@ import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useSearchParams } from 'next/navigation'
+import { useToast } from '../../components/ToastContext'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -35,6 +36,7 @@ export default function ClientMyPage() {
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
+  const { showToast } = useToast()
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -79,7 +81,7 @@ export default function ClientMyPage() {
         email: userInfo?.email,
         password: myCurrentPassword
       })
-      if (authError) { alert('기존 비밀번호가 틀렸어요.'); return }
+      if (authError) { showToast('기존 비밀번호가 틀렸어요.'); return }
       await supabase.auth.updateUser({ password: myPassword })
     }
     const updateData: any = {
@@ -91,18 +93,18 @@ export default function ClientMyPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
     })
-    if (!res.ok) { alert('수정 실패!'); return }
+    if (!res.ok) { showToast('수정 실패!'); return }
     const updated = { ...userInfo, ...updateData }
     localStorage.setItem('userInfo', JSON.stringify(updated))
     setUserInfo(updated)
-    alert('정보 수정 완료!')
+    showToast('정보 수정 완료!')
     setMyPassword('')
     setMyCurrentPassword('')
     setIsEditing(false)
   }
 
   const handleSubmitRequest = async () => {
-    if (!requestTitle || !requestContent) { alert('제목과 내용을 입력해주세요.'); return }
+    if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
     const res = await fetch('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -115,8 +117,8 @@ export default function ClientMyPage() {
         requested_posts: Number(requestedPosts)
       })
     })
-    if (!res.ok) { alert('등록 실패!'); return }
-    alert('✅ 문의가 등록됐어요!')
+    if (!res.ok) { showToast('등록 실패!'); return }
+    showToast('✅ 문의가 등록됐어요!')
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
@@ -302,7 +304,7 @@ export default function ClientMyPage() {
                   await supabase.auth.signOut()
                   localStorage.removeItem('userInfo')
                   localStorage.removeItem('userRole')
-                  alert('계정이 삭제됐습니다.')
+                  showToast('계정이 삭제됐습니다.')
                   router.push('/')
                 }} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">삭제 확인</button>
               </div>
