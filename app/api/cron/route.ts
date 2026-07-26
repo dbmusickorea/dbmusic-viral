@@ -259,7 +259,7 @@ export async function GET() {
       }
 
       // 미션 불이행 체크
-      const { data: missionDayProjects } = await supabase.from('projects').select('*').eq('start_date', today).eq('status', 'ONGOING')
+      const { data: missionDayProjects } = await supabase.from('projects').select('*').eq('status', 'ONGOING').not('start_date', 'is', null)
       if (missionDayProjects && missionDayProjects.length > 0) {
         for (const project of missionDayProjects) {
           if (!project.mission_time) continue
