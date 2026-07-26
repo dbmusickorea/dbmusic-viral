@@ -365,7 +365,7 @@ export default function CoverPage() {
                                 {!request ? (
                                   (() => {
                                     const daysSinceStart = Math.floor((new Date().getTime() - new Date(selectedProject?.start_date).getTime()) / (1000 * 60 * 60 * 24))
-                                    if (selectedProject?.status === 'ONGOING' && !coverAddApproved && daysSinceStart >= 3) {
+                                    if (selectedProject?.status === 'ONGOING' && !coverAddApproved && daysSinceStart >= 3 && !selectedProject?.cover_deadline_extended) {
                                       return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">선택 마감</span>
                                     }
                                     return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
