@@ -145,6 +145,12 @@ function ActivityDetail({ memberId }: { memberId: number }) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ banned_until: null, ban_reason: null })
                   })
+                  // project_participants status도 ACTIVE로 변경
+                  await fetch(`/api/project_participants?member_id=${memberId}&status=BANNED`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'ACTIVE' })
+                  })
                   showToast('밴 해제 완료!')
                 }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
               </div>
