@@ -16,21 +16,23 @@ export default function LoginPage() {
 
   useEffect(() => {
     // 앱 버전 체크
-    if ((window as any).Capacitor) {
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
       import('@capacitor/app').then(async ({ App }) => {
-        const { Capacitor } = await import('@capacitor/core')
-        const info = await App.getInfo()
-        const platform = Capacitor.getPlatform()
-        const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
-        const data = await res.json()
-        const minVersion = data?.value ?? '1.0'
-        if (info.version < minVersion) {
-          const storeUrl = platform === 'ios' 
-            ? 'https://apps.apple.com/kr/app/id6787446365'
-            : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
-          setUpdateStoreUrl(storeUrl)
-          setShowUpdateModal(true)
-        }
+        try {
+          const { Capacitor } = await import('@capacitor/core')
+          const info = await App.getInfo()
+          const platform = Capacitor.getPlatform()
+          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const data = await res.json()
+          const minVersion = data?.value ?? '1.0'
+          if (info.version < minVersion) {
+            const storeUrl = platform === 'ios' 
+              ? 'https://apps.apple.com/kr/app/id6787446365'
+              : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
+            setUpdateStoreUrl(storeUrl)
+            setShowUpdateModal(true)
+          }
+        } catch {}
       })
     }
     // localStorage에서 추천인 코드 읽기 (다운로드 페이지에서 저장된 경우)
