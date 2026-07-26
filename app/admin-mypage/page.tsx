@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import Sidebar from '../../components/Sidebar'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, RefreshCw } from 'lucide-react'
 
 export default function AdminMypagePage() {
   const router = useRouter()
@@ -20,6 +20,9 @@ export default function AdminMypagePage() {
   const [foundUser, setFoundUser] = useState<any>(null)
   const [appVersion, setAppVersion] = useState('0')
   const [minVersion, setMinVersion] = useState('0')
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -72,6 +75,15 @@ export default function AdminMypagePage() {
     setSearchEmail('')
   }
 
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    const info = localStorage.getItem('userInfo')
+    if (info) setUserInfo(JSON.parse(info))
+    setIsRefreshing(false)
+    setIsPulling(false)
+  }
+
   return (
     <>
       <Sidebar
@@ -87,7 +99,29 @@ export default function AdminMypagePage() {
         ]}
         onLogout={handleLogout}
       />
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen bg-gray-50 p-4"
+        onTouchStart={(e) => {
+          if (document.documentElement.scrollTop === 0) {
+            setPullStartY(e.touches[0].clientY)
+          } else {
+            setPullStartY(0)
+          }
+        }}
+        onTouchMove={(e) => {
+          if (pullStartY > 0 && e.touches[0].clientY - pullStartY > 60) {
+            setIsPulling(true)
+          }
+        }}
+        onTouchEnd={() => {
+          if (isPulling) handleRefresh()
+          else setPullStartY(0)
+        }}
+      >
+        {isPulling && (
+          <div className="flex justify-center py-2 text-xs text-gray-400">
+            <RefreshCw size={14} className="animate-spin mr-1" /> 새로고침 중...
+          </div>
+        )}
         <div className="max-w-lg mx-auto">
           <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
             <div className="flex items-center gap-3 mb-2">
@@ -178,8 +212,9 @@ export default function AdminMypagePage() {
               } catch {
                 window.open(storeUrl, '_blank')
               }
-            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3">🔄 업데이트 하기</button>
+            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
+          <hr className="my-3 border-gray-100" />
           {/* 로그아웃 */}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-3 bg-white mb-4">로그아웃</button>
         </div>

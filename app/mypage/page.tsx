@@ -475,8 +475,9 @@ export default function MyPage() {
               } catch {
                 window.open(storeUrl, '_blank')
               }
-            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3">🔄 업데이트 하기</button>
+            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
+          <hr className="my-3 border-gray-100" />
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
