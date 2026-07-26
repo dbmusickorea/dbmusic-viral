@@ -277,6 +277,9 @@ export default function CoverPage() {
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <div className="flex justify-center mb-2">
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+          </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
               <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">

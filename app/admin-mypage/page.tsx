@@ -124,6 +124,9 @@ export default function AdminMypagePage() {
         )}
         <div className="max-w-lg mx-auto">
           <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+            <div className="flex justify-center mb-2">
+              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+            </div>
             <div className="flex items-center gap-3 mb-2">
               <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

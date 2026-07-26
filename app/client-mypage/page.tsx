@@ -192,6 +192,9 @@ export default function ClientMyPage() {
             )}
           </div>
         )}
+        <div className="flex justify-center mb-2">
+          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
+        </div>
         <div className="max-w-lg mx-auto flex items-center gap-3">
           
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
