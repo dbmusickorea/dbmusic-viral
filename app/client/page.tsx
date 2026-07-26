@@ -78,7 +78,7 @@ export default function Page3() {
   const [showApplyModal, setShowApplyModal] = useState(false)
 
   useEffect(() => {
-    if ((window as any).Capacitor) {
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
       import('@capacitor/app').then(({ App }) => {
         App.getInfo().then(info => setAppVersion(info.version))
       }).catch(() => {})
@@ -388,7 +388,7 @@ export default function Page3() {
   return (
     <>
       {showApplyModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6 hidden md:flex">
+        <div className="fixed inset-0 bg-black/50 items-center justify-center z-50 p-6 hidden md:flex">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-bold text-lg">📝 프로젝트 신청</h2>
@@ -511,18 +511,17 @@ export default function Page3() {
         setIsPulling(false)
       }}
     >
-      <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-30 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
-          {(isPulling || isRefreshing) && (
-            <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
-              {isRefreshing ? (
-                <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
-              ) : (
-                <><ArrowDown size={14} /> 놓으면 새로고침</>
-              )}
-            </div>
-          )}
-          <div className="flex justify-center mb-2">
+      <div className="sticky top-0 z-30 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        {(isPulling || isRefreshing) && (
+          <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+            {isRefreshing ? (
+              <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+            ) : (
+              <><ArrowDown size={14} /> 놓으면 새로고침</>
+            )}
+          </div>
+        )}
+          <div className="flex justify-center mb-2 relative z-10">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
           </div>
           <div className="flex justify-between items-center mb-2">
@@ -594,7 +593,7 @@ export default function Page3() {
           )}
         </div>
 
-
+        <div className="max-w-7xl mx-auto">
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>

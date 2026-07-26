@@ -1000,7 +1000,7 @@ export default function Page1() {
               )}
             </div>
           )}
-          <div className="flex justify-center mb-2">
+          <div className="w-full flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
           </div>
           <div className="flex justify-between items-center mb-2">
