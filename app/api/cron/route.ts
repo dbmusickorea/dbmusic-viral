@@ -297,16 +297,18 @@ export async function GET() {
                 }
                 
                 const { data: allTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
-                if (allTokens && allTokens.length > 0) {
+                // 이미 참여중인 사람 제외
+                const joinedMemberIds = joinedParticipants.map((jp: any) => String(jp.member_id))
+                const filteredTokens = allTokens?.filter((t: any) => !joinedMemberIds.includes(String(t.user_id))) ?? []
+                if (filteredTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '🔔 추가 모집 공고!',
                       body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
-                      tokens: allTokens.map((t: any) => t.token),
-                      userIds: allTokens.map((t: any) => t.user_id),
-                      saveToRole: 'participant'
+                      tokens: filteredTokens.map((t: any) => t.token),
+                      userIds: filteredTokens.map((t: any) => t.user_id),
                     })
                   })
                 }
