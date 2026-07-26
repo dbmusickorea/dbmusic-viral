@@ -696,6 +696,12 @@ export default function Page4() {
                                 {p.cover_approved && (
                                   <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>
                                 )}
+                                {p.banned_until && new Date(p.banned_until) > new Date() && (
+                                  <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded">🚫 밴</span>
+                                )}
+                                {p.is_locked && (
+                                  <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">🔒 잠금</span>
+                                )}
                               </div>
                               <p className="text-xs text-gray-500">{p.email}</p>
                             </div>
