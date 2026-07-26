@@ -155,6 +155,7 @@ export default function Page5() {
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
+        onLogout={handleLogout}
         items={[
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin') },
           { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },

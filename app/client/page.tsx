@@ -468,7 +468,9 @@ export default function Page3() {
                 <button onClick={() => { router.push('/members'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 회원관리</button>
                 <button onClick={() => { router.push('/settlement'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">💰 정산</button>
                 <button onClick={() => { router.push('/cover'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">🎵 커버</button>
+                <button onClick={() => { router.push('/admin-mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 마이페이지</button>
               </div>
+              <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
             </div>
             <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
           </div>

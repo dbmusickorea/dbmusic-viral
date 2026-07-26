@@ -12,6 +12,11 @@ import AdminBottomNav from '../../components/AdminBottomNav'
 export default function CoverPage() {
   const router = useRouter()
   const [userRole, setUserRole] = useState('')
+  const handleLogout = () => {
+    localStorage.removeItem('userInfo')
+    localStorage.removeItem('userRole')
+    router.push('/')
+  }
   const [userInfo, setUserInfo] = useState<any>(null)
   const [coverParticipants, setCoverParticipants] = useState<any[]>([])
   const [projects, setProjects] = useState<any[]>([])
@@ -203,6 +208,7 @@ export default function CoverPage() {
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
+        onLogout={handleLogout}
         items={userRole === 'admin' ? [
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin') },
           { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },

@@ -961,6 +961,7 @@ export default function Page1() {
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
+        onLogout={handleLogout}
         items={[
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin'), active: true },
           { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
