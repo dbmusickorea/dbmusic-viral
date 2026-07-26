@@ -795,6 +795,17 @@ export default function Page3() {
                         btn.textContent = '다운로드 중...'
                         btn.disabled = true
                         try {
+                          // 서명 완료 여부 체크
+                          const statusRes = await fetch(`/api/eformsign?action=status&document_id=${projectInfo.document_id}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                          })
+                          const statusData = await statusRes.json()
+                          if (statusData.status !== 'doc_complete') {
+                            showToast('계약서 서명 후 다운로드 가능해요.', 'info')
+                            return
+                          }
                           const fileName = `${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`
                           const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(fileName)}`, {
                             method: 'POST',
