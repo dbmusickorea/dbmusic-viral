@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { decryptText, maskResident } from '../lib/crypto'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
+import AdminBottomNav from '../../components/AdminBottomNav'
+import Sidebar from '../../components/Sidebar'
 
 export default function Page5() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -14,6 +16,7 @@ export default function Page5() {
   const [memberPosts, setMemberPosts] = useState<any[]>([])
   const [memo, setMemo] = useState('')
   const router = useRouter()
+  const [showSidebar, setShowSidebar] = useState(false)
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -148,7 +151,19 @@ export default function Page5() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4"
+    <>
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        items={[
+          { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin') },
+          { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
+          { icon: '👤', label: '회원관리', onClick: () => router.push('/members') },
+          { icon: '💰', label: '정산', onClick: () => router.push('/settlement'), active: true },
+          { icon: '🎵', label: '커버', onClick: () => router.push('/cover') },
+        ]}
+      />
+      <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -178,13 +193,15 @@ export default function Page5() {
             </div>
           )}
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">정산 관리</h1>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold">정산 관리</h1>
+            </div>
             <button onClick={() => window.open('/api/settlement-excel', '_blank')} className="text-xs bg-green-600 text-white px-3 py-1 rounded-lg">📥 엑셀 다운로드</button>
-          </div>
-          <div className="flex gap-1">
-            <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
-            <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
-            <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
           </div>
         </div>
 
@@ -303,21 +320,8 @@ export default function Page5() {
         ↑
       </button>
       {/* 하단 탭바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">        
-        <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">🏢</span>의뢰인
-        </button>
-        <button onClick={() => router.push('/members')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">👤</span>회원관리
-        </button>
-        <button onClick={() => router.push('/settlement')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">💰</span>정산
-        </button>
-        <button onClick={() => router.push('/cover')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">🎵</span>커버
-        </button>
-      </div>
-      <div className="h-16 md:hidden" />
+      <AdminBottomNav active="settlement" />
     </div>
+    </>
   )
 }

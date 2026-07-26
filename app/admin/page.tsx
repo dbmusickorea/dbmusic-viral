@@ -8,6 +8,7 @@ import { RefreshCw, ArrowDown } from 'lucide-react'
 import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
+import AdminBottomNav from '../../components/AdminBottomNav'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
@@ -961,6 +962,7 @@ export default function Page1() {
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
         items={[
+          { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin'), active: true },
           { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
           { icon: '👤', label: '회원관리', onClick: () => router.push('/members') },
           { icon: '💰', label: '정산', onClick: () => router.push('/settlement') },
@@ -2043,21 +2045,7 @@ export default function Page1() {
         ↑
       </button>
       {/* 하단 탭바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">        
-        <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">🏢</span>의뢰인
-        </button>
-        <button onClick={() => router.push('/members')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">👤</span>회원관리
-        </button>
-        <button onClick={() => router.push('/settlement')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">💰</span>정산
-        </button>
-        <button onClick={() => router.push('/cover')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">🎵</span>커버
-        </button>
-      </div>
-      <div className="h-16 md:hidden" />
+      <AdminBottomNav active="admin" />
     </div>
     </>
   )
