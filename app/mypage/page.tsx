@@ -225,7 +225,7 @@ export default function MyPage() {
               <p className="text-2xl font-bold text-blue-600">{referralCode}</p>
               <div className="flex gap-2 ml-auto">
                 <button onClick={() => { navigator.clipboard.writeText(referralCode); showToast('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
-                {(!((window as any).Capacitor) || appVersion >= '1.2') && (
+                {(!(window as any).Capacitor?.isNativePlatform?.() || appVersion >= '1.2') && (
                   <button onClick={async () => {
                     const { Share } = await import('@capacitor/share')
                     await Share.share({
