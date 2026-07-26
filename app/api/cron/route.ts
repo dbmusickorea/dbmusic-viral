@@ -293,7 +293,6 @@ export async function GET() {
                     userIds: [String(participant.id)]
                   })
                 })
-                }
                 
                 const { data: allTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
                 // 이미 참여중인 사람 제외
