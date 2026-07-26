@@ -27,7 +27,6 @@ export default function Page3() {
   const [requestTitle, setRequestTitle] = useState('')
   const [requestContent, setRequestContent] = useState('')
   const [requestedPosts, setRequestedPosts] = useState('1')
-  const [showMyInfo, setShowMyInfo] = useState(false)
   const [myName, setMyName] = useState('')
   const [myCompany, setMyCompany] = useState('')
   const [myArtist, setMyArtist] = useState('')
@@ -259,20 +258,6 @@ export default function Page3() {
     setIsRefreshing(false)
   }
 
-  const loadMyInfo = async () => {
-    setMyName(userInfo?.name ?? '')
-    setMyCompany(userInfo?.company ?? '')
-    setMyArtist(userInfo?.artist ?? '')
-    setMyPhone(userInfo?.phone ?? '')
-    setMyMobile(userInfo?.mobile ?? '')
-    // 아티스트 목록 불러오기
-    if (userInfo?.client_id) {
-      const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
-      const data = await res.json()
-      setArtistList(data ?? [])
-    }
-    setShowMyInfo(true)
-  }
 
   const handleUpdateMyInfo = async () => {
     // 비밀번호 변경 시 기존 비밀번호 확인
@@ -298,7 +283,6 @@ export default function Page3() {
     localStorage.setItem('userInfo', JSON.stringify(updated))
     setUserInfo(updated)
     showToast('정보 수정 완료!')
-    setShowMyInfo(false)
     setMyPassword('')
     setMyCurrentPassword('')
   }
@@ -529,93 +513,6 @@ export default function Page3() {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-sm font-medium">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
-                  <button onClick={() => { 
-                    if (!showMyInfo) loadMyInfo(); 
-                    setShowMyInfo(!showMyInfo)
-                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100)
-                  }} className={`text-xs rounded px-2 py-1 ${showMyInfo ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'}`}>내 정보 보기</button>
-                </div>
-
-                {showMyInfo && (
-                  <div className="border-t pt-4 mb-4 space-y-3">
-                    <h3 className="font-bold text-sm">👤 내 정보 수정</h3>
-                    <div className="bg-gray-50 rounded-lg px-3 py-2">
-                      <p className="text-xs text-gray-500">로그인 아이디 (이메일)</p>
-                      <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
-                    </div>
-                    {[
-                      { label: '대표자명', value: myName, setter: setMyName },
-                      { label: '소속사명', value: myCompany, setter: setMyCompany },                      
-                      { label: '휴대전화', value: myMobile, setter: setMyMobile },
-                    ].map(({ label, value, setter }) => (
-                      <div key={label}>
-                        <label className="text-sm font-medium">{label}</label>
-                        <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-                      </div>
-                    ))}
-                    {/* 아티스트 목록 */}
-                    <div>
-                      <label className="text-sm font-medium">아티스트 목록</label>
-                      <div className="space-y-2 mt-1">
-                        {artistList.map((a) => (
-                          <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                            <span className="text-sm">{a.artist_name}</span>
-                            <button onClick={async () => {
-                              await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
-                              const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
-                              setArtistList(await res.json())
-                            }} className="text-xs text-red-400">삭제</button>
-                          </div>
-                        ))}
-                        <div className="flex gap-2">
-                          <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="아티스트명 입력" />
-                          <button onClick={async () => {
-                            if (!newArtistName) return
-                            await fetch('/api/artists', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName })
-                            })
-                            setNewArtistName('')
-                            const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
-                            setArtistList(await res.json())
-                          }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">기존 비밀번호</label>
-                      <div className="relative mt-1">
-                        <input type={showCurrentPassword ? 'text' : 'password'} value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="기존 비밀번호 (변경시만)" />
-                        <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-2.5 text-gray-400">
-                          {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">새 비밀번호</label>
-                      <div className="relative mt-1">
-                        <input type={showNewPassword ? 'text' : 'password'} value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="새 비밀번호 (변경시만)" />
-                        <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-2.5 text-gray-400">
-                          {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={handleUpdateMyInfo} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정하기</button>
-                      <button onClick={() => setShowMyInfo(false)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
-                    </div>
-                    <button onClick={async () => {
-                      if (!confirm('정말 계정을 삭제하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) return
-                      await fetch(`/api/users?id=${userInfo?.id}`, { method: 'DELETE' })
-                      await supabase.auth.signOut()
-                      localStorage.removeItem('userInfo')
-                      localStorage.removeItem('userRole')
-                      showToast('계정이 삭제됐습니다.')
-                      router.push('/')
-                    }} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium">계정 삭제</button>
-                  </div>
-                )}
 
                 {myProjects.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
