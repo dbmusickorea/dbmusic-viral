@@ -107,10 +107,10 @@ function ActivityDetail({ memberId }: { memberId: number }) {
 
       {activityTab === 'penalty' && (
         <div className="space-y-2">
-          <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : 'bg-green-50'}`}>
+          <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : participant?.banned_until && new Date(participant.banned_until) > new Date() ? 'bg-red-50' : 'bg-green-50'}`}>
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
+                <p className="text-sm font-medium">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : participant?.banned_until && new Date(participant.banned_until) > new Date() ? '🚫 활동 제한 상태' : '✅ 정상 상태'}</p>
                 {participant?.is_locked && <p className="text-xs text-gray-500 mt-1">댓글 인증 {participant?.comment_count_for_unlock ?? 0}/10</p>}
               </div>
               {participant?.is_locked && (
