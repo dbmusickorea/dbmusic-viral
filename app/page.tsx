@@ -573,8 +573,12 @@ export default function LoginPage() {
             <div className="flex gap-3">
               <button onClick={() => setShowUpdateModal(false)} className="flex-1 border rounded-xl py-2.5 text-sm text-gray-500">나중에</button>
               <button onClick={async () => {
-                const { Browser } = await import('@capacitor/browser')
-                await Browser.open({ url: updateStoreUrl })
+                try {
+                  const { Browser } = await import('@capacitor/browser')
+                  await Browser.open({ url: updateStoreUrl })
+                } catch {
+                  window.open(updateStoreUrl, '_blank')
+                }
               }} className="flex-1 bg-blue-600 text-white rounded-xl py-2.5 text-sm font-medium">업데이트</button>
             </div>
           </div>
