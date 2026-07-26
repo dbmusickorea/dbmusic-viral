@@ -11,7 +11,6 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'never',
     scheme: 'dbmusic',
-    swipeBackEnabled: true,
   },
   android: {
     backgroundColor: '#ffffff',
