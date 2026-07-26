@@ -154,7 +154,7 @@ export default function AdminMypagePage() {
 
           {/* 로그아웃 */}
           <p className="text-xs text-center text-gray-300 mb-3">
-            {(window as any).Capacitor?.isNativePlatform?.() 
+            {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
               ? `앱 버전 ${appVersion}` 
               : '웹 버전'}
           </p>
