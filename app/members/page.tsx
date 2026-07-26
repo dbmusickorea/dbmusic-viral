@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
+import Sidebar from '../../components/Sidebar'
 
 function ActivityDetail({ memberId }: { memberId: number }) {
   const { showToast } = useToast()
@@ -308,6 +309,7 @@ export default function Page4() {
   const PAGE_SIZE = 10
 
   const router = useRouter()
+  const [showSidebar, setShowSidebar] = useState(false)
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -627,6 +629,18 @@ export default function Page4() {
   })
 
   return (
+    <>
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        items={[
+          { icon: '📋', label: '프로젝트', onClick: () => router.push('/admin') },
+          { icon: '🏢', label: '의뢰인', onClick: () => router.push('/client') },
+          { icon: '👤', label: '회원관리', onClick: () => router.push('/members'), active: true },
+          { icon: '💰', label: '정산', onClick: () => router.push('/settlement') },
+          { icon: '🎵', label: '커버', onClick: () => router.push('/cover') },
+        ]}
+      />
     <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
@@ -657,12 +671,14 @@ export default function Page4() {
             </div>
           )}
           <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">회원 관리</h1>
-          </div>
-          <div className="flex gap-1">
-            <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
-            <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
-            <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold">회원 관리</h1>
+            </div>
           </div>
         </div>
 
@@ -1142,5 +1158,6 @@ export default function Page4() {
       </div>
       <div className="h-16 md:hidden" />
     </div>
+    </>
   )
 }
