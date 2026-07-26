@@ -1389,7 +1389,26 @@ useEffect(() => {
                                       <>
                                         <label className="text-sm font-medium">일반 게시물 링크</label>
                                         {normalPosts.length > 0 ? (
-                                          <p className="text-xs text-green-600 mt-1">✅ 일반 게시물 제출 완료 ({normalPosts.length}개)</p>
+                                          <>
+                                            <p className="text-xs text-green-600 mt-1">✅ {normalPosts.length}차 게시물 제출 완료</p>
+                                            {/* 2차 게시물 */}
+                                            {projectInfo?.required_posts > 1 && normalPosts.length < (normalMax) && (() => {
+                                              const secondPostDateTime = projectInfo?.second_post_date && projectInfo?.second_post_time 
+                                                ? new Date(`${projectInfo.second_post_date}T${projectInfo.second_post_time}:00`) 
+                                                : null
+                                              const canSubmitSecond = secondPostDateTime && new Date() >= secondPostDateTime
+                                              return canSubmitSecond ? (
+                                                <>
+                                                  <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-2" placeholder="2차 게시글 주소 입력" />
+                                                  <button onClick={() => { setIsCover(false); handleSubmit() }} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mt-2 disabled:bg-gray-400">
+                                                    {isSubmitting ? '제출 중...' : '2차 게시물 제출'}
+                                                  </button>
+                                                </>
+                                              ) : (
+                                                <p className="text-xs text-gray-400 mt-1">📅 2차 게시물: {projectInfo.second_post_date} {projectInfo.second_post_time} 이후 업로드 가능</p>
+                                              )
+                                            })()}
+                                          </>
                                         ) : (
                                           <>
                                             <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소 입력" />
