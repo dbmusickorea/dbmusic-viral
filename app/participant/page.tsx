@@ -997,10 +997,10 @@ useEffect(() => {
                 <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
               </div>
               <div className="space-y-2 flex-1">
-                <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>📊 내 현황</button>
-                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>🎯 프로젝트</button>
-                <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">💰 적립금</button>
-                <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">👤 마이페이지</button>
+                <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>내 현황</button>
+                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>프로젝트</button>
+                <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">적립금</button>
+                <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
               </div>
               <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
             </div>
