@@ -55,13 +55,21 @@ function ActivityDetail({ memberId }: { memberId: number }) {
               <div key={p.id} className="border rounded-lg p-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium">{p.project_code}</p>
+                    <p className="text-sm font-medium">
+                      {p.projects?.artist_name || p.projects?.client_name 
+                        ? `${p.projects?.artist_name || p.projects?.client_name} / ${p.projects?.song_title ?? ''}` 
+                        : p.project_code}
+                    </p>
+                    <p className="text-xs text-gray-400">{p.project_code}</p>
                     <p className="text-xs text-gray-500">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
                     <p className="text-xs text-gray-500">게시물: {projectPosts.length}개</p>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' : p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
-                    {p.status === 'CANCELLED' ? '취소' : p.projects?.status === 'COMPLETED' ? '완료' : '진행중'}
-                  </span>
+                  <div className="flex flex-col gap-1 items-end">
+                    <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' : p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
+                      {p.status === 'CANCELLED' ? '취소' : p.projects?.status === 'COMPLETED' ? '완료' : '진행중'}
+                    </span>
+                    {p.status === 'BANNED' && <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">🚫 밴</span>}
+                  </div>
                 </div>
                 {projectPosts.map(post => (
                   <div key={post.id} className="mt-2 bg-gray-50 rounded p-2">
