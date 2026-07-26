@@ -1826,7 +1826,7 @@ useEffect(() => {
         ↑
       </button>
       {/* 하단 탭바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
         <button onClick={() => setActiveTab('home')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'home' ? 'text-blue-600' : 'text-gray-400'}`}>
           <span className="text-lg mb-0.5">📊</span>
           내 현황
@@ -1853,7 +1853,7 @@ useEffect(() => {
       </div>
       
       {/* 하단 탭바 높이만큼 여백 */}
-      <div className="h-16 md:hidden" />
+      <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
     </div>
     </> 
   )
