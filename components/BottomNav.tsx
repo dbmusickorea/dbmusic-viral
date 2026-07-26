@@ -16,7 +16,7 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
         {tabs.map((tab, i) => (
           <button
             key={i}
@@ -36,7 +36,7 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
           </button>
         ))}
       </div>
-      <div className="h-16 md:hidden" />
+      <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
     </>
   )
 }
