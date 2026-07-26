@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation'
 
 type AdminBottomNavProps = {
   active?: 'admin' | 'client' | 'members' | 'settlement' | 'cover'
+  onClientClick?: () => void
 }
 
-export default function AdminBottomNav({ active }: AdminBottomNavProps) {
+export default function AdminBottomNav({ active, onClientClick }: AdminBottomNavProps) {
   const router = useRouter()
 
   return (
@@ -15,7 +16,7 @@ export default function AdminBottomNav({ active }: AdminBottomNavProps) {
         <button onClick={() => router.push('/admin')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'admin' ? 'text-blue-600' : 'text-gray-400'}`}>
           <span className="text-lg mb-0.5">📋</span>프로젝트
         </button>
-        <button onClick={() => router.push('/client')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'client' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => onClientClick ? onClientClick() : router.push('/client')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'client' ? 'text-blue-600' : 'text-gray-400'}`}>
           <span className="text-lg mb-0.5">🏢</span>의뢰인
         </button>
         <button onClick={() => router.push('/members')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'members' ? 'text-blue-600' : 'text-gray-400'}`}>
