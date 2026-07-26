@@ -788,7 +788,7 @@ export default function Page3() {
                     <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
                     </div>
                     <div className="mt-auto">
-                    {projectInfo.document_id && typeof window !== 'undefined' && (!((window as any).Capacitor) || appVersion >= '1.2') && (
+                    {projectInfo.document_id && typeof window !== 'undefined' && (!(window as any).Capacitor?.isNativePlatform?.() || appVersion >= '1.2') && (
                       <button onClick={async (e) => {
                         e.preventDefault()
                         const btn = e.currentTarget
