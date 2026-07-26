@@ -263,7 +263,7 @@ export async function GET() {
       if (missionDayProjects && missionDayProjects.length > 0) {
         for (const project of missionDayProjects) {
           if (!project.mission_time) continue
-          const missionDateTime = new Date(`${today}T${project.mission_time}:00`)
+          const missionDateTime = new Date(`${project.start_date}T${project.mission_time}:00`)
           const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 48 * 60 * 60 * 1000)
           if (now < twentyFourHoursAfter) continue
 
