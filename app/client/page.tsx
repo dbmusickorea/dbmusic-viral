@@ -582,15 +582,6 @@ export default function Page3() {
               )}
             </div>
           </div>
-          {userRole === 'admin' && (
-            <div className="flex gap-1">
-              <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
-              <button onClick={() => router.push('/participant')} className="flex-1 text-xs border rounded py-2 text-center">체험단</button>
-              <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
-              <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
-              <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버</button>
-            </div>
-          )}
           {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
             <div className="flex gap-1 mt-2">
               <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버 페이지</button>

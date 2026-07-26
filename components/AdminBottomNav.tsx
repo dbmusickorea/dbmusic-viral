@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 
 type AdminBottomNavProps = {
-  active?: 'admin' | 'client' | 'members' | 'settlement' | 'cover'
+  active?: 'admin' | 'client' | 'members' | 'settlement' | 'cover' | 'mypage'
   onClientClick?: () => void
 }
 
@@ -25,8 +25,8 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
         <button onClick={() => router.push('/settlement')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'settlement' ? 'text-blue-600' : 'text-gray-400'}`}>
           <span className="text-lg mb-0.5">💰</span>정산
         </button>
-        <button onClick={() => router.push('/cover')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'cover' ? 'text-blue-600' : 'text-gray-400'}`}>
-          <span className="text-lg mb-0.5">🎵</span>커버
+        <button onClick={() => router.push('/admin-mypage')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'mypage' ? 'text-blue-600' : 'text-gray-400'}`}>
+          <span className="text-lg mb-0.5">👤</span>마이페이지
         </button>
       </div>
       <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />

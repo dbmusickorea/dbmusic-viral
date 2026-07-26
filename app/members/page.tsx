@@ -639,6 +639,7 @@ export default function Page4() {
           { icon: '👤', label: '회원관리', onClick: () => router.push('/members'), active: true },
           { icon: '💰', label: '정산', onClick: () => router.push('/settlement') },
           { icon: '🎵', label: '커버', onClick: () => router.push('/cover') },
+          { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />
     <div className="min-h-screen bg-gray-50 p-4"
@@ -1131,7 +1132,6 @@ export default function Page4() {
           </div>
         </div>
         <div className="mt-4 mb-2">
-          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
         </div>
       </div>
     {/* 스크롤 상단 버튼 */}
