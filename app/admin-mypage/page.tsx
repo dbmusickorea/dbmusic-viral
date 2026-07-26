@@ -18,12 +18,18 @@ export default function AdminMypagePage() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [searchEmail, setSearchEmail] = useState('')
   const [foundUser, setFoundUser] = useState<any>(null)
+  const [appVersion, setAppVersion] = useState('0')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
     if (!info || role !== 'admin') { router.push('/'); return }
     setUserInfo(JSON.parse(info))
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      import('@capacitor/app').then(({ App }) => {
+        App.getInfo().then(info => setAppVersion(info.version))
+      }).catch(() => {})
+    }
   }, [])
 
   const handleLogout = () => {
@@ -146,6 +152,12 @@ export default function AdminMypagePage() {
             )}
           </div>
 
+          {/* 로그아웃 */}
+          <p className="text-xs text-center text-gray-300 mb-3">
+            {(window as any).Capacitor?.isNativePlatform?.() 
+              ? `앱 버전 ${appVersion}` 
+              : '웹 버전'}
+          </p>
           {/* 로그아웃 */}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-3 bg-white mb-4">로그아웃</button>
         </div>

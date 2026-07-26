@@ -37,6 +37,7 @@ export default function ClientMyPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const { showToast } = useToast()
+  const [appVersion, setAppVersion] = useState('0')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -48,6 +49,12 @@ export default function ClientMyPage() {
     setMyArtist(parsed.artist ?? '')
     setMyPhone(parsed.phone ?? '')
     setMyMobile(parsed.mobile ?? '')
+
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      import('@capacitor/app').then(({ App }) => {
+        App.getInfo().then(info => setAppVersion(info.version))
+      }).catch(() => {})
+    }
 
     const loadData = async () => {
       if (parsed.client_id) {
@@ -289,6 +296,11 @@ export default function ClientMyPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <p className="text-xs text-center text-gray-300 mb-3">
+            {(window as any).Capacitor?.isNativePlatform?.() 
+              ? `앱 버전 ${appVersion}` 
+              : '웹 버전'}
+          </p>
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
