@@ -8,6 +8,7 @@ import { RefreshCw, ArrowDown } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 
 function ActivityDetail({ memberId }: { memberId: number }) {
+  const { showToast } = useToast()
   const [activityTab, setActivityTab] = useState<'missions' | 'points' | 'penalty'>('missions')
   const [participations, setParticipations] = useState<any[]>([])
   const [posts, setPosts] = useState<any[]>([])
