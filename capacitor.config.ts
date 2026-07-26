@@ -12,6 +12,9 @@ const config: CapacitorConfig = {
     contentInset: 'never',
     scheme: 'dbmusic'
   },
+  android: {
+    backgroundColor: '#ffffff',
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
