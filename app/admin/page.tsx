@@ -1354,46 +1354,6 @@ export default function Page1() {
                 </>
               )}
             </div>
-
-            {/* 커버영상 승인 목록 */}
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">🎵 커버영상 승인 목록</h2>
-              <div className="mb-3">
-                <label className="text-sm font-medium">지급 금액</label>
-                <input type="number" value={coverRewardAmount} onChange={(e) => setCoverRewardAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 지급 금액 입력" />
-              </div>
-              {coverPosts.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-2">커버영상 신청이 없습니다.</p>
-              ) : (
-                <div className="space-y-2">
-                  {coverPosts.map((post) => (
-                    <div key={post.id} className="border rounded-lg p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-sm font-medium">{post.participants?.name}</p>
-                          <p className="text-xs text-gray-700">{post.projects?.artist_name || post.projects?.client_name} / {post.projects?.song_title ?? post.projects?.product_content}</p>
-                          <p className="text-xs text-gray-400">{post.project_code} · {post.projects?.client_name}</p>
-                          <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
-                        </div>
-                        <div className="flex flex-col gap-1 shrink-0 ml-2">
-                          <span className={`text-xs px-2 py-1 rounded-full text-center ${post.cover_status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : post.cover_status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {post.cover_status === 'PENDING' ? '검토중' : post.cover_status === 'APPROVED' ? '승인' : '거절'}
-                          </span>
-                          {post.cover_status === 'PENDING' && (
-                            <>
-                              <button onClick={() => handleApproveCover(post, 'long')} className="text-xs bg-green-600 text-white rounded px-2 py-1">롱폼 승인</button>
-                              <button onClick={() => handleApproveCover(post, 'shorts')} className="text-xs bg-blue-600 text-white rounded px-2 py-1">숏츠 승인</button>
-                              <button onClick={() => handleRejectCover(post.id)} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <h2 className="font-bold mb-3">🔓 락 해제 영상 관리</h2>
               <div className="space-y-3">
