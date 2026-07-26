@@ -8,6 +8,7 @@ import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
+import BottomNav from '../../components/BottomNav'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -1826,34 +1827,13 @@ useEffect(() => {
         ↑
       </button>
       {/* 하단 탭바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
-        <button onClick={() => setActiveTab('home')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'home' ? 'text-blue-600' : 'text-gray-400'}`}>
-          <span className="text-lg mb-0.5">📊</span>
-          내 현황
-        </button>
-        <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400'}`}>
-          <div className="relative">
-            <span className="text-lg mb-0.5">🎯</span>
-            {allProjects.filter(p => !myParticipations.some(mp => mp.project_code.toLowerCase() === p.project_code.toLowerCase()) && ['ONGOING', 'PENDING'].includes(p.status)).length > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" style={{fontSize: '9px'}}>
-                {allProjects.filter(p => !myParticipations.some(mp => mp.project_code.toLowerCase() === p.project_code.toLowerCase()) && ['ONGOING', 'PENDING'].includes(p.status)).length}
-              </span>
-            )}
-          </div>
-          프로젝트
-        </button>
-        <button onClick={() => router.push('/wallet')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">💰</span>
-          적립금
-        </button>
-        <button onClick={() => router.push('/mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-          <span className="text-lg mb-0.5">👤</span>
-          마이페이지
-        </button>
-      </div>
+      <BottomNav tabs={[
+        { icon: '📊', label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home' },
+        { icon: '🎯', label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0 },
+        { icon: '💰', label: '적립금', href: '/wallet' },
+        { icon: '👤', label: '마이페이지', href: '/mypage' },
+      ]} />
       
-      {/* 하단 탭바 높이만큼 여백 */}
-      <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
     </div>
     </> 
   )
