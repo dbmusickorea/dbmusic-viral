@@ -41,6 +41,7 @@ export default function MyPage() {
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [referredUsers, setReferredUsers] = useState<any[]>([])
   const [appVersion, setAppVersion] = useState('0')
+  const [minVersion, setMinVersion] = useState('0')
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -50,7 +51,14 @@ export default function MyPage() {
     setUserInfo(parsed)
     if ((window as any).Capacitor) {
       import('@capacitor/app').then(({ App }) => {
-        App.getInfo().then(info => setAppVersion(info.version))
+        App.getInfo().then(async info => {
+          setAppVersion(info.version)
+          const { Capacitor } = await import('@capacitor/core')
+          const platform = Capacitor.getPlatform()
+          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const data = await res.json()
+          setMinVersion(data?.value ?? '0')
+        })
       }).catch(() => {})
     }
     loadMyInfo(parsed.id)
@@ -450,11 +458,25 @@ export default function MyPage() {
 
         {/* 로그아웃 / 계정삭제 */}
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <p className="text-xs text-center text-gray-300 mb-3">
+          <p className="text-xs text-center text-gray-300 mb-2">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
               ? `앱 버전 ${appVersion}` 
               : '웹 버전'}
           </p>
+          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && appVersion < minVersion && (
+            <button onClick={async () => {
+              const { Capacitor } = await import('@capacitor/core')
+              const storeUrl = Capacitor.getPlatform() === 'ios'
+                ? 'https://apps.apple.com/kr/app/id6787446365'
+                : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
+              try {
+                const { Browser } = await import('@capacitor/browser')
+                await Browser.open({ url: storeUrl })
+              } catch {
+                window.open(storeUrl, '_blank')
+              }
+            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3">🔄 업데이트 하기</button>
+          )}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (

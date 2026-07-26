@@ -19,6 +19,7 @@ export default function AdminMypagePage() {
   const [searchEmail, setSearchEmail] = useState('')
   const [foundUser, setFoundUser] = useState<any>(null)
   const [appVersion, setAppVersion] = useState('0')
+  const [minVersion, setMinVersion] = useState('0')
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -27,7 +28,14 @@ export default function AdminMypagePage() {
     setUserInfo(JSON.parse(info))
     if ((window as any).Capacitor?.isNativePlatform?.()) {
       import('@capacitor/app').then(({ App }) => {
-        App.getInfo().then(info => setAppVersion(info.version))
+        App.getInfo().then(async info => {
+          setAppVersion(info.version)
+          const { Capacitor } = await import('@capacitor/core')
+          const platform = Capacitor.getPlatform()
+          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const data = await res.json()
+          setMinVersion(data?.value ?? '0')
+        })
       }).catch(() => {})
     }
   }, [])
@@ -158,6 +166,20 @@ export default function AdminMypagePage() {
               ? `앱 버전 ${appVersion}` 
               : '웹 버전'}
           </p>
+          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && appVersion < minVersion && (
+            <button onClick={async () => {
+              const { Capacitor } = await import('@capacitor/core')
+              const storeUrl = Capacitor.getPlatform() === 'ios'
+                ? 'https://apps.apple.com/kr/app/id6787446365'
+                : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
+              try {
+                const { Browser } = await import('@capacitor/browser')
+                await Browser.open({ url: storeUrl })
+              } catch {
+                window.open(storeUrl, '_blank')
+              }
+            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3">🔄 업데이트 하기</button>
+          )}
           {/* 로그아웃 */}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-3 bg-white mb-4">로그아웃</button>
         </div>
