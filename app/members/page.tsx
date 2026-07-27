@@ -472,6 +472,44 @@ export default function Page4() {
     })
     if (!res.ok) { showToast('수정 실패!'); return }
     showToast('수정 완료!')
+    
+    // 팔로워 수 업데이트
+    if (instagram) {
+      try {
+        const igRes = await fetch(`/api/instagram-user?username=${instagram}`)
+        const igData = await igRes.json()
+        if (igData.followers > 0) await fetch(`/api/participants?id=${selected.id}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ instagram_followers: igData.followers })
+        })
+      } catch {}
+    }
+    if (youtube) {
+      try {
+        const ytRes = await fetch(`/api/youtube-channel?handle=${youtube}`)
+        const ytData = await ytRes.json()
+        if (ytData.subscriberCount > 0) await fetch(`/api/participants?id=${selected.id}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ youtube_subscribers: ytData.subscriberCount })
+        })
+      } catch {}
+    }
+    if (tiktok) {
+      try {
+        const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${tiktok.replace('@','')}`, {
+          headers: {
+            'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+            'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
+          }
+        })
+        const ttData = await ttRes.json()
+        const followers = ttData?.data?.stats?.followerCount ?? 0
+        if (followers > 0) await fetch(`/api/participants?id=${selected.id}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tiktok_followers: followers })
+        })
+      } catch {}
+    }
     fetchParticipants()
   }
 
