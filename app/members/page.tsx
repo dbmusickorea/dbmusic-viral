@@ -149,7 +149,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   await fetch(`/api/project_participants?member_id=${memberId}&status=BANNED`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'ACTIVE' })
+                    body: JSON.stringify({ status: 'ACTIVE', ban_exempt: true })
                   })
                   showToast('밴 해제 완료!')
                   const res = await fetch(`/api/participants?id=${memberId}`)
