@@ -152,6 +152,9 @@ function ActivityDetail({ memberId }: { memberId: number }) {
                     body: JSON.stringify({ status: 'ACTIVE' })
                   })
                   showToast('밴 해제 완료!')
+                  const res = await fetch(`/api/participants?id=${memberId}`)
+                  const data = await res.json()
+                  setParticipant(data?.[0])
                 }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
               </div>
             </div>
