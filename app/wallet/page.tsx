@@ -46,6 +46,7 @@ export default function WalletPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [referredUsers, setReferredUsers] = useState<any[]>([])
+  const [pointHistory, setPointHistory] = useState<any[]>([])
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -76,6 +77,10 @@ export default function WalletPage() {
     setCoverReward(participant?.cover_reward ?? 0)
     setPosts(data.posts ?? [])
     setSettlements(data.settlements ?? [])
+    
+    const phRes = await fetch(`/api/point_history?member_id=${id}`)
+    const phData = await phRes.json()
+    setPointHistory(phData ?? [])
 
     const settledAmount = data.settlements
       ?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
@@ -199,12 +204,20 @@ export default function WalletPage() {
     memo: s.memo,
   }))
 
-  const allHistory = [...earnHistory, ...exchangeHistory, ...referralHistory].sort(
+  const adminHistory = pointHistory.map(ph => ({
+    type: 'admin',
+    date: ph.created_at,
+    label: ph.memo || '관리자 지급',
+    sub: '',
+    amount: ph.amount,
+  }))
+
+  const allHistory = [...earnHistory, ...exchangeHistory, ...referralHistory, ...adminHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
   const filteredHistory = filter === 'earn'
-    ? [...earnHistory, ...referralHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    ? [...earnHistory, ...referralHistory, ...adminHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : filter === 'exchange'
     ? [...exchangeHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : allHistory
