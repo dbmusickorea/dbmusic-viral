@@ -1205,11 +1205,11 @@ useEffect(() => {
                                 }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
                                 <button onClick={async () => {
                                   if (!confirm('게시물을 삭제하시겠어요? 적립금도 차감됩니다.')) return
-                                  const deductAmount = post.is_cover ? (projectsMap[post.project_code?.toUpperCase()]?.cover_reward ?? 0) : myAmount
+                                  const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
+                                  const freshData = await freshRes.json()
+                                  const currentBalance = freshData?.[0]?.balance ?? 0
+                                  const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) : myAmount
                                   if (deductAmount > 0) {
-                                    const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
-                                    const freshData = await freshRes.json()
-                                    const currentBalance = freshData?.[0]?.balance ?? 0
                                     await fetch(`/api/participants?id=${userInfo?.id}`, {
                                       method: 'PATCH',
                                       headers: { 'Content-Type': 'application/json' },
