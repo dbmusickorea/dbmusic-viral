@@ -730,6 +730,10 @@ export default function Page4() {
                     for (const id of rewardSelected) {
                       const p = filteredParticipants.find((p: any) => p.id === id)
                       if (!p) continue
+                      if (amount < 0 && (p.balance ?? 0) + amount < 0) {
+                        showToast(`${p.name}님의 잔액이 부족해요.`, 'error')
+                        continue
+                      }
                       await fetch(`/api/participants?id=${id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
