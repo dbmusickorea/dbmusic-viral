@@ -114,7 +114,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                 <p className="text-sm font-medium">{ph.memo || '관리자 지급'}</p>
                 <p className="text-xs text-gray-500">{new Date(ph.created_at).toLocaleDateString('ko-KR')}</p>
               </div>
-              <p className="text-sm font-bold text-blue-500">+{ph.amount?.toLocaleString()}P</p>
+              <p className={`text-sm font-bold ${ph.amount < 0 ? "text-red-500" : "text-blue-500"}`}>{ph.amount?.toLocaleString()}P</p>
             </div>
           ))}
         </div>
