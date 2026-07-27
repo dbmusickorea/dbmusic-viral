@@ -651,9 +651,10 @@ useEffect(() => {
     return lv === 50 ? 10000 : Math.min(amount, 10000)
   }
 
-  const handleSubmit = async (overrideProjectCode?: string, overrideUrls?: string[]) => {
+  const handleSubmit = async (overrideProjectCode?: string, overrideUrls?: string[], overrideIsCover?: boolean) => {
     const activeProjectCode = overrideProjectCode ?? projectCode
     const activeUrls = overrideUrls ?? postUrls
+    const activeIsCover = overrideIsCover ?? isCover
     if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
     const postsRes = await fetch(`/api/posts?project_code=${activeProjectCode}&member_id=${userInfo?.id}`)
@@ -792,8 +793,8 @@ useEffect(() => {
           member_id: userInfo?.id,
           likes_count: likesCount,
           comments_count: commentsCount,
-          is_cover: isCover,
-          cover_status: isCover ? 'PENDING' : null
+          is_cover: activeIsCover,
+          cover_status: activeIsCover ? 'PENDING' : null
         })
       })
     }
@@ -806,8 +807,8 @@ useEffect(() => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: isCover ? '🎵 커버영상 신청이 왔어요!' : '📸 새 게시물이 등록됐어요!',
-          body: `${influencerName}님이 ${activeProjectCode} 프로젝트에 ${isCover ? '커버영상을' : '게시물을'} 등록했어요.`,
+          title: activeIsCover ? '🎵 커버영상 신청이 왔어요!' : '📸 새 게시물이 등록됐어요!',
+          body: `${influencerName}님이 ${activeProjectCode} 프로젝트에 ${activeIsCover ? '커버영상을' : '게시물을'} 등록했어요.`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)
         })
@@ -827,13 +828,13 @@ useEffect(() => {
         body: JSON.stringify({ balance: newBalance })
       })
       setBalance(newBalance)
-      if (isCover) {
+      if (activeIsCover) {
         showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
       } else {
         showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉`)
       }
     } else {
-      showToast(isCover ? '미션 제출 완료!\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.' : '미션 제출 완료!')
+      showToast(activeIsCover ? '미션 제출 완료!\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.' : '미션 제출 완료!')
     }
     setIsCover(false)
 
@@ -1490,7 +1491,7 @@ useEffect(() => {
                                               setProjectCode(selectedParticipation?.project_code ?? '')
                                               const savedUrl = postUrls[0]
                                               setPostUrls([coverUrl])
-                                              await handleSubmit(selectedParticipation?.project_code, [coverUrl])
+                                              await handleSubmit(selectedParticipation?.project_code, [coverUrl], true)
                                               setPostUrls([savedUrl ?? ''])
                                               setCoverUrl('')
                                               setIsCover(false)
