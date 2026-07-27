@@ -861,7 +861,7 @@ export default function Page4() {
                         <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
-                              <input type="checkbox" checked={rewardSelected.includes(p.id)} onClick={(e) => {
+                              <input type="checkbox" checked={rewardSelected.includes(p.id)} onChange={() => {}} onClick={(e) => {
                                 e.stopPropagation()
                                 setRewardSelected(prev => prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id])
                               }} className="cursor-pointer" />
