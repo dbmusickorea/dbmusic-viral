@@ -8,7 +8,7 @@ import { RefreshCw, ArrowDown } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 import Sidebar from '../../components/Sidebar'
 
-function ActivityDetail({ memberId }: { memberId: number }) {
+function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: () => void }) {
   const { showToast } = useToast()
   const [activityTab, setActivityTab] = useState<'missions' | 'points' | 'penalty'>('missions')
   const [participations, setParticipations] = useState<any[]>([])
@@ -155,6 +155,7 @@ function ActivityDetail({ memberId }: { memberId: number }) {
                   const res = await fetch(`/api/participants?id=${memberId}`)
                   const data = await res.json()
                   setParticipant(data?.[0])
+                  onUpdate?.()
                 }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
               </div>
             </div>
@@ -972,7 +973,7 @@ export default function Page4() {
                   </div>
                 )}
                 {selected && memberDetailTab === 'activity' && (
-                  <ActivityDetail memberId={selected.id} />
+                  <ActivityDetail memberId={selected.id} onUpdate={fetchParticipants} />
                 )}
               </div>
             )}
