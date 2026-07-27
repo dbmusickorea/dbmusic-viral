@@ -789,7 +789,7 @@ export default function Page3() {
                             body: JSON.stringify({})
                           })
                           const statusData = await statusRes.json()
-                          if (statusData.status !== 'doc_complete') {
+                          if (statusData.status !== '003') {
                             showToast('계약서 서명 후 다운로드 가능해요.', 'info')
                             return
                           }
