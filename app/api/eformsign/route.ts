@@ -156,3 +156,30 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ error: 'invalid action' }, { status: 400 })
 }
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const action = searchParams.get('action')
+  const documentId = searchParams.get('document_id')
+  const fileName = searchParams.get('file_name') ?? 'contract'
+
+  if (action === 'download' && documentId) {
+    try {
+      const { accessToken, apiUrl } = await getAccessToken()
+      const res = await fetch(`${apiUrl}/v2.0/api/documents/${documentId}/download_files?file_type=document`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      if (!res.ok) return NextResponse.json({ error: '다운로드 실패' }, { status: 400 })
+      const pdfBuffer = await res.arrayBuffer()
+      return new Response(pdfBuffer, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${encodeURIComponent(fileName)}.pdf"`
+        }
+      })
+    } catch (error) {
+      return NextResponse.json({ error: String(error) }, { status: 500 })
+    }
+  }
+  return NextResponse.json({ error: 'invalid action' }, { status: 400 })
+}
