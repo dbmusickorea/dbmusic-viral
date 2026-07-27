@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Bell } from 'lucide-react' 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Eye, EyeOff } from 'lucide-react'
@@ -51,7 +51,7 @@ export default function Page3() {
       const saved = sessionStorage.getItem('clientTab')
       if (saved) {
         sessionStorage.removeItem('clientTab')
-        return saved as 'project' | 'stats'
+        return saved as 'project' | 'stats' | 'apply'
       }
     }
     return 'project'
@@ -76,12 +76,17 @@ export default function Page3() {
   const [applyRequirements, setApplyRequirements] = useState('')
   const [applyMissionDate, setApplyMissionDate] = useState('')
   const [showApplyModal, setShowApplyModal] = useState(false)
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     if ((window as any).Capacitor?.isNativePlatform?.()) {
       import('@capacitor/app').then(({ App }) => {
         App.getInfo().then(info => setAppVersion(info.version))
       }).catch(() => {})
+    }
+    const tab = searchParams.get('tab')
+    if (tab === 'apply') {
+      setShowApplyModal(true)
     }
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
@@ -104,8 +109,8 @@ export default function Page3() {
     }
     loadData().then(() => {
       const savedTab = sessionStorage.getItem('clientTab')
-      if (savedTab === 'stats') {
-        setActiveTab('stats')
+      if (savedTab === 'stats' || savedTab === 'apply') {
+        setActiveTab(savedTab as 'stats' | 'apply')
         sessionStorage.removeItem('clientTab')
       }
     })
