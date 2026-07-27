@@ -832,15 +832,6 @@ useEffect(() => {
         body: JSON.stringify({ balance: newBalance })
       })
       setBalance(newBalance)
-      await fetch('/api/point_history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          member_id: userInfo?.id, 
-          amount: earnAmount, 
-          memo: activeIsCover ? '커버 게시물 제출' : '게시물 제출'
-        })
-      })
       if (activeIsCover) {
         showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
       } else {
