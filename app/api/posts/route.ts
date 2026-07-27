@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const projectCode = searchParams.get('project_code')
   const isCover = searchParams.get('is_cover')
 
-  let query = supabaseAdmin.from('posts').select('*').order('created_at', { ascending: false })
+  let query = supabaseAdmin.from('posts').select('*, participants(name, instagram_profile_image, youtube_profile_image, tiktok_profile_image), projects(artist_name, client_name, song_title)').order('created_at', { ascending: false })
 
   if (memberId) query = query.eq('member_id', memberId)
   if (projectCode) query = query.ilike('project_code', projectCode)
