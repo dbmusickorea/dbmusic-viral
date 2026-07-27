@@ -589,11 +589,6 @@ export default function Page3() {
         </div>
 
         <div className="max-w-7xl mx-auto">
-        {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
-          <div className="flex gap-1 mb-2">
-            <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버 페이지</button>
-          </div>
-        )}
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>
@@ -618,7 +613,10 @@ export default function Page3() {
                               )}
                               <div className="min-w-0">
                                 <p className="font-medium text-sm">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
-                                <p className="text-xs text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <p className="text-xs text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                                  {project.cover_video_count > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>}
+                                </div>
                               </div>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
@@ -766,6 +764,11 @@ export default function Page3() {
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
               <>
+                {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
+                  <div className="flex justify-end mb-2">
+                    <button onClick={() => router.push('/cover')} className="text-xs border rounded px-3 py-1.5 text-gray-600">🎵 커버 페이지</button>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-white rounded-2xl shadow p-3 h-full flex flex-col">
                     <div>
