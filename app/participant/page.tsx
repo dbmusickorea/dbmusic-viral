@@ -736,10 +736,11 @@ useEffect(() => {
         if (videoId) {
           const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
           const ytData = await ytRes.json()
-          const channelTitle = ytData?.items?.[0]?.snippet?.channelTitle?.toLowerCase()
-          const myAccount = snsAccount.replace('@', '').toLowerCase()
-          if (channelTitle && !channelTitle.includes(myAccount) && !myAccount.includes(channelTitle)) {
-            showToast(`게시물 채널(${channelTitle})과 등록된 계정(${myAccount})이 일치하지 않아요.`)
+          const channelId = ytData?.items?.[0]?.snippet?.channelId
+          const myChannelRes = await fetch(`/api/youtube-channel?handle=${snsAccount.replace('@', '')}`)
+          const myChannelData = await myChannelRes.json()
+          if (channelId && myChannelData?.channelId && channelId !== myChannelData.channelId) {
+            showToast(`게시물 채널과 등록된 계정이 일치하지 않아요.`)
             return
           }
         }

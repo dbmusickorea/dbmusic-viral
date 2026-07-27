@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     subscriberCount: Number(stats?.subscriberCount ?? 0),
     videoCount: Number(stats?.videoCount ?? 0),
-    thumbnail: snippet?.thumbnails?.default?.url ?? null
+    thumbnail: snippet?.thumbnails?.default?.url ?? null,
+    channelId: data.items?.[0]?.id ?? null
   })
 }
