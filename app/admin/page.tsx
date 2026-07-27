@@ -1138,6 +1138,9 @@ export default function Page1() {
                             <div className="min-w-0">
                               <p className="font-medium text-sm">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                               <p className="text-xs text-gray-400">프로젝트 코드: {project.project_code}</p>
+                              {project.cover_video_count > 0 && (
+                                <p className="text-xs text-purple-500">🎵 커버: {project.cover_current ?? 0}/{project.cover_video_count}</p>
+                              )}
                             </div>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
