@@ -651,10 +651,11 @@ useEffect(() => {
     return lv === 50 ? 10000 : Math.min(amount, 10000)
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (overrideProjectCode?: string) => {
+    const activeProjectCode = overrideProjectCode ?? projectCode
     if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
-    const postsRes = await fetch(`/api/posts?project_code=${projectCode}&member_id=${userInfo?.id}`)
+    const postsRes = await fetch(`/api/posts?project_code=${activeProjectCode}&member_id=${userInfo?.id}`)
     const existingPosts = await postsRes.json()
     const postCount = existingPosts?.length ?? 0
     
@@ -664,7 +665,7 @@ useEffect(() => {
       setIsSubmitting(false)
       return
     }
-    if (!projectCode || postUrls.every(u => !u)) { showToast('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
+    if (!activeProjectCode || postUrls.every(u => !u)) { showToast('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     
     // 링크 유효성 검사
     const isValidUrl = (url: string) => {
@@ -783,7 +784,7 @@ useEffect(() => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          project_code: projectCode.toUpperCase(),
+          project_code: activeProjectCode.toUpperCase(),
           influencer_name: influencerName,
           post_url: postUrl,
           platform,
@@ -805,14 +806,14 @@ useEffect(() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: isCover ? '🎵 커버영상 신청이 왔어요!' : '📸 새 게시물이 등록됐어요!',
-          body: `${influencerName}님이 ${projectCode} 프로젝트에 ${isCover ? '커버영상을' : '게시물을'} 등록했어요.`,
+          body: `${influencerName}님이 ${activeProjectCode} 프로젝트에 ${isCover ? '커버영상을' : '게시물을'} 등록했어요.`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)
         })
       })
     }
 
-    const projectRes = await fetch(`/api/projects?project_code=${projectCode}`)
+    const projectRes = await fetch(`/api/projects?project_code=${activeProjectCode}`)
     const projectList = await projectRes.json()
     const projectData = projectList?.[0]
 
@@ -1488,7 +1489,7 @@ useEffect(() => {
                                               setProjectCode(selectedParticipation?.project_code ?? '')
                                               const savedUrl = postUrls[0]
                                               setPostUrls([coverUrl])
-                                              await handleSubmit()
+                                              await handleSubmit(selectedParticipation?.project_code)
                                               setPostUrls([savedUrl ?? ''])
                                               setCoverUrl('')
                                               setIsCover(false)
