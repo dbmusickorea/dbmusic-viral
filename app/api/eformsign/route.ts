@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       return new Response(pdfBuffer, {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${fileName}.pdf"`
+          'Content-Disposition': `attachment; filename="${encodeURIComponent(fileName)}.pdf"`
         }
       })
     }
