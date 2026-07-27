@@ -204,13 +204,15 @@ export default function WalletPage() {
     memo: s.memo,
   }))
 
-  const adminHistory = pointHistory.map(ph => ({
-    type: 'admin',
-    date: ph.created_at,
-    label: ph.memo || '관리자 지급',
-    sub: '',
-    amount: ph.amount,
-  }))
+  const adminHistory = pointHistory
+    .filter(ph => !ph.memo?.includes('게시물 제출'))
+    .map(ph => ({
+      type: 'admin',
+      date: ph.created_at,
+      label: ph.memo || '관리자 지급',
+      sub: '',
+      amount: ph.amount,
+    }))
 
   const allHistory = [...earnHistory, ...exchangeHistory, ...referralHistory, ...adminHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
