@@ -443,8 +443,8 @@ export default function WalletPage() {
                           </div>
                         )}
                       </div>
-                      <p className={`text-sm font-bold ${item.type === 'earn' ? 'text-green-600' : 'text-red-500'}`}>
-                        {item.type === 'earn' ? '+' : '-'}{item.amount?.toLocaleString()}P
+                      <p className={`text-sm font-bold ${item.type === 'exchange' ? 'text-red-500' : 'text-green-600'}`}>
+                        {item.type === 'exchange' ? '-' : '+'}{item.amount?.toLocaleString()}P
                       </p>
                     </div>
                   ))
