@@ -1604,6 +1604,12 @@ useEffect(() => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'APPROVED' })
                   })
+                  // project_participants is_cover = true로 변경
+                  await fetch(`/api/project_participants?member_id=${userInfo?.id}&project_code=${r.project_code}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_cover: true })
+                  })
                   setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
                   
                   // 의뢰인에게 푸시
