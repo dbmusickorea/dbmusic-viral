@@ -1050,6 +1050,7 @@ export default function Page4() {
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
                                       setSelected((prev: any) => ({...prev, [`${req.platform}_id`]: req.new_id}))
                                       showToast('승인됐어요!')
+                                      fetchParticipants()
                                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
                                     <button onClick={async () => {
                                       await fetch(`/api/sns_change_requests?id=${req.id}`, {
