@@ -832,6 +832,15 @@ useEffect(() => {
         body: JSON.stringify({ balance: newBalance })
       })
       setBalance(newBalance)
+      await fetch('/api/point_history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          member_id: userInfo?.id, 
+          amount: earnAmount, 
+          memo: activeIsCover ? '커버 게시물 제출' : '게시물 제출'
+        })
+      })
       if (activeIsCover) {
         showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
       } else {
@@ -1208,12 +1217,17 @@ useEffect(() => {
                                   const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
                                   const freshData = await freshRes.json()
                                   const currentBalance = freshData?.[0]?.balance ?? 0
-                                  const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) : myAmount
+                                  const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) + myAmount : myAmount
                                   if (deductAmount > 0) {
                                     await fetch(`/api/participants?id=${userInfo?.id}`, {
                                       method: 'PATCH',
                                       headers: { 'Content-Type': 'application/json' },
                                       body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
+                                    })
+                                    await fetch('/api/point_history', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? '커버 게시물 삭제' : '게시물 삭제' })
                                     })
                                   }
                                   await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
