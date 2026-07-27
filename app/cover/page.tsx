@@ -357,7 +357,7 @@ export default function CoverPage() {
         {/* 헤더 */}
         <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
           </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
