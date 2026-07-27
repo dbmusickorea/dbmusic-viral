@@ -35,8 +35,12 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
   const memberId = searchParams.get('member_id')
-  const { error } = await supabaseAdmin.from('posts').delete().eq('member_id', memberId!)
+  let query = supabaseAdmin.from('posts').delete()
+  if (id) query = query.eq('id', id)
+  else if (memberId) query = query.eq('member_id', memberId)
+  const { error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
