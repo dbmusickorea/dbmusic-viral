@@ -239,9 +239,7 @@ export default function CoverPage() {
     }
     showToast('승인 완료!')
     setCoverRewardAmount('')
-    const coverPostsRes = await fetch('/api/posts?is_cover=true')
-    const coverPostsData = await coverPostsRes.json()
-    setCoverPosts(Array.isArray(coverPostsData) ? coverPostsData : [])
+    await loadCoverPosts()
   }
 
   const handleRejectCover = async (postId: number) => {
@@ -251,9 +249,29 @@ export default function CoverPage() {
       body: JSON.stringify({ cover_status: 'REJECTED' })
     })
     showToast('거절 완료!')
+    await loadCoverPosts()
+  }
+  const loadCoverPosts = async () => {
     const coverPostsRes = await fetch('/api/posts?is_cover=true')
     const coverPostsData = await coverPostsRes.json()
-    setCoverPosts(Array.isArray(coverPostsData) ? coverPostsData : [])
+    if (Array.isArray(coverPostsData) && coverPostsData.length > 0) {
+      const memberIds = [...new Set(coverPostsData.map((p: any) => p.member_id))]
+      const projectCodes = [...new Set(coverPostsData.map((p: any) => p.project_code))]
+      const [participantsRes, projectsRes] = await Promise.all([
+        fetch(`/api/participants?ids=${memberIds.join(',')}`),
+        fetch(`/api/projects?codes=${projectCodes.join(',')}`)
+      ])
+      const participantsData = await participantsRes.json()
+      const projectsData = await projectsRes.json()
+      const enriched = coverPostsData.map((p: any) => ({
+        ...p,
+        participants: participantsData?.find((par: any) => par.id === p.member_id),
+        projects: projectsData?.find((proj: any) => proj.project_code.toLowerCase() === p.project_code?.toLowerCase())
+      }))
+      setCoverPosts(enriched)
+    } else {
+      setCoverPosts([])
+    }
   }
 
   return (
