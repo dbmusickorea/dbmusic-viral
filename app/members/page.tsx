@@ -946,12 +946,39 @@ export default function Page4() {
                         ))}
                       </select>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" checked={selected?.is_cover_possible ?? false} onChange={async (e) => {
+                        await fetch(`/api/participants?id=${selected.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ is_cover_possible: e.target.checked })
+                        })
+                        fetchParticipants()
+                      }} />
+                      <label className="text-sm font-medium">커버가능 체험단</label>
+                    </div>
                     {selected?.is_cover_possible && (
                       <div className="bg-purple-50 rounded-lg p-3">
                         <p className="text-xs font-medium text-purple-700 mb-2">🎵 커버영상 신청</p>
                         {selected.cover_video_url && (
                           <a href={selected.cover_video_url} target="_blank" className="text-xs text-blue-500 block mb-2">영상 링크 보기 →</a>
                         )}
+                        <div className="mt-2">
+                          <label className="text-xs font-medium text-purple-700">영상 링크 등록</label>
+                          <div className="flex gap-2 mt-1">
+                            <input defaultValue={selected?.cover_video_url ?? ''} id="cover_url_input" className="flex-1 border rounded-lg px-2 py-1 text-xs" placeholder="영상 링크 입력" />
+                            <button onClick={async () => {
+                              const url = (document.getElementById('cover_url_input') as HTMLInputElement)?.value
+                              await fetch(`/api/participants?id=${selected.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ cover_video_url: url })
+                              })
+                              showToast('링크 저장 완료!')
+                              fetchParticipants()
+                            }} className="text-xs bg-purple-600 text-white rounded px-2 py-1">저장</button>
+                          </div>
+                        </div>
                         <div className="flex gap-2">
                           <button onClick={async () => {
                             await fetch(`/api/participants?id=${selected.id}`, {
