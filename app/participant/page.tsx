@@ -1610,6 +1610,15 @@ useEffect(() => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ is_cover: true })
                   })
+                  // cover_current 증가
+                  const projectRes = await fetch(`/api/projects?project_code=${r.project_code}`)
+                  const projectData = await projectRes.json()
+                  const currentCount = projectData?.[0]?.cover_current ?? 0
+                  await fetch(`/api/projects?project_code=${r.project_code}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cover_current: currentCount + 1 })
+                  })
                   setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
                   
                   // 의뢰인에게 푸시
