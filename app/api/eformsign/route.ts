@@ -142,6 +142,7 @@ export async function POST(request: NextRequest) {
       })
 
       const data = await res.json()
+      console.log('eformsign status data:', JSON.stringify(data.current_status))
       return NextResponse.json({ success: true, status: data.current_status?.status_type })
     }
 
