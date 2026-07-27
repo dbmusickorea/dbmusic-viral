@@ -1434,7 +1434,7 @@ useEffect(() => {
                                     const normalPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && !p.is_cover)
                                     const maxNormal = projectInfo?.required_posts ?? 1
                                     const hasCoverOption = projectInfo?.cover_video_count > 0
-                                    const normalMax = hasCoverOption && selectedParticipation?.is_cover ? maxNormal - 1 : maxNormal
+                                    const normalMax = maxNormal
                                     return normalMax > 0 && (
                                       <>
                                         <label className="text-sm font-medium">일반 게시물 링크</label>
