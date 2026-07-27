@@ -156,6 +156,21 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   const data = await res.json()
                   setParticipant(data?.[0])
                   onUpdate?.()
+                  // 밴 해제 푸시
+                  const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+                  const tokens = await tokensRes.json()
+                  if (tokens?.length > 0) {
+                    await fetch('/api/push', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        title: '✅ 활동 제한이 해제됐어요!',
+                        body: '다시 미션에 참여할 수 있어요.',
+                        tokens: tokens.map((t: any) => t.token),
+                        userIds: [String(memberId)]
+                      })
+                    })
+                  }
                 }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
               </div>
             </div>
