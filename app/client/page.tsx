@@ -586,14 +586,14 @@ export default function Page3() {
               )}
             </div>
           </div>
-          {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
-            <div className="flex gap-1 mt-2">
-              <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버 페이지</button>
-            </div>
-          )}
         </div>
 
         <div className="max-w-7xl mx-auto">
+        {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
+          <div className="flex gap-1 mb-2">
+            <button onClick={() => router.push('/cover')} className="flex-1 text-xs border rounded py-2 text-center">커버 페이지</button>
+          </div>
+        )}
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>
