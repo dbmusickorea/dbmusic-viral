@@ -16,15 +16,17 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
   const [settlements, setSettlements] = useState<any[]>([])
   const [participant, setParticipant] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [pointHistory, setPointHistory] = useState<any[]>([])
 
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      const [partRes, postRes, settleRes, memberRes] = await Promise.all([
+      const [partRes, postRes, settleRes, memberRes, phRes] = await Promise.all([
         fetch(`/api/project_participants?member_id=${memberId}`),
         fetch(`/api/posts?member_id=${memberId}`),
         fetch(`/api/settlements?member_id=${memberId}`),
-        fetch(`/api/participants?id=${memberId}`)
+        fetch(`/api/participants?id=${memberId}`),
+        fetch(`/api/point_history?member_id=${memberId}`)
       ])
       const partData = await partRes.json()
       setParticipations(Array.isArray(partData) ? partData : [])
@@ -32,6 +34,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       setSettlements(await settleRes.json())
       const data = await memberRes.json()
       setParticipant(data?.[0])
+      setPointHistory(await phRes.json())
       setLoading(false)
     }
     load()
@@ -103,6 +106,15 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                 </span>
               </div>
               <p className="text-sm font-bold text-red-500">-{s.amount?.toLocaleString()}P</p>
+            </div>
+          ))}
+          {pointHistory.length > 0 && pointHistory.map(ph => (
+            <div key={ph.id} className="border rounded-lg p-3 flex justify-between items-center">
+              <div>
+                <p className="text-sm font-medium">{ph.memo || '관리자 지급'}</p>
+                <p className="text-xs text-gray-500">{new Date(ph.created_at).toLocaleDateString('ko-KR')}</p>
+              </div>
+              <p className="text-sm font-bold text-blue-500">+{ph.amount?.toLocaleString()}P</p>
             </div>
           ))}
         </div>
@@ -299,7 +311,7 @@ export default function Page4() {
   const [coverReward, setCoverReward] = useState<number | ''>('')
   const [rewardSelected, setRewardSelected] = useState<number[]>([])
   const [rewardAmount, setRewardAmount] = useState('')
-  const [rewardMemo, setRewardMemo] = useState('')
+  const [rewardMemo, setRewardMemo] = useState('')  
 
   const [clients, setClients] = useState<any[]>([])
   const [selectedClient, setSelectedClient] = useState<any>(null)
