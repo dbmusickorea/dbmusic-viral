@@ -801,9 +801,22 @@ export default function Page3() {
                           })
                           const data = await res.json()
                           if (data.dataUrl) {
-                            if ((window as any).Capacitor) {
-                              const { Browser } = await import('@capacitor/browser')
-                              await Browser.open({ url: data.dataUrl })
+                            if ((window as any).Capacitor?.isNativePlatform?.()) {
+                              try {
+                                const { Share } = await import('@capacitor/share')
+                                const base64Data = data.dataUrl.split(',')[1]
+                                const byteCharacters = atob(base64Data)
+                                const byteNumbers = new Array(byteCharacters.length)
+                                for (let i = 0; i < byteCharacters.length; i++) {
+                                  byteNumbers[i] = byteCharacters.charCodeAt(i)
+                                }
+                                const byteArray = new Uint8Array(byteNumbers)
+                                const blob = new Blob([byteArray], { type: 'application/pdf' })
+                                const url = URL.createObjectURL(blob)
+                                await Share.share({ title: fileName, url })
+                              } catch {
+                                showToast('PDF를 열 수 없어요.', 'error')
+                              }
                             } else {
                               const a = document.createElement('a')
                               a.href = data.dataUrl
