@@ -765,9 +765,7 @@ export default function Page3() {
             {projectInfo && (
               <>
                 {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
-                  <div className="flex justify-end mb-2">
-                    <button onClick={() => router.push('/cover')} className="text-xs border rounded px-3 py-1.5 text-gray-600">🎵 커버 페이지</button>
-                  </div>
+                  <button onClick={() => router.push('/cover')} className="w-full text-xs border rounded px-3 py-2 text-gray-600 mb-3">🎵 커버 페이지</button>
                 )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-white rounded-2xl shadow p-3 h-full flex flex-col">
