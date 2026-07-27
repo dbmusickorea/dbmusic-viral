@@ -106,7 +106,7 @@ export async function GET() {
 
     // 기본 갱신 - 낮 12시(UTC 3시)에만 실행
     let updated = 0
-    if (currentHour === 3) {
+    if (true) {
       // ONGOING 프로젝트 게시물 갱신
       const { data: ongoingPosts } = await supabase.from('posts').select('*')
         .filter('project_code', 'not.in', `(${intervalProjects?.map(p => `"${p.project_code}"`).join(',') || '""'})`)
@@ -740,7 +740,7 @@ export async function GET() {
       }
 
       // 체험단 팔로워 수 갱신 (하루 1회)
-    if (currentHour === 3) {
+    if (true) {
       const { data: allParticipantsForFollowers } = await supabase
         .from('participants')
         .select('id, instagram_id, youtube_id, tiktok_id')
@@ -781,7 +781,7 @@ export async function GET() {
     }
     
     // 댓글 삭제 여부 체크 (하루 1회)
-    if (currentHour === 3) {
+    if (true) {
       const { data: approvedMissions } = await supabase
         .from('comment_missions')
         .select('*')
