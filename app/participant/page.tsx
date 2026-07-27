@@ -658,7 +658,7 @@ useEffect(() => {
     const existingPosts = await postsRes.json()
     const postCount = existingPosts?.length ?? 0
     
-    const maxPosts = projectInfo?.required_posts ?? 1
+    const maxPosts = (projectInfo?.required_posts ?? 1) + (selectedParticipation?.is_cover ? 1 : 0)
     if (postCount >= maxPosts) {
       showToast(`이미 ${maxPosts}개의 게시물을 제출했어요. 더 이상 제출할 수 없어요.`)
       setIsSubmitting(false)
