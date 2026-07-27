@@ -500,18 +500,22 @@ export default function LoginPage() {
     if (isCoverPossible) {
       const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
       const adminTokens = await adminTokensRes.json()
-      if (adminTokens && adminTokens.length > 0) {
-        await fetch('/api/push', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: '🎵 커버영상 신청이 왔어요!',
-            body: `${p_name}님이 커버영상 촬영 가능으로 가입했어요. 영상을 확인하고 승인해주세요.`,
-            tokens: adminTokens.map((t: any) => t.token),
-            userIds: adminTokens.map((t: any) => t.user_id)
-          })
+      const adminUsersRes = await fetch('/api/users?role=admin')
+      const adminUsers = await adminUsersRes.json()
+      const allAdminIds = [...new Set([
+        ...(adminTokens?.map((t: any) => t.user_id) ?? []),
+        ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
+      ])]
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '🎵 커버영상 신청이 왔어요!',
+          body: `${p_name}님이 커버영상 촬영 가능으로 가입했어요. 영상을 확인하고 승인해주세요.`,
+          tokens: adminTokens?.map((t: any) => t.token) ?? [],
+          userIds: allAdminIds
         })
-      }
+      })
     }
     
     showToast(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
