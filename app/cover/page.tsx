@@ -222,6 +222,12 @@ export default function CoverPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: (participant.balance ?? 0) + reward, cover_reward: reward })
       })
+      // point_history 저장
+      await fetch('/api/point_history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ member_id: post.member_id, amount: reward, memo: `커버영상 승인 (${type === 'long' ? '롱폼' : '숏츠'})` })
+      })
     }
     const tokensRes = await fetch(`/api/push_tokens?user_id=${String(post.member_id)}`)
     const tokens = await tokensRes.json()
