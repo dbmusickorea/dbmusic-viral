@@ -87,7 +87,25 @@ export default function CoverPage() {
     // 커버 게시물 불러오기
     const coverPostsRes = await fetch('/api/posts?is_cover=true')
     const coverPostsData = await coverPostsRes.json()
-    setCoverPosts(Array.isArray(coverPostsData) ? coverPostsData : [])
+    // participant 이름과 project 정보 매핑
+    if (Array.isArray(coverPostsData) && coverPostsData.length > 0) {
+      const memberIds = [...new Set(coverPostsData.map((p: any) => p.member_id))]
+      const projectCodes = [...new Set(coverPostsData.map((p: any) => p.project_code))]
+      const [participantsRes, projectsRes] = await Promise.all([
+        fetch(`/api/participants?ids=${memberIds.join(',')}`),
+        fetch(`/api/projects?codes=${projectCodes.join(',')}`)
+      ])
+      const participantsData = await participantsRes.json()
+      const projectsData = await projectsRes.json()
+      const enriched = coverPostsData.map((p: any) => ({
+        ...p,
+        participants: participantsData?.find((par: any) => par.id === p.member_id),
+        projects: projectsData?.find((proj: any) => proj.project_code.toLowerCase() === p.project_code?.toLowerCase())
+      }))
+      setCoverPosts(enriched)
+    } else {
+      setCoverPosts([])
+    }
 
     if (role === 'admin') {
       const projectsRes = await fetch('/api/projects?status=ONGOING,PENDING')
