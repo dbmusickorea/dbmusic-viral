@@ -1038,7 +1038,7 @@ useEffect(() => {
             </div>
           )}
           <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/participant')} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
           </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">

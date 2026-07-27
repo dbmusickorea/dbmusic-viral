@@ -521,10 +521,10 @@ export default function Page3() {
             )}
           </div>
         )}
-          <div className="flex justify-center mb-2 relative z-10">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
+          <div className="flex justify-center mb-2 relative z-10 max-w-7xl mx-auto">
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
           </div>
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-2 max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
               <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
