@@ -1485,6 +1485,7 @@ useEffect(() => {
                                               if (!coverUrl) { showToast('커버영상 링크를 입력해주세요.'); return }
                                               setIsSubmittingCover(true)
                                               setIsCover(true)
+                                              setProjectCode(selectedParticipation?.project_code ?? '')
                                               const savedUrl = postUrls[0]
                                               setPostUrls([coverUrl])
                                               await handleSubmit()
