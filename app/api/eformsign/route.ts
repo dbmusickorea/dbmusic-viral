@@ -127,9 +127,12 @@ export async function POST(request: NextRequest) {
       }
 
       const pdfBuffer = await res.arrayBuffer()
-      const base64 = Buffer.from(pdfBuffer).toString('base64')
-      const dataUrl = `data:application/pdf;base64,${base64}`
-      return NextResponse.json({ success: true, dataUrl })
+      return new Response(pdfBuffer, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${fileName}.pdf"`
+        }
+      })
     }
 
     if (action === 'status') {

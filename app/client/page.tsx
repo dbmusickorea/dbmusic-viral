@@ -799,27 +799,17 @@ export default function Page3() {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({})
                           })
-                          const data = await res.json()
-                          if (data.dataUrl) {
+                          
+                          if (res.ok) {
                             if ((window as any).Capacitor?.isNativePlatform?.()) {
-                              try {
-                                const { Share } = await import('@capacitor/share')
-                                const base64Data = data.dataUrl.split(',')[1]
-                                const byteCharacters = atob(base64Data)
-                                const byteNumbers = new Array(byteCharacters.length)
-                                for (let i = 0; i < byteCharacters.length; i++) {
-                                  byteNumbers[i] = byteCharacters.charCodeAt(i)
-                                }
-                                const byteArray = new Uint8Array(byteNumbers)
-                                const blob = new Blob([byteArray], { type: 'application/pdf' })
-                                const url = URL.createObjectURL(blob)
-                                await Share.share({ title: fileName, url })
-                              } catch {
-                                showToast('PDF를 열 수 없어요.', 'error')
-                              }
+                              const { Browser } = await import('@capacitor/browser')
+                              const pdfUrl = `https://app.doubleb.kr/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(fileName)}`
+                              await Browser.open({ url: pdfUrl })
                             } else {
+                              const blob = await res.blob()
+                              const url = URL.createObjectURL(blob)
                               const a = document.createElement('a')
-                              a.href = data.dataUrl
+                              a.href = url
                               a.download = fileName + '.pdf'
                               document.body.appendChild(a)
                               a.click()
