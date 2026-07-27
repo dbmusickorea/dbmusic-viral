@@ -651,8 +651,9 @@ useEffect(() => {
     return lv === 50 ? 10000 : Math.min(amount, 10000)
   }
 
-  const handleSubmit = async (overrideProjectCode?: string) => {
+  const handleSubmit = async (overrideProjectCode?: string, overrideUrls?: string[]) => {
     const activeProjectCode = overrideProjectCode ?? projectCode
+    const activeUrls = overrideUrls ?? postUrls
     if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
     const postsRes = await fetch(`/api/posts?project_code=${activeProjectCode}&member_id=${userInfo?.id}`)
@@ -665,7 +666,7 @@ useEffect(() => {
       setIsSubmitting(false)
       return
     }
-    if (!activeProjectCode || postUrls.every(u => !u)) { showToast('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
+    if (!activeProjectCode || activeUrls.every(u => !u)) { showToast('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     
     // 링크 유효성 검사
     const isValidUrl = (url: string) => {
@@ -675,7 +676,7 @@ useEffect(() => {
       return instagramRegex.test(url) || youtubeRegex.test(url) || tiktokRegex.test(url)
     }
     
-    const validUrls = postUrls.filter(u => u.trim())
+    const validUrls = activeUrls.filter(u => u.trim())
     if (validUrls.some(u => !isValidUrl(u))) { showToast('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
 
     // URL 중복 체크
@@ -1489,7 +1490,7 @@ useEffect(() => {
                                               setProjectCode(selectedParticipation?.project_code ?? '')
                                               const savedUrl = postUrls[0]
                                               setPostUrls([coverUrl])
-                                              await handleSubmit(selectedParticipation?.project_code)
+                                              await handleSubmit(selectedParticipation?.project_code, [coverUrl])
                                               setPostUrls([savedUrl ?? ''])
                                               setCoverUrl('')
                                               setIsCover(false)
