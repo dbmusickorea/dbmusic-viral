@@ -1979,6 +1979,28 @@ export default function Page1() {
                               <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 cursor-pointer shrink-0">
                                 {updatingPostId === post.id ? '...' : '갱신'}
                               </button>
+                              <button onClick={async () => {
+                                if (!confirm('게시물을 삭제하시겠어요? 해당 게시물의 적립금도 차감됩니다.')) return
+                                // 적립금 차감
+                                const project = projects.find((p: any) => p.project_code.toLowerCase() === post.project_code?.toLowerCase())
+                                const baseAmount = project?.reward_per_post ?? 0
+                                const participant = post.participant
+                                const level = participant?.level ?? 1
+                                const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
+                                const deductAmount = post.is_cover ? (project?.cover_reward ?? 0) : Math.min(baseAmount, earnAmount)
+                                if (deductAmount > 0) {
+                                  const newBalance = Math.max(0, (participant?.balance ?? 0) - deductAmount)
+                                  await fetch(`/api/participants?id=${post.member_id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ balance: newBalance })
+                                  })
+                                }
+                                // 게시물 삭제
+                                await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
+                                fetchPosts(selectedProject.project_code)
+                                showToast('게시물이 삭제됐어요.')
+                              }} className="text-xs bg-red-500 text-white rounded px-2 py-1 shrink-0">삭제</button>
                             </div>
                           </div>
                         )
