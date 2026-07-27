@@ -673,24 +673,28 @@ useEffect(() => {
       showToast('이미 다른 체험단이 제출한 링크예요. 본인의 게시물 링크를 입력해주세요.')
       return
     }
+    // 최신 팔로워 수 가져오기
+    const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
+    const freshData = await freshRes.json()
+    const freshUser = freshData?.[0]
 
     // 팔로워 100명 이상 확인
     if (platform === 'instagram') {
-      const followers = userInfo?.instagram_followers ?? 0
+      const followers = freshUser?.instagram_followers ?? 0
       if (followers < 100) {
         showToast('인스타그램 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
         return
       }
     }
     if (platform === 'youtube') {
-      const subscribers = userInfo?.youtube_subscribers ?? 0
+      const subscribers = freshUser?.youtube_subscribers ?? 0
       if (subscribers < 100) {
         showToast('유튜브 구독자가 100명 미만이에요. 구독자 100명 이상인 채널만 미션 제출이 가능합니다.')
         return
       }
     }
     if (platform === 'tiktok') {
-      const followers = userInfo?.tiktok_followers ?? 0
+      const followers = freshUser?.tiktok_followers ?? 0
       if (followers < 100) {
         showToast('틱톡 팔로워가 100명 미만이에요. 팔로워 100명 이상인 계정만 미션 제출이 가능합니다.')
         return
