@@ -1218,7 +1218,7 @@ useEffect(() => {
                                     await fetch('/api/point_history', {
                                       method: 'POST',
                                       headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? '커버 게시물 삭제' : '게시물 삭제' })
+                                      body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` })
                                     })
                                   }
                                   await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
