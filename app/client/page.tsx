@@ -526,8 +526,8 @@ export default function Page3() {
             )}
           </div>
         )}
-          <div className="flex justify-center mb-2 relative z-10 max-w-7xl mx-auto">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
+          <div className="flex justify-center mb-2 max-w-7xl mx-auto">
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => { if (userRole === 'admin') router.push('/admin'); else { setActiveTab('project'); window.scrollTo({ top: 0, behavior: 'smooth' }) } }} />
           </div>
           <div className="flex justify-between items-center mb-2 max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
