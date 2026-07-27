@@ -282,6 +282,9 @@ export default function Page4() {
   const [password, setPassword] = useState('')
   const [level, setLevel] = useState(1)
   const [coverReward, setCoverReward] = useState<number | ''>('')
+  const [rewardSelected, setRewardSelected] = useState<number[]>([])
+  const [rewardAmount, setRewardAmount] = useState('')
+  const [rewardMemo, setRewardMemo] = useState('')
 
   const [clients, setClients] = useState<any[]>([])
   const [selectedClient, setSelectedClient] = useState<any>(null)
@@ -707,6 +710,64 @@ export default function Page4() {
           <div>
             {tab === 'participant' && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">💰 적립금 지급</h2>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <button onClick={() => {
+                      if (rewardSelected.length === filteredParticipants.length) setRewardSelected([])
+                      else setRewardSelected(filteredParticipants.map((p: any) => p.id))
+                    }} className="text-xs border rounded px-2 py-1">
+                      {rewardSelected.length === filteredParticipants.length ? '전체 해제' : '전체 선택'}
+                    </button>
+                    <span className="text-xs text-gray-500 self-center">{rewardSelected.length}명 선택</span>
+                  </div>
+                  <input type="number" value={rewardAmount} onChange={(e) => setRewardAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="지급 금액 입력" />
+                  <input value={rewardMemo} onChange={(e) => setRewardMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="메모 입력 (예: 가입 축하금)" />
+                  <button onClick={async () => {
+                    if (rewardSelected.length === 0) { showToast('체험단을 선택해주세요.', 'error'); return }
+                    if (!rewardAmount) { showToast('금액을 입력해주세요.', 'error'); return }
+                    const amount = Number(rewardAmount)
+                    for (const id of rewardSelected) {
+                      const p = filteredParticipants.find((p: any) => p.id === id)
+                      if (!p) continue
+                      await fetch(`/api/participants?id=${id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ balance: (p.balance ?? 0) + amount })
+                      })
+                      // 포인트 내역 저장
+                      await fetch('/api/point_history', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ member_id: id, amount, memo: rewardMemo || '관리자 지급' })
+                      })
+                      // 푸시 알림
+                      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(id)}`)
+                      const tokens = await tokensRes.json()
+                      if (tokens?.length > 0) {
+                        await fetch('/api/push', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title: '💰 적립금이 지급됐어요!',
+                            body: `${rewardMemo || '관리자 지급'}: ${amount.toLocaleString()}P가 지급됐어요!`,
+                            tokens: tokens.map((t: any) => t.token),
+                            userIds: [String(id)]
+                          })
+                        })
+                      }
+                    }
+                    showToast(`${rewardSelected.length}명에게 ${amount.toLocaleString()}P 지급 완료!`)
+                    setRewardSelected([])
+                    setRewardAmount('')
+                    setRewardMemo('')
+                    fetchParticipants()
+                  }} className="w-full bg-green-600 text-white rounded-lg py-2 text-sm font-medium">지급하기</button>
+                </div>
+              </div>
+            )}
+            {tab === 'participant' && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
                   <div className="flex gap-1">
@@ -730,7 +791,11 @@ export default function Page4() {
                       {filteredParticipants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
                         <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                           <div className="flex justify-between items-center">
-                            <div>
+                            <div className="flex items-center gap-2">
+                              <input type="checkbox" checked={rewardSelected.includes(p.id)} onClick={(e) => {
+                                e.stopPropagation()
+                                setRewardSelected(prev => prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id])
+                              }} className="cursor-pointer" />
                               <div className="flex items-center gap-2">
                                 <p className="font-medium text-sm">{p.name}</p>
                                 <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
