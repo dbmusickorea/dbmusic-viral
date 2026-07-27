@@ -727,7 +727,7 @@ export default function Page4() {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">💰 적립금 지급</h2>
                 <div className="space-y-3">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-3">
                     <button onClick={() => {
                       if (rewardSelected.length === filteredParticipants.length) setRewardSelected([])
                       else setRewardSelected(filteredParticipants.map((p: any) => p.id))
@@ -907,7 +907,7 @@ export default function Page4() {
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold">{selected ? '체험단 수정' : '체험단 등록'}</h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-3">
                     {selected && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
                     {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs border rounded px-2 py-1">
                       {showParticipantInsert ? '접기 ▲' : '펼치기 ▼'}
@@ -954,6 +954,7 @@ export default function Page4() {
                           body: JSON.stringify({ is_cover_possible: e.target.checked })
                         })
                         fetchParticipants()
+                        setSelected({ ...selected, is_cover_possible: e.target.checked })
                       }} />
                       <label className="text-sm font-medium">커버가능 체험단</label>
                     </div>
@@ -979,7 +980,7 @@ export default function Page4() {
                             }} className="text-xs bg-purple-600 text-white rounded px-2 py-1">저장</button>
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-3">
                           <button onClick={async () => {
                             await fetch(`/api/participants?id=${selected.id}`, {
                               method: 'PATCH',
@@ -1071,7 +1072,7 @@ export default function Page4() {
                         </div>
                       </div>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-3">
                       {selected ? (
                         <>
                           <button onClick={handleUpdate} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정</button>
@@ -1223,7 +1224,7 @@ export default function Page4() {
                           }} className="text-xs text-red-400">삭제</button>
                         </div>
                       ))}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-3">
                         <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="아티스트명 입력" />
                         <button onClick={async () => {
                           if (!newArtistName) return
@@ -1243,7 +1244,7 @@ export default function Page4() {
                       <p className="text-xs text-gray-500">의뢰인 코드: <span className="font-bold text-green-600">{selectedClient.client_id}</span></p>
                     </div>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-3">
                     <button onClick={handleUpdateClient} className="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm font-medium">정보 수정</button>
                     <button onClick={handleDeleteClient} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium">삭제</button>
                   </div>
