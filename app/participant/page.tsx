@@ -131,6 +131,17 @@ useEffect(() => {
       
       const participant = data.participant
 
+      // SNS 계정 localStorage 업데이트
+      if (participant) {
+        const updatedAccounts = {
+          instagram: participant.instagram_id ?? '',
+          youtube: participant.youtube_id ?? '',
+          tiktok: participant.tiktok_id ?? ''
+        }
+        localStorage.setItem('snsAccounts', JSON.stringify(updatedAccounts))
+        setYoutubeHandle(participant.youtube_id ?? '')
+      }
+
       // 계정 존재 여부 확인
       if (!participant || participant.is_deleted) {
         localStorage.removeItem('userInfo')
@@ -836,7 +847,16 @@ useEffect(() => {
     setMyName(data?.name ?? ''); setMyMobile(data?.mobile ?? '')
     setMyBankName(data?.bank_name ?? ''); setMyAccountHolder(data?.account_holder ?? '')
     setMyInstagram(data?.instagram_id ?? '')
-    setMyYoutube(data?.youtube_id ?? ''); setMyTiktok(data?.tiktok_id ?? '')
+    setMyYoutube(data?.youtube_id ?? ''); 
+    setMyTiktok(data?.tiktok_id ?? '')
+    
+    // localStorage snsAccounts 업데이트
+    const updatedAccounts = {
+      instagram: data?.instagram_id ?? '',
+      youtube: data?.youtube_id ?? '',
+      tiktok: data?.tiktok_id ?? ''
+    }
+    localStorage.setItem('snsAccounts', JSON.stringify(updatedAccounts))
     
     // 계좌번호 복호화
     const decrypted = data?.account_number ? await decryptText(data.account_number) : ''
