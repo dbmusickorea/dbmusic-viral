@@ -42,6 +42,7 @@ export default function Page2() {
   const [level, setLevel] = useState(1)
   const [referralCode, setReferralCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [myPosts, setMyPosts] = useState<any[]>([])
   const [mySettlements, setMySettlements] = useState<any[]>([])
   const [projectsMap, setProjectsMap] = useState<any>({})
@@ -1203,8 +1204,9 @@ useEffect(() => {
                                   const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
                                   if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
                                 }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
-                                <button onClick={async () => {
+                                <button disabled={isDeletingPost} onClick={async () => {
                                   if (!confirm('게시물을 삭제하시겠어요? 적립금도 차감됩니다.')) return
+                                  setIsDeletingPost(true)
                                   const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
                                   const freshData = await freshRes.json()
                                   const currentBalance = freshData?.[0]?.balance ?? 0
@@ -1224,6 +1226,7 @@ useEffect(() => {
                                   await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
                                   fetchMyPostsAndProjects(userInfo?.id)
                                   showToast('게시물이 삭제됐어요.')
+                                  setIsDeletingPost(false)
                                 }} className="text-xs text-red-400 mt-1 block">삭제</button>
                               </div>
                               <div className="text-right shrink-0 ml-2">
