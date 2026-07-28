@@ -54,6 +54,8 @@ export default function Page2() {
   const [allProjects, setAllProjects] = useState<any[]>([])
   const [myParticipations, setMyParticipations] = useState<any[]>([])
   const [isLocked, setIsLocked] = useState(false)
+  const [bannedUntil, setBannedUntil] = useState<string | null>(null)
+  const [banReason, setBanReason] = useState<string | null>(null)
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [unlockCommentCount, setUnlockCommentCount] = useState(0)
   const [showLevelGuide, setShowLevelGuide] = useState(false)
@@ -157,6 +159,8 @@ useEffect(() => {
       setReferralCode(participant?.referral_code ?? '')
       setInfluencerName(participant?.name ?? '')
       setIsLocked(participant?.is_locked ?? false)
+      setBannedUntil(participant?.banned_until ?? null)
+      setBanReason(participant?.ban_reason ?? null)
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
       if (participant) {
         localStorage.setItem('snsAccounts', JSON.stringify({
@@ -1159,6 +1163,23 @@ useEffect(() => {
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}
           <div className={`${activeTab === 'home' ? 'block' : 'hidden'} md:block`}>
+            {/* 밴/페널티 상태 카드 */}
+            {bannedUntil && new Date(bannedUntil) > new Date() && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
+                <p className="text-sm font-bold text-red-700 mb-1">🚫 활동제한 중</p>
+                <p className="text-xs text-red-600 mb-1">해제 일시: {new Date(bannedUntil).toLocaleString('ko-KR')}</p>
+                <p className="text-xs text-red-600 mb-1">남은 시간: {Math.ceil((new Date(bannedUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60))}시간</p>
+                {banReason && <p className="text-xs text-red-600 mb-1">사유: {banReason}</p>}
+                <p className="text-xs text-gray-500 mt-2">⚠️ 제한 기간 동안 미션 제출이 불가능해요. 기간 만료 후 자동으로 해제됩니다.</p>
+              </div>
+            )}
+            {isLocked && (
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
+                <p className="text-sm font-bold text-orange-700 mb-1">🔒 계정 잠금 중</p>
+                <p className="text-xs text-orange-600 mb-1">댓글 인증: {unlockCommentCount}/10 완료</p>
+                <p className="text-xs text-gray-500 mt-2">⚠️ 유튜브 영상에 댓글 10회 작성 시 자동으로 해제됩니다.</p>
+              </div>
+            )}
             {/* 게시물 현황 */}
             <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
