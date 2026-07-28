@@ -106,7 +106,7 @@ export default function TermsPage() {
           <h2 className="font-bold mb-2">문의</h2>
           <ul className="text-sm text-gray-600 mt-2 space-y-1">
             <li>회사명: 더블비뮤직</li>
-            <li>이메일: db_music@naver.com</li>
+            <li>이메일: doubleb@doubleb.kr</li>
             <li>전화: 010-3433-3806</li>
           </ul>
         </section>

@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             <li>회사명: 더블비뮤직</li>
             <li>성명: 함현철</li>
             <li>직책: 개인정보 보호책임자</li>
-            <li>이메일: db_music@naver.com</li>
+            <li>이메일: doubleb@doubleb.kr</li>
             <li>전화: 010-3433-3806</li>
             <li>문의: 앱 내 의뢰인 문의 기능을 통해 접수</li>
           </ul>
