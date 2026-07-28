@@ -34,12 +34,14 @@ export default function Page5() {
     fetchSettlements()
     
     const loadTotals = async () => {
-      const { data: balanceData } = await supabase.from('participants').select('balance').not('is_deleted', 'is', true)
-      const total = balanceData?.reduce((sum: number, p: any) => sum + (p.balance ?? 0), 0) ?? 0
+      const res = await fetch('/api/participants')
+      const data = await res.json()
+      const total = Array.isArray(data) ? data.reduce((sum: number, p: any) => sum + (p.balance ?? 0), 0) : 0
       setTotalBalance(total)
       
-      const { data: pendingData } = await supabase.from('settlements').select('amount').eq('status', 'PENDING')
-      const pending = pendingData?.reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
+      const settleRes = await fetch('/api/settlements?status=PENDING')
+      const settleData = await settleRes.json()
+      const pending = Array.isArray(settleData) ? settleData.reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) : 0
       setTotalAvailable(total - pending)
     }
     loadTotals()
