@@ -13,6 +13,12 @@ export default function MyPage() {
   const [userInfo, setUserInfo] = useState<any>(null)
   const [myName, setMyName] = useState('')
   const [myMobile, setMyMobile] = useState('')
+  const [newMobile, setNewMobile] = useState('')
+  const [mobileSentCode, setMobileSentCode] = useState('')
+  const [mobileVerifyCode, setMobileVerifyCode] = useState('')
+  const [mobileCodeExpiry, setMobileCodeExpiry] = useState<number | null>(null)
+  const [mobileVerified, setMobileVerified] = useState(false)
+  const [mobileSending, setMobileSending] = useState(false)
   const [myBankName, setMyBankName] = useState('')
   const [myAccountHolder, setMyAccountHolder] = useState('')
   const [myAccountNumber, setMyAccountNumber] = useState('')
@@ -115,7 +121,7 @@ export default function MyPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: myName, mobile: myMobile, bank_name: myBankName,
+        name: myName, mobile: mobileVerified ? newMobile : myMobile, bank_name: myBankName,
         account_holder: myAccountHolder, account_number: myAccountNumber,
         instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
         cover_video_url: coverVideoUrl || null,
@@ -311,7 +317,6 @@ export default function MyPage() {
               </div>
               {[
                 { label: '이름', value: myName, setter: setMyName },
-                { label: '휴대전화', value: myMobile, setter: setMyMobile },
                 { label: '은행명', value: myBankName, setter: setMyBankName },
                 { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
                 { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
@@ -321,6 +326,34 @@ export default function MyPage() {
                   <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                 </div>
               ))}
+              <div>
+                <label className="text-sm font-medium">휴대전화</label>
+                <p className="text-sm text-gray-500 mt-1">{myMobile}</p>
+                <div className="flex gap-2 mt-1">
+                  <input value={newMobile} onChange={(e) => setNewMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="새 번호 입력" />
+                  <button onClick={async () => {
+                    if (!newMobile) { showToast('번호를 입력해주세요.'); return }
+                    setMobileSending(true)
+                    const code = Math.floor(100000 + Math.random() * 900000).toString()
+                    setMobileSentCode(code)
+                    setMobileCodeExpiry(Date.now() + 5 * 60 * 1000)
+                    await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: newMobile, name: myName || '고객', code, expiry: '5분' }) })
+                    showToast('인증번호가 발송됐어요!')
+                    setMobileSending(false)
+                  }} disabled={mobileSending} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-2">인증요청</button>
+                </div>
+                {mobileSentCode && !mobileVerified && (
+                  <div className="flex gap-2 mt-2">
+                    <input value={mobileVerifyCode} onChange={(e) => setMobileVerifyCode(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="인증번호 입력" />
+                    <button onClick={() => {
+                      if (mobileCodeExpiry && Date.now() > mobileCodeExpiry) { showToast('인증번호가 만료됐어요.'); return }
+                      if (mobileVerifyCode === mobileSentCode) { setMobileVerified(true); showToast('✅ 인증 완료!') }
+                      else showToast('❌ 인증번호가 틀렸어요.')
+                    }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-2">확인</button>
+                  </div>
+                )}
+                {mobileVerified && <p className="text-xs text-green-600 mt-1">✅ 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
+              </div>
               <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
                 <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 변경 안내</p>

@@ -300,20 +300,18 @@ export default function ClientMyPage() {
                 { label: '회사명', value: myCompany },
                 { label: '휴대전화', value: myMobile },
               ].map(({ label, value }) => (
-                <div key={label}>
-                  <label className="text-sm font-medium">{label}</label>
-                  <p className="w-full border rounded-lg px-3 py-2 text-sm mt-1 bg-gray-50">{value}</p>
+                <div key={label} className="flex justify-between items-center border-b border-gray-100 pb-2">
+                  <p className="text-xs text-gray-500">{label}</p>
+                  <p className="text-sm font-medium">{value || '-'}</p>
                 </div>
               ))}
               <div>
-                <label className="text-sm font-medium">아티스트 목록</label>
-                <div className="space-y-2 mt-1">
-                  {artistList.map((a) => (
-                    <div key={a.id} className="flex items-center bg-gray-50 rounded-lg px-3 py-2">
-                      <span className="text-sm">{a.artist_name}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-xs text-gray-500 mb-1">아티스트 목록</p>
+                {artistList.map((a) => (
+                  <div key={a.id} className="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <p className="text-sm font-medium">{a.artist_name}</p>
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
