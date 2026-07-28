@@ -926,10 +926,28 @@ export default function Page3() {
                             <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                             <YAxis tick={{ fontSize: 9 }} />
                             <Tooltip wrapperStyle={{ zIndex: 9999 }} isAnimationActive={false} />
-                            <Legend wrapperStyle={{ fontSize: '10px' }} />
+                            <Legend 
+                              wrapperStyle={{ fontSize: '10px', paddingTop: '4px' }}
+                              content={({ payload }) => (
+                                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '10px', justifyContent: 'center' }}>
+                                  {['하트', '댓글', '조회수', '음원사용'].map(name => {
+                                    const item = payload?.find((p: any) => p.value === name)
+                                    if (!item) return null
+                                    return (
+                                      <span key={name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <svg width="20" height="10">
+                                          <line x1="0" y1="5" x2="20" y2="5" stroke={item.color} strokeWidth="2" strokeDasharray={name === '댓글' ? '5 5' : name === '조회수' ? '3 3' : name === '음원사용' ? '2 2' : 'none'} />
+                                        </svg>
+                                        {name}
+                                      </span>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            />
                             <Line type="monotone" dataKey="ig_likes" stroke="#FF4B6E" name="하트" dot={false} />
-                            <Line type="monotone" dataKey="ig_comments" stroke="#4B9EFF" name="댓글" dot={false} strokeDasharray="5 5" />
-                            <Line type="monotone" dataKey="ig_views" stroke="#4CAF50" name="조회수" dot={false} strokeDasharray="3 3" />
+                            <Line type="monotone" dataKey="ig_comments" stroke="#4CAF50" name="댓글" dot={false} strokeDasharray="5 5" />
+                            <Line type="monotone" dataKey="ig_views" stroke="#4B9EFF" name="조회수" dot={false} strokeDasharray="3 3" />
                             <Line type="monotone" dataKey="ig_audio" stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                           </LineChart>
                         </ResponsiveContainer>
@@ -949,10 +967,28 @@ export default function Page3() {
                             <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                             <YAxis tick={{ fontSize: 9 }} />
                             <Tooltip wrapperStyle={{ zIndex: 9999 }} isAnimationActive={false} />
-                            <Legend wrapperStyle={{ fontSize: '10px' }} />
+                            <Legend 
+                              wrapperStyle={{ fontSize: '10px', paddingTop: '4px' }}
+                              content={({ payload }) => (
+                                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '10px', justifyContent: 'center' }}>
+                                  {['좋아요', '댓글', '조회수', '음원사용'].map(name => {
+                                    const item = payload?.find((p: any) => p.value === name)
+                                    if (!item) return null
+                                    return (
+                                      <span key={name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <svg width="20" height="10">
+                                          <line x1="0" y1="5" x2="20" y2="5" stroke={item.color} strokeWidth="2" strokeDasharray={name === '댓글' ? '5 5' : name === '조회수' ? '3 3' : name === '음원사용' ? '2 2' : 'none'} />
+                                        </svg>
+                                        {name}
+                                      </span>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            />
                             <Line type="monotone" dataKey="yt_likes" stroke="#FF4B6E" name="좋아요" dot={false} />
-                            <Line type="monotone" dataKey="yt_comments" stroke="#4B9EFF" name="댓글" dot={false} strokeDasharray="5 5" />
-                            <Line type="monotone" dataKey="yt_views" stroke="#4CAF50" name="조회수" dot={false} strokeDasharray="3 3" />
+                            <Line type="monotone" dataKey="yt_comments" stroke="#4CAF50" name="댓글" dot={false} strokeDasharray="5 5" />
+                            <Line type="monotone" dataKey="yt_views" stroke="#4B9EFF" name="조회수" dot={false} strokeDasharray="3 3" />
                             <Line type="monotone" dataKey="yt_audio" stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                           </LineChart>
                         </ResponsiveContainer>
@@ -972,10 +1008,28 @@ export default function Page3() {
                             <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                             <YAxis tick={{ fontSize: 9 }} />
                             <Tooltip wrapperStyle={{ zIndex: 9999 }} isAnimationActive={false} />
-                            <Legend wrapperStyle={{ fontSize: '10px' }} />
+                            <Legend 
+                              wrapperStyle={{ fontSize: '10px', paddingTop: '4px' }}
+                              content={({ payload }) => (
+                                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '10px', justifyContent: 'center' }}>
+                                  {['하트', '댓글', '조회수', '음원사용'].map(name => {
+                                    const item = payload?.find((p: any) => p.value === name)
+                                    if (!item) return null
+                                    return (
+                                      <span key={name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <svg width="20" height="10">
+                                          <line x1="0" y1="5" x2="20" y2="5" stroke={item.color} strokeWidth="2" strokeDasharray={name === '댓글' ? '5 5' : name === '조회수' ? '3 3' : name === '음원사용' ? '2 2' : 'none'} />
+                                        </svg>
+                                        {name}
+                                      </span>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            />
                             <Line type="monotone" dataKey="tt_likes" stroke="#FF4B6E" name="하트" dot={false} />
-                            <Line type="monotone" dataKey="tt_comments" stroke="#4B9EFF" name="댓글" dot={false} strokeDasharray="5 5" />
-                            <Line type="monotone" dataKey="tt_views" stroke="#4CAF50" name="조회수" dot={false} strokeDasharray="3 3" />
+                            <Line type="monotone" dataKey="tt_comments" stroke="#4CAF50" name="댓글" dot={false} strokeDasharray="5 5" />
+                            <Line type="monotone" dataKey="tt_views" stroke="#4B9EFF" name="조회수" dot={false} strokeDasharray="3 3" />
                             <Line type="monotone" dataKey="tt_audio" stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />
                           </LineChart>
                         </ResponsiveContainer>
