@@ -38,6 +38,7 @@ export default function MyPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [coverVideoUrl, setCoverVideoUrl] = useState('')
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [referredUsers, setReferredUsers] = useState<any[]>([])
   const [appVersion, setAppVersion] = useState('0')
@@ -81,6 +82,7 @@ export default function MyPage() {
       setReferralCode(p.referral_code ?? '')
       setCoverVideoUrl(p.cover_video_url ?? '')
       setIsCoverPossible(p.is_cover_possible ?? false)
+      setSelectedGenres(p.genres ?? [])
     }
     // 문의 내역 불러오기
     const reqRes = await fetch(`/api/client_requests?member_id=${id}`)
@@ -117,6 +119,7 @@ export default function MyPage() {
         account_holder: myAccountHolder, account_number: myAccountNumber,
         instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
         cover_video_url: coverVideoUrl || null,
+        genres: selectedGenres,
         ...(myPassword ? { password: myPassword } : {})
       })
     })
@@ -332,6 +335,20 @@ export default function MyPage() {
                     </div>
                   )}
                   <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="본인 가창 영상 링크 입력" />
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-500 mb-2">커버 가능 장르 (중복 선택 가능)</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      {['발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
+                        <label key={genre} className="flex items-center gap-1 text-sm cursor-pointer">
+                          <input type="checkbox" checked={selectedGenres.includes(genre)} onChange={(e) => {
+                            if (e.target.checked) setSelectedGenres(prev => [...prev, genre])
+                            else setSelectedGenres(prev => prev.filter(g => g !== genre))
+                          }} className="w-4 h-4" />
+                          {genre}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                   <p className="text-xs text-gray-400 mt-1">관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
                 </div>
               )}
