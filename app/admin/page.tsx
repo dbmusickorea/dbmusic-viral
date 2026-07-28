@@ -1980,6 +1980,18 @@ export default function Page1() {
                               <button onClick={() => handleUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 cursor-pointer shrink-0">
                                 {updatingPostId === post.id ? '...' : '갱신'}
                               </button>
+                              {!post.is_cover && (
+                                <button onClick={async () => {
+                                  if (!confirm('이 게시물을 커버 게시물로 전환하시겠어요?')) return
+                                  await fetch(`/api/posts?id=${post.id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ is_cover: true, cover_status: 'PENDING' })
+                                  })
+                                  fetchPosts(selectedProject.project_code)
+                                  showToast('커버 게시물로 전환됐어요!')
+                                }} className="text-xs bg-purple-500 text-white rounded px-2 py-1 shrink-0">커버전환</button>
+                              )}
                               <button onClick={async () => {
                                 if (!confirm('게시물을 삭제하시겠어요? 해당 게시물의 적립금도 차감됩니다.')) return
                                 // 적립금 차감
