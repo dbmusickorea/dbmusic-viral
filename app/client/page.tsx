@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell } from 'lucide-react' 
+import { Bell, LayoutGrid, BarChart2, FileText, User } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
@@ -53,6 +53,8 @@ export default function Page3() {
         sessionStorage.removeItem('clientTab')
         return saved as 'project' | 'stats' | 'apply'
       }
+      const urlTab = new URLSearchParams(window.location.search).get('tab')
+      if (urlTab === 'stats') return 'stats'
     }
     return 'project'
   })
@@ -87,6 +89,8 @@ export default function Page3() {
     const tab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null
     if (tab === 'apply') {
       setShowApplyModal(true)
+    } else if (tab === 'stats') {
+      setActiveTab('stats')
     }
     const info = localStorage.getItem('userInfo')
     const role = localStorage.getItem('userRole')
@@ -1219,27 +1223,23 @@ export default function Page3() {
       {userRole === 'admin' ? (
         <AdminBottomNav active="client" onClientClick={() => setActiveTab('project')} />
       ) : (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
           <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400'}`}>
-            <span className="text-lg mb-0.5">📋</span>
-            프로젝트
+            <LayoutGrid size={20} className="mb-0.5" />프로젝트
           </button>
           <button onClick={() => setActiveTab('stats')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>
-            <span className="text-lg mb-0.5">📊</span>
-            현황
+            <BarChart2 size={20} className="mb-0.5" />현황
           </button>
           <button onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
-            <span className="text-lg mb-0.5">📝</span>
-            신청
+            <FileText size={20} className="mb-0.5" />신청
           </button>
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
-            <span className="text-lg mb-0.5">👤</span>
-            마이페이지
+            <User size={20} className="mb-0.5" />마이페이지
           </button>
         </div>
       )}
-      <div className="h-16 md:hidden" />
     </div>
+    <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
     </>
   )
 }
