@@ -1426,11 +1426,11 @@ useEffect(() => {
                                 {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
                                 <div className="flex justify-between items-center mt-2">
                                   <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
-                                  {isJoined ? (
+                                  {bannedUntil && new Date(bannedUntil) > new Date() ? (
+                                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
+                                  ) : isJoined ? (
                                     <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
                                   ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
-                                    <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
-                                  ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
                                     <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
                                   ) : (
                                     <button onClick={handleJoin} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">참여하기</button>
