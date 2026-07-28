@@ -39,9 +39,11 @@ export default function Page5() {
       const total = Array.isArray(data) ? data.reduce((sum: number, p: any) => sum + (p.balance ?? 0), 0) : 0
       setTotalBalance(total)
       
-      const settleRes = await fetch('/api/settlements?status=PENDING')
+      const settleRes = await fetch('/api/settlements')
       const settleData = await settleRes.json()
-      const pending = Array.isArray(settleData) ? settleData.reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) : 0
+      const pending = Array.isArray(settleData) ? settleData
+        .filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
+        .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) : 0
       setTotalAvailable(total - pending)
     }
     loadTotals()
