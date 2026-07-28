@@ -138,6 +138,7 @@ export default function LoginPage() {
   const [pendingUserInfo, setPendingUserInfo] = useState<any>(null)
   const [pendingRole, setPendingRole] = useState('')
   const [isCoverPossible, setIsCoverPossible] = useState(false)
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [coverVideoUrl, setCoverVideoUrl] = useState('')
   const [agreedAge, setAgreedAge] = useState(false)
 
@@ -491,6 +492,7 @@ export default function LoginPage() {
         referral_code: referralCode, level: 1,
         is_cover_possible: isCoverPossible,
         cover_video_url: coverVideoUrl || null,
+        genres: selectedGenres,
         referred_by: p_referral || null,
       })
     })
@@ -758,6 +760,20 @@ export default function LoginPage() {
                     <div className="mt-2">
                       <p className="text-xs text-gray-500 mb-1">본인의 실제 가창한 영상 링크를 필수로 남겨주세요.<br/>관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
                       <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="영상 링크 입력" />
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500 mb-2">커버 가능 장르 (중복 선택 가능)</p>
+                        <div className="grid grid-cols-2 gap-1">
+                          {['발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
+                            <label key={genre} className="flex items-center gap-1 text-sm cursor-pointer">
+                              <input type="checkbox" checked={selectedGenres.includes(genre)} onChange={(e) => {
+                                if (e.target.checked) setSelectedGenres(prev => [...prev, genre])
+                                else setSelectedGenres(prev => prev.filter(g => g !== genre))
+                              }} className="w-4 h-4" />
+                              {genre}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
