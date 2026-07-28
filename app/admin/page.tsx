@@ -437,7 +437,8 @@ export default function Page1() {
     fetch(`/api/project_links?project_code=${project.project_code}`)
       .then(res => res.json())
       .then(data => {
-        setProjectLinks([{ platform: '', url: '', isNew: true }])
+        const existing = Array.isArray(data) ? data.map((link: any) => ({ ...link, isNew: false })) : []
+        setProjectLinks([...existing, { platform: 'youtube_shorts', url: '', isNew: true }])
       })
   }
 
