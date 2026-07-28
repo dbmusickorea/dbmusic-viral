@@ -467,6 +467,7 @@ export async function GET() {
           ? (project.base_refresh_interval ?? 12)
           : (project.refresh_interval ?? 12)
         if (currentHour % interval !== 0) continue
+        console.log(`스냅샷 저장: ${project.project_code}, interval: ${interval}, currentHour: ${currentHour}`)
 
         const { data: projectPosts } = await supabase
           .from('posts')
