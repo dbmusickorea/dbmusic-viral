@@ -34,17 +34,10 @@ export default function Page5() {
     fetchSettlements()
     
     const loadTotals = async () => {
-      const res = await fetch('/api/participants')
+      const res = await fetch('/api/settlement-summary')
       const data = await res.json()
-      const total = Array.isArray(data) ? data.reduce((sum: number, p: any) => sum + (p.balance ?? 0), 0) : 0
-      setTotalBalance(total)
-      
-      const settleRes = await fetch('/api/settlements')
-      const settleData = await settleRes.json()
-      const pending = Array.isArray(settleData) ? settleData
-        .filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
-        .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) : 0
-      setTotalAvailable(total - pending)
+      setTotalBalance(data.totalBalance ?? 0)
+      setTotalAvailable(data.totalAvailable ?? 0)
     }
     loadTotals()
   }, [])
