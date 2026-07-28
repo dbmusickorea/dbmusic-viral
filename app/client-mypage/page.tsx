@@ -18,6 +18,12 @@ export default function ClientMyPage() {
   const [myArtist, setMyArtist] = useState('')
   const [myPhone, setMyPhone] = useState('')
   const [myMobile, setMyMobile] = useState('')
+  const [newMobile, setNewMobile] = useState('')
+  const [mobileSentCode, setMobileSentCode] = useState('')
+  const [mobileVerifyCode, setMobileVerifyCode] = useState('')
+  const [mobileCodeExpiry, setMobileCodeExpiry] = useState<number | null>(null)
+  const [mobileVerified, setMobileVerified] = useState(false)
+  const [mobileSending, setMobileSending] = useState(false)
   const [myPassword, setMyPassword] = useState('')
   const [myCurrentPassword, setMyCurrentPassword] = useState('')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -108,7 +114,7 @@ export default function ClientMyPage() {
     }
     const updateData: any = {
       name: myName, company: myCompany, artist: myArtist,
-      mobile: myMobile
+      mobile: mobileVerified ? newMobile : myMobile
     }
     const res = await fetch(`/api/users?id=${userInfo?.id}`, {
       method: 'PATCH',
@@ -324,13 +330,40 @@ export default function ClientMyPage() {
                 { label: '이름', value: myName, setter: setMyName },
                 { label: '회사명', value: myCompany, setter: setMyCompany },
                 { label: '아티스트명', value: myArtist, setter: setMyArtist },
-                { label: '휴대전화', value: myMobile, setter: setMyMobile },
               ].map(({ label, value, setter }) => (
                 <div key={label}>
                   <label className="text-sm font-medium">{label}</label>
                   <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                 </div>
               ))}
+              <div>
+                <label className="text-sm font-medium">휴대전화</label>
+                <p className="text-sm text-gray-500 mt-1">{myMobile}</p>
+                <div className="flex gap-2 mt-1">
+                  <input value={newMobile} onChange={(e) => setNewMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="새 번호 입력" />
+                  <button onClick={async () => {
+                    if (!newMobile) { showToast('번호를 입력해주세요.'); return }
+                    setMobileSending(true)
+                    const code = Math.floor(100000 + Math.random() * 900000).toString()
+                    setMobileSentCode(code)
+                    setMobileCodeExpiry(Date.now() + 5 * 60 * 1000)
+                    await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: newMobile, name: myName || '고객', code, expiry: '5분' }) })
+                    showToast('인증번호가 발송됐어요!')
+                    setMobileSending(false)
+                  }} disabled={mobileSending} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-2">인증요청</button>
+                </div>
+                {mobileSentCode && !mobileVerified && (
+                  <div className="flex gap-2 mt-2">
+                    <input value={mobileVerifyCode} onChange={(e) => setMobileVerifyCode(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="인증번호 입력" />
+                    <button onClick={() => {
+                      if (mobileCodeExpiry && Date.now() > mobileCodeExpiry) { showToast('인증번호가 만료됐어요.'); return }
+                      if (mobileVerifyCode === mobileSentCode) { setMobileVerified(true); showToast('✅ 인증 완료!') }
+                      else showToast('❌ 인증번호가 틀렸어요.')
+                    }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-2">확인</button>
+                  </div>
+                )}
+                {mobileVerified && <p className="text-xs text-green-600 mt-1">✅ 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
+              </div>
               <div>
                 <label className="text-sm font-medium">아티스트 목록</label>
                 <div className="space-y-2 mt-1">
