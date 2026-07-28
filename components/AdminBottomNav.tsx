@@ -13,17 +13,21 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
   const router = useRouter()
   const [snsRequestCount, setSnsRequestCount] = useState(0)
   const [coverPendingCount, setCoverPendingCount] = useState(0)
+  const [settlementCount, setSettlementCount] = useState(0)
 
   useEffect(() => {
     const fetchCounts = async () => {
-      const [snsRes, coverRes] = await Promise.all([
+      const [snsRes, coverRes, settleRes] = await Promise.all([
         fetch('/api/sns_change_requests?status=PENDING'),
-        fetch('/api/posts?is_cover=true&cover_status=PENDING')
+        fetch('/api/posts?is_cover=true&cover_status=PENDING'),
+        fetch('/api/settlements?status=PENDING')
       ])
       const snsData = await snsRes.json()
       const coverData = await coverRes.json()
+      const settleData = await settleRes.json()
       setSnsRequestCount(Array.isArray(snsData) ? snsData.length : 0)
       setCoverPendingCount(Array.isArray(coverData) ? coverData.length : 0)
+      setSettlementCount(Array.isArray(settleData) ? settleData.length : 0)
     }
     fetchCounts()
   }, [])
@@ -44,7 +48,10 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
           </div>회원관리
         </button>
         <button onClick={() => router.push('/settlement')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'settlement' ? 'text-blue-600' : 'text-gray-400'}`}>
-          <Wallet size={20} className="mb-0.5" />정산
+          <div className="relative">
+            <Wallet size={20} className="mb-0.5" />
+            {settlementCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{settlementCount}</span>}
+          </div>정산
         </button>
         <button onClick={() => router.push('/cover')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'cover' ? 'text-blue-600' : 'text-gray-400'}`}>
           <div className="relative">
