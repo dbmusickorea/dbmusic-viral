@@ -39,6 +39,7 @@ export default function CoverPage() {
   const [applyHasCover, setApplyHasCover] = useState(false)
   const [applyCoverCount, setApplyCoverCount] = useState(0)
   const [applyRequirements, setApplyRequirements] = useState('')
+  const [genreFilter, setGenreFilter] = useState<string>('전체')
   const { showToast } = useToast()
 
   const getEmbedUrl = (url: string) => {
@@ -526,11 +527,19 @@ export default function CoverPage() {
                     </div>
                   ) : null
                 })()}
+                {/* 장르 필터 */}
+                <div className="flex gap-1 flex-wrap mb-3">
+                  {['전체', '발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
+                    <button key={genre} onClick={() => setGenreFilter(genre)} className={`text-xs px-2 py-1 rounded-full border ${genreFilter === genre ? 'bg-purple-600 text-white border-purple-600' : 'text-gray-500'}`}>
+                      {genre}
+                    </button>
+                  ))}
+                </div>
                 {coverParticipants.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">승인된 커버가능 체험단이 없습니다.</p>
                 ) : (
                   <div className="space-y-2">
-                    {coverParticipants.map(p => {
+                    {coverParticipants.filter(p => genreFilter === '전체' || (p.genres && p.genres.includes(genreFilter))).map(p => {
                       const request = coverRequests.find(r => r.participant_id === p.id)
                       const coverPost = coverPosts.find(post => post.member_id === p.id && request?.project_code === post.project_code)
                       return (
