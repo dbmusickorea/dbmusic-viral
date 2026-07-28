@@ -1041,6 +1041,31 @@ export default function Page4() {
                             }} className="text-xs bg-purple-600 text-white rounded px-2 py-1">저장</button>
                           </div>
                         </div>
+                        <div className="mt-3">
+                          <p className="text-xs font-medium text-purple-700 mb-1">장르</p>
+                          <div className="grid grid-cols-2 gap-1">
+                            {['발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
+                              <label key={genre} className="flex items-center gap-1 text-xs cursor-pointer">
+                                <input type="checkbox" 
+                                  checked={(selected?.genres ?? []).includes(genre)} 
+                                  onChange={async (e) => {
+                                    const newGenres = e.target.checked 
+                                      ? [...(selected?.genres ?? []), genre]
+                                      : (selected?.genres ?? []).filter((g: string) => g !== genre)
+                                    await fetch(`/api/participants?id=${selected.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ genres: newGenres })
+                                    })
+                                    setSelected({...selected, genres: newGenres})
+                                    fetchParticipants()
+                                  }} 
+                                  className="w-3 h-3" />
+                                {genre}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
                         <div className="flex gap-2 mt-3">
                           <button onClick={async () => {
                             await fetch(`/api/participants?id=${selected.id}`, {
