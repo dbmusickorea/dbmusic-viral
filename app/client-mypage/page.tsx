@@ -438,6 +438,7 @@ export default function ClientMyPage() {
         { icon: <FileText size={20} />, label: '신청', onClick: () => setShowApplyModal(true) },
         { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage', active: true },
       ]} />
+      <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
     </div>
     </>
   )

@@ -27,7 +27,7 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
             className={`flex-1 flex flex-col items-center py-3 text-xs ${tab.active ? 'text-blue-600' : 'text-gray-400'}`}
           >
             <div className="relative">
-              <span className="mb-0.5">{tab.icon}</span>
+              <div className="mb-0.5">{tab.icon}</div>
               {tab.badge && tab.badge > 0 ? (
                 <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" style={{fontSize: '9px'}}>{tab.badge}</span>
               ) : null}
