@@ -24,12 +24,25 @@ export default function Page5() {
   const [decryptedAccount, setDecryptedAccount] = useState('')
   const [memberPostPage, setMemberPostPage] = useState(0)
   const { showToast } = useToast()
+  const [totalBalance, setTotalBalance] = useState(0)
+  const [totalAvailable, setTotalAvailable] = useState(0)
   const PAGE_SIZE = 5
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (role !== 'admin') { router.push('/'); return }
     fetchSettlements()
+    
+    const loadTotals = async () => {
+      const { data: balanceData } = await supabase.from('participants').select('balance').not('is_deleted', 'is', true)
+      const total = balanceData?.reduce((sum: number, p: any) => sum + (p.balance ?? 0), 0) ?? 0
+      setTotalBalance(total)
+      
+      const { data: pendingData } = await supabase.from('settlements').select('amount').eq('status', 'PENDING')
+      const pending = pendingData?.reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
+      setTotalAvailable(total - pending)
+    }
+    loadTotals()
   }, [])
 
   const fetchSettlements = async () => {
@@ -210,6 +223,16 @@ export default function Page5() {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-white rounded-2xl shadow p-4">
+            <p className="text-xs text-gray-500">체험단 총 적립금</p>
+            <p className="text-xl font-bold text-blue-600">{totalBalance.toLocaleString()}P</p>
+          </div>
+          <div className="bg-white rounded-2xl shadow p-4">
+            <p className="text-xs text-gray-500">환전 가능 금액</p>
+            <p className="text-xl font-bold text-green-600">{totalAvailable.toLocaleString()}P</p>
+          </div>
+        </div>
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 - 환전 신청 목록 */}
           <div>
