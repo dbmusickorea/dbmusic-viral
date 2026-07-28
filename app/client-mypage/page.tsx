@@ -435,7 +435,7 @@ export default function ClientMyPage() {
       <BottomNav tabs={[
         { icon: <LayoutGrid size={20} />, label: '프로젝트', href: '/client' },
         { icon: <BarChart2 size={20} />, label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
-        { icon: <FileText size={20} />, label: '신청', onClick: () => setShowApplyModal(true) },
+        { icon: <FileText size={20} />, label: '신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
         { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage', active: true },
       ]} />
       <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
