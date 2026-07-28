@@ -19,6 +19,7 @@ export default function Page1() {
   const [shortsUrl2, setShortsUrl2] = useState('')
   const [playlistUrl, setPlaylistUrl] = useState('')
   const [selectedProject, setSelectedProject] = useState<any>(null)
+  const [isSaving, setIsSaving] = useState(false)
   const [clientName, setClientName] = useState('')
   const [projectCode, setProjectCode] = useState('')
   const [projectPrefix, setProjectPrefix] = useState('')
@@ -649,6 +650,9 @@ export default function Page1() {
   }
 
   const handleUpdate = async () => {
+    if (isSaving) return
+    setIsSaving(true)
+    try {
     // 이미지 업로드
     let uploadedImageUrl = selectedProject?.cover_image_url || ''
     if (coverImageFile) {
@@ -658,8 +662,6 @@ export default function Page1() {
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
-      }
-    }
 
     const res = await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
       method: 'PATCH',
@@ -742,10 +744,15 @@ export default function Page1() {
         })
       }
     }
+    }
+    }
 
     showToast('수정 완료!')
     fetchProjects()
     fetchClients()
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleSendPush = async () => {
@@ -1773,7 +1780,7 @@ export default function Page1() {
                     <div>
                       {selectedProject ? (
                         <>
-                          <button onClick={handleUpdate} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2">정보 수정하기</button>
+                          <button onClick={handleUpdate} disabled={isSaving} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2 disabled:bg-gray-400">{isSaving ? '저장 중...' : '정보 수정하기'}</button>
                           <button onClick={async () => {
                             if (!selectedClientId) { showToast('의뢰인을 선택해주세요.'); return }
                             
