@@ -392,7 +392,7 @@ export async function GET() {
       const { data: ongoingProjects } = await supabase.from('projects').select('project_code').eq('status', 'ONGOING')
       if (ongoingProjects && ongoingProjects.length > 0) {
         const { data: allParticipantsInactive } = await supabase.from('participants').select('id, created_at')
-        const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').eq('status', 'ACTIVE')
+        const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').in('status', ['ACTIVE', 'BANNED'])
         const joinedIds = new Set(joinedParticipants?.map(j => j.member_id) ?? [])
         const notJoined = allParticipantsInactive?.filter(p => !joinedIds.has(p.id)) ?? []
         if (notJoined.length > 0) {

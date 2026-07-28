@@ -1854,11 +1854,14 @@ useEffect(() => {
                               <div className="flex gap-2 flex-wrap">
                                 {(() => {
                                   const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase())
+                                  const isBanned = alreadyJoined?.status === 'BANNED'
                                   const alreadyCover = alreadyJoined?.is_cover
                                   const alreadyCoverRequested = alreadyJoined?.cover_requested
                                   return (
                                     <>
-                                      {alreadyJoined && !alreadyCover ? (
+                                      {isBanned ? (
+                                        <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
+                                      ) : alreadyJoined && !alreadyCover ? (
                                         <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
                                       ) : !alreadyJoined && !isFull ? (
                                         <button onClick={() => { setJoinAsCover(false); handleJoin() }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">일반 참여</button>
