@@ -418,6 +418,8 @@ useEffect(() => {
       setInfluencerName(participant?.name ?? '')
       setIsLocked(participant?.is_locked ?? false)
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
+      setBannedUntil(participant?.banned_until ?? null)
+      setBanReason(participant?.ban_reason ?? null)
       setIsCoverPossible(participant?.is_cover_possible ?? false)
       setIsCoverApproved(participant?.cover_approved ?? false)
       
