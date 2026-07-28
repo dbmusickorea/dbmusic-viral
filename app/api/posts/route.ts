@@ -44,6 +44,10 @@ export async function DELETE(request: NextRequest) {
   else if (memberId) query = query.eq('member_id', memberId)
   const { error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
+  
+  // post_stats_history도 삭제
+  if (id) await supabaseAdmin.from('post_stats_history').delete().eq('post_id', id)
+  
   return NextResponse.json({ success: true })
 }
 
