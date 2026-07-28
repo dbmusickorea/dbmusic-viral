@@ -24,7 +24,7 @@ async function updatePostStats(posts: any[]) {
         const data = await res.json()
         likes = data.like_count ?? 0
         comments = data.comment_count ?? 0
-        views = data.view_count ?? data.video_view_count ?? 0
+        views = data.view_count ?? data.video_view_count ?? data.play_count ?? 0
         await new Promise(resolve => setTimeout(resolve, 1000))
 
       } else if (post.platform === 'youtube') {
