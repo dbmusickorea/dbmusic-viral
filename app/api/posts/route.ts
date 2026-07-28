@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
   if (memberId) query = query.eq('member_id', memberId)
   if (projectCode) query = query.ilike('project_code', projectCode)
   if (isCover) query = query.eq('is_cover', isCover === 'true')
+  const coverStatus = searchParams.get('cover_status')
+  if (coverStatus) query = query.eq('cover_status', coverStatus)
 
   const postUrl = searchParams.get('post_url')
   if (postUrl) query = query.ilike('post_url', `${postUrl}%`)
