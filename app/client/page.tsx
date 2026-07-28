@@ -323,21 +323,33 @@ export default function Page3() {
       const dates = [...new Set(data.map((h: any) => h.recorded_at.includes('_') ? h.recorded_at.split('_')[0] : h.recorded_at))].sort()
       const stats: any[] = dates.map(date => {
         const dayData = data.filter((h: any) => h.recorded_at === date || h.recorded_at.startsWith(date + '_'))
-        const igData = dayData.filter((h: any) => h.platform === 'instagram')
-        const ytData = dayData.filter((h: any) => h.platform === 'youtube')
-        const ttData = dayData.filter((h: any) => h.platform === 'tiktok')
+        const getLatestPerPost = (data: any[]) => {
+          const map = new Map()
+          data.forEach((h: any) => {
+            const hour = parseInt(h.recorded_at.split('_')[1] ?? '0')
+            const existing = map.get(h.post_id)
+            const existingHour = existing ? parseInt(existing.recorded_at.split('_')[1] ?? '0') : -1
+            if (!existing || hour > existingHour) {
+              map.set(h.post_id, h)
+            }
+          })
+          return Array.from(map.values())
+        }
+        const igData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'instagram'))
+        const ytData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'youtube'))
+        const ttData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'tiktok'))
         const coverCount = coverData?.filter((p: any) => p.created_at?.startsWith(date))?.length ?? 0
         return {
           date,
-          ig_likes: igData.length > 0 ? Math.max(...igData.map((h: any) => h.likes_count ?? 0)) : 0,
-          ig_comments: igData.length > 0 ? Math.max(...igData.map((h: any) => h.comments_count ?? 0)) : 0,
-          ig_views: igData.length > 0 ? Math.max(...igData.map((h: any) => h.views_count ?? 0)) : 0,
-          yt_likes: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.likes_count ?? 0)) : 0,
-          yt_comments: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.comments_count ?? 0)) : 0,
-          yt_views: ytData.length > 0 ? Math.max(...ytData.map((h: any) => h.views_count ?? 0)) : 0,
-          tt_likes: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.likes_count ?? 0)) : 0,
-          tt_comments: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.comments_count ?? 0)) : 0,
-          tt_views: ttData.length > 0 ? Math.max(...ttData.map((h: any) => h.views_count ?? 0)) : 0,
+          ig_likes: igData.reduce((sum: number, h: any) => sum + (h.likes_count ?? 0), 0),
+          ig_comments: igData.reduce((sum: number, h: any) => sum + (h.comments_count ?? 0), 0),
+          ig_views: igData.reduce((sum: number, h: any) => sum + (h.views_count ?? 0), 0),
+          yt_likes: ytData.reduce((sum: number, h: any) => sum + (h.likes_count ?? 0), 0),
+          yt_comments: ytData.reduce((sum: number, h: any) => sum + (h.comments_count ?? 0), 0),
+          yt_views: ytData.reduce((sum: number, h: any) => sum + (h.views_count ?? 0), 0),
+          tt_likes: ttData.reduce((sum: number, h: any) => sum + (h.likes_count ?? 0), 0),
+          tt_comments: ttData.reduce((sum: number, h: any) => sum + (h.comments_count ?? 0), 0),
+          tt_views: ttData.reduce((sum: number, h: any) => sum + (h.views_count ?? 0), 0),
           cover_count: coverCount > 0 ? coverCount : null,
         }
       })
