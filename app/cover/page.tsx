@@ -31,7 +31,7 @@ export default function CoverPage() {
   const [coverAddApproved, setCoverAddApproved] = useState(false)
   const [coverRequestedIds, setCoverRequestedIds] = useState<number[]>([])
   const [showSidebar, setShowSidebar] = useState(false)
-  const [coverRewardAmount, setCoverRewardAmount] = useState('')
+  const [coverRewardAmounts, setCoverRewardAmounts] = useState<{[key: number]: string}>({})
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [applyArtistName, setApplyArtistName] = useState('')
   const [applySongTitle, setApplySongTitle] = useState('')
@@ -206,8 +206,9 @@ export default function CoverPage() {
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><p>로딩 중...</p></div>
 
   const handleApproveCover = async (post: any, type: string = 'long') => {
-    if (!coverRewardAmount) { showToast('지급할 금액을 입력해주세요.'); return }
-    const reward = Number(coverRewardAmount)
+    const amount = coverRewardAmounts[post.id]
+    if (!amount) { showToast('지급할 금액을 입력해주세요.'); return }
+    const reward = Number(amount)
     await fetch(`/api/posts?id=${post.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -244,7 +245,7 @@ export default function CoverPage() {
       })
     }
     showToast('승인 완료!')
-    setCoverRewardAmount('')
+    setCoverRewardAmounts(prev => { const next = {...prev}; delete next[post.id]; return next })
     await loadCoverPosts()
   }
 
@@ -462,10 +463,7 @@ export default function CoverPage() {
             {selectedProject && userRole === 'admin' && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3">🎵 커버영상 승인 목록</h2>
-                <div className="mb-3">
-                  <label className="text-sm font-medium">지급 금액</label>
-                  <input type="number" value={coverRewardAmount} onChange={(e) => setCoverRewardAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 지급 금액 입력" />
-                </div>
+                
                 {coverPosts.filter(p => p.project_code === selectedProject.project_code).length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">커버영상 신청이 없습니다.</p>
                 ) : (
@@ -484,6 +482,7 @@ export default function CoverPage() {
                             </span>
                             {post.cover_status === 'PENDING' && (
                               <>
+                                <input type="number" value={coverRewardAmounts[post.id] ?? ''} onChange={(e) => setCoverRewardAmounts(prev => ({...prev, [post.id]: e.target.value}))} className="w-full border rounded-lg px-3 py-2 text-sm mt-2 mb-2" placeholder="지급 금액 입력" />
                                 <button onClick={() => handleApproveCover(post, 'long')} className="text-xs bg-green-600 text-white rounded px-2 py-1">롱폼 승인</button>
                                 <button onClick={() => handleApproveCover(post, 'shorts')} className="text-xs bg-blue-600 text-white rounded px-2 py-1">숏츠 승인</button>
                                 <button onClick={() => handleRejectCover(post.id)} className="text-xs bg-red-500 text-white rounded px-2 py-1">거절</button>
