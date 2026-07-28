@@ -152,39 +152,49 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.banned_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
                   {participant?.ban_reason && <p className="text-xs text-red-500 mt-1">사유: {participant.ban_reason}</p>}
                 </div>
-                <button onClick={async () => {
-                  await fetch(`/api/participants?id=${memberId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ banned_until: null, ban_reason: null })
-                  })
-                  // project_participants status도 ACTIVE로 변경
-                  await fetch(`/api/project_participants?member_id=${memberId}&status=BANNED`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'ACTIVE', ban_exempt: true })
-                  })
-                  showToast('밴 해제 완료!')
-                  const res = await fetch(`/api/participants?id=${memberId}`)
-                  const data = await res.json()
-                  setParticipant(data?.[0])
-                  onUpdate?.()
-                  // 밴 해제 푸시
-                  const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
-                  const tokens = await tokensRes.json()
-                  if (tokens?.length > 0) {
-                    await fetch('/api/push', {
-                      method: 'POST',
+                <div className="flex flex-col gap-1">
+                  <button onClick={async () => {
+                    await fetch(`/api/participants?id=${memberId}`, {
+                      method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        title: '✅ 활동 제한이 해제됐어요!',
-                        body: '다시 미션에 참여할 수 있어요.',
-                        tokens: tokens.map((t: any) => t.token),
-                        userIds: [String(memberId)]
-                      })
+                      body: JSON.stringify({ banned_until: null, ban_reason: null })
                     })
-                  }
-                }} className="text-xs bg-red-600 text-white rounded px-2 py-1">밴 해제</button>
+                    // project_participants ACTIVE로 변경 (재참여)
+                    await fetch(`/api/project_participants?member_id=${memberId}&status=BANNED`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ status: 'ACTIVE', ban_exempt: true })
+                    })
+                    showToast('밴 해제 완료! (프로젝트 재참여)')
+                    const res = await fetch(`/api/participants?id=${memberId}`)
+                    const data = await res.json()
+                    setParticipant(data?.[0])
+                    onUpdate?.()
+                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+                    const tokens = await tokensRes.json()
+                    if (tokens?.length > 0) {
+                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
+                    }
+                  }} className="text-xs bg-green-600 text-white rounded px-2 py-1">해제+재참여</button>
+                  <button onClick={async () => {
+                    await fetch(`/api/participants?id=${memberId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ banned_until: null, ban_reason: null })
+                    })
+                    // project_participants BANNED 유지 (재참여 없음)
+                    showToast('밴 해제 완료! (프로젝트 제외)')
+                    const res = await fetch(`/api/participants?id=${memberId}`)
+                    const data = await res.json()
+                    setParticipant(data?.[0])
+                    onUpdate?.()
+                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+                    const tokens = await tokensRes.json()
+                    if (tokens?.length > 0) {
+                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
+                    }
+                  }} className="text-xs bg-red-600 text-white rounded px-2 py-1">해제+제외</button>
+                </div>
               </div>
             </div>
           )}
