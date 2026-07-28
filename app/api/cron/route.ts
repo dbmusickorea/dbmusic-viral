@@ -279,7 +279,7 @@ export async function GET() {
               if (participant) {
                 const newLevel = Math.max(1, (participant.level ?? 1) - 10)
                 const bannedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-                await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString() }).eq('id', participant.id)
+                await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString(), ban_reason: `${project.artist_name || project.client_name} / ${project.song_title ?? ''} - 1차 게시물 미업로드` }).eq('id', participant.id)
                 await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', project.project_code).eq('member_id', participant.id)
                 
                 // 해당 체험단에게 레벨 하락 푸시
@@ -337,7 +337,7 @@ export async function GET() {
               if (participant) {
                 const newLevel = Math.max(1, (participant.level ?? 1) - 10)
                 const bannedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-                await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString() }).eq('id', participant.id)
+                await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString(), ban_reason: `${project.artist_name || project.client_name} / ${project.song_title ?? ''} - 2차 게시물 미업로드` }).eq('id', participant.id)
                 await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', project.project_code).eq('member_id', participant.id)
                 
                 const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
