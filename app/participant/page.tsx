@@ -1237,6 +1237,14 @@ useEffect(() => {
                                   const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
                                   if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
                                 }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
+                              </div>
+                              <div className="text-right shrink-0 ml-2">
+                                <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
+                                <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
+                                {post.is_cover && (
+                                  <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
+                                )}
+                                <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
                                 <button disabled={isDeletingPost} onClick={async () => {
                                   if (!confirm('게시물을 삭제하시겠어요? 적립금도 차감됩니다.')) return
                                   setIsDeletingPost(true)
@@ -1260,15 +1268,7 @@ useEffect(() => {
                                   fetchMyPostsAndProjects(userInfo?.id)
                                   showToast('게시물이 삭제됐어요.')
                                   setIsDeletingPost(false)
-                                }} className="text-xs text-red-400 mt-1 block">삭제</button>
-                              </div>
-                              <div className="text-right shrink-0 ml-2">
-                                <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
-                                <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
-                                {post.is_cover && (
-                                  <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
-                                )}
-                                <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                                }} className="text-xs text-red-400 mt-1">삭제</button>
                               </div>
                             </div>
                           </div>
