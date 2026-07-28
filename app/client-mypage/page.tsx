@@ -108,7 +108,7 @@ export default function ClientMyPage() {
     }
     const updateData: any = {
       name: myName, company: myCompany, artist: myArtist,
-      phone: myPhone, mobile: myMobile
+      mobile: myMobile
     }
     const res = await fetch(`/api/users?id=${userInfo?.id}`, {
       method: 'PATCH',
@@ -296,16 +296,25 @@ export default function ClientMyPage() {
                 <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
               </div>
               {[
-                { label: '이름', value: myName, setter: setMyName },
-                { label: '회사명', value: myCompany, setter: setMyCompany },
-                { label: '전화번호', value: myPhone, setter: setMyPhone },
-                { label: '휴대전화', value: myMobile, setter: setMyMobile },
-              ].map(({ label, value, setter }) => (
+                { label: '이름', value: myName },
+                { label: '회사명', value: myCompany },
+                { label: '휴대전화', value: myMobile },
+              ].map(({ label, value }) => (
                 <div key={label}>
                   <label className="text-sm font-medium">{label}</label>
-                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                  <p className="w-full border rounded-lg px-3 py-2 text-sm mt-1 bg-gray-50">{value}</p>
                 </div>
               ))}
+              <div>
+                <label className="text-sm font-medium">아티스트 목록</label>
+                <div className="space-y-2 mt-1">
+                  {artistList.map((a) => (
+                    <div key={a.id} className="flex items-center bg-gray-50 rounded-lg px-3 py-2">
+                      <span className="text-sm">{a.artist_name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div>
                 <label className="text-sm font-medium">아티스트 목록</label>
                 <div className="space-y-2 mt-1">
@@ -346,7 +355,6 @@ export default function ClientMyPage() {
                 { label: '이름', value: myName, setter: setMyName },
                 { label: '회사명', value: myCompany, setter: setMyCompany },
                 { label: '아티스트명', value: myArtist, setter: setMyArtist },
-                { label: '전화번호', value: myPhone, setter: setMyPhone },
                 { label: '휴대전화', value: myMobile, setter: setMyMobile },
               ].map(({ label, value, setter }) => (
                 <div key={label}>
@@ -354,6 +362,31 @@ export default function ClientMyPage() {
                   <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
                 </div>
               ))}
+              <div>
+                <label className="text-sm font-medium">아티스트 목록</label>
+                <div className="space-y-2 mt-1">
+                  {artistList.map((a) => (
+                    <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                      <span className="text-sm">{a.artist_name}</span>
+                      <button onClick={async () => {
+                        await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
+                        const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+                        setArtistList(await res.json())
+                      }} className="text-xs text-red-400">삭제</button>
+                    </div>
+                  ))}
+                  <div className="flex gap-2">
+                    <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="아티스트명 입력" />
+                    <button onClick={async () => {
+                      if (!newArtistName) return
+                      await fetch('/api/artists', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName }) })
+                      setNewArtistName('')
+                      const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+                      setArtistList(await res.json())
+                    }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+                  </div>
+                </div>
+              </div>
               <div>
                 <label className="text-sm font-medium">기존 비밀번호</label>
                 <div className="relative mt-1">
