@@ -329,7 +329,6 @@ export default function ClientMyPage() {
               {[
                 { label: '이름', value: myName, setter: setMyName },
                 { label: '회사명', value: myCompany, setter: setMyCompany },
-                { label: '아티스트명', value: myArtist, setter: setMyArtist },
               ].map(({ label, value, setter }) => (
                 <div key={label}>
                   <label className="text-sm font-medium">{label}</label>
