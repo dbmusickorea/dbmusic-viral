@@ -85,7 +85,21 @@ export default function WalletPage() {
     const settledAmount = data.settlements
       ?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
       .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
-    setAvailableBalance(Math.max(0, (participant?.balance ?? 0) - settledAmount))
+    
+    // 완료된 프로젝트 적립금만 환전 가능
+    const availablePostsAmount = data.availablePosts?.reduce((sum: number, p: any) => {
+      const project = data.myProjects?.find((proj: any) => proj.project_code.toLowerCase() === p.project_code?.toLowerCase())
+      const baseAmount = project?.reward_per_post ?? 0
+      const level = participant?.level ?? 1
+      const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
+      return sum + Math.min(baseAmount, earnAmount)
+    }, 0) ?? 0
+    
+    const coverAvailableAmount = data.coverAvailablePosts?.reduce((sum: number, p: any) => {
+      return sum + (participant?.cover_reward ?? 0)
+    }, 0) ?? 0
+    
+    setAvailableBalance(Math.max(0, availablePostsAmount + coverAvailableAmount - settledAmount))
 
     if (data.posts && data.posts.length > 0) {
       const codes = [...new Set(data.posts.map((p: any) => p.project_code))]

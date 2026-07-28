@@ -75,6 +75,22 @@ export async function GET(request: NextRequest) {
   participantCounts?.forEach((p: any) => {
     countMap[p.project_code] = (countMap[p.project_code] ?? 0) + 1
   })
+  // 환전가능금액 계산
+  const completedProjects = myProjectsRes.data?.filter((p: any) => p.status === 'COMPLETED') ?? []
+  const completedCodes = completedProjects.map((p: any) => p.project_code)
+  
+  const availablePosts = postsRes.data?.filter((p: any) => 
+    completedCodes.some((code: string) => code.toLowerCase() === p.project_code?.toLowerCase()) && !p.is_cover
+  ) ?? []
+  
+  const coverAvailablePosts = postsRes.data?.filter((p: any) => {
+    const project = completedProjects.find((proj: any) => proj.project_code.toLowerCase() === p.project_code?.toLowerCase())
+    if (!project || !p.is_cover) return false
+    const endDate = project.end_date ? new Date(project.end_date) : null
+    if (!endDate) return false
+    const available15Days = new Date(endDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+    return new Date() >= available15Days
+  }) ?? []
 
   return NextResponse.json({
     participant: participantRes.data,
@@ -89,6 +105,8 @@ export async function GET(request: NextRequest) {
     participations: participationsRes.data ?? [],
     notifications: notificationsRes.data ?? [],
     myProjects: myProjectsRes.data ?? [],
-    rankMap
+    rankMap,
+    availablePosts,
+    coverAvailablePosts
   })
 }
