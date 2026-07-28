@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, BarChart2, Target, Wallet, User } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
@@ -524,10 +524,10 @@ export default function MyPage() {
         </div>
       </div>
       <BottomNav tabs={[
-        { icon: '📊', label: '내 현황', href: '/participant' },
-        { icon: '🎯', label: '프로젝트', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
-        { icon: '💰', label: '적립금', href: '/wallet' },
-        { icon: '👤', label: '마이페이지', href: '/mypage', active: true },
+        { icon: <BarChart2 size={20} />, label: '내 현황', href: '/participant' },
+        { icon: <Target size={20} />, label: '프로젝트', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
+        { icon: <Wallet size={20} />, label: '적립금', href: '/wallet' },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', active: true },
       ]} />
     </div>
     </>

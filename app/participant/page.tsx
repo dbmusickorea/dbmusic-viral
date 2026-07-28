@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell } from 'lucide-react'
+import { Bell, BarChart2, Target, Wallet, User } from 'lucide-react'
 import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
@@ -1915,10 +1915,10 @@ useEffect(() => {
       </button>
       {/* 하단 탭바 */}
       <BottomNav tabs={[
-        { icon: '📊', label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home' },
-        { icon: '🎯', label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0 },
-        { icon: '💰', label: '적립금', href: '/wallet' },
-        { icon: '👤', label: '마이페이지', href: '/mypage' },
+        { icon: <BarChart2 size={20} />, label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home' },
+        { icon: <Target size={20} />, label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0 },
+        { icon: <Wallet size={20} />, label: '적립금', href: '/wallet' },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage' },
       ]} />
       
     </div>
