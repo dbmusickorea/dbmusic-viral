@@ -440,6 +440,7 @@ export async function GET() {
       }
     
     
+    console.log('스냅샷 저장 블록 시작')
     // 프로젝트별 refresh_interval에 맞게 스냅샷 저장
     const { data: ongoingProjectsForSnapshot } = await supabase
       .from('projects')
