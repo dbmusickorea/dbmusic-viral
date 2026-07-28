@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   if (isCover) query = query.eq('is_cover', isCover === 'true')
 
   const postUrl = searchParams.get('post_url')
-  if (postUrl) query = query.eq('post_url', postUrl)
+  if (postUrl) query = query.ilike('post_url', `${postUrl}%`)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })

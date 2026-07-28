@@ -682,7 +682,8 @@ useEffect(() => {
     if (validUrls.some(u => !isValidUrl(u))) { showToast('올바른 인스타그램, 유튜브, 틱톡 링크를 입력해주세요.'); return }
 
     // URL 중복 체크
-    const dupRes = await fetch(`/api/posts?post_url=${encodeURIComponent(validUrls[0])}`)
+    const cleanUrl = validUrls[0].split('?')[0]
+    const dupRes = await fetch(`/api/posts?post_url=${encodeURIComponent(cleanUrl)}`)
     const dupData = await dupRes.json()
     if (dupData && dupData.length > 0) {
       showToast('이미 다른 체험단이 제출한 링크예요. 본인의 게시물 링크를 입력해주세요.')
