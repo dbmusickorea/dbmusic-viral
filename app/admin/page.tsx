@@ -1365,16 +1365,33 @@ export default function Page1() {
                                 })
                               }
                             }
-                            await fetch('/api/notifications', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                user_id: clientUser?.id,
-                                user_role: 'client',
-                                title: '📬 문의 답장이 왔어요!',
-                                body: replyText[req.id]
+                            // 체험단 문의인 경우 체험단에게 푸시
+                            if (req.member_id) {
+                              const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(req.member_id)}`)
+                              const memberTokens = await memberTokensRes.json()
+                              if (memberTokens && memberTokens.length > 0) {
+                                await fetch('/api/push', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    title: '📬 문의 답장이 왔어요!',
+                                    body: replyText[req.id],
+                                    tokens: memberTokens.map((t: any) => t.token),
+                                    userIds: memberTokens.map((t: any) => t.user_id)
+                                  })
+                                })
+                              }
+                              await fetch('/api/notifications', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  user_id: String(req.member_id),
+                                  user_role: 'participant',
+                                  title: '📬 문의 답장이 왔어요!',
+                                  body: replyText[req.id]
+                                })
                               })
-                            })
+                            }
                             setReplyText(prev => ({...prev, [req.id]: ''}))
                             fetchClientRequests()
                           }} className="text-xs bg-blue-600 text-white rounded px-2 py-1">답장</button>
