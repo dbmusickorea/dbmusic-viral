@@ -49,8 +49,9 @@ export async function GET() {
     const participant = participants?.find((p: any) => p.id === h.member_id)
     const memo = h.memo ?? ''
 
-    const projectMatch = memo.match(/\((.+)\)/)
-    const project = projectMatch ? projectMatch[1] : '-'
+    // 커버영상 승인은 괄호 안이 프로젝트가 아니라 타입이므로 project_code 컬럼 사용
+    const projectMatch = memo.includes('커버영상 승인') ? null : memo.match(/\((.+)\)/)
+    const project = projectMatch ? projectMatch[1] : (h.project_code ?? '-')
 
     let comment = 0, post = 0, coverPost = 0, coverFee = 0, referral = 0, etc = 0
     let etcMemo = ''
