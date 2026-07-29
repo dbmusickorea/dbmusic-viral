@@ -587,6 +587,12 @@ useEffect(() => {
     )
     if (!joinConfirmed) return
     
+    // SNS ID 체크
+    if (!userInfo.instagram_id && !userInfo.youtube_id && !userInfo.tiktok_id) {
+      showToast('SNS 계정이 없어요. 마이페이지에서 SNS 계정을 등록해주세요.')
+      return
+    }
+    
     // 밴/락 여부 체크
     const participantRes = await fetch(`/api/participants?ids=${userInfo.id}`)
     const participants = await participantRes.json()
