@@ -1137,6 +1137,12 @@ export default function Page4() {
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ status: 'APPROVED' })
                                       })
+                                      // participants 테이블 업데이트
+                                      await fetch(`/api/participants?id=${selected.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ [`${req.platform}_id`]: req.new_id })
+                                      })
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
                                       setSelected((prev: any) => ({...prev, [`${req.platform}_id`]: req.new_id}))
                                       showToast('승인됐어요!')
