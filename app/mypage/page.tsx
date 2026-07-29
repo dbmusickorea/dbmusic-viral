@@ -125,6 +125,7 @@ export default function MyPage() {
         account_holder: myAccountHolder, account_number: myAccountNumber,
         instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
         cover_video_url: coverVideoUrl || null,
+        is_cover_possible: isCoverPossible,
         genres: selectedGenres,
         ...(myPassword ? { password: myPassword } : {})
       })
@@ -358,6 +359,12 @@ export default function MyPage() {
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
                 <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 변경 안내</p>
                 <p className="text-xs text-orange-600 mt-1">SNS 계정 변경은 관리자 승인 후 반영됩니다. 반드시 본인 계정을 입력해주세요.</p>
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                  <input type="checkbox" checked={isCoverPossible} onChange={(e) => setIsCoverPossible(e.target.checked)} className="w-4 h-4" />
+                  커버영상 촬영 가능
+                </label>
               </div>
               {isCoverPossible && (
                 <div>
