@@ -1019,13 +1019,14 @@ export default function Page4() {
                     </div>
                     <div className="flex items-center gap-2">
                       <input type="checkbox" checked={selected?.is_cover_possible ?? false} onChange={async (e) => {
+                        const checked = e.target.checked
                         await fetch(`/api/participants?id=${selected.id}`, {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ is_cover_possible: e.target.checked })
+                          body: JSON.stringify({ is_cover_possible: checked })
                         })
-                        setSelected({ ...selected, is_cover_possible: e.target.checked })
-                        setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, is_cover_possible: e.target.checked } : p))
+                        setSelected((prev: any) => ({ ...prev, is_cover_possible: checked }))
+                        setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, is_cover_possible: checked } : p))
                       }} />
                       <label className="text-sm font-medium">커버가능 체험단</label>
                     </div>
