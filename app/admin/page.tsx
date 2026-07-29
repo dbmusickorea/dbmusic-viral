@@ -1633,6 +1633,8 @@ export default function Page1() {
                             <option value="youtube_shorts">유튜브 숏츠</option>
                             <option value="youtube_long">유튜브 롱폼</option>
                             <option value="playlist">플레이리스트</option>
+                            <option value="instagram">인스타그램</option>
+                            <option value="tiktok">틱톡</option>
                           </select>
                           <input value={link.url} onChange={(e) => {
                             const newLinks = [...projectLinks]
