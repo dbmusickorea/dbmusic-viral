@@ -326,17 +326,18 @@ export default function Page3() {
         const getLatestPerPost = (data: any[]) => {
           const map = new Map()
           data.forEach((h: any) => {
+            const key = h.link_id ? `link_${h.link_id}` : `post_${h.post_id}`
             const hour = parseInt(h.recorded_at.split('_')[1] ?? '0')
-            const existing = map.get(h.post_id)
+            const existing = map.get(key)
             const existingHour = existing ? parseInt(existing.recorded_at.split('_')[1] ?? '0') : -1
             if (!existing || hour > existingHour) {
-              map.set(h.post_id, h)
+              map.set(key, h)
             }
           })
           return Array.from(map.values())
         }
         const igData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'instagram'))
-        const ytData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'youtube'))
+        const ytData = getLatestPerPost(dayData.filter((h: any) => ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(h.platform)))
         const ttData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'tiktok'))
         const coverCount = coverData?.filter((p: any) => p.created_at?.startsWith(date))?.length ?? 0
         return {
