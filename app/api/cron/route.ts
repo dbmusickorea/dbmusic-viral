@@ -948,13 +948,19 @@ export async function GET() {
               // 게시물 삭제 + 적립금 차감
               const { data: participant } = await supabase.from('participants').select('balance, level, cover_reward').eq('id', post.member_id).maybeSingle()
               if (participant) {
-                const baseAmount = (await supabase.from('projects').select('reward_per_post').eq('project_code', post.project_code).maybeSingle()).data?.reward_per_post ?? 0
+                const projectData = (await supabase.from('projects').select('reward_per_post, artist_name, song_title').eq('project_code', post.project_code).maybeSingle()).data
+                const baseAmount = projectData?.reward_per_post ?? 0
                 const level = participant.level ?? 1
                 const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
                 const deductAmount = Math.min(baseAmount, earnAmount)
                 const newBalance = Math.max(0, (participant.balance ?? 0) - deductAmount)
                 await supabase.from('participants').update({ balance: newBalance }).eq('id', post.member_id)
-                await supabase.from('point_history').insert({ member_id: post.member_id, amount: -deductAmount, memo: `게시물 삭제 (SNS 원본 삭제 감지)` })
+                await supabase.from('point_history').insert({ 
+                  member_id: post.member_id, 
+                  amount: -deductAmount, 
+                  memo: `게시물 삭제 (SNS 원본 삭제 감지) (${projectData?.artist_name || post.project_code} / ${projectData?.song_title ?? ''})`,
+                  project_code: post.project_code
+                })
               }
               await supabase.from('posts').delete().eq('id', post.id)
               await supabase.from('post_stats_history').delete().eq('post_id', post.id)
