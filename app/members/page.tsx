@@ -1104,7 +1104,7 @@ export default function Page4() {
                             await fetch(`/api/participants?id=${selected.id}`, {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ cover_approved: false })
+                              body: JSON.stringify({ cover_approved: false, is_cover_possible: false })
                             })
                             const tokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.id)}`)
                             const tokens = await tokensRes.json()
