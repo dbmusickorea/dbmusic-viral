@@ -1618,38 +1618,67 @@ export default function Page1() {
                       <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
                     </div>
                     <div>
+                      {/* 유튜브 링크 */}
                       <div className="flex justify-between items-center mb-2">
-                        <label className="text-sm font-medium">프로젝트 링크</label>
-                        <button onClick={() => setProjectLinks([...projectLinks, { platform: 'youtube_shorts', url: '', isNew: true }])} className="text-xs bg-blue-600 text-white px-2 py-1 rounded">+ 링크 추가</button>
+                        <label className="text-sm font-medium">댓글 부스팅 유튜브 링크</label>
+                        <button onClick={() => setProjectLinks([...projectLinks, { platform: 'youtube_shorts', url: '', isNew: true }])} className="text-xs bg-red-600 text-white px-2 py-1 rounded">+ 추가</button>
                       </div>
-                      {projectLinks.map((link, i) => (
-                        <div key={i} className="flex gap-2 mt-2 items-center">
-                          <select value={link.platform} onChange={(e) => {
-                            const newLinks = [...projectLinks]
-                            newLinks[i].platform = e.target.value
-                            setProjectLinks(newLinks)
-                          }} className="border rounded-lg px-2 py-2 text-base box-border">
-                            <option value="">- 선택하세요 -</option>
-                            <option value="youtube_shorts">유튜브 숏츠</option>
-                            <option value="youtube_long">유튜브 영상</option>
-                            <option value="youtube_lyric">리릭영상</option>
-                            <option value="playlist">플레이리스트</option>
-                            <option value="instagram">인스타그램</option>
-                            <option value="tiktok">틱톡</option>
-                          </select>
-                          <input value={link.url} onChange={(e) => {
-                            const newLinks = [...projectLinks]
-                            newLinks[i].url = e.target.value
-                            setProjectLinks(newLinks)
-                          }} className={`flex-1 border rounded-lg px-3 py-2 text-base box-border`} placeholder="URL 입력" />
-                          <button onClick={async () => {
-                            if (!link.isNew && link.id) {
-                              await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
-                            }
-                            setProjectLinks(projectLinks.filter((_, idx) => idx !== i))
-                          }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
-                        </div>
-                      ))}
+                      {projectLinks.filter(l => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform)).map((link, i) => {
+                        const realIdx = projectLinks.indexOf(link)
+                        return (
+                          <div key={i} className="flex gap-2 mt-2 items-center">
+                            <select value={link.platform} onChange={(e) => {
+                              const newLinks = [...projectLinks]
+                              newLinks[realIdx].platform = e.target.value
+                              setProjectLinks(newLinks)
+                            }} className="border rounded-lg px-2 py-2 text-base box-border">
+                              <option value="youtube_shorts">유튜브 숏츠</option>
+                              <option value="youtube_long">유튜브 영상</option>
+                              <option value="youtube_lyric">리릭영상</option>
+                              <option value="playlist">플레이리스트</option>
+                            </select>
+                            <input value={link.url} onChange={(e) => {
+                              const newLinks = [...projectLinks]
+                              newLinks[realIdx].url = e.target.value
+                              setProjectLinks(newLinks)
+                            }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border" placeholder="URL 입력" />
+                            <button onClick={async () => {
+                              if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
+                              setProjectLinks(projectLinks.filter((_, idx) => idx !== realIdx))
+                            }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
+                          </div>
+                        )
+                      })}
+
+                      {/* 인스타/틱톡 링크 */}
+                      <div className="flex justify-between items-center mb-2 mt-4">
+                        <label className="text-sm font-medium">인스타/틱톡 링크</label>
+                        <button onClick={() => setProjectLinks([...projectLinks, { platform: 'instagram', url: '', isNew: true }])} className="text-xs bg-pink-600 text-white px-2 py-1 rounded">+ 추가</button>
+                      </div>
+                      {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).map((link, i) => {
+                        const realIdx = projectLinks.indexOf(link)
+                        return (
+                          <div key={i} className="flex gap-2 mt-2 items-center">
+                            <select value={link.platform} onChange={(e) => {
+                              const newLinks = [...projectLinks]
+                              newLinks[realIdx].platform = e.target.value
+                              setProjectLinks(newLinks)
+                            }} className="border rounded-lg px-2 py-2 text-base box-border">
+                              <option value="instagram">인스타그램</option>
+                              <option value="tiktok">틱톡</option>
+                            </select>
+                            <input value={link.url} onChange={(e) => {
+                              const newLinks = [...projectLinks]
+                              newLinks[realIdx].url = e.target.value
+                              setProjectLinks(newLinks)
+                            }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border" placeholder="URL 입력" />
+                            <button onClick={async () => {
+                              if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
+                              setProjectLinks(projectLinks.filter((_, idx) => idx !== realIdx))
+                            }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
+                          </div>
+                        )
+                      })}
                     </div>
                     <div>
                       <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
