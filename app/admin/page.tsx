@@ -663,6 +663,8 @@ export default function Page1() {
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
+      }
+    }
 
     const res = await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
       method: 'PATCH',
@@ -744,8 +746,6 @@ export default function Page1() {
           })
         })
       }
-    }
-    }
     }
 
     showToast('수정 완료!')
