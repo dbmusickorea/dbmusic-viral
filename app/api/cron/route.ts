@@ -958,6 +958,21 @@ export async function GET() {
               }
               await supabase.from('posts').delete().eq('id', post.id)
               await supabase.from('post_stats_history').delete().eq('post_id', post.id)
+              
+              // 체험단에게 푸시
+              const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
+              if (tokens && tokens.length > 0) {
+                await fetch('https://app.doubleb.kr/api/push', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: '⚠️ 게시물이 삭제됐어요',
+                    body: '게시물 링크가 유효하지 않아 적립금 회수 및 삭제 처리됐어요.',
+                    tokens: tokens.map((t: any) => t.token),
+                    userIds: [String(post.member_id)]
+                  })
+                })
+              }
             }
           } catch { continue }
         }
