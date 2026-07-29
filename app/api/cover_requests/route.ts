@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const clientId = request.nextUrl.searchParams.get('client_id')
   const participantId = request.nextUrl.searchParams.get('participant_id')
 
-  let query = supabaseAdmin.from('cover_requests').select('*, projects(artist_name, client_name, song_title), participants(name, instagram_profile_image, youtube_profile_image, tiktok_profile_image)').order('created_at', { ascending: false })
+  let query = supabaseAdmin.from('cover_requests').select('*, projects(artist_name, client_name, song_title)').order('created_at', { ascending: false })
   if (projectCode) query = query.ilike('project_code', projectCode)
   if (clientId) query = query.eq('client_id', clientId)
   if (participantId) query = query.eq('participant_id', Number(participantId))

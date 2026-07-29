@@ -217,7 +217,17 @@ export default function Page3() {
     
     const coverReqRes = await fetch(`/api/cover_requests?project_code=${code}&status=PENDING`)
     const coverReqData = await coverReqRes.json()
-    setCoverRequests(coverReqData ?? [])
+    if (Array.isArray(coverReqData) && coverReqData.length > 0) {
+      const pIds = coverReqData.map((r: any) => r.participant_id).join(',')
+      const pRes = await fetch(`/api/participants?ids=${pIds}`)
+      const pData = await pRes.json()
+      setCoverRequests(coverReqData.map((r: any) => ({
+        ...r,
+        participants: pData?.find((p: any) => p.id === r.participant_id)
+      })))
+    } else {
+      setCoverRequests([])
+    }
   }
 
   const fetchCommentMissionData = async (code: string) => {

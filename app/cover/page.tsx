@@ -191,7 +191,7 @@ export default function CoverPage() {
   const loadCoverRequests = async (projectCode: string) => {
     const res = await fetch(`/api/cover_requests?project_code=${projectCode}`)
     const data = await res.json()
-    setCoverRequests(data ?? [])
+    setCoverRequests(Array.isArray(data) ? data : [])
 
     // cover_requested 정보 가져오기
     const ppRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
