@@ -188,8 +188,7 @@ export async function GET(request: NextRequest) {
     const commentSheet = workbook.addWorksheet('댓글 미션')
     commentSheet.columns = [
       { header: '참여자 핸들', width: 25 },
-      { header: '영상 ID', width: 20 },
-      { header: '적립금', width: 12 },
+      { header: '영상 ID', width: 20 },      
       { header: '인증일', width: 15 }
     ]
     const commentHeader = commentSheet.getRow(1)
@@ -197,13 +196,11 @@ export async function GET(request: NextRequest) {
     commentHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' } })
 
     commentMissions.filter(m => m.project_code !== 'UNLOCK').forEach(m => {
-      const row = commentSheet.addRow([
+      commentSheet.addRow([
         m.youtube_handle,
-        m.video_id,
-        m.reward_amount ?? 300,
+        m.video_id,        
         new Date(m.created_at).toLocaleDateString('ko-KR')
       ])
-      row.getCell(3).numFmt = '#,##0'
     })
   }
 
