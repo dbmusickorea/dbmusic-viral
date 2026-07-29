@@ -605,6 +605,17 @@ export default function Page1() {
     await saveProjectVideos(projectCode.toUpperCase())
     await saveProjectLinks(projectCode.toUpperCase())
     
+    // 신청에서 불러온 경우 project_code 저장
+    const approvedApp = projectApplications.find(a => a.status === 'APPROVED' && !a.project_code && a.artist_name === artistName && a.song_title === songTitle)
+    if (approvedApp) {
+      await fetch(`/api/project_applications?id=${approvedApp.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_code: projectCode.toUpperCase() })
+      })
+      fetchProjectApplications()
+    }
+    
     // 체험단 전체에게 푸시
     const participantTokensRes = await fetch('/api/push_tokens?user_role=participant')
     const participantTokens = await participantTokensRes.json()
@@ -1190,6 +1201,7 @@ export default function Page1() {
                         <p className="text-xs text-gray-500">희망 미션일: {app.mission_date ?? '미정'}</p>
                         {app.has_cover && <p className="text-xs text-purple-600">커버 옵션: {app.cover_count}명</p>}
                         {app.requirements && <p className="text-xs text-gray-600 mt-1">{app.requirements}</p>}
+                        {app.jacket_image && <img src={app.jacket_image} className="w-16 h-16 rounded-lg object-cover mt-1" />}
                       </div>
                       <div className="flex flex-col gap-1 shrink-0 ml-2">
                         <span className={`text-xs px-2 py-1 rounded-full text-center ${app.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : app.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'}`}>
@@ -1212,6 +1224,18 @@ export default function Page1() {
                             setSelectedProject(null)
                             window.scrollTo({ top: 0, behavior: 'smooth' })
                           }} className="text-xs bg-green-500 text-white rounded px-2 py-1">승인</button>
+                        )}
+                        {app.status === 'APPROVED' && !app.project_code && (
+                          <button onClick={() => {
+                            setArtistName(app.artist_name ?? '')
+                            setSongTitle(app.song_title ?? '')
+                            setMissionDate(app.mission_date ?? '')
+                            setCoverVideoCount(app.cover_count ?? 0)
+                            setRequirements(app.requirements ?? '')
+                            setCoverImageUrl(app.jacket_image ?? '')
+                            setSelectedProject(null)
+                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                          }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">불러오기</button>
                         )}
                       </div>
                     </div>
