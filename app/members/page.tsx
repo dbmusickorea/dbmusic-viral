@@ -1024,8 +1024,8 @@ export default function Page4() {
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ is_cover_possible: e.target.checked })
                         })
-                        fetchParticipants()
                         setSelected({ ...selected, is_cover_possible: e.target.checked })
+                        fetchParticipants()
                       }} />
                       <label className="text-sm font-medium">커버가능 체험단</label>
                     </div>
