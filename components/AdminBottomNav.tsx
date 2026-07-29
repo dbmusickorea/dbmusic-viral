@@ -17,15 +17,17 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
 
   useEffect(() => {
     const fetchCounts = async () => {
-      const [snsRes, coverRes, settleRes] = await Promise.all([
+      const [snsRes, coverRes, settleRes, coverApprovalRes] = await Promise.all([
         fetch('/api/sns_change_requests?status=PENDING'),
         fetch('/api/posts?is_cover=true&cover_status=PENDING'),
-        fetch('/api/settlements?status=PENDING')
+        fetch('/api/settlements?status=PENDING'),
+        fetch('/api/participants?cover_approved=false')
       ])
       const snsData = await snsRes.json()
       const coverData = await coverRes.json()
       const settleData = await settleRes.json()
-      setSnsRequestCount(Array.isArray(snsData) ? snsData.length : 0)
+      const coverApprovalData = await coverApprovalRes.json()
+      setSnsRequestCount((Array.isArray(snsData) ? snsData.length : 0) + (Array.isArray(coverApprovalData) ? coverApprovalData.length : 0))
       setCoverPendingCount(Array.isArray(coverData) ? coverData.length : 0)
       setSettlementCount(Array.isArray(settleData) ? settleData.length : 0)
     }
