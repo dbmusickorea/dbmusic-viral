@@ -1098,6 +1098,7 @@ export default function Page4() {
                               })
                             }
                             showToast('커버영상 승인 완료!')
+                            setSelected((prev: any) => ({ ...prev, cover_approved: true }))
                             fetchParticipants()
                           }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-xs font-medium">승인</button>
                           <button onClick={async () => {
@@ -1121,6 +1122,7 @@ export default function Page4() {
                               })
                             }
                             showToast('승인 취소 완료!')
+                            setSelected((prev: any) => ({ ...prev, cover_approved: false, is_cover_possible: false }))
                             fetchParticipants()
                           }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-xs font-medium">승인취소</button>
                         </div>
