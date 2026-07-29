@@ -1135,7 +1135,7 @@ export default function Page3() {
             {/* 인스타/틱톡 링크 */}
             {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).length > 0 && (
               <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">📱 SNS 링크</h2>
+                <h2 className="font-bold mb-3">📱 관리자 SNS 링크</h2>
                 <div className="space-y-2">
                   {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).map(link => (
                     <div key={link.id} className="flex justify-between items-center bg-gray-50 rounded-lg p-3">
