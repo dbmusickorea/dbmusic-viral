@@ -2074,10 +2074,33 @@ export default function Page1() {
                                     body: JSON.stringify({ balance: newBalance })
                                   })
                                 }
+                                {
                                 // 게시물 삭제
+                                const freshRes = await fetch(`/api/participants?id=${post.member_id}`)
+                                const freshData = await freshRes.json()
+                                const currentBalance = freshData?.[0]?.balance ?? 0
+                                const projectRes = await fetch(`/api/projects?project_code=${post.project_code}`)
+                                const projectData = await projectRes.json()
+                                const baseAmount = projectData?.[0]?.reward_per_post ?? 0
+                                const level = freshData?.[0]?.level ?? 1
+                                const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
+                                const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) + Math.min(baseAmount, earnAmount) : Math.min(baseAmount, earnAmount)
+                                if (deductAmount > 0) {
+                                  await fetch(`/api/participants?id=${post.member_id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
+                                  })
+                                  await fetch('/api/point_history', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ member_id: post.member_id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` : `게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` })
+                                  })
+                                }
                                 await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
                                 fetchPosts(selectedProject.project_code)
                                 showToast('게시물이 삭제됐어요.')
+                                }
                               }} className="text-xs bg-red-500 text-white rounded px-2 py-1 shrink-0">삭제</button>
                             </div>
                           </div>
