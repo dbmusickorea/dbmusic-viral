@@ -17,6 +17,10 @@ export async function GET() {
     .from('participants')
     .select('id, name')
 
+  const { data: projects } = await supabaseAdmin
+    .from('projects')
+    .select('project_code, artist_name, song_title')
+
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '')
 
@@ -46,12 +50,14 @@ export async function GET() {
   headerRow.font = { bold: true }
 
   for (const h of history ?? []) {
+    if (!h.amount) continue
     const participant = participants?.find((p: any) => p.id === h.member_id)
     const memo = h.memo ?? ''
 
     // 커버영상 승인은 괄호 안이 프로젝트가 아니라 타입이므로 project_code 컬럼 사용
     const projectMatch = memo.includes('커버영상 승인') ? null : memo.match(/\((.+)\)/)
-    const project = projectMatch ? projectMatch[1] : (h.project_code ?? '-')
+    const projectInfo = projects?.find((p: any) => p.project_code === h.project_code)
+    const project = projectMatch ? projectMatch[1] : (projectInfo ? `${projectInfo.artist_name} / ${projectInfo.song_title}` : (h.project_code ?? '-'))
 
     let comment = 0, post = 0, coverPost = 0, coverFee = 0, referral = 0, etc = 0
     let etcMemo = ''
