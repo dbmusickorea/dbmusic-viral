@@ -860,10 +860,11 @@ useEffect(() => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          member_id: userInfo?.id, 
-          amount: earnAmount, 
-          memo: `${activeIsCover ? '커버 게시물' : '게시물'} 제출 (${projectData.artist_name || projectData.client_name} / ${projectData.song_title ?? ''})` 
-        })
+            member_id: userInfo?.id, 
+            amount: earnAmount, 
+            memo: `${activeIsCover ? '커버 게시물' : '게시물'} 제출 (${projectData.artist_name || projectData.client_name} / ${projectData.song_title ?? ''})`,
+            project_code: activeProjectCode
+          })
       })
       if (activeIsCover) {
         showToast(`미션 제출 완료! +${earnAmount.toLocaleString()}P 적립됐어요 🎉\n커버영상은 관리자 승인 후 별도 금액이 추가 지급됩니다.`)
@@ -1277,7 +1278,7 @@ useEffect(() => {
                                     await fetch('/api/point_history', {
                                       method: 'POST',
                                       headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` })
+                                      body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})`, project_code: post.project_code })
                                     })
                                   }
                                   await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
