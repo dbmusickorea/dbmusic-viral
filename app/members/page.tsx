@@ -1025,7 +1025,7 @@ export default function Page4() {
                           body: JSON.stringify({ is_cover_possible: e.target.checked })
                         })
                         setSelected({ ...selected, is_cover_possible: e.target.checked })
-                        fetchParticipants()
+                        setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, is_cover_possible: e.target.checked } : p))
                       }} />
                       <label className="text-sm font-medium">커버가능 체험단</label>
                     </div>
