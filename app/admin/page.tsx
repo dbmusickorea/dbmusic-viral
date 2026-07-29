@@ -1631,7 +1631,8 @@ export default function Page1() {
                           }} className="border rounded-lg px-2 py-2 text-base box-border">
                             <option value="">- 선택하세요 -</option>
                             <option value="youtube_shorts">유튜브 숏츠</option>
-                            <option value="youtube_long">유튜브 롱폼</option>
+                            <option value="youtube_long">유튜브 영상</option>
+                            <option value="youtube_lyric">리릭영상</option>
                             <option value="playlist">플레이리스트</option>
                             <option value="instagram">인스타그램</option>
                             <option value="tiktok">틱톡</option>
