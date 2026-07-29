@@ -911,8 +911,9 @@ export default function Page3() {
                 <button onClick={() => {
                   window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')
                   showToast('상세 결과 보고서 작성을 원하시는 경우 문의하기로 요청하시면 2~3일 이내 발송됩니다.')
-                }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
-                  📥 결과 요약 다운로드 (엑셀)
+                }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors flex items-center justify-center gap-1">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white"><path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/></svg>
+                  결과 요약 다운로드 (엑셀)
                 </button>
               </div>
             )}
