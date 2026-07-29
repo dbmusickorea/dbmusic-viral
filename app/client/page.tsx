@@ -1110,41 +1110,23 @@ export default function Page3() {
                   <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
                   <p className="text-3xl font-bold text-red-500">{commentMissionData.missions.length}건</p>
                 </div>
-                {commentMissionData.links?.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2">
-                    {/* 유튜브 합산 */}
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xs text-gray-500 mb-1">유튜브</p>
-                      <p className="text-sm font-bold text-red-500">
-                        {commentMissionData.missions.filter((m: any) => 
-                          commentMissionData.links
-                            .filter((l: any) => ['youtube_shorts', 'youtube_long', 'playlist'].includes(l.platform))
-                            .some((l: any) => l.video_id === m.video_id)
-                        ).length}건
-                      </p>
-                    </div>
-                    {/* 인스타 */}
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xs text-gray-500 mb-1">인스타</p>
-                      <p className="text-sm font-bold text-pink-500">
-                        {commentMissionData.missions.filter((m: any) =>
-                          commentMissionData.links
-                            .filter((l: any) => l.platform === 'instagram')
-                            .some((l: any) => l.video_id === m.video_id)
-                        ).length}건
-                      </p>
-                    </div>
-                    {/* 틱톡 */}
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xs text-gray-500 mb-1">틱톡</p>
-                      <p className="text-sm font-bold text-black">
-                        {commentMissionData.missions.filter((m: any) =>
-                          commentMissionData.links
-                            .filter((l: any) => l.platform === 'tiktok')
-                            .some((l: any) => l.video_id === m.video_id)
-                        ).length}건
-                      </p>
-                    </div>
+                {commentMissionData.links?.filter((l: any) => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform)).length > 0 && (
+                  <div className="space-y-2">
+                    {commentMissionData.links
+                      .filter((l: any) => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform))
+                      .map((link: any) => {
+                        const platformLabel = link.platform === 'youtube_shorts' ? '유튜브 숏츠' : link.platform === 'youtube_long' ? '유튜브 영상' : link.platform === 'youtube_lyric' ? '리릭영상' : '플레이리스트'
+                        const count = commentMissionData.missions.filter((m: any) => m.video_id === link.video_id).length
+                        return (
+                          <div key={link.id} className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+                            <div>
+                              <p className="text-xs text-gray-500">{platformLabel}</p>
+                              <p className="text-sm font-bold text-red-500">{count}건</p>
+                            </div>
+                            <a href={link.url} target="_blank" className="text-xs text-blue-500 border border-blue-300 rounded px-2 py-1">링크 보기</a>
+                          </div>
+                        )
+                      })}
                   </div>
                 )}
               </div>
