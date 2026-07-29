@@ -1514,6 +1514,20 @@ export default function Page1() {
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
                 <div className="flex gap-2">
+                  {selectedProject && (
+                    <button onClick={async () => {
+                      const url = `https://app.doubleb.kr/api/report?project_code=${selectedProject.project_code}`
+                      if ((window as any).Capacitor?.isNativePlatform?.()) {
+                        const { Browser } = await import('@capacitor/browser')
+                        await Browser.open({ url })
+                      } else {
+                        window.open(url, '_blank')
+                      }
+                    }} className="text-xs bg-green-600 text-white border rounded px-2 py-1 flex items-center gap-1">
+                      <svg viewBox="0 0 24 24" className="w-3 h-3" fill="white"><path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/></svg>
+                      보고서
+                    </button>
+                  )}
                   {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
                   <button onClick={() => setShowProjectForm(!showProjectForm)} className="text-xs text-gray-500 border rounded px-2 py-1">
                     {showProjectForm ? '접기 ▲' : '펼치기 ▼'}
