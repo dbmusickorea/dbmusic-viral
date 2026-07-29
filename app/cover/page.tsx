@@ -675,10 +675,17 @@ export default function CoverPage() {
                             <p className="text-sm font-medium">{participant?.name ?? '-'}</p>
                             {coverPost && (
                               <>
-                                <button onClick={() => setPreviewUrl(previewUrl === coverPost.post_url ? '' : coverPost.post_url)} className="text-xs text-blue-500">영상 보기 →</button>
+                                <button onClick={async () => {
+                                  if ((window as any).Capacitor?.isNativePlatform?.()) {
+                                    const { Browser } = await import('@capacitor/browser')
+                                    await Browser.open({ url: coverPost.post_url })
+                                  } else {
+                                    setPreviewUrl(previewUrl === coverPost.post_url ? '' : coverPost.post_url)
+                                  }
+                                }} className="text-xs text-blue-500">영상 보기 →</button>
                                 {previewUrl === coverPost.post_url && (
-                                  <div style={{position: 'relative', paddingBottom: getAspectRatio(coverPost.post_url), height: 0}}>
-                                    <iframe src={getEmbedUrl(coverPost.post_url)} style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} className="mt-2 rounded-lg" allowFullScreen />
+                                  <div className="mt-2 w-full" style={{height: coverPost.post_url.includes('/shorts/') || coverPost.post_url.includes('reel') || coverPost.post_url.includes('tiktok') ? '600px' : '300px'}}>
+                                    <iframe src={getEmbedUrl(coverPost.post_url)} width="100%" height="100%" className="rounded-lg" allowFullScreen />
                                   </div>
                                 )}
                               </>
