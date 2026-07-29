@@ -108,7 +108,7 @@ export default function LoginPage() {
   const [p_instagram, setPInstagram] = useState('')
   const [p_youtube, setPYoutube] = useState('')
   const [p_tiktok, setPTiktok] = useState('')
-  const [snsInputPlatform, setSnsInputPlatform] = useState('instagram')
+  const [snsInputPlatform, setSnsInputPlatform] = useState('')
   const [snsInputId, setSnsInputId] = useState('')
   const [p_referral, setPReferral] = useState('')
   const [p_verifyCode, setPVerifyCode] = useState('')
@@ -737,12 +737,13 @@ export default function LoginPage() {
                   <label className="text-sm font-medium">SNS 계정 <span className="text-red-500">*</span></label>
                   <p className="text-xs text-gray-500 mt-1 mb-2">팔로워 100명 이상 계정을 등록해주세요. 3개 중 1개 이상 100명이 넘어야 합니다.</p>
                   <div className="flex gap-2 mb-2">
-                    <select value={snsInputPlatform} onChange={(e) => setSnsInputPlatform(e.target.value)} className="border rounded-lg px-2 py-2 text-sm">
+                    <select value={snsInputPlatform} onChange={(e) => setSnsInputPlatform(e.target.value)} className="border rounded-lg px-2 py-2 text-sm shrink-0">
+                      <option value="">- 선택 -</option>
                       <option value="instagram">인스타그램</option>
                       <option value="youtube">유튜브</option>
                       <option value="tiktok">틱톡</option>
                     </select>
-                    <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="@아이디 입력" />
+                    <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="w-28 border rounded-lg px-3 py-2 text-sm" placeholder="@아이디" />
                     <button type="button" onClick={() => {
                       if (!snsInputId) return
                       if (snsInputPlatform === 'instagram') setPInstagram(snsInputId)
