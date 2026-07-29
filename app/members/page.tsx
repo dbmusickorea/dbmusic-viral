@@ -1123,7 +1123,11 @@ export default function Page4() {
                           {snsRequests.map((req) => (
                             <div key={req.id} className="border border-blue-200 rounded-lg p-2 bg-white">
                               <p className="text-xs text-gray-500">{req.platform} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                              <p className="text-xs">{req.old_id} → <span className="font-bold text-blue-600">{req.new_id}</span></p>
+                              <p className="text-xs">{req.old_id} → <a href={
+                                req.platform === 'instagram' ? `https://www.instagram.com/${req.new_id.replace('@','')}` :
+                                req.platform === 'youtube' ? `https://www.youtube.com/${req.new_id}` :
+                                req.platform === 'tiktok' ? `https://www.tiktok.com/@${req.new_id.replace('@','')}` : '#'
+                              } target="_blank" className="font-bold text-blue-600 underline">{req.new_id}</a></p>
                               <div className="flex gap-2 mt-2">
                                 {req.status === 'PENDING' ? (
                                   <>
