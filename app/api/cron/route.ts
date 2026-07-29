@@ -5,7 +5,51 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+async function updateProjectLinkStats(links: any[]) {
+  for (const link of links) {
+    try {
+      let likes = 0
+      let comments = 0
+      let views = 0
 
+      if (link.platform === 'instagram') {
+        const shortcode = (link.url.split('/p/')[1]?.split('/')[0] ?? link.url.split('/reel/')[1]?.split('/')[0])?.split('?')[0]
+        if (!shortcode) continue
+        const res = await fetch(
+          `https://instagram-api-fast-reliable-data-scraper.p.rapidapi.com/post?shortcode=${shortcode}`,
+          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'instagram-api-fast-reliable-data-scraper.p.rapidapi.com' } }
+        )
+        const data = await res.json()
+        likes = data.like_count ?? 0
+        comments = data.comment_count ?? 0
+        views = data.view_count ?? data.video_view_count ?? data.play_count ?? 0
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+      } else if (['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(link.platform)) {
+        const videoId = link.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
+        if (!videoId) continue
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+        const data = await res.json()
+        const stats = data.items?.[0]?.statistics
+        likes = Number(stats?.likeCount ?? 0)
+        comments = Number(stats?.commentCount ?? 0)
+        views = Number(stats?.viewCount ?? 0)
+
+      } else if (link.platform === 'tiktok') {
+        const res = await fetch(
+          `https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(link.url)}&hd=1`,
+          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
+        )
+        const data = await res.json()
+        likes = data.data?.digg_count ?? 0
+        comments = data.data?.comment_count ?? 0
+        views = data.data?.play_count ?? 0
+      }
+
+      await supabase.from('project_links').update({ likes_count: likes, comments_count: comments, views_count: views }).eq('id', link.id)
+    } catch { continue }
+  }
+}
 async function updatePostStats(posts: any[]) {
   let updated = 0
   for (const post of posts) {
@@ -93,12 +137,16 @@ export async function GET() {
           if (interval && currentHour % interval === 0) {
             const { data: projectPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
             if (projectPosts) await updatePostStats(projectPosts)
+            const { data: projectLinks } = await supabase.from('project_links').select('*').ilike('project_code', project.project_code)
+            if (projectLinks) await updateProjectLinkStats(projectLinks)
           }
         } else {
           const interval = project.refresh_interval
           if (interval && currentHour % interval === 0) {
             const { data: projectPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
             if (projectPosts) await updatePostStats(projectPosts)
+            const { data: projectLinks } = await supabase.from('project_links').select('*').ilike('project_code', project.project_code)
+            if (projectLinks) await updateProjectLinkStats(projectLinks)
           }
         }
       }
@@ -498,7 +546,35 @@ export async function GET() {
             })
           }
         }
-      }
+            
+        // project_links 스냅샷 저장
+        const { data: projectLinks } = await supabase.from('project_links').select('*').ilike('project_code', project.project_code)
+        if (projectLinks) {
+          for (const link of projectLinks) {
+            const snapshotKey = `${today}_${currentHour}`
+            const { data: existingLink } = await supabase
+              .from('post_stats_history')
+              .select('id')
+              .eq('link_id', link.id)
+              .eq('recorded_at', snapshotKey)
+              .maybeSingle()
+
+            if (!existingLink) {
+              await supabase.from('post_stats_history').insert({
+                post_id: 0,
+                link_id: link.id,
+                project_code: link.project_code,
+                member_id: null,
+                platform: link.platform,
+                likes_count: link.likes_count ?? 0,
+                comments_count: link.comments_count ?? 0,
+                views_count: link.views_count ?? 0,
+                recorded_at: snapshotKey
+              })
+            }
+          }
+        }
+      }    
     }
 
     // 커버 요청 24시간 미응답 자동 거절
