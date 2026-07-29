@@ -316,7 +316,12 @@ useEffect(() => {
           await fetch('/api/point_history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ member_id: userInfo?.id, amount: 300, memo: '댓글 미션 적립' })
+            body: JSON.stringify({ 
+              member_id: userInfo?.id, 
+              amount: 300, 
+              memo: `댓글 미션 적립 (${projectsMap[projectCode?.toUpperCase()]?.artist_name || projectCode} / ${projectsMap[projectCode?.toUpperCase()]?.song_title ?? ''})`,
+              project_code: projectCode
+            })
           })
           fetchCommentMissions(userInfo?.id)
           showToast('✅ 댓글 인증 완료! 300P가 적립됐어요!')
