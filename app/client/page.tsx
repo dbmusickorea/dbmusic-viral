@@ -1183,7 +1183,12 @@ export default function Page3() {
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           {req.participants?.instagram_profile_image || req.participants?.youtube_profile_image || req.participants?.tiktok_profile_image ? (
-                            <img src={req.participants?.instagram_profile_image ?? req.participants?.youtube_profile_image ?? req.participants?.tiktok_profile_image} className="w-10 h-10 rounded-full object-cover" />
+                            <img src={
+                              req.participants?.cover_video_url?.includes('youtube') ? req.participants?.youtube_profile_image :
+                              req.participants?.cover_video_url?.includes('instagram') ? req.participants?.instagram_profile_image :
+                              req.participants?.cover_video_url?.includes('tiktok') ? req.participants?.tiktok_profile_image :
+                              req.participants?.youtube_profile_image ?? req.participants?.instagram_profile_image ?? req.participants?.tiktok_profile_image
+                            } className="w-10 h-10 rounded-full object-cover" />
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-purple-600 font-bold text-sm">{req.participants?.name?.[0]}</div>
                           )}
