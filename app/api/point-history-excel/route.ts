@@ -23,24 +23,25 @@ export async function GET() {
   const workbook = new ExcelJS.Workbook()
   const sheet = workbook.addWorksheet('적립금 내역')
 
+  sheet.columns = [
+    { width: 15 },
+    { width: 30 },
+    { width: 12 },
+    { width: 12 },
+    { width: 12 },
+    { width: 12 },
+    { width: 12 },
+    { width: 12 },
+    { width: 25 },
+    { width: 20 }
+  ]
+
   // 제목 행
   sheet.addRow([`적립금 내역 (${dateStr} 기준)`])
   sheet.getRow(1).font = { bold: true, size: 14 }
   sheet.addRow([])
 
-  sheet.columns = [
-    { header: '이름', width: 15 },
-    { header: '프로젝트 (가수/제목)', width: 30 },
-    { header: '댓글미션', width: 12 },
-    { header: '게시물', width: 12 },
-    { header: '커버게시물', width: 12 },
-    { header: '커버비용', width: 12 },
-    { header: '친구추천', width: 12 },
-    { header: '기타금액', width: 12 },
-    { header: '기타메모', width: 25 },
-    { header: '날짜', width: 20 }
-  ]
-
+  // 헤더 행
   const headerRow = sheet.addRow(['이름', '프로젝트 (가수/제목)', '댓글미션', '게시물', '커버게시물', '커버비용', '친구추천', '기타금액', '기타메모', '날짜'])
   headerRow.font = { bold: true }
 

@@ -903,6 +903,66 @@ export async function GET() {
         }
       }
     }
+    // 게시물 유효성 체크 (하루 1회 - 한국시간 새벽 3시)
+    if (currentHour === 3) {
+      const { data: ongoingPosts } = await supabase
+        .from('posts')
+        .select('id, post_url, platform, member_id, project_code, likes_count')
+        .in('project_code', 
+          (await supabase.from('projects').select('project_code').eq('status', 'ONGOING')).data?.map((p: any) => p.project_code) ?? []
+        )
+
+      if (ongoingPosts) {
+        for (const post of ongoingPosts) {
+          try {
+            let isValid = true
+
+            if (post.platform === 'instagram') {
+              const shortcode = (post.post_url.split('/p/')[1]?.split('/')[0] ?? post.post_url.split('/reel/')[1]?.split('/')[0])?.split('?')[0]
+              if (shortcode) {
+                const res = await fetch(
+                  `https://instagram-api-fast-reliable-data-scraper.p.rapidapi.com/post?shortcode=${shortcode}`,
+                  { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'instagram-api-fast-reliable-data-scraper.p.rapidapi.com' } }
+                )
+                const data = await res.json()
+                if (!data || data.error || data.status === 'error') isValid = false
+                await new Promise(resolve => setTimeout(resolve, 1000))
+              }
+            } else if (post.platform === 'youtube') {
+              const videoId = post.post_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
+              if (videoId) {
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+                const data = await res.json()
+                if (!data.items || data.items.length === 0) isValid = false
+              }
+            } else if (post.platform === 'tiktok') {
+              const res = await fetch(
+                `https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(post.post_url)}&hd=1`,
+                { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
+              )
+              const data = await res.json()
+              if (!data.data) isValid = false
+            }
+
+            if (!isValid) {
+              // 게시물 삭제 + 적립금 차감
+              const { data: participant } = await supabase.from('participants').select('balance, level, cover_reward').eq('id', post.member_id).maybeSingle()
+              if (participant) {
+                const baseAmount = (await supabase.from('projects').select('reward_per_post').eq('project_code', post.project_code).maybeSingle()).data?.reward_per_post ?? 0
+                const level = participant.level ?? 1
+                const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
+                const deductAmount = Math.min(baseAmount, earnAmount)
+                const newBalance = Math.max(0, (participant.balance ?? 0) - deductAmount)
+                await supabase.from('participants').update({ balance: newBalance }).eq('id', post.member_id)
+                await supabase.from('point_history').insert({ member_id: post.member_id, amount: -deductAmount, memo: `게시물 삭제 (SNS 원본 삭제 감지)` })
+              }
+              await supabase.from('posts').delete().eq('id', post.id)
+              await supabase.from('post_stats_history').delete().eq('post_id', post.id)
+            }
+          } catch { continue }
+        }
+      }
+    }
 
         // 음원 사용량 갱신 (refresh_interval 기준)
         const { data: projectsWithAudio } = await supabase
