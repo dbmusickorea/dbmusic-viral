@@ -25,6 +25,28 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { data, error } = await supabaseAdmin.from('cover_requests').insert(body).select().single()
   if (error) return NextResponse.json({ error }, { status: 500 })
+
+  // 해당 프로젝트 의뢰인에게 푸시
+  const { data: project } = await supabaseAdmin.from('projects').select('client_id, artist_name, song_title').ilike('project_code', body.project_code).maybeSingle()
+  if (project?.client_id) {
+    const { data: clientUser } = await supabaseAdmin.from('users').select('id').eq('client_id', project.client_id).maybeSingle()
+    if (clientUser) {
+      const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token, user_id').eq('user_id', String(clientUser.id))
+      if (tokens && tokens.length > 0) {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://app.doubleb.kr'}/api/push`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '🎵 커버 신청이 왔어요!',
+            body: `${project.artist_name} / ${project.song_title} 커버 신청을 확인해주세요.`,
+            tokens: tokens.map((t: any) => t.token),
+            userIds: tokens.map((t: any) => t.user_id)
+          })
+        })
+      }
+    }
+  }
+
   return NextResponse.json(data)
 }
 
