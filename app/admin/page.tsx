@@ -1202,6 +1202,7 @@ export default function Page1() {
                             setMissionDate(app.mission_date ?? '')
                             setCoverVideoCount(app.cover_count ?? 0)
                             setRequirements(app.requirements ?? '')
+                            setCoverImageUrl(app.jacket_image ?? '')
                             fetch(`/api/project_applications?id=${app.id}`, {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
