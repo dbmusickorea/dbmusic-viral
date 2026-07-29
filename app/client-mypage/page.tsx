@@ -146,6 +146,23 @@ export default function ClientMyPage() {
       })
     })
     if (!res.ok) { showToast('등록 실패!'); return }
+    
+    // 관리자에게 푸시
+    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokens = await adminTokensRes.json()
+    if (adminTokens && adminTokens.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '📬 의뢰인 문의가 접수됐어요!',
+          body: `${userInfo?.name}: ${requestTitle}`,
+          tokens: adminTokens.map((t: any) => t.token),
+          userIds: adminTokens.map((t: any) => t.user_id)
+        })
+      })
+    }
+    
     showToast('✅ 문의가 등록됐어요!')
     setRequestTitle('')
     setRequestContent('')
