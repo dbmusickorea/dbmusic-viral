@@ -17,6 +17,7 @@ export default function Page3() {
   const [userRole, setUserRole] = useState('')
   const [clientCode, setClientCode] = useState('')
   const [posts, setPosts] = useState<any[]>([])
+  const [coverRequests, setCoverRequests] = useState<any[]>([])
   const [projectLinks, setProjectLinks] = useState<any[]>([])
   const [projectInfo, setProjectInfo] = useState<any>(null)
   const [myProjects, setMyProjects] = useState<any[]>([])
@@ -213,6 +214,10 @@ export default function Page3() {
     const linksRes = await fetch(`/api/project_links?project_code=${code}`)
     const linksData = await linksRes.json()
     setProjectLinks(linksData ?? [])
+    
+    const coverReqRes = await fetch(`/api/cover_requests?project_code=${code}&status=PENDING`)
+    const coverReqData = await coverReqRes.json()
+    setCoverRequests(coverReqData ?? [])
   }
 
   const fetchCommentMissionData = async (code: string) => {
@@ -1155,6 +1160,33 @@ export default function Page3() {
                       })}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* 커버 신청 목록 */}
+            {coverRequests.length > 0 && (
+              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3">🎵 커버 신청</h2>
+                <div className="space-y-2">
+                  {coverRequests.map((req: any) => (
+                    <div key={req.id} className="border border-purple-200 rounded-lg p-3 bg-purple-50">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          {req.participants?.instagram_profile_image || req.participants?.youtube_profile_image || req.participants?.tiktok_profile_image ? (
+                            <img src={req.participants?.instagram_profile_image ?? req.participants?.youtube_profile_image ?? req.participants?.tiktok_profile_image} className="w-10 h-10 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-purple-600 font-bold text-sm">{req.participants?.name?.[0]}</div>
+                          )}
+                          <div>
+                            <p className="text-sm font-medium">{req.participants?.name}</p>
+                            <p className="text-xs text-purple-600">이 체험단이 커버를 하고 싶어해요! 🎤</p>
+                          </div>
+                        </div>
+                        <button onClick={() => router.push('/cover')} className="text-xs bg-purple-600 text-white rounded-lg px-3 py-1">확인하기</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
