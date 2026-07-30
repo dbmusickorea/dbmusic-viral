@@ -1938,6 +1938,7 @@ export default function Page1() {
                                   body: JSON.stringify({
                                     title: '📄 계약서가 발송됐어요!',
                                     body: '계약서를 확인하고 서명해주세요.',
+                                    data: { url: '/client' },
                                     tokens: clientTokens.map((t: any) => t.token),
                                     userIds: [String(client.id)]
                                   })

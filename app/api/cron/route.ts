@@ -580,7 +580,7 @@ export async function GET() {
     // 커버 요청 24시간 미응답 자동 거절
     const { data: pendingCoverRequests } = await supabase
       .from('cover_requests')
-      .select('*')
+      .select('*, projects(artist_name, song_title)')
       .eq('status', 'PENDING')
       .lt('expires_at', new Date().toISOString())
 
@@ -609,8 +609,8 @@ export async function GET() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: '⚠️ 커버영상 요청이 거절됐어요', data: { url: '/participant' },
-                body: `[${r.project_code}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
+                title: '⚠️ 커버영상 요청이 거절됐어요', data: { url: '/cover' },
+                body: `[${r.projects?.artist_name} / ${r.projects?.song_title}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
                 tokens: tokens.map((t: any) => t.token),
                 userIds: [String(clientUser.id)]
               })
