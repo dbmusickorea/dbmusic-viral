@@ -218,23 +218,9 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null })
                     })
-                    const ppRes = await fetch(`/api/project_participants?member_id=${memberId}`)
-                    const ppData = await ppRes.json()
-                    const coverBanned = ppData?.filter((p: any) => p.is_cover && p.status === 'BANNED')
-                    for (const pp of coverBanned ?? []) {
-                      await fetch(`/api/project_participants?id=${pp.id}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
-                      })
-                    }
-                    for (const pp of coverBanned ?? []) {
-                      await fetch(`/api/project_participants?id=${pp.id}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
-                      })
-                      // cover_requests도 PENDING으로 변경
+                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
+                    for (const pp of coverBanned) {
+                      await supabase.from('project_participants').update({ status: 'ACTIVE', banned_until: null }).eq('id', pp.id)
                       const crRes = await fetch(`/api/cover_requests?project_code=${pp.project_code}&participant_id=${memberId}`)
                       const crData = await crRes.json()
                       if (crData?.[0]?.id) {
@@ -246,7 +232,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       }
                     }
                     showToast('커버 페널티 해제 완료! (재참여 가능)')
-                    onUpdate?.() 
+                    onUpdate?.()
                   }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
                   <button onClick={async () => {
                     await fetch(`/api/participants?id=${memberId}`, {
@@ -254,8 +240,12 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null })
                     })
+                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
+                    for (const pp of coverBanned) {
+                      await supabase.from('project_participants').update({ status: 'EXCLUDED' }).eq('id', pp.id)
+                    }
                     showToast('커버 페널티 해제 완료!')
-                    onUpdate?.() 
+                    onUpdate?.()
                   }} className="text-xs bg-gray-500 text-white rounded px-2 py-1">해제+제외</button>
                 </div>
               </div>
