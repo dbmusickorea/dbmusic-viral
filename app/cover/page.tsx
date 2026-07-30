@@ -615,8 +615,9 @@ export default function CoverPage() {
                               <span className={`text-xs px-2 py-1 rounded-full ${
                                 request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                                 request.status === 'REJECTED' ? 'bg-red-100 text-red-500' :
+                                request.status === 'PENALTY' ? 'bg-orange-100 text-orange-700' :
                                 'bg-yellow-100 text-yellow-700'
-                              }`}>{request.status === 'APPROVED' ? '승인' : request.status === 'REJECTED' ? '거절' : '대기중'}</span>
+                              }`}>{request.status === 'APPROVED' ? '승인' : request.status === 'REJECTED' ? '거절' : request.status === 'PENALTY' ? '페널티' : '대기중'}</span>
                             )}
                           </div>
                         </div>
