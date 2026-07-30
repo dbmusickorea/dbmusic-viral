@@ -1009,19 +1009,23 @@ export default function Page4() {
                               <p className="text-xs text-gray-400">가입일: {new Date(p.created_at).toLocaleDateString('ko-KR')}</p>
                               <div className="mt-2">
                                 <textarea
+                                  id={`memo-${p.id}`}
                                   defaultValue={p.admin_memo ?? ''}
                                   placeholder="관리자 메모..."
                                   rows={2}
                                   className="w-full border rounded-lg px-2 py-1 text-xs"
-                                  onBlur={async (e) => {
-                                    await fetch(`/api/participants?id=${p.id}`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ admin_memo: e.target.value })
-                                    })
-                                  }}
                                   onClick={(e) => e.stopPropagation()}
                                 />
+                                <button onClick={async (e) => {
+                                  e.stopPropagation()
+                                  const memo = (document.getElementById(`memo-${p.id}`) as HTMLTextAreaElement)?.value
+                                  await fetch(`/api/participants?id=${p.id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ admin_memo: memo })
+                                  })
+                                  showToast('메모 저장 완료!')
+                                }} className="w-full mt-1 border border-gray-300 rounded-lg py-1.5 text-xs text-gray-600">메모 저장</button>
                               </div>
                               <button onClick={(e) => { e.stopPropagation(); handleSelect(p) }} className="w-full mt-2 bg-blue-600 text-white rounded-lg py-1.5 text-xs font-medium">정보수정</button>
                             </div>
