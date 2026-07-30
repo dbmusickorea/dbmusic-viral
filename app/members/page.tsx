@@ -209,7 +209,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-orange-600">
-                    {participant?.cover_penalty_reason === 'deleted' ? '🎵 커버 게시물 삭제 페널티' : '🎵 커버 미업로드 페널티'}
+                    {participant?.cover_penalty_reason === 'deleted' ? '⚠️ 커버 게시물 삭제 페널티' : '⚠️ 커버 미업로드 페널티'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
                   <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
@@ -219,20 +219,16 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     await fetch(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ cover_penalty_until: null })
+                      body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
                     })
-                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
-                    for (const pp of coverBanned) {
-                      await supabase.from('project_participants').update({ status: 'ACTIVE', banned_until: null }).eq('id', pp.id)
-                      const crRes = await fetch(`/api/cover_requests?project_code=${pp.project_code}&participant_id=${memberId}`)
-                      const crData = await crRes.json()
-                      if (crData?.[0]?.id) {
-                        await fetch(`/api/cover_requests?id=${crData[0].id}`, {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ status: 'PENDING' })
-                        })
-                      }
+                    const crRes = await fetch(`/api/cover_requests?participant_id=${memberId}`)
+                    const crData = await crRes.json()
+                    for (const cr of crData?.filter((r: any) => r.status === 'PENALTY') ?? []) {
+                      await fetch(`/api/cover_requests?id=${cr.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'PENDING' })
+                      })
                     }
                     showToast('커버 페널티 해제 완료! (재참여 가능)')
                     onUpdate?.()
@@ -241,76 +237,14 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     await fetch(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ cover_penalty_until: null })
+                      body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
                     })
-                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
-                    for (const pp of coverBanned) {
-                      await supabase.from('project_participants').update({ status: 'EXCLUDED' }).eq('id', pp.id)
-                    }
                     showToast('커버 페널티 해제 완료!')
                     onUpdate?.()
                   }} className="text-xs bg-gray-500 text-white rounded px-2 py-1">해제+제외</button>
                 </div>
               </div>
-            </div>
-          )}
-          {participations.some(p => p.is_cover && p.status === 'BANNED') && !participant?.cover_penalty_until && (
-            <div className="bg-orange-50 rounded-lg p-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-orange-600">🎵 커버 밴 중</p>
-                  {participations.filter(p => p.is_cover && p.status === 'BANNED').map(pp => (
-                    <p key={pp.id} className="text-xs text-gray-500 mt-1">
-                      {pp.projects?.artist_name ?? pp.project_code} / {pp.projects?.song_title ?? ''}
-                    </p>
-                  ))}
-                </div>
-                <div className="flex gap-1">
-                  <button onClick={async () => {
-                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
-                    for (const pp of coverBanned) {
-                      await supabase
-                        .from('project_participants')
-                        .update({ status: 'ACTIVE', banned_until: null })
-                        .eq('id', pp.id)
-                      // cover_requests도 PENDING으로 변경
-                      const crRes = await fetch(`/api/cover_requests?project_code=${pp.project_code}&participant_id=${memberId}`)
-                      const crData = await crRes.json()
-                      if (crData?.[0]?.id) {
-                        await fetch(`/api/cover_requests?id=${crData[0].id}`, {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ status: 'PENDING' })
-                        })
-                      }
-                    }
-                    await fetch(`/api/participants?id=${memberId}`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ cover_penalty_until: null })
-                    })
-                    showToast('커버 밴 해제 완료! (재참여 가능)')
-                    onUpdate?.()
-                  }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
-                  <button onClick={async () => {
-                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
-                    for (const pp of coverBanned) {
-                      await supabase
-                        .from('project_participants')
-                        .update({ status: 'EXCLUDED' })
-                        .eq('id', pp.id)
-                    }
-                    await fetch(`/api/participants?id=${memberId}`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ cover_penalty_until: null })
-                    })
-                    showToast('커버 밴 해제 완료!')
-                    onUpdate?.()
-                  }} className="text-xs bg-gray-500 text-white rounded px-2 py-1">해제+제외</button>
-                </div>
-              </div>
-            </div>
+            </div>          
           )}
           {participations
             .filter(p => p.projects?.status === 'ONGOING' && p.status === 'ACTIVE')
