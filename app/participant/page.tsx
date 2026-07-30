@@ -1595,6 +1595,7 @@ useEffect(() => {
                                           const platformName = 
                                             link.platform === 'youtube_shorts' ? '숏츠 영상' :
                                             link.platform === 'youtube_long' ? '유튜브 영상' :
+                                            link.platform === 'youtube_lyric' ? '리릭영상' :
                                             '플레이리스트'
                                           
                                           const platformLabel = showNumber 
