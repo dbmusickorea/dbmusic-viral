@@ -242,6 +242,56 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
               </div>
             </div>
           )}
+          {participations.some(p => p.is_cover && p.status === 'BANNED') && (
+            <div className="bg-orange-50 rounded-lg p-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm font-medium text-orange-600">🎵 커버 밴 중</p>
+                  {participations.filter(p => p.is_cover && p.status === 'BANNED').map(pp => (
+                    <p key={pp.id} className="text-xs text-gray-500 mt-1">
+                      {pp.projects?.artist_name ?? pp.project_code} / {pp.projects?.song_title ?? ''}
+                    </p>
+                  ))}
+                </div>
+                <div className="flex gap-1">
+                  <button onClick={async () => {
+                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
+                    for (const pp of coverBanned) {
+                      await fetch(`/api/project_participants?id=${pp.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
+                      })
+                    }
+                    await fetch(`/api/participants?id=${memberId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ cover_penalty_until: null })
+                    })
+                    showToast('커버 밴 해제 완료! (재참여 가능)')
+                    onUpdate?.()
+                  }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
+                  <button onClick={async () => {
+                    const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
+                    for (const pp of coverBanned) {
+                      await fetch(`/api/project_participants?id=${pp.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'EXCLUDED' })
+                      })
+                    }
+                    await fetch(`/api/participants?id=${memberId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ cover_penalty_until: null })
+                    })
+                    showToast('커버 밴 해제 완료!')
+                    onUpdate?.()
+                  }} className="text-xs bg-gray-500 text-white rounded px-2 py-1">해제+제외</button>
+                </div>
+              </div>
+            </div>
+          )}
           {participations
             .filter(p => p.projects?.status === 'ONGOING' && p.status === 'ACTIVE')
             .map(p => {
