@@ -1461,7 +1461,7 @@ useEffect(() => {
                                 {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
                                 <div className="flex justify-between items-center mt-2">
                                   <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
-                                  {bannedUntil && new Date(bannedUntil) > new Date() ? (
+                                  {bannedUntil ? (
                                     <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
                                   ) : isJoined ? (
                                     <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
@@ -1912,7 +1912,7 @@ useEffect(() => {
                                 {(() => {
                                   const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && !p.is_cover)
                                   const alreadyJoinedCover = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover)
-                                  const isBanned = alreadyJoined?.status === 'BANNED' || bannedUntil !== null
+                                  const isBanned = alreadyJoined?.status === 'BANNED' || alreadyJoinedCover?.status === 'BANNED' || bannedUntil !== null
                                   const alreadyCover = !!alreadyJoinedCover
                                   const alreadyCoverRequested = alreadyJoinedCover?.cover_requested
                                   return (
