@@ -601,7 +601,13 @@ export default function CoverPage() {
                                 ) : request.status === 'PENDING' ? (
                                   <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
                                 ) : request.status === 'APPROVED' ? (
-                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">승인됨</span>
+                                  coverPost && coverPost.cover_status === 'PENDING' ? (
+                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
+                                  ) : coverPost && coverPost.cover_status === 'APPROVED' ? (
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">✅ 승인됨</span>
+                                  ) : (
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">업로드대기</span>
+                                  )
                                 ) : request.status === 'REJECTED' ? (
                                   request.rejected_count < 2 ? (
                                     <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-full">재선택</button>
@@ -611,20 +617,25 @@ export default function CoverPage() {
                                 ) : null}
                               </div>
                             )}
-                            {coverPost && coverPost.cover_status === 'PENDING' && (
-                              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
-                            )}
                             {userRole === 'admin' && (
                               <div>
                                 {!request ? (
                                   <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                 ) : (
                                   <span className={`text-xs px-2 py-1 rounded-full ${
-                                    request.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                    request.status === 'APPROVED' && coverPost?.cover_status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                                    request.status === 'APPROVED' && coverPost?.cover_status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                    request.status === 'APPROVED' ? 'bg-blue-100 text-blue-700' :
                                     request.status === 'REJECTED' ? 'bg-red-100 text-red-500' :
                                     request.status === 'PENALTY' ? 'bg-orange-100 text-orange-700' :
                                     'bg-yellow-100 text-yellow-700'
-                                  }`}>{request.status === 'APPROVED' ? '승인' : request.status === 'REJECTED' ? '거절' : request.status === 'PENALTY' ? '페널티' : '대기중'}</span>
+                                  }`}>{
+                                    request.status === 'APPROVED' && coverPost?.cover_status === 'PENDING' ? '🎵 검토중' :
+                                    request.status === 'APPROVED' && coverPost?.cover_status === 'APPROVED' ? '✅ 승인됨' :
+                                    request.status === 'APPROVED' ? '업로드대기' :
+                                    request.status === 'REJECTED' ? '거절' :
+                                    request.status === 'PENALTY' ? '페널티' : '대기중'
+                                  }</span>
                                 )}
                               </div>
                             )}
