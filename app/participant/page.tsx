@@ -1193,8 +1193,12 @@ useEffect(() => {
             {bannedUntil && !coverPenaltyUntil && (
               <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
                 <p className="text-sm font-bold text-red-700 mb-1">🚫 활동제한 중</p>
-                {bannedUntil !== 'banned' && <p className="text-xs text-red-600 mb-1">해제 일시: {new Date(bannedUntil).toLocaleString('ko-KR')}</p>}
-                {bannedUntil !== 'banned' && <p className="text-xs text-red-600 mb-1">남은 시간: {Math.ceil((new Date(bannedUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60))}시간</p>}
+                {bannedUntil !== 'banned' && (
+                  <>
+                    <p className="text-xs text-red-600 mb-1">해제일: {new Date(bannedUntil).toLocaleDateString('ko-KR')}</p>
+                    <p className="text-xs text-red-600 mb-1">남은 기간: {Math.ceil((new Date(bannedUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
+                  </>
+                )}
                 {banReason && <p className="text-xs text-red-600 mb-1">사유: {banReason}</p>}
                 <p className="text-xs text-gray-500 mt-2">⚠️ 제한 기간 동안 미션 제출이 불가능해요. 기간 만료 후 자동으로 해제됩니다.</p>
               </div>
