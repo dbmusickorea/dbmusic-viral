@@ -1926,7 +1926,7 @@ export default function Page1() {
                               await fetch(`/api/projects?project_code=${projectCode.toUpperCase()}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ document_id: data.document_id })
+                                body: JSON.stringify({ document_id: data.document_id, total_cost: totalCost })
                               })
                               // 의뢰인에게 푸시
                               const clientTokensRes = await fetch(`/api/push_tokens?user_id=${String(client.id)}`)

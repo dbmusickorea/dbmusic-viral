@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     ['가수명', project.artist_name ?? '-'],
     ['노래제목', project.song_title ?? '-'],
     ['상품명', project.product_content],
-    ['상품 금액', project.option_price ? `${Number(project.option_price).toLocaleString()}원` : '-'],
+    ['상품 금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
     ['모니터링 연장', project.monitoring_extension > 0 ? `${project.monitoring_extension}일` : '없음'],
     ['새로고침 주기', project.refresh_interval ? `${project.refresh_interval}시간` : '기본(하루 1회)'],
     ['커버영상 옵션', project.cover_video_count > 0 ? `${project.cover_video_count}개` : '없음'],
