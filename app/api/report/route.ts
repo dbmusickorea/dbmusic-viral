@@ -144,42 +144,72 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  // 시트 4: 일별 통계
+  // 시트 4: 일별 통계 (SNS별)
   if (history && history.length > 0) {
     const dailySheet = workbook.addWorksheet('일별 통계')
-    dailySheet.columns = [
-      { header: '날짜', width: 20 },
-      { header: '총 좋아요', width: 15 },
-      { header: '총 댓글', width: 15 },
-      { header: '총 조회수', width: 15 }
-    ]
-    const dailyHeader = dailySheet.getRow(1)
-    dailyHeader.font = headerFont
-    dailyHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' } })
 
-    // 날짜별 최신 스냅샷만
     const dates = [...new Set(history.map(h => h.recorded_at.split('_')[0]))].sort()
-    dates.forEach(date => {
+
+    const getLatest = (data: any[]) => {
+      const map = new Map()
+      data.forEach(h => {
+        const key = h.post_id ?? h.link_id
+        const hour = parseInt(h.recorded_at.split('_')[1] ?? '0')
+        const existing = map.get(key)
+        const existingHour = existing ? parseInt(existing.recorded_at.split('_')[1] ?? '0') : -1
+        if (!existing || hour > existingHour) map.set(key, h)
+      })
+      return Array.from(map.values())
+    }
+
+    // 각 post_id의 플랫폼 매핑
+    const platformMap: any = {}
+    posts?.forEach(p => { platformMap[p.id] = p.platform })
+
+    const platforms = [
+      { name: '인스타그램', key: 'instagram', col: 1 },
+      { name: '유튜브', key: 'youtube', col: 6 },
+      { name: '틱톡', key: 'tiktok', col: 11 },
+    ]
+
+    // 각 플랫폼 헤더
+    platforms.forEach(({ name, col }) => {
+      const titleCell = dailySheet.getCell(1, col)
+      titleCell.value = name
+      titleCell.font = { bold: true, size: 12, color: { argb: 'FF1F4E79' } }
+
+      const headers = ['날짜', '총 좋아요', '총 댓글', '총 조회수']
+      headers.forEach((h, i) => {
+        const cell = dailySheet.getCell(2, col + i)
+        cell.value = h
+        cell.font = headerFont
+        cell.fill = headerFill
+        cell.alignment = { horizontal: 'center' }
+        dailySheet.getColumn(col + i).width = i === 0 ? 20 : 12
+      })
+    })
+
+    // 데이터 채우기
+    dates.forEach((date, rowIdx) => {
       const dayData = history.filter(h => h.recorded_at.startsWith(date))
-      const getLatest = (data: any[]) => {
-        const map = new Map()
-        data.forEach(h => {
-          const key = h.post_id ?? h.link_id
-          const hour = parseInt(h.recorded_at.split('_')[1] ?? '0')
-          const existing = map.get(key)
-          const existingHour = existing ? parseInt(existing.recorded_at.split('_')[1] ?? '0') : -1
-          if (!existing || hour > existingHour) map.set(key, h)
-        })
-        return Array.from(map.values())
-      }
       const latest = getLatest(dayData)
-      const row = dailySheet.addRow([
-        date,
-        latest.reduce((sum, h) => sum + (h.likes_count ?? 0), 0),
-        latest.reduce((sum, h) => sum + (h.comments_count ?? 0), 0),
-        latest.reduce((sum, h) => sum + (h.views_count ?? 0), 0),
-      ])
-      ;[2, 3, 4].forEach(col => { row.getCell(col).numFmt = '#,##0' })
+
+      platforms.forEach(({ key, col }) => {
+        const platformData = latest.filter(h => {
+          const platform = platformMap[h.post_id] ?? h.platform
+          return platform === key || (key === 'youtube' && ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(platform))
+        })
+        const row = dailySheet.getRow(rowIdx + 3)
+        const dateCell = row.getCell(col)
+        dateCell.value = date
+        ;[1,2,3].forEach(i => {
+          const cell = row.getCell(col + i)
+          cell.value = i === 1 ? platformData.reduce((s, h) => s + (h.likes_count ?? 0), 0) :
+                       i === 2 ? platformData.reduce((s, h) => s + (h.comments_count ?? 0), 0) :
+                       platformData.reduce((s, h) => s + (h.views_count ?? 0), 0)
+          cell.numFmt = '#,##0'
+        })
+      })
     })
   }
 
