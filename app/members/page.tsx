@@ -162,12 +162,14 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ banned_until: null, ban_reason: null })
                     })
-                    // project_participants ACTIVE로 변경 (재참여)
-                    await fetch(`/api/project_participants?member_id=${memberId}&status=BANNED`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ status: 'ACTIVE', ban_exempt: true })
-                    })
+                    // project_participants ACTIVE로 변경 (재참여) - is_cover=false인 것만
+                    const bannedPps = participations.filter(p => !p.is_cover && p.status === 'BANNED')
+                    for (const pp of bannedPps) {
+                      await supabase
+                        .from('project_participants')
+                        .update({ status: 'ACTIVE', ban_exempt: true })
+                        .eq('id', pp.id)
+                    }
                     showToast('밴 해제 완료! (프로젝트 재참여)')
                     const res = await fetch(`/api/participants?id=${memberId}`)
                     const data = await res.json()
@@ -274,11 +276,20 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   <button onClick={async () => {
                     const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
                     for (const pp of coverBanned) {
-                      await fetch(`/api/project_participants?id=${pp.id}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
-                      })
+                      await supabase
+                        .from('project_participants')
+                        .update({ status: 'ACTIVE', banned_until: null })
+                        .eq('id', pp.id)
+                      // cover_requests도 PENDING으로 변경
+                      const crRes = await fetch(`/api/cover_requests?project_code=${pp.project_code}&participant_id=${memberId}`)
+                      const crData = await crRes.json()
+                      if (crData?.[0]?.id) {
+                        await fetch(`/api/cover_requests?id=${crData[0].id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ status: 'PENDING' })
+                        })
+                      }
                     }
                     await fetch(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
@@ -291,11 +302,10 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   <button onClick={async () => {
                     const coverBanned = participations.filter(p => p.is_cover && p.status === 'BANNED')
                     for (const pp of coverBanned) {
-                      await fetch(`/api/project_participants?id=${pp.id}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'EXCLUDED' })
-                      })
+                      await supabase
+                        .from('project_participants')
+                        .update({ status: 'EXCLUDED' })
+                        .eq('id', pp.id)
                     }
                     await fetch(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
