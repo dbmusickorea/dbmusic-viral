@@ -1189,7 +1189,7 @@ useEffect(() => {
           {/* 왼쪽 컬럼 */}
           <div className={`${activeTab === 'home' ? 'block' : 'hidden'} md:block`}>
             {/* 밴/페널티 상태 카드 */}
-            {bannedUntil && !coverPenaltyUntil && (
+            {bannedUntil && (
               <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
                 <p className="text-sm font-bold text-red-700 mb-1">🚫 활동제한 중</p>
                 {bannedUntil !== 'banned' && (
