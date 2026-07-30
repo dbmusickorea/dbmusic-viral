@@ -1585,7 +1585,7 @@ useEffect(() => {
                                     <div className="space-y-3">
                                       {/* 영상 선택 버튼 */}
                                       <div className="space-y-2">
-                                        {projectLinks.map((link, i) => {
+                                        {projectLinks.filter(link => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(link.platform)).map((link, i) => {
                                           const isDone = commentMissions.some(m => m.video_id === link.video_id)
                                           
                                           const sameplatformLinks = projectLinks.filter(l => l.platform === link.platform)
