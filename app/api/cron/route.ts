@@ -644,7 +644,7 @@ export async function GET() {
 
         if (!coverPost) {
           const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
-          await supabase.from('participants').update({ cover_penalty_until: penaltyUntil }).eq('id', r.participant_id)
+          await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'not_uploaded' }).eq('id', r.participant_id)
           await supabase.from('cover_requests').update({ status: 'PENALTY' }).eq('id', r.id)
 
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(r.participant_id))
@@ -688,7 +688,7 @@ export async function GET() {
 
         if (!coverPost) {
           const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
-          await supabase.from('participants').update({ cover_penalty_until: penaltyUntil }).eq('id', cp.member_id)
+          await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'not_uploaded' }).eq('id', cp.member_id)
           await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', cp.project_code).eq('member_id', cp.member_id)
 
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(cp.member_id))
@@ -961,6 +961,19 @@ export async function GET() {
                   memo: `게시물 삭제 (SNS 원본 삭제 감지) (${projectData?.artist_name || post.project_code} / ${projectData?.song_title ?? ''})`,
                   project_code: post.project_code
                 })
+              }
+              // 커버 게시물 삭제 시 페널티 처리
+              if (post.is_cover) {
+                const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                await supabase.from('participants').update({ 
+                  cover_penalty_until: penaltyUntil,
+                  cover_penalty_reason: 'deleted'
+                }).eq('id', post.member_id)
+                await supabase.from('project_participants')
+                  .update({ status: 'BANNED' })
+                  .eq('member_id', post.member_id)
+                  .eq('project_code', post.project_code)
+                  .eq('is_cover', true)
               }
               await supabase.from('posts').delete().eq('id', post.id)
               await supabase.from('post_stats_history').delete().eq('post_id', post.id)

@@ -56,6 +56,8 @@ export default function Page2() {
   const [isLocked, setIsLocked] = useState(false)
   const [bannedUntil, setBannedUntil] = useState<string | null>(null)
   const [banReason, setBanReason] = useState<string | null>(null)
+  const [coverPenaltyUntil, setCoverPenaltyUntil] = useState<string | null>(null)
+  const [coverPenaltyReason, setCoverPenaltyReason] = useState<string | null>(null)
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [unlockCommentCount, setUnlockCommentCount] = useState(0)
   const [showLevelGuide, setShowLevelGuide] = useState(false)
@@ -163,6 +165,8 @@ useEffect(() => {
       const normalBanned = data.participations?.find((p: any) => !p.is_cover && p.status === 'BANNED')
       setBannedUntil(normalBanned ? (normalBanned.banned_until ?? 'banned') : null)
       setBanReason(normalBanned?.ban_reason ?? participant?.ban_reason ?? null)
+      setCoverPenaltyUntil(participant?.cover_penalty_until ?? null)
+      setCoverPenaltyReason(participant?.cover_penalty_reason ?? null)
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
       if (participant) {
         localStorage.setItem('snsAccounts', JSON.stringify({
@@ -1192,6 +1196,16 @@ useEffect(() => {
                 {bannedUntil !== 'banned' && <p className="text-xs text-red-600 mb-1">남은 시간: {Math.ceil((new Date(bannedUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60))}시간</p>}
                 {banReason && <p className="text-xs text-red-600 mb-1">사유: {banReason}</p>}
                 <p className="text-xs text-gray-500 mt-2">⚠️ 제한 기간 동안 미션 제출이 불가능해요. 기간 만료 후 자동으로 해제됩니다.</p>
+              </div>
+            )}
+            {coverPenaltyUntil && new Date(coverPenaltyUntil) > new Date() && (
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
+                <p className="text-sm font-bold text-orange-700 mb-1">
+                  {coverPenaltyReason === 'deleted' ? '🎵 커버 게시물 삭제 페널티' : '🎵 커버 미업로드 페널티'}
+                </p>
+                <p className="text-xs text-orange-600 mb-1">해제일: {new Date(coverPenaltyUntil).toLocaleDateString('ko-KR')}</p>
+                <p className="text-xs text-orange-600 mb-1">남은 기간: {Math.ceil((new Date(coverPenaltyUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
+                <p className="text-xs text-gray-500 mt-2">⚠️ 페널티 기간 동안 커버 미션 참여가 제한됩니다.</p>
               </div>
             )}
             {isLocked && (

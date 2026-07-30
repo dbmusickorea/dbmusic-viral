@@ -207,7 +207,9 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             <div className="bg-orange-50 rounded-lg p-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-orange-600">🎵 커버 페널티 중</p>
+                  <p className="text-sm font-medium text-orange-600">
+                    {participant?.cover_penalty_reason === 'deleted' ? '🎵 커버 게시물 삭제 페널티' : '🎵 커버 미업로드 페널티'}
+                  </p>
                   <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
                   <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
                 </div>
