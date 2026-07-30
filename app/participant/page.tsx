@@ -1910,17 +1910,18 @@ useEffect(() => {
                             ) : (
                               <div className="flex gap-2 flex-wrap">
                                 {(() => {
-                                  const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase())
+                                  const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && !p.is_cover)
+                                  const alreadyJoinedCover = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover)
                                   const isBanned = alreadyJoined?.status === 'BANNED' || bannedUntil !== null
-                                  const alreadyCover = alreadyJoined?.is_cover
-                                  const alreadyCoverRequested = alreadyJoined?.cover_requested
+                                  const alreadyCover = !!alreadyJoinedCover
+                                  const alreadyCoverRequested = alreadyJoinedCover?.cover_requested
                                   return (
                                     <>
                                       {isBanned ? (
                                         <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
-                                      ) : alreadyJoined && !alreadyCover ? (
+                                      ) : alreadyJoined ? (
                                         <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
-                                      ) : !alreadyJoined && !isFull ? (
+                                      ) : !alreadyJoined && !alreadyJoinedCover && !isFull ? (
                                         <button onClick={() => { setJoinAsCover(false); handleJoin() }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">일반 참여</button>
                                       ) : null}
                                       {canCover && (
