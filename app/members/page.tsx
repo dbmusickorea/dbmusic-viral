@@ -330,6 +330,7 @@ export default function Page4() {
   
   const [participants, setParticipants] = useState<any[]>([])
   const [selected, setSelected] = useState<any>(null)
+  const [expandedCard, setExpandedCard] = useState<number | null>(null)
   const [name, setName] = useState('')
   const [mobile, setMobile] = useState('')
   const [email, setEmail] = useState('')
@@ -895,39 +896,39 @@ export default function Page4() {
                   <>
                     <div className="space-y-2">
                       {filteredParticipants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
-                        <div key={p.id} onClick={() => selected?.id === p.id ? clearForm() : handleSelect(p)} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <input type="checkbox" checked={rewardSelected.includes(p.id)} onChange={() => {}} onClick={(e) => {
-                                e.stopPropagation()
-                                setRewardSelected(prev => prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id])
-                              }} className="cursor-pointer" />
+                        <div key={p.id} className={`border rounded-lg cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                          <div className="p-3" onClick={() => setExpandedCard(expandedCard === p.id ? null : p.id)}>
+                            <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
-                                <p className="font-medium text-sm">{p.name}</p>
-                                <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
-                                {p.is_cover_possible && (
-                                  <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버가능</span>
-                                )}
-                                {p.cover_approved && (
-                                  <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>
-                                )}
-                                {p.banned_until && new Date(p.banned_until) > new Date() && (
-                                  <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded">🚫 밴</span>
-                                )}
-                                {p.is_cover_possible && !p.cover_approved && (
-                                  <span className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded">⏳ 커버승인대기</span>
-                                )}
-                                {allPendingSnsRequests.some(r => r.member_id === p.id) && (
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">📱 SNS변경대기</span>
-                                )}
-                                {p.is_locked && (
-                                  <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">🔒 잠금</span>
-                                )}
+                                <input type="checkbox" checked={rewardSelected.includes(p.id)} onChange={() => {}} onClick={(e) => {
+                                  e.stopPropagation()
+                                  setRewardSelected(prev => prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id])
+                                }} className="cursor-pointer" />
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  <p className="font-medium text-sm">{p.name}</p>
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
+                                  {p.is_cover_possible && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버가능</span>}
+                                  {p.cover_approved && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>}
+                                  {p.banned_until && new Date(p.banned_until) > new Date() && <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded">🚫 밴</span>}
+                                  {p.is_cover_possible && !p.cover_approved && <span className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded">⏳ 커버승인대기</span>}
+                                  {allPendingSnsRequests.some(r => r.member_id === p.id) && <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">📱 SNS변경대기</span>}
+                                  {p.is_locked && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">🔒 잠금</span>}
+                                </div>
                               </div>
-                              <p className="text-xs text-gray-500">{p.email}</p>
+                              <p className="text-sm font-medium text-blue-600 shrink-0">{p.balance?.toLocaleString() ?? 0}P</p>
                             </div>
-                            <p className="text-sm font-medium text-blue-600">{p.balance?.toLocaleString() ?? 0}P</p>
                           </div>
+                          {expandedCard === p.id && (
+                            <div className="px-3 pb-3 border-t pt-2 space-y-1">
+                              <p className="text-xs text-gray-500">{p.email}</p>
+                              <p className="text-xs text-gray-500">{p.mobile}</p>
+                              {p.instagram_id && <p className="text-xs text-gray-500">📸 {p.instagram_id} ({p.instagram_followers?.toLocaleString() ?? '-'}명)</p>}
+                              {p.youtube_id && <p className="text-xs text-gray-500">▶️ {p.youtube_id} ({p.youtube_subscribers?.toLocaleString() ?? '-'}명)</p>}
+                              {p.tiktok_id && <p className="text-xs text-gray-500">🎵 {p.tiktok_id} ({p.tiktok_followers?.toLocaleString() ?? '-'}명)</p>}
+                              <p className="text-xs text-gray-400">가입일: {new Date(p.created_at).toLocaleDateString('ko-KR')}</p>
+                              <button onClick={(e) => { e.stopPropagation(); handleSelect(p) }} className="w-full mt-2 bg-blue-600 text-white rounded-lg py-1.5 text-xs font-medium">정보수정</button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
