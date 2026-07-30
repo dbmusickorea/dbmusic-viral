@@ -450,7 +450,6 @@ export default function Page4() {
   const [snsRequests, setSnsRequests] = useState<any[]>([])
   const [allPendingSnsRequests, setAllPendingSnsRequests] = useState<any[]>([])
   const [bannedMemberIds, setBannedMemberIds] = useState<number[]>([])
-  const [coverBannedMemberIds, setCoverBannedMemberIds] = useState<number[]>([])
   const [participantSearch, setParticipantSearch] = useState('')
   const [clientSearch, setClientSearch] = useState('')
   const [memberDetailTab, setMemberDetailTab] = useState<'activity' | 'info'>('activity')
@@ -478,7 +477,6 @@ export default function Page4() {
     const bannedRes = await fetch('/api/project_participants?status=BANNED')
     const bannedData = await bannedRes.json()
     setBannedMemberIds(Array.isArray(bannedData) ? [...new Set(bannedData.filter((p: any) => !p.is_cover).map((p: any) => p.member_id))] as number[] : [])
-    setCoverBannedMemberIds(Array.isArray(bannedData) ? [...new Set(bannedData.filter((p: any) => p.is_cover).map((p: any) => p.member_id))] as number[] : [])
   }
 
   const fetchArtists = async (client_id: string) => {
@@ -992,7 +990,7 @@ export default function Page4() {
                                   {p.is_cover_possible && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버가능</span>}
                                   {p.cover_approved && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>}
                                   {bannedMemberIds.includes(p.id) && <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded">🚫 밴</span>}
-                                  {coverBannedMemberIds.includes(p.id) && <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded">🚫 밴(커버)</span>}
+                                  {p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date() && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">⚠️ 커버페널티</span>}
                                   {p.is_cover_possible && !p.cover_approved && <span className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded">⏳ 커버승인대기</span>}
                                   {allPendingSnsRequests.some(r => r.member_id === p.id) && <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">📱 SNS변경대기</span>}
                                   {p.is_locked && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">🔒 잠금</span>}
