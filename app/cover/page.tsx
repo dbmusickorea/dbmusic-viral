@@ -611,6 +611,9 @@ export default function CoverPage() {
                                 ) : null}
                               </div>
                             )}
+                            {coverPost && coverPost.cover_status === 'PENDING' && (
+                              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
+                            )}
                             {userRole === 'admin' && (
                               <div>
                                 {!request ? (
