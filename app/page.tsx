@@ -68,6 +68,16 @@ export default function LoginPage() {
             setShowSignup(true)
           }
         })
+        App.addListener('appStateChange', async (state) => {
+          if (state.isActive) {
+            const stored = localStorage.getItem('userInfo')
+            if (stored) {
+              const parsed = JSON.parse(stored)
+              const role = localStorage.getItem('userRole')
+              await initPushNotifications(String(parsed.id), role ?? 'participant')
+            }
+          }
+        })
       })
     }
 

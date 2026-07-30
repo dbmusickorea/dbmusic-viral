@@ -986,7 +986,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '⚠️ 게시물이 삭제됐어요',
-                    body: '게시물 링크가 유효하지 않아 적립금 회수 및 삭제 처리됐어요.',
+                    body: post.is_cover ? '커버 게시물 링크가 유효하지 않아 적립금 회수 및 3개월 커버 페널티가 적용됐어요.' : '게시물 링크가 유효하지 않아 적립금 회수 및 삭제 처리됐어요.',
                     tokens: tokens.map((t: any) => t.token),
                     userIds: [String(post.member_id)]
                   })
