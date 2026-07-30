@@ -905,7 +905,10 @@ export default function Page4() {
                     <div className="space-y-2">
                       {filteredParticipants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
                         <div key={p.id} className={`border rounded-lg cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                          <div className="p-3" onClick={() => setExpandedCard(expandedCard === p.id ? null : p.id)}>
+                          <div className="p-3" onClick={() => {
+                            if (expandedCard !== p.id) clearForm()
+                            setExpandedCard(expandedCard === p.id ? null : p.id)
+                          }}>
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
                                 <input type="checkbox" checked={rewardSelected.includes(p.id)} onChange={() => {}} onClick={(e) => {
