@@ -206,14 +206,36 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
                   <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
                 </div>
-                <button onClick={async () => {
-                  await fetch(`/api/participants?id=${memberId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cover_penalty_until: null })
-                  })
-                  showToast('커버 페널티 해제 완료!')
-                }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">페널티 해제</button>
+                <div className="flex gap-1">
+                  <button onClick={async () => {
+                    await fetch(`/api/participants?id=${memberId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ cover_penalty_until: null })
+                    })
+                    const ppRes = await fetch(`/api/project_participants?member_id=${memberId}`)
+                    const ppData = await ppRes.json()
+                    const coverBanned = ppData?.filter((p: any) => p.is_cover && p.status === 'BANNED')
+                    for (const pp of coverBanned ?? []) {
+                      await fetch(`/api/project_participants?id=${pp.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
+                      })
+                    }
+                    showToast('커버 페널티 해제 완료! (재참여 가능)')
+                    onUpdate?.() 
+                  }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
+                  <button onClick={async () => {
+                    await fetch(`/api/participants?id=${memberId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ cover_penalty_until: null })
+                    })
+                    showToast('커버 페널티 해제 완료!')
+                    onUpdate?.() 
+                  }} className="text-xs bg-gray-500 text-white rounded px-2 py-1">해제+제외</button>
+                </div>
               </div>
             </div>
           )}
@@ -367,7 +389,7 @@ export default function Page4() {
   useEffect(() => {
     const role = localStorage.getItem('userRole')
     if (role !== 'admin') { router.push('/'); return }
-    fetchParticipants()
+    fetchParticipants() 
     fetchClients()
   }, [])
 
@@ -480,7 +502,7 @@ export default function Page4() {
     })
 
     showToast(`등록 완료! 임시 비밀번호(${tempPassword})가 ${mobile}로 전송됐어요.`)
-    fetchParticipants()
+    fetchParticipants() 
     clearForm()
   }
 
@@ -537,7 +559,7 @@ export default function Page4() {
         })
       } catch {}
     }
-    fetchParticipants()
+    fetchParticipants() 
   }
 
   const handleDelete = async () => {
@@ -567,7 +589,7 @@ export default function Page4() {
     })
     if (!res.ok) { showToast('삭제 실패!'); return }
     showToast('삭제 완료!')
-    fetchParticipants()
+    fetchParticipants() 
     clearForm()
   }
 
@@ -692,7 +714,7 @@ export default function Page4() {
   const handleRefresh = async () => {
     if (isRefreshing) return
     setIsRefreshing(true)
-    await fetchParticipants()
+    await fetchParticipants() 
     await fetchClients()
     setIsRefreshing(false)
   }
@@ -845,7 +867,7 @@ export default function Page4() {
                     setRewardSelected([])
                     setRewardAmount('')
                     setRewardMemo('')
-                    fetchParticipants()
+                    fetchParticipants() 
                   }} className="w-full bg-green-600 text-white rounded-lg py-2 text-sm font-medium">지급하기</button>
                 </div>
               </div>
@@ -1048,7 +1070,7 @@ export default function Page4() {
                                 body: JSON.stringify({ cover_video_url: url })
                               })
                               showToast('링크 저장 완료!')
-                              fetchParticipants()
+                              fetchParticipants() 
                             }} className="text-xs bg-purple-600 text-white rounded px-2 py-1">저장</button>
                           </div>
                         </div>
@@ -1069,7 +1091,7 @@ export default function Page4() {
                                       body: JSON.stringify({ genres: newGenres })
                                     })
                                     setSelected({...selected, genres: newGenres})
-                                    fetchParticipants()
+                                    fetchParticipants() 
                                   }} 
                                   className="w-3 h-3" />
                                 {genre}
@@ -1100,7 +1122,7 @@ export default function Page4() {
                             }
                             showToast('커버영상 승인 완료!')
                             setSelected((prev: any) => ({ ...prev, cover_approved: true }))
-                            fetchParticipants()
+                            fetchParticipants() 
                           }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-xs font-medium">승인</button>
                           <button onClick={async () => {
                             await fetch(`/api/participants?id=${selected.id}`, {
@@ -1124,7 +1146,7 @@ export default function Page4() {
                             }
                             showToast('승인 취소 완료!')
                             setSelected((prev: any) => ({ ...prev, cover_approved: false, is_cover_possible: false }))
-                            fetchParticipants()
+                            fetchParticipants() 
                           }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-xs font-medium">승인취소</button>
                         </div>
                       </div>
@@ -1159,7 +1181,7 @@ export default function Page4() {
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
                                       setSelected((prev: any) => ({...prev, [`${req.platform}_id`]: req.new_id}))
                                       showToast('승인됐어요!')
-                                      fetchParticipants()
+                                      fetchParticipants() 
                                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
                                     <button onClick={async () => {
                                       await fetch(`/api/sns_change_requests?id=${req.id}`, {
