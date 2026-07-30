@@ -123,7 +123,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
 
       {activityTab === 'penalty' && (
         <div className="space-y-2">
-          {(!participant?.banned_until || new Date(participant.banned_until) <= new Date()) && (
+          {!participations.some(p => p.status === 'BANNED' && !p.is_cover) && (
             <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : 'bg-green-50'}`}>
               <div className="flex justify-between items-start">
                 <div>
@@ -143,13 +143,16 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
               </div>
             </div>
           )}
-          {participant?.banned_until && new Date(participant.banned_until) > new Date() && (
+          {participations.some(p => p.status === 'BANNED' && !p.is_cover) && (
             <div className="bg-red-50 rounded-lg p-3">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-red-600">🚫 활동 제한 중</p>
-                  <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.banned_until).toLocaleDateString('ko-KR')}</p>
-                  <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.banned_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
+                  {participations.filter(p => p.status === 'BANNED' && !p.is_cover).map(pp => (
+                    <p key={pp.id} className="text-xs text-gray-500 mt-1">
+                      {pp.projects?.artist_name ?? pp.project_code} / {pp.projects?.song_title ?? ''} - 해제일: {pp.banned_until ? new Date(pp.banned_until).toLocaleDateString('ko-KR') : '미정'}
+                    </p>
+                  ))}
                   {participant?.ban_reason && <p className="text-xs text-red-500 mt-1">사유: {participant.ban_reason}</p>}
                 </div>
                 <div className="flex flex-col gap-1">
@@ -421,6 +424,7 @@ export default function Page4() {
 
   const handleSelect = async (p: any) => {
     setSelected(p)
+    setExpandedCard(null)
     setName(p.name ?? ''); setMobile(p.mobile ?? ''); setEmail(p.email ?? '')
     setBankName(p.bank_name ?? ''); setAccountHolder(p.account_holder ?? '')
     setInstagram(p.instagram_id ?? '')
