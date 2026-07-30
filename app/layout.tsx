@@ -16,10 +16,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "더블비뮤직 바이럴",
   description: "더블비뮤직 바이럴 마케팅 관리 시스템",
+  keywords: "더블비뮤직, 바이럴 마케팅, 인플루언서, 음원 마케팅",
+  verification: {
+    other: {
+      'naver-site-verification': '41c54530be3fb5eb7b1c5bad6beb97b3923dba14'
+    }
+  },
   openGraph: {
     title: "더블비뮤직 바이럴",
     description: "더블비뮤직 바이럴 마케팅 관리 시스템",
-    url: "https://app.doubleb.kr",
+    url: "https://doubleb.kr",
     siteName: "더블비뮤직",
     locale: "ko_KR",
     type: "website",
