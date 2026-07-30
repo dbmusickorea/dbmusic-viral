@@ -223,11 +223,11 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     })
                     const crRes = await fetch(`/api/cover_requests?participant_id=${memberId}`)
                     const crData = await crRes.json()
-                    for (const cr of crData?.filter((r: any) => r.status === 'PENALTY') ?? []) {
+                    for (const cr of crData?.filter((r: any) => r.status === 'PENALTY' || r.status === 'REJECTED') ?? []) {
                       await fetch(`/api/cover_requests?id=${cr.id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'PENDING' })
+                        body: JSON.stringify({ status: 'PENDING', expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() })
                       })
                     }
                     showToast('커버 페널티 해제 완료! (재참여 가능)')
