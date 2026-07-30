@@ -990,6 +990,22 @@ export default function Page4() {
                               {p.youtube_id && <p className="text-xs text-gray-500">▶️ {p.youtube_id} ({p.youtube_subscribers?.toLocaleString() ?? '-'}명)</p>}
                               {p.tiktok_id && <p className="text-xs text-gray-500">🎵 {p.tiktok_id} ({p.tiktok_followers?.toLocaleString() ?? '-'}명)</p>}
                               <p className="text-xs text-gray-400">가입일: {new Date(p.created_at).toLocaleDateString('ko-KR')}</p>
+                              <div className="mt-2">
+                                <textarea
+                                  defaultValue={p.admin_memo ?? ''}
+                                  placeholder="관리자 메모..."
+                                  rows={2}
+                                  className="w-full border rounded-lg px-2 py-1 text-xs"
+                                  onBlur={async (e) => {
+                                    await fetch(`/api/participants?id=${p.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ admin_memo: e.target.value })
+                                    })
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
                               <button onClick={(e) => { e.stopPropagation(); handleSelect(p) }} className="w-full mt-2 bg-blue-600 text-white rounded-lg py-1.5 text-xs font-medium">정보수정</button>
                             </div>
                           )}
