@@ -1556,7 +1556,7 @@ useEffect(() => {
                                   })()}
 
                                   {/* 커버 게시물 */}
-                                  {selectedParticipation?.is_cover && projectInfo?.cover_video_count > 0 && (() => {
+                                  {selectedParticipation?.is_cover && projectInfo?.cover_video_count > 0 && coverRequests.find(r => r.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())?.status === 'APPROVED' && (() => {
                                     const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
                                     return (
                                       <div className="mt-3 pt-3 border-t">
