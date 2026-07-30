@@ -76,6 +76,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       {p.status === 'CANCELLED' ? '취소' : p.projects?.status === 'COMPLETED' ? '완료' : '진행중'}
                     </span>
                     {p.status === 'BANNED' && <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">🚫 밴</span>}
+                    {participant?.cover_penalty_until && new Date(participant.cover_penalty_until) > new Date() && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">⚠️ 커버페널티</span>}
                   </div>
                 </div>
                 {projectPosts.map(post => (
