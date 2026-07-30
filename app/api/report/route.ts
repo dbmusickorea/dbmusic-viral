@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
   
   const titleRow = summarySheet.addRow(['더블비뮤직 바이럴 결과보고서'])
   titleRow.font = { bold: true, size: 16, color: { argb: 'FF1F4E79' } }
+  summarySheet.mergeCells(1, 1, 1, 2)
+  titleRow.getCell(1).alignment = { horizontal: 'center' }
   summarySheet.addRow([])
 
   const infoRows = [
@@ -51,6 +53,7 @@ export async function GET(request: NextRequest) {
     const row = summarySheet.addRow([label, value])
     row.getCell(1).font = { bold: true }
     row.getCell(1).fill = labelFill
+    if (label === '요청사항') { row.getCell(2).alignment = { wrapText: true }; row.height = 60 }
   })
 
   summarySheet.addRow([])
@@ -95,7 +98,7 @@ export async function GET(request: NextRequest) {
   ]
   const postsHeader = postsSheet.getRow(1)
   postsHeader.font = headerFont
-  postsHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' } })
+  postsHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' }; cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
 
   posts?.forEach(p => {
     const row = postsSheet.addRow([
@@ -110,6 +113,7 @@ export async function GET(request: NextRequest) {
     ])
     row.getCell(3).font = { color: { argb: 'FF0000FF' }, underline: true }
     ;[4, 5, 6].forEach(col => { row.getCell(col).numFmt = '#,##0' })
+    row.eachCell(cell => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
   })
 
   // 시트 3: 커버영상 목록
@@ -127,7 +131,7 @@ export async function GET(request: NextRequest) {
     ]
     const coverHeader = coverSheet.getRow(1)
     coverHeader.font = headerFont
-    coverHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' } })
+    coverHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' }; cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
 
     coverPosts.forEach(p => {
       const row = coverSheet.addRow([
@@ -141,6 +145,7 @@ export async function GET(request: NextRequest) {
       ])
       row.getCell(3).font = { color: { argb: 'FF0000FF' }, underline: true }
       ;[4, 5].forEach(col => { row.getCell(col).numFmt = '#,##0' })
+      row.eachCell(cell => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
     })
   }
 
