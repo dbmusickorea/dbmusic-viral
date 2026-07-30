@@ -215,6 +215,16 @@ export default function CoverPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_status: 'APPROVED', cover_type: type })
     })
+    // cover_requests도 APPROVED로 변경
+    const crRes = await fetch(`/api/cover_requests?project_code=${post.project_code}&participant_id=${post.member_id}`)
+    const crData = await crRes.json()
+    if (crData?.[0]?.id) {
+      await fetch(`/api/cover_requests?id=${crData[0].id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'APPROVED' })
+      })
+    }
     const participantRes = await fetch(`/api/participants?ids=${post.member_id}`)
     const participants = await participantRes.json()
     const participant = participants?.[0]
@@ -225,10 +235,18 @@ export default function CoverPage() {
         body: JSON.stringify({ balance: (participant.balance ?? 0) + reward, cover_reward: reward })
       })
       // point_history 저장
+      const projRes = await fetch(`/api/projects?project_code=${post.project_code}`)
+      const projData = await projRes.json()
+      const proj = Array.isArray(projData) ? projData[0] : projData
       await fetch('/api/point_history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ member_id: post.member_id, amount: reward, memo: `커버영상 승인 (${type === 'long' ? '롱폼' : '숏츠'})` })
+        body: JSON.stringify({ 
+          member_id: post.member_id, 
+          amount: reward, 
+          memo: `커버영상 승인 (${type === 'long' ? '롱폼' : '숏츠'}) (${proj?.artist_name ?? post.project_code} / ${proj?.song_title ?? ''})`,
+          project_code: post.project_code
+        })
       })
     }
     const tokensRes = await fetch(`/api/push_tokens?user_id=${String(post.member_id)}`)
