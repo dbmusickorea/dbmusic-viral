@@ -159,8 +159,10 @@ useEffect(() => {
       setReferralCode(participant?.referral_code ?? '')
       setInfluencerName(participant?.name ?? '')
       setIsLocked(participant?.is_locked ?? false)
-      setBannedUntil(participant?.banned_until ?? null)
-      setBanReason(participant?.ban_reason ?? null)
+      // project_participants에서 is_cover=false인 BANNED 상태 체크
+      const normalBanned = data.participations?.find((p: any) => !p.is_cover && p.status === 'BANNED')
+      setBannedUntil(normalBanned ? (normalBanned.banned_until ?? 'banned') : null)
+      setBanReason(normalBanned?.ban_reason ?? participant?.ban_reason ?? null)
       setUnlockCommentCount(participant?.comment_count_for_unlock ?? 0)
       if (participant) {
         localStorage.setItem('snsAccounts', JSON.stringify({
@@ -1183,11 +1185,11 @@ useEffect(() => {
           {/* 왼쪽 컬럼 */}
           <div className={`${activeTab === 'home' ? 'block' : 'hidden'} md:block`}>
             {/* 밴/페널티 상태 카드 */}
-            {bannedUntil && new Date(bannedUntil) > new Date() && (
+            {bannedUntil && (
               <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
                 <p className="text-sm font-bold text-red-700 mb-1">🚫 활동제한 중</p>
-                <p className="text-xs text-red-600 mb-1">해제 일시: {new Date(bannedUntil).toLocaleString('ko-KR')}</p>
-                <p className="text-xs text-red-600 mb-1">남은 시간: {Math.ceil((new Date(bannedUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60))}시간</p>
+                {bannedUntil !== 'banned' && <p className="text-xs text-red-600 mb-1">해제 일시: {new Date(bannedUntil).toLocaleString('ko-KR')}</p>}
+                {bannedUntil !== 'banned' && <p className="text-xs text-red-600 mb-1">남은 시간: {Math.ceil((new Date(bannedUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60))}시간</p>}
                 {banReason && <p className="text-xs text-red-600 mb-1">사유: {banReason}</p>}
                 <p className="text-xs text-gray-500 mt-2">⚠️ 제한 기간 동안 미션 제출이 불가능해요. 기간 만료 후 자동으로 해제됩니다.</p>
               </div>
@@ -1895,7 +1897,7 @@ useEffect(() => {
                               <div className="flex gap-2 flex-wrap">
                                 {(() => {
                                   const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase())
-                                  const isBanned = alreadyJoined?.status === 'BANNED' || (bannedUntil !== null && new Date(bannedUntil) > new Date())
+                                  const isBanned = alreadyJoined?.status === 'BANNED' || bannedUntil !== null
                                   const alreadyCover = alreadyJoined?.is_cover
                                   const alreadyCoverRequested = alreadyJoined?.cover_requested
                                   return (
