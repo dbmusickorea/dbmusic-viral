@@ -687,6 +687,10 @@ export async function GET() {
           .maybeSingle()
 
         if (!coverPost) {
+          // 이미 페널티 처리된 경우 스킵
+          const { data: participant } = await supabase.from('participants').select('cover_penalty_until').eq('id', cp.member_id).maybeSingle()
+          if (participant?.cover_penalty_until) continue
+          
           const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
           await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'not_uploaded' }).eq('id', cp.member_id)
 

@@ -1692,7 +1692,7 @@ useEffect(() => {
               )
             })()}
           </div>
-          {coverRequests.filter(r => r.status === 'PENDING').map(r => (
+          {coverRequests.filter(r => r.status === 'PENDING' && !coverPenaltyUntil).map(r => (
             <div key={r.id} className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4">
               <p className="text-sm font-medium text-purple-800 mb-2">🎵 커버영상 미션 선택됐어요!</p>
               <p className="text-xs text-gray-600 mb-3">프로젝트: {r.project_code}</p>
