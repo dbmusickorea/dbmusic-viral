@@ -53,7 +53,12 @@ export async function GET(request: NextRequest) {
     const row = summarySheet.addRow([label, value])
     row.getCell(1).font = { bold: true }
     row.getCell(1).fill = labelFill
-    if (label === '요청사항') { row.getCell(2).alignment = { wrapText: true }; row.height = 60 }
+    if (label === '요청사항') { 
+      row.getCell(2).alignment = { wrapText: true, vertical: 'middle' }
+      row.getCell(1).alignment = { vertical: 'middle' }
+      row.height = 80
+    }
+    row.eachCell(cell => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
   })
 
   summarySheet.addRow([])
@@ -82,6 +87,7 @@ export async function GET(request: NextRequest) {
     if (typeof value === 'number') {
       row.getCell(2).numFmt = '#,##0'
     }
+    row.eachCell(cell => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
   })
 
   // 시트 2: 게시물 목록
