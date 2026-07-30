@@ -174,9 +174,13 @@ export async function GET(request: NextRequest) {
 
     // 각 플랫폼 헤더
     platforms.forEach(({ name, col }) => {
+      // 제목 셀 병합
+      dailySheet.mergeCells(1, col, 1, col + 3)
       const titleCell = dailySheet.getCell(1, col)
       titleCell.value = name
       titleCell.font = { bold: true, size: 12, color: { argb: 'FF1F4E79' } }
+      titleCell.alignment = { horizontal: 'center' }
+      titleCell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
 
       const headers = ['날짜', '총 좋아요', '총 댓글', '총 조회수']
       headers.forEach((h, i) => {
@@ -185,6 +189,7 @@ export async function GET(request: NextRequest) {
         cell.font = headerFont
         cell.fill = headerFill
         cell.alignment = { horizontal: 'center' }
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
         dailySheet.getColumn(col + i).width = i === 0 ? 20 : 12
       })
     })
@@ -202,12 +207,14 @@ export async function GET(request: NextRequest) {
         const row = dailySheet.getRow(rowIdx + 3)
         const dateCell = row.getCell(col)
         dateCell.value = date
+        dateCell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
         ;[1,2,3].forEach(i => {
           const cell = row.getCell(col + i)
           cell.value = i === 1 ? platformData.reduce((s, h) => s + (h.likes_count ?? 0), 0) :
                        i === 2 ? platformData.reduce((s, h) => s + (h.comments_count ?? 0), 0) :
                        platformData.reduce((s, h) => s + (h.views_count ?? 0), 0)
           cell.numFmt = '#,##0'
+          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
         })
       })
     })
