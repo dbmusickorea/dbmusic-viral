@@ -226,6 +226,23 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                         body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
                       })
                     }
+                    for (const pp of coverBanned ?? []) {
+                      await fetch(`/api/project_participants?id=${pp.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'ACTIVE', banned_until: null })
+                      })
+                      // cover_requests도 PENDING으로 변경
+                      const crRes = await fetch(`/api/cover_requests?project_code=${pp.project_code}&participant_id=${memberId}`)
+                      const crData = await crRes.json()
+                      if (crData?.[0]?.id) {
+                        await fetch(`/api/cover_requests?id=${crData[0].id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ status: 'PENDING' })
+                        })
+                      }
+                    }
                     showToast('커버 페널티 해제 완료! (재참여 가능)')
                     onUpdate?.() 
                   }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
