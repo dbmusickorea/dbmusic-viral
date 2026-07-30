@@ -907,7 +907,7 @@ export async function GET() {
     if (currentHour === 3) {
       const { data: ongoingPosts } = await supabase
         .from('posts')
-        .select('id, post_url, platform, member_id, project_code, likes_count')
+        .select('id, post_url, platform, member_id, project_code, likes_count, is_cover')
         .in('project_code', 
           (await supabase.from('projects').select('project_code').eq('status', 'ONGOING')).data?.map((p: any) => p.project_code) ?? []
         )
@@ -952,7 +952,7 @@ export async function GET() {
                 const baseAmount = projectData?.reward_per_post ?? 0
                 const level = participant.level ?? 1
                 const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
-                const deductAmount = Math.min(baseAmount, earnAmount)
+                const deductAmount = post.is_cover ? Math.min(baseAmount, earnAmount) + (participant.cover_reward ?? 0) : Math.min(baseAmount, earnAmount)
                 const newBalance = Math.max(0, (participant.balance ?? 0) - deductAmount)
                 await supabase.from('participants').update({ balance: newBalance }).eq('id', post.member_id)
                 await supabase.from('point_history').insert({ 
