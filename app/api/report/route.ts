@@ -66,6 +66,8 @@ export async function GET(request: NextRequest) {
   
   const statsTitle = summarySheet.addRow(['📊 성과 요약'])
   statsTitle.font = { bold: true, size: 12, color: { argb: 'FF1F4E79' } }
+  summarySheet.mergeCells(statsTitle.number, 1, statsTitle.number, 2)
+  statsTitle.getCell(1).alignment = { horizontal: 'center' }
 
   const totalLikes = posts?.reduce((sum, p) => sum + (p.likes_count ?? 0), 0) ?? 0
   const totalComments = posts?.reduce((sum, p) => sum + (p.comments_count ?? 0), 0) ?? 0
