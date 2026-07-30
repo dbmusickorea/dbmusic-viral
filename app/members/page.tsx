@@ -242,7 +242,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
               </div>
             </div>
           )}
-          {participations.some(p => p.is_cover && p.status === 'BANNED') && (
+          {participations.some(p => p.is_cover && p.status === 'BANNED') && !participant?.cover_penalty_until && (
             <div className="bg-orange-50 rounded-lg p-3">
               <div className="flex justify-between items-start">
                 <div>
