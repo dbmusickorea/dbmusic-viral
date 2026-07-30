@@ -210,7 +210,7 @@ export async function GET() {
               body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
               tokens: participantTokens.map((t: any) => t.token),
               userIds: participantTokens.map((t: any) => t.user_id),
-              saveToRole: 'participant'
+              saveToRole: 'participant', data: { url: '/participant' }
             })
           })
           await supabase.from('projects').update({ recruit_push_sent: true }).eq('project_code', project.project_code)
@@ -266,7 +266,7 @@ export async function GET() {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    title: '🎵 커버영상 미션이 시작됐어요!',
+                    title: '🎵 커버영상 미션이 시작됐어요!', data: { url: '/participant' },
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 커버영상 미션이 시작됐어요! 7일 이내에 업로드해주세요.`,
                     tokens: coverTokens.map((t: any) => t.token),
                     userIds: coverIds.map(String)
@@ -295,7 +295,7 @@ export async function GET() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  title: '📅 2차 미션이 시작됐어요!',
+                  title: '📅 2차 미션이 시작됐어요!', data: { url: '/participant' },
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 2차 게시물을 48시간 안에 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                   tokens: tokens.map((t: any) => t.token),
                   userIds: memberIds
@@ -352,7 +352,7 @@ export async function GET() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      title: '🔔 추가 모집 공고!',
+                      title: '🔔 추가 모집 공고!', data: { url: '/participant' },
                       body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
                       tokens: filteredTokens.map((t: any) => t.token),
                       userIds: filteredTokens.map((t: any) => t.user_id),
@@ -394,7 +394,7 @@ export async function GET() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      title: '⚠️ 2차 미션 불이행으로 활동이 제한됐어요!',
+                      title: '⚠️ 2차 미션 불이행으로 활동이 제한됐어요!', data: { url: '/participant' },
                       body: `2차 게시물을 올리지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
                       tokens: memberTokens.map((t: any) => t.token),
                       userIds: [String(participant.id)]
@@ -609,7 +609,7 @@ export async function GET() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: '⚠️ 커버영상 요청이 거절됐어요',
+                title: '⚠️ 커버영상 요청이 거절됐어요', data: { url: '/participant' },
                 body: `[${r.project_code}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
                 tokens: tokens.map((t: any) => t.token),
                 userIds: [String(clientUser.id)]
@@ -653,7 +653,7 @@ export async function GET() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: '⚠️ 커버영상 미업로드 패널티',
+                title: '⚠️ 커버영상 미업로드 패널티', data: { url: '/participant' },
                 body: '7일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
                 tokens: tokens.map((t: any) => t.token),
                 userIds: [String(r.participant_id)]
@@ -696,7 +696,7 @@ export async function GET() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: '⚠️ 커버영상 미업로드 패널티',
+                title: '⚠️ 커버영상 미업로드 패널티', data: { url: '/participant' },
                 body: '15일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
                 tokens: tokens.map((t: any) => t.token),
                 userIds: [String(cp.member_id)]
@@ -724,7 +724,7 @@ export async function GET() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              title: '✅ 활동 제한이 해제됐어요!',
+              title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' },
               body: '미션 불이행 제한 기간이 끝났어요. 이제 다시 미션에 참여할 수 있어요!',
               tokens: tokens.map((t: any) => t.token),
               userIds: [String(p.id)]
@@ -751,7 +751,7 @@ export async function GET() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              title: '✅ 커버영상 제한이 해제됐어요!',
+              title: '✅ 커버영상 제한이 해제됐어요!', data: { url: '/participant' },
               body: '커버영상 업로드 제한 기간이 끝났어요. 이제 다시 커버영상 미션에 참여할 수 있어요!',
               tokens: tokens.map((t: any) => t.token),
               userIds: [String(p.id)]
@@ -979,7 +979,7 @@ export async function GET() {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    title: '⚠️ 게시물이 삭제됐어요',
+                    title: '⚠️ 게시물이 삭제됐어요', data: { url: '/participant' },
                     body: post.is_cover ? '커버 게시물 링크가 유효하지 않아 적립금 회수 및 3개월 커버 페널티가 적용됐어요.' : '게시물 링크가 유효하지 않아 적립금 회수 및 삭제 처리됐어요.',
                     tokens: tokens.map((t: any) => t.token),
                     userIds: [String(post.member_id)]

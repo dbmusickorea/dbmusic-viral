@@ -197,7 +197,7 @@ export default function Page1() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: '🎵 커버영상 승인됐어요!',
+          title: '🎵 커버영상 승인됐어요!', data: { url: '/participant' },
           body: `커버영상(${type === 'long' ? '롱폼' : '숏츠'})이 승인됐어요. 미션 시작일로부터 7일 이내에 업로드해주세요. ${reward.toLocaleString()}P이 추가 지급됐어요.`,
           tokens: tokens.map((t: any) => t.token),
           userIds: [String(post.member_id)]
@@ -518,7 +518,7 @@ export default function Page1() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                title: '💬 댓글 미션이 추가됐어요!',
+                title: '💬 댓글 미션이 추가됐어요!', data: { url: '/participant' },
                 body: `댓글을 달고 300P를 받으세요!`,
                 tokens: tokens.map((t: any) => t.token),
                 userIds: memberIds
@@ -1357,7 +1357,7 @@ export default function Page1() {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({
-                                    title: '📬 문의 답장이 왔어요!',
+                                    title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
                                     body: replyText[req.id],
                                     tokens: tokens.map((t: any) => t.token),
                                     userIds: tokens.map((t: any) => t.user_id)
@@ -1374,7 +1374,7 @@ export default function Page1() {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({
-                                    title: '📬 문의 답장이 왔어요!',
+                                    title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
                                     body: replyText[req.id],
                                     tokens: memberTokens.map((t: any) => t.token),
                                     userIds: memberTokens.map((t: any) => t.user_id)
@@ -1387,7 +1387,7 @@ export default function Page1() {
                                 body: JSON.stringify({
                                   user_id: String(req.member_id),
                                   user_role: 'participant',
-                                  title: '📬 문의 답장이 왔어요!',
+                                  title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
                                   body: replyText[req.id]
                                 })
                               })

@@ -155,7 +155,7 @@ export default function ClientMyPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: '📬 의뢰인 문의가 접수됐어요!',
+          title: '📬 의뢰인 문의가 접수됐어요!', data: { url: '/admin' },
           body: `${userInfo?.name}: ${requestTitle}`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: '🎵 커버 신청이 왔어요!',
+            title: '🎵 커버 신청이 왔어요!', data: { url: '/cover' },
             body: `${project.artist_name} / ${project.song_title} 커버 신청을 확인해주세요.`,
             tokens: tokens.map((t: any) => t.token),
             userIds: tokens.map((t: any) => t.user_id)

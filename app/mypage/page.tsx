@@ -187,7 +187,7 @@ export default function MyPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: '📬 체험단 문의가 접수됐어요!',
+          title: '📬 체험단 문의가 접수됐어요!', data: { url: '/admin' },
           body: `${userInfo?.name}: ${requestTitle}`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)

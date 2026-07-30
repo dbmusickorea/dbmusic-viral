@@ -33,7 +33,10 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
       console.log('알림 클릭:', action)
       const data = action.notification.data
       if (data?.url) {
-        window.location.href = data.url
+        const url = new URL(data.url, window.location.origin)
+        const tab = url.searchParams.get('tab')
+        if (tab) sessionStorage.setItem('activeTab', tab)
+        window.location.href = url.pathname
       } else if (data?.page) {
         window.location.href = data.page
       }

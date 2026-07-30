@@ -179,7 +179,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
                     const tokens = await tokensRes.json()
                     if (tokens?.length > 0) {
-                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
+                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
                     }
                   }} className="text-xs bg-green-600 text-white rounded px-2 py-1">해제+재참여</button>
                   <button onClick={async () => {
@@ -197,7 +197,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
                     const tokens = await tokensRes.json()
                     if (tokens?.length > 0) {
-                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
+                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
                     }
                   }} className="text-xs bg-red-600 text-white rounded px-2 py-1">해제+제외</button>
                 </div>
