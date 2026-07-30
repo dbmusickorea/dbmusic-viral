@@ -689,7 +689,6 @@ export async function GET() {
         if (!coverPost) {
           const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
           await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'not_uploaded' }).eq('id', cp.member_id)
-          await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', cp.project_code).eq('member_id', cp.member_id)
 
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(cp.member_id))
           if (tokens && tokens.length > 0) {
@@ -969,11 +968,6 @@ export async function GET() {
                   cover_penalty_until: penaltyUntil,
                   cover_penalty_reason: 'deleted'
                 }).eq('id', post.member_id)
-                await supabase.from('project_participants')
-                  .update({ status: 'BANNED' })
-                  .eq('member_id', post.member_id)
-                  .eq('project_code', post.project_code)
-                  .eq('is_cover', true)
               }
               await supabase.from('posts').delete().eq('id', post.id)
               await supabase.from('post_stats_history').delete().eq('post_id', post.id)

@@ -163,8 +163,7 @@ useEffect(() => {
       setIsLocked(participant?.is_locked ?? false)
       // project_participants에서 is_cover=false인 BANNED 상태 체크
       const normalBanned = data.participations?.find((p: any) => !p.is_cover && p.status === 'BANNED')
-      const coverBanned = data.participations?.find((p: any) => p.is_cover && p.status === 'BANNED')
-      setBannedUntil(normalBanned ? (normalBanned.banned_until ?? 'banned') : coverBanned ? 'banned' : null)
+      setBannedUntil(normalBanned ? (normalBanned.banned_until ?? 'banned') : null)
       setBanReason(normalBanned?.ban_reason ?? participant?.ban_reason ?? null)
       setCoverPenaltyUntil(participant?.cover_penalty_until ?? null)
       setCoverPenaltyReason(participant?.cover_penalty_reason ?? null)
@@ -1917,7 +1916,7 @@ useEffect(() => {
                                 {(() => {
                                   const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && !p.is_cover)
                                   const alreadyJoinedCover = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover)
-                                  const isBanned = alreadyJoined?.status === 'BANNED' || alreadyJoinedCover?.status === 'BANNED' || bannedUntil !== null
+                                  const isBanned = alreadyJoined?.status === 'BANNED' || bannedUntil !== null
                                   const alreadyCover = !!alreadyJoinedCover
                                   const alreadyCoverRequested = alreadyJoinedCover?.cover_requested
                                   return (
