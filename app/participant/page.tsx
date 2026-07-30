@@ -163,7 +163,8 @@ useEffect(() => {
       setIsLocked(participant?.is_locked ?? false)
       // project_participants에서 is_cover=false인 BANNED 상태 체크
       const normalBanned = data.participations?.find((p: any) => !p.is_cover && p.status === 'BANNED')
-      setBannedUntil(normalBanned ? (normalBanned.banned_until ?? 'banned') : null)
+      const coverBanned = data.participations?.find((p: any) => p.is_cover && p.status === 'BANNED')
+      setBannedUntil(normalBanned ? (normalBanned.banned_until ?? 'banned') : coverBanned ? 'banned' : null)
       setBanReason(normalBanned?.ban_reason ?? participant?.ban_reason ?? null)
       setCoverPenaltyUntil(participant?.cover_penalty_until ?? null)
       setCoverPenaltyReason(participant?.cover_penalty_reason ?? null)
