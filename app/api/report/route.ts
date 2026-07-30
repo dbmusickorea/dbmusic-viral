@@ -54,9 +54,10 @@ export async function GET(request: NextRequest) {
     row.getCell(1).font = { bold: true }
     row.getCell(1).fill = labelFill
     if (label === '요청사항') { 
+      const lineCount = String(value).split('\n').length
       row.getCell(2).alignment = { wrapText: true, vertical: 'middle' }
       row.getCell(1).alignment = { vertical: 'middle' }
-      row.height = 80
+      row.height = Math.max(80, lineCount * 20)
     }
     row.eachCell(cell => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
   })
@@ -241,14 +242,15 @@ export async function GET(request: NextRequest) {
     ]
     const commentHeader = commentSheet.getRow(1)
     commentHeader.font = headerFont
-    commentHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' } })
+    commentHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' }; cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
 
     commentMissions.filter(m => m.project_code !== 'UNLOCK').forEach(m => {
-      commentSheet.addRow([
+      const cmRow = commentSheet.addRow([
         m.youtube_handle,
         m.video_id,        
         new Date(m.created_at).toLocaleDateString('ko-KR')
       ])
+      cmRow.eachCell(cell => { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } })
     })
   }
 
