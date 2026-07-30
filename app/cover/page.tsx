@@ -599,7 +599,11 @@ export default function CoverPage() {
                                     return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                   })()
                                 ) : request.status === 'PENDING' ? (
-                                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
+                                  coverPost ? (
+                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
+                                  ) : (
+                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
+                                  )
                                 ) : request.status === 'APPROVED' ? (
                                   coverPost && coverPost.cover_status === 'PENDING' ? (
                                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
@@ -623,6 +627,7 @@ export default function CoverPage() {
                                   <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                 ) : (
                                   <span className={`text-xs px-2 py-1 rounded-full ${
+                                    request.status === 'PENDING' && coverPost ? 'bg-yellow-100 text-yellow-700' :
                                     request.status === 'APPROVED' && coverPost?.cover_status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
                                     request.status === 'APPROVED' && coverPost?.cover_status === 'APPROVED' ? 'bg-green-100 text-green-700' :
                                     request.status === 'APPROVED' ? 'bg-blue-100 text-blue-700' :
@@ -630,6 +635,8 @@ export default function CoverPage() {
                                     request.status === 'PENALTY' ? 'bg-orange-100 text-orange-700' :
                                     'bg-yellow-100 text-yellow-700'
                                   }`}>{
+                                    request.status === 'PENDING' && coverPost ? '🎵 검토중' :
+                                    request.status === 'PENDING' ? '대기중' :
                                     request.status === 'APPROVED' && coverPost?.cover_status === 'PENDING' ? '🎵 검토중' :
                                     request.status === 'APPROVED' && coverPost?.cover_status === 'APPROVED' ? '✅ 승인됨' :
                                     request.status === 'APPROVED' ? '업로드대기' :
