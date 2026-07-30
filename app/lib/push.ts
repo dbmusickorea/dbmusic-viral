@@ -1,5 +1,7 @@
 import { PushNotifications } from '@capacitor/push-notifications'
 
+let listenersRegistered = false
+
 export const initPushNotifications = async (userId: string, userRole: string) => {
   try {
     const permission = await PushNotifications.requestPermissions()
@@ -11,36 +13,40 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
 
     await PushNotifications.register()
 
-    PushNotifications.addListener('registration', async (token) => {
-      console.log('FCM Token:', token.value)
-      await fetch('/api/push_tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: userId,
-          user_role: userRole,
-          token: token.value
+    if (!listenersRegistered) {
+      listenersRegistered = true
+
+      PushNotifications.addListener('registration', async (token) => {
+        console.log('FCM Token:', token.value)
+        await fetch('/api/push_tokens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            user_role: userRole,
+            token: token.value
+          })
         })
       })
-    })
 
-    PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('알림 수신:', notification)
-      alert(`${notification.title}\n${notification.body}`)
-    })
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('알림 수신:', notification)
+        alert(`${notification.title}\n${notification.body}`)
+      })
 
-    PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-      console.log('알림 클릭:', action)
-      const data = action.notification.data
-      if (data?.url) {
-        const url = new URL(data.url, window.location.origin)
-        const tab = url.searchParams.get('tab')
-        if (tab) sessionStorage.setItem('activeTab', tab)
-        window.location.href = url.pathname
-      } else if (data?.page) {
-        window.location.href = data.page
-      }
-    })
+      PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+        console.log('알림 클릭:', action)
+        const data = action.notification.data
+        if (data?.url) {
+          const url = new URL(data.url, window.location.origin)
+          const tab = url.searchParams.get('tab')
+          if (tab) sessionStorage.setItem('activeTab', tab)
+          window.location.href = url.pathname
+        } else if (data?.page) {
+          window.location.href = data.page
+        }
+      })
+    }
   } catch (error) {
     console.log('푸시 알림 초기화 실패:', error)
   }
