@@ -19,7 +19,7 @@ export default function ClientReportPage() {
       return
     }
     const parsed = JSON.parse(userInfo)
-    const clientId = role === 'admin' ? parsed.client_id : parsed.client_id
+    const clientId = parsed.client_id
     if (clientId) {
       fetch(`/api/projects?client_id=${clientId}`)
         .then(res => res.json())
@@ -52,55 +52,54 @@ export default function ClientReportPage() {
         ]}
       />
       <div className="min-h-screen bg-gray-50 p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="w-8 hidden md:flex">
-            <button onClick={() => setShowSidebar(true)} className="text-gray-600">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-center mb-2">
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
+          </div>
+          <div className="flex items-center mb-2">
+            <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
-          <div className="w-8 md:hidden" />
-          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
-          <div className="w-8" />
-        </div>
-
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold mb-4">📊 결과보고서</h2>
-          {myProjects.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">프로젝트가 없어요</p>
-          ) : (
-            <div className="space-y-3">
-              {myProjects.map((p: any) => (
-                <div key={p.project_code} className="border rounded-xl p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium text-sm">{p.artist_name ?? p.client_name} / {p.song_title ?? p.product_content}</p>
-                      <p className="text-xs text-gray-400 mt-1">{p.start_date} ~ {p.end_date}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700'}`}>
-                        {p.status === 'ONGOING' ? '진행중' : p.status === 'COMPLETED' ? '완료' : '대기'}
-                      </span>
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-4">📊 결과보고서</h2>
+            {myProjects.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">프로젝트가 없어요</p>
+            ) : (
+              <div className="space-y-3">
+                {myProjects.map((p: any) => (
+                  <div key={p.project_code} className="border rounded-xl p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-sm">{p.artist_name ?? p.client_name} / {p.song_title ?? p.product_content}</p>
+                        <p className="text-xs text-gray-400 mt-1">{p.start_date} ~ {p.end_date}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {p.status === 'ONGOING' ? '진행중' : p.status === 'COMPLETED' ? '완료' : '대기'}
+                        </span>
+                      </div>
+                      {p.status === 'COMPLETED' ? (
+                        <button onClick={async () => {
+                          const url = `${window.location.origin}/report?project_code=${p.project_code}`
+                          if ((window as any).Capacitor?.isNativePlatform?.()) {
+                            const { Browser } = await import('@capacitor/browser')
+                            await Browser.open({ url })
+                          } else {
+                            window.open(url, '_blank')
+                          }
+                        }} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg shrink-0">
+                          결과보고서 받기
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-400 bg-gray-100 px-3 py-2 rounded-lg shrink-0 text-center">종료 후<br/>확인 가능</span>
+                      )}
                     </div>
-                    {p.status === 'COMPLETED' ? (
-                      <button onClick={async () => {
-                        const url = `${window.location.origin}/report?project_code=${p.project_code}`
-                        if ((window as any).Capacitor?.isNativePlatform?.()) {
-                          const { Browser } = await import('@capacitor/browser')
-                          await Browser.open({ url })
-                        } else {
-                          window.open(url, '_blank')
-                        }
-                      }} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg shrink-0">
-                        결과보고서 받기
-                      </button>
-                    ) : (
-                      <span className="text-xs text-gray-400 bg-gray-100 px-3 py-2 rounded-lg shrink-0 text-center">종료 후<br/>확인 가능</span>
-                    )}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 하단탭 */}
