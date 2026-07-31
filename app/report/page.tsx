@@ -1,0 +1,248 @@
+'use client'
+
+import { useEffect, useState, useRef } from 'react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+
+export default function ReportPage() {
+  const [project, setProject] = useState<any>(null)
+  const [posts, setPosts] = useState<any[]>([])
+  const [history, setHistory] = useState<any[]>([])
+  const [commentMissions, setCommentMissions] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const projectCode = params.get('project_code')
+    if (!projectCode) return
+
+    const load = async () => {
+      const [projectRes, postsRes, historyRes, cmRes] = await Promise.all([
+        fetch(`/api/projects?project_code=${projectCode}`),
+        fetch(`/api/posts?project_code=${projectCode}`),
+        fetch(`/api/post_stats_history?project_code=${projectCode}`),
+        fetch(`/api/comment_missions?project_code=${projectCode}`)
+      ])
+      const projectData = await projectRes.json()
+      setProject(Array.isArray(projectData) ? projectData[0] : projectData)
+      setPosts(await postsRes.json() ?? [])
+      setHistory(await historyRes.json() ?? [])
+      setCommentMissions(await cmRes.json() ?? [])
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const getDailyStats = () => {
+    if (!history.length) return []
+    const dates = [...new Set(history.map((h: any) => h.recorded_at.split('_')[0]))].sort()
+    const platformMap: any = {}
+    posts.forEach((p: any) => { platformMap[p.id] = p.platform })
+
+    const getLatest = (data: any[]) => {
+      const map = new Map()
+      data.forEach(h => {
+        const key = h.post_id ?? h.link_id
+        const hour = parseInt(h.recorded_at.split('_')[1] ?? '0')
+        const existing = map.get(key)
+        const existingHour = existing ? parseInt(existing.recorded_at.split('_')[1] ?? '0') : -1
+        if (!existing || hour > existingHour) map.set(key, h)
+      })
+      return Array.from(map.values())
+    }
+
+    return dates.map((date: any) => {
+      const dayData = history.filter((h: any) => h.recorded_at.startsWith(date))
+      const latest = getLatest(dayData)
+      const filter = (key: string) => latest.filter((h: any) => {
+        const platform = platformMap[h.post_id] ?? h.platform
+        return platform === key || (key === 'youtube' && ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(platform))
+      })
+      const insta = filter('instagram')
+      const youtube = filter('youtube')
+      const tiktok = filter('tiktok')
+      return {
+        date,
+        인스타_좋아요: insta.reduce((s: number, h: any) => s + (h.likes_count ?? 0), 0),
+        인스타_댓글: insta.reduce((s: number, h: any) => s + (h.comments_count ?? 0), 0),
+        인스타_조회수: insta.reduce((s: number, h: any) => s + (h.views_count ?? 0), 0),
+        유튜브_좋아요: youtube.reduce((s: number, h: any) => s + (h.likes_count ?? 0), 0),
+        유튜브_댓글: youtube.reduce((s: number, h: any) => s + (h.comments_count ?? 0), 0),
+        유튜브_조회수: youtube.reduce((s: number, h: any) => s + (h.views_count ?? 0), 0),
+        틱톡_좋아요: tiktok.reduce((s: number, h: any) => s + (h.likes_count ?? 0), 0),
+        틱톡_댓글: tiktok.reduce((s: number, h: any) => s + (h.comments_count ?? 0), 0),
+        틱톡_조회수: tiktok.reduce((s: number, h: any) => s + (h.views_count ?? 0), 0),
+      }
+    })
+  }
+
+  if (loading) return <div className="flex items-center justify-center h-screen">로딩중...</div>
+  if (!project) return <div className="flex items-center justify-center h-screen">프로젝트를 찾을 수 없어요</div>
+
+  const dailyStats = getDailyStats()
+  const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0)
+  const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0)
+  const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0)
+
+  return (
+    <div className="bg-white min-h-screen">
+      <div className="print:hidden fixed top-4 right-4 z-10">
+        <button onClick={() => window.print()} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">🖨️ PDF 저장</button>
+      </div>
+
+      <div className="max-w-4xl mx-auto p-8">
+        <div className="text-center mb-8 border-b pb-6">
+          <h1 className="text-2xl font-bold text-blue-900">더블비뮤직 바이럴 결과보고서</h1>
+          <p className="text-gray-500 mt-1">{project.artist_name} / {project.song_title}</p>
+          <p className="text-gray-400 text-sm mt-1">{project.start_date} ~ {project.end_date}</p>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📋 프로젝트 정보</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              ['의뢰인', project.client_name],
+              ['가수명', project.artist_name ?? '-'],
+              ['노래제목', project.song_title ?? '-'],
+              ['상품명', project.product_content],
+              ['계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
+              ['모집인원', `${project.max_participants ?? '-'}명`],
+              ['시작일', project.start_date ?? '-'],
+              ['종료일', project.end_date ?? '-'],
+            ].map(([label, value]) => (
+              <div key={label} className="flex gap-2">
+                <span className="text-sm font-medium text-gray-600 w-24 shrink-0">{label}</span>
+                <span className="text-sm text-gray-800">{value}</span>
+              </div>
+            ))}
+          </div>
+          {project.requirements && (
+            <div className="mt-3">
+              <p className="text-sm font-medium text-gray-600 mb-1">요청사항</p>
+              <p className="text-sm text-gray-800 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg">{project.requirements}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📊 성과 요약</h2>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              ['총 게시물', `${posts.length}개`],
+              ['총 좋아요', totalLikes.toLocaleString()],
+              ['총 댓글', totalComments.toLocaleString()],
+              ['총 조회수', totalViews.toLocaleString()],
+              ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
+              ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
+              ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
+              ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
+              ['댓글미션', `${commentMissions.filter((m: any) => m.project_code !== 'UNLOCK').length}개`],
+            ].map(([label, value]) => (
+              <div key={label} className="bg-blue-50 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500">{label}</p>
+                <p className="text-lg font-bold text-blue-900">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {dailyStats.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
+            {posts.some((p: any) => p.platform === 'instagram') && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">인스타그램</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={dailyStats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="인스타_좋아요" stroke="#E1306C" name="좋아요" dot={false} />
+                    <Line type="monotone" dataKey="인스타_댓글" stroke="#833AB4" name="댓글" dot={false} />
+                    <Line type="monotone" dataKey="인스타_조회수" stroke="#F77737" name="조회수" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+            {posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">유튜브</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={dailyStats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="유튜브_좋아요" stroke="#FF0000" name="좋아요" dot={false} />
+                    <Line type="monotone" dataKey="유튜브_댓글" stroke="#FF6B6B" name="댓글" dot={false} />
+                    <Line type="monotone" dataKey="유튜브_조회수" stroke="#CC0000" name="조회수" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+            {posts.some((p: any) => p.platform === 'tiktok') && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">틱톡</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={dailyStats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="틱톡_좋아요" stroke="#000000" name="좋아요" dot={false} />
+                    <Line type="monotone" dataKey="틱톡_댓글" stroke="#666666" name="댓글" dot={false} />
+                    <Line type="monotone" dataKey="틱톡_조회수" stroke="#333333" name="조회수" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📝 게시물 목록</h2>
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-blue-900 text-white">
+                <th className="p-2 text-left border">참여자</th>
+                <th className="p-2 text-left border">플랫폼</th>
+                <th className="p-2 text-right border">좋아요</th>
+                <th className="p-2 text-right border">댓글</th>
+                <th className="p-2 text-right border">조회수</th>
+                <th className="p-2 text-center border">커버</th>
+                <th className="p-2 text-left border">등록일</th>
+              </tr>
+            </thead>
+            <tbody>
+              {posts.map((p: any) => (
+                <tr key={p.id} className="border-b hover:bg-gray-50">
+                  <td className="p-2 border">{p.influencer_name}</td>
+                  <td className="p-2 border">{p.platform}</td>
+                  <td className="p-2 border text-right">{(p.likes_count ?? 0).toLocaleString()}</td>
+                  <td className="p-2 border text-right">{(p.comments_count ?? 0).toLocaleString()}</td>
+                  <td className="p-2 border text-right">{(p.views_count ?? 0).toLocaleString()}</td>
+                  <td className="p-2 border text-center">{p.is_cover ? '✅' : ''}</td>
+                  <td className="p-2 border">{new Date(p.created_at).toLocaleDateString('ko-KR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="text-center text-xs text-gray-400 border-t pt-4">
+          더블비뮤직 바이럴 마케팅 결과보고서 | {new Date().toLocaleDateString('ko-KR')}
+        </div>
+      </div>
+
+      <style>{`
+        @media print {
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .print\\:hidden { display: none; }
+        }
+      `}</style>
+    </div>
+  )
+}
