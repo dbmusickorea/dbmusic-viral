@@ -1,22 +1,70 @@
 'use client'
 
 import { useState } from 'react'
+import { supabase } from '../app/lib/supabase'
 
 type ApplyModalProps = {
   show: boolean
   onClose: () => void
   userInfo: any
+  showToast?: (msg: string, type?: any) => void
 }
 
-export default function ApplyModal({ show, onClose, userInfo }: ApplyModalProps) {
+export default function ApplyModal({ show, onClose, userInfo, showToast }: ApplyModalProps) {
   const [applyArtistName, setApplyArtistName] = useState('')
   const [applySongTitle, setApplySongTitle] = useState('')
   const [applyMissionDate, setApplyMissionDate] = useState('')
   const [applyHasCover, setApplyHasCover] = useState(false)
   const [applyCoverCount, setApplyCoverCount] = useState(0)
   const [applyRequirements, setApplyRequirements] = useState('')
+  const [applyBudget, setApplyBudget] = useState('')
+  const [applyJacketFile, setApplyJacketFile] = useState<File | null>(null)
 
   if (!show) return null
+
+  const handleSubmit = async () => {
+    if (!applyArtistName || !applySongTitle) {
+      showToast ? showToast('가수명과 노래 제목을 입력해주세요.', 'error') : alert('가수명과 노래 제목을 입력해주세요.')
+      return
+    }
+    let jacketImageUrl = null
+    if (applyJacketFile) {
+      const { data, error } = await supabase.storage
+        .from('covers')
+        .upload(`jacket_${Date.now()}`, applyJacketFile, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
+        jacketImageUrl = urlData.publicUrl
+      }
+    }
+    await fetch('/api/project_applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: userInfo?.client_id,
+        client_name: userInfo?.name,
+        artist_name: applyArtistName,
+        song_title: applySongTitle,
+        mission_date: applyMissionDate,
+        has_cover: applyHasCover,
+        cover_count: applyCoverCount,
+        requirements: applyRequirements,
+        budget: applyBudget || null,
+        jacket_image: jacketImageUrl,
+        status: 'PENDING'
+      })
+    })
+    showToast ? showToast('프로젝트 신청이 완료됐어요!') : alert('프로젝트 신청이 완료됐어요!')
+    onClose()
+    setApplyArtistName('')
+    setApplySongTitle('')
+    setApplyMissionDate('')
+    setApplyHasCover(false)
+    setApplyCoverCount(0)
+    setApplyRequirements('')
+    setApplyBudget('')
+    setApplyJacketFile(null)
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
@@ -35,7 +83,7 @@ export default function ApplyModal({ show, onClose, userInfo }: ApplyModalProps)
             <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="노래 제목 입력" />
           </div>
           <div>
-            <label className="text-sm font-medium">희망 미션 시작일</label>
+            <label className="text-sm font-medium">희망 미션 시작일 (음원 발매일)</label>
             <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
           </div>
           <div>
@@ -51,35 +99,18 @@ export default function ApplyModal({ show, onClose, userInfo }: ApplyModalProps)
             )}
           </div>
           <div>
+            <label className="text-sm font-medium">책정 예산</label>
+            <input type="number" value={applyBudget} onChange={(e) => setApplyBudget(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예산 입력 (원)" />
+          </div>
+          <div>
+            <label className="text-sm font-medium">자켓 이미지</label>
+            <input type="file" accept="image/*" onChange={(e) => setApplyJacketFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+          </div>
+          <div>
             <label className="text-sm font-medium">요청사항</label>
             <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
           </div>
-          <button onClick={async () => {
-            if (!applyArtistName || !applySongTitle) { alert('가수명과 노래 제목을 입력해주세요.'); return }
-            await fetch('/api/project_applications', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                client_id: userInfo?.client_id,
-                client_name: userInfo?.name,
-                artist_name: applyArtistName,
-                song_title: applySongTitle,
-                mission_date: applyMissionDate,
-                has_cover: applyHasCover,
-                cover_count: applyCoverCount,
-                requirements: applyRequirements,
-                status: 'PENDING'
-              })
-            })
-            alert('프로젝트 신청이 완료됐어요!')
-            onClose()
-            setApplyArtistName('')
-            setApplySongTitle('')
-            setApplyMissionDate('')
-            setApplyHasCover(false)
-            setApplyCoverCount(0)
-            setApplyRequirements('')
-          }} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">신청하기</button>
+          <button onClick={handleSubmit} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import GuideCard from '../../components/GuideCard'
 import ClientTutorial from '../../components/ClientTutorial'
+import ApplyModal from '../../components/ApplyModal'
 import Sidebar from '../../components/Sidebar'
 
 export default function Page3() {
@@ -76,15 +77,7 @@ export default function Page3() {
   const PAGE_SIZE = 5
   const router = useRouter()
   const { showToast } = useToast()
-  const [applyArtistName, setApplyArtistName] = useState('')
-  const [applySongTitle, setApplySongTitle] = useState('')
-  const [applyHasCover, setApplyHasCover] = useState(false)
-  const [applyCoverCount, setApplyCoverCount] = useState(0)
-  const [applyRequirements, setApplyRequirements] = useState('')
-  const [applyBudget, setApplyBudget] = useState('')
   const [applyJacketImage, setApplyJacketImage] = useState('')
-  const [applyJacketFile, setApplyJacketFile] = useState<File | null>(null)
-  const [applyMissionDate, setApplyMissionDate] = useState('')
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
 
@@ -444,94 +437,7 @@ export default function Page3() {
 
   return (
     <>
-      {showApplyModal && (
-        <div className="fixed inset-0 bg-black/50 items-center justify-center z-50 p-6 hidden md:flex">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold text-lg">📝 프로젝트 신청</h2>
-              <button onClick={() => setShowApplyModal(false)} className="text-gray-400 text-xl">✕</button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">가수명/아티스트명</label>
-                <input value={applyArtistName} onChange={(e) => setApplyArtistName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="가수명 또는 아티스트명 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">노래 제목</label>
-                <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="노래 제목 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">희망 미션 시작일 (음원 발매일)</label>
-                <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-              </div>
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input type="checkbox" checked={applyHasCover} onChange={(e) => setApplyHasCover(e.target.checked)} />
-                  커버 옵션 추가
-                </label>
-                {applyHasCover && (
-                  <div className="mt-2">
-                    <label className="text-sm font-medium">커버 인원</label>
-                    <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버 인원 수 입력" min={1} />
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium">책정 예산</label>
-                <input type="number" value={applyBudget} onChange={(e) => setApplyBudget(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예산 입력 (원)" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">자켓 이미지</label>
-                <input type="file" accept="image/*" onChange={(e) => setApplyJacketFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">요청사항</label>
-                <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
-              </div>
-              <button onClick={async () => {
-                if (!applyArtistName || !applySongTitle) { showToast('가수명과 노래 제목을 입력해주세요.', 'error'); return }
-                let jacketImageUrl = null
-                if (applyJacketFile) {
-                  const { data, error } = await supabase.storage
-                    .from('covers')
-                    .upload(`jacket_${Date.now()}`, applyJacketFile, { upsert: true })
-                  if (!error && data) {
-                    const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
-                    jacketImageUrl = urlData.publicUrl
-                  }
-                }
-                await fetch('/api/project_applications', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    client_id: userInfo?.client_id,
-                    client_name: userInfo?.name,
-                    artist_name: applyArtistName,
-                    song_title: applySongTitle,
-                    mission_date: applyMissionDate,
-                    has_cover: applyHasCover,
-                    cover_count: applyCoverCount,
-                    requirements: applyRequirements,
-                    budget: applyBudget || null,
-                    jacket_image: jacketImageUrl,
-                    status: 'PENDING'
-                  })
-                })
-                showToast('프로젝트 신청이 완료됐어요!')
-                setShowApplyModal(false)
-                setApplyArtistName('')
-                setApplySongTitle('')
-                setApplyMissionDate('')
-                setApplyHasCover(false)
-                setApplyCoverCount(0)
-                setApplyRequirements('')
-                setApplyBudget('')
-                setApplyJacketFile(null)
-              }} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ApplyModal show={showApplyModal} onClose={() => setShowApplyModal(false)} userInfo={userInfo} showToast={showToast} />
       {/* 사이드바 오버레이 */}
       {userRole === 'admin' ? (
         <Sidebar
@@ -1369,84 +1275,7 @@ export default function Page3() {
         {/* 프로젝트 신청 탭 */}
         <div className={`${activeTab === 'apply' ? 'block md:hidden' : 'hidden'}`}>
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-4">📝 프로젝트 신청</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">가수명/아티스트명</label>
-                <input value={applyArtistName} onChange={(e) => setApplyArtistName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="가수명 또는 아티스트명 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">노래 제목</label>
-                <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="노래 제목 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">희망 미션 시작일 (음원 발매일)</label>
-                <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-              </div>
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input type="checkbox" checked={applyHasCover} onChange={(e) => setApplyHasCover(e.target.checked)} />
-                  커버 옵션 추가
-                </label>
-                {applyHasCover && (
-                  <div className="mt-2">
-                    <label className="text-sm font-medium">커버 인원</label>
-                    <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버 인원 수 입력" min={1} />
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium">요청사항</label>
-                <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">책정 예산</label>
-                <input type="number" value={applyBudget} onChange={(e) => setApplyBudget(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예산 입력 (원)" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">자켓 이미지</label>
-                <input type="file" accept="image/*" onChange={(e) => setApplyJacketFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
-              </div>
-              <button onClick={async () => {
-                if (!applyArtistName || !applySongTitle) { showToast('가수명과 노래 제목을 입력해주세요.', 'error'); return }
-                let jacketImageUrl = null
-                if (applyJacketFile) {
-                  const { data, error } = await supabase.storage
-                    .from('covers')
-                    .upload(`jacket_${Date.now()}`, applyJacketFile, { upsert: true })
-                  if (!error && data) {
-                    const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
-                    jacketImageUrl = urlData.publicUrl
-                  }
-                }
-                await fetch('/api/project_applications', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    client_id: userInfo?.client_id,
-                    client_name: userInfo?.name,
-                    artist_name: applyArtistName,
-                    song_title: applySongTitle,
-                    mission_date: applyMissionDate,
-                    has_cover: applyHasCover,
-                    cover_count: applyCoverCount,
-                    requirements: applyRequirements,
-                    budget: applyBudget || null,
-                    jacket_image: jacketImageUrl,
-                    status: 'PENDING'
-                  })
-                })
-                showToast('프로젝트 신청이 완료됐어요!')
-                setApplyArtistName('')
-                setApplySongTitle('')
-                setApplyMissionDate('')
-                setApplyHasCover(false)
-                setApplyCoverCount(0)
-                setApplyRequirements('')
-                setApplyBudget('')
-                setApplyJacketFile(null)
-              }} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
-            </div>
+            <button onClick={() => setShowApplyModal(true)} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">+ 프로젝트 신청</button>
           </div>
         </div>
       </div>
