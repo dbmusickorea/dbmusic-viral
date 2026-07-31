@@ -670,16 +670,28 @@ export default function Page3() {
                   <p className="text-sm font-medium">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
                 </div>
 
-                {myProjects.length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-gray-400 mb-3">프로젝트가 없습니다.</p>
-                    <button onClick={() => window.open('/demo', '_blank')} className="text-xs bg-blue-50 text-blue-600 border border-blue-200 rounded-xl px-4 py-3 w-full text-left">
-                      <p className="font-medium">🎵 옐로 / 결혼해서 좋겠다</p>
-                      <p className="text-gray-400 mt-1">2026-07-01 ~ 2026-07-15 · 참여자 30명</p>
-                      <p className="text-blue-500 mt-2 text-xs">👆 샘플 프로젝트 보기 →</p>
-                    </button>
-                  </div>
-                ) : (
+                {myProjects.length === 0 && (
+                  <>
+                    <div className="text-center py-4">
+                      <p className="text-sm text-gray-400 mb-3">프로젝트가 없습니다.</p>
+                    </div>
+                    <div onClick={() => window.open('/demo', '_blank')} className="border rounded-lg p-3 cursor-pointer border-dashed border-blue-300 bg-blue-50 mt-2">
+                      <div className="flex items-center gap-2">
+                        <img src="https://tbohdflubypnvlgwjxtp.supabase.co/storage/v1/object/public/covers/A_1_1784796044828" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm">옐로 / 결혼해서 좋겠다</p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <p className="text-xs text-gray-500">DEMO · 2026-07-01</p>
+                            <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>
+                          </div>
+                          <p className="text-xs text-gray-400">👥 30/30명 · 커버 3/3</p>
+                        </div>
+                        <span className="text-sm text-blue-600 font-medium shrink-0">샘플 보기 →</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {myProjects.length > 0 && (
                   <>
                     <div className="space-y-2">
                       {myProjects.slice(myProjectPage * PAGE_SIZE, (myProjectPage + 1) * PAGE_SIZE).map((project) => (
