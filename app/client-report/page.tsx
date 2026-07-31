@@ -1,5 +1,5 @@
 'use client'
-
+import Sidebar from '../../components/Sidebar'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
@@ -39,25 +39,18 @@ export default function ClientReportPage() {
 
   return (
     <>
-      {showSidebar && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-bold text-lg">더블비뮤직</h2>
-              <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
-            </div>
-            <div className="space-y-2 flex-1">
-              <button onClick={() => { router.push('/client') }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">프로젝트</button>
-              <button onClick={() => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">현황</button>
-              <button onClick={() => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">프로젝트 신청</button>
-              <button className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium bg-blue-50 text-blue-600">보고서</button>
-              <button onClick={() => router.push('/client-mypage')} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
-            </div>
-            <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
-          </div>
-          <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
-        </div>
-      )}
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onLogout={handleLogout}
+        items={[
+          { icon: '', label: '프로젝트', onClick: () => router.push('/client') },
+          { icon: '', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
+          { icon: '', label: '프로젝트 신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
+          { icon: '', label: '보고서', onClick: () => {}, active: true },
+          { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
+        ]}
+      />
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => setShowSidebar(true)} className="p-2">
