@@ -48,7 +48,7 @@ export default function Page3() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [myProjectPage, setMyProjectPage] = useState(0)
   const [allProjectPage, setAllProjectPage] = useState(0)
-  const [activeTab, setActiveTab] = useState<'project' | 'stats' | 'apply'>(() => {
+  const [activeTab, setActiveTab] = useState<'project' | 'stats' | 'apply' | 'report'>(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('clientTab')
       if (saved) {
@@ -923,12 +923,8 @@ export default function Page3() {
             {projectInfo && projectInfo.status === 'COMPLETED' && (
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4">
                 <p className="text-sm font-medium text-blue-800 mb-2">📊 프로젝트 결과보고서</p>
-                <button onClick={() => {
-                  window.open(`/api/report?project_code=${projectInfo.project_code}`, '_blank')
-                  showToast('상세 결과 보고서 작성을 원하시는 경우 문의하기로 요청하시면 2~3일 이내 발송됩니다.')
-                }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors flex items-center justify-center gap-1">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white"><path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/></svg>
-                  결과 요약 다운로드 (엑셀)
+                <button onClick={() => window.open(`/report?project_code=${projectInfo.project_code}`, '_blank')} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
+                  결과보고서 받기
                 </button>
               </div>
             )}
@@ -1322,6 +1318,31 @@ export default function Page3() {
             )}
           </div>
         </div>
+        {/* 보고서 탭 */}
+        <div className={`${activeTab === 'report' ? 'block md:hidden' : 'hidden'}`}>
+          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-4">📊 결과보고서</h2>
+            <div className="space-y-3">
+              {myProjects?.map((p: any) => (
+                <div key={p.project_code} className="border rounded-xl p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium text-sm">{p.artist_name} / {p.song_title}</p>
+                      <p className="text-xs text-gray-400 mt-1">{p.start_date} ~ {p.end_date}</p>
+                    </div>
+                    {p.status === 'COMPLETED' ? (
+                      <button onClick={() => window.open(`/report?project_code=${p.project_code}`, '_blank')} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg">
+                        결과보고서 받기
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400 bg-gray-100 px-3 py-2 rounded-lg">프로젝트 종료 후 확인 가능합니다</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
         {/* 프로젝트 신청 탭 */}
         <div className={`${activeTab === 'apply' ? 'block md:hidden' : 'hidden'}`}>
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
@@ -1426,6 +1447,11 @@ export default function Page3() {
           </button>
           <button onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
             <FileText size={20} className="mb-0.5" />신청
+          </button>
+          <button onClick={() => setActiveTab('report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
+            <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"/>
+            </svg>보고서
           </button>
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
             <User size={20} className="mb-0.5" />마이페이지
