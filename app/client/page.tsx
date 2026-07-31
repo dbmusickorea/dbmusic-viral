@@ -55,10 +55,11 @@ export default function Page3() {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('clientTab')
       if (saved) {
+        sessionStorage.removeItem('clientTab')
         return saved as 'project' | 'stats' | 'apply' | 'report'
       }
       const urlTab = new URLSearchParams(window.location.search).get('tab')
-      if (urlTab === 'stats') return 'stats'
+      if (urlTab === 'stats' || urlTab === 'apply' || urlTab === 'report') return urlTab as 'stats' | 'apply' | 'report'
     }
     return 'project'
   })
