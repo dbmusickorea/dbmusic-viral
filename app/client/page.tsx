@@ -52,8 +52,7 @@ export default function Page3() {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('clientTab')
       if (saved) {
-        sessionStorage.removeItem('clientTab')
-        return saved as 'project' | 'stats' | 'apply'
+        return saved as 'project' | 'stats' | 'apply' | 'report'
       }
       const urlTab = new URLSearchParams(window.location.search).get('tab')
       if (urlTab === 'stats') return 'stats'
@@ -118,8 +117,10 @@ export default function Page3() {
     }
     loadData().then(() => {
       const savedTab = sessionStorage.getItem('clientTab')
-      if (savedTab === 'stats' || savedTab === 'apply') {
-        setActiveTab(savedTab as 'stats' | 'apply')
+      console.log('savedTab after loadData:', savedTab)
+      if (savedTab === 'stats' || savedTab === 'apply' || savedTab === 'report') {
+        console.log('setActiveTab 호출:', savedTab)
+        setActiveTab(savedTab as 'stats' | 'apply' | 'report')
         sessionStorage.removeItem('clientTab')
       }
     })
@@ -554,7 +555,7 @@ export default function Page3() {
                 <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>프로젝트</button>
                 <button onClick={() => { setActiveTab('stats'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'stats' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>현황</button>
                 <button onClick={() => { setShowApplyModal(true); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">프로젝트 신청</button>
-                <button onClick={() => { setActiveTab('report'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'report' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>보고서</button>                
+                <button onClick={() => { router.push('/client-report'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'report' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>보고서</button>                
                 <button onClick={() => { router.push('/client-mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
               </div>
               <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
@@ -1320,7 +1321,7 @@ export default function Page3() {
           </div>
         </div>
         {/* 보고서 탭 */}
-        <div className={`${activeTab === 'report' ? 'block md:hidden' : 'hidden'}`}>
+        <div className={`${activeTab === 'report' ? 'block' : 'hidden'}`}>
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-4">📊 결과보고서</h2>
             <div className="space-y-3">
@@ -1449,7 +1450,7 @@ export default function Page3() {
           <button onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
             <FileText size={20} className="mb-0.5" />신청
           </button>
-          <button onClick={() => setActiveTab('report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
+          <button onClick={() => router.push('/client-report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
