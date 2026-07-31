@@ -37,7 +37,7 @@ function ParticipantTutorial({ onDone }: { onDone: () => void }) {
     {
       target: 'tutorial-tab-wallet',
       title: '리워드 & 레벨업',
-      description: '게시물 1개당 본인 레벨에 맞는 금액이 적립돼요. 레벨 1~50단계로 2,500원부터 1만원까지 단가가 올라가요!',
+      description: '게시물 1개당 본인 레벨에 맞는 금액이 적립돼요. 레벨 1~50단계로 2,500포인트부터 1만포인트까지 단가가 올라가요!',
       position: 'top',
     },
     {
