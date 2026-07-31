@@ -553,8 +553,8 @@ export default function Page3() {
               <div className="space-y-2 flex-1">
                 <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>프로젝트</button>
                 <button onClick={() => { setActiveTab('stats'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'stats' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>현황</button>
-                <button onClick={() => { setActiveTab('report'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'report' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>보고서</button>
                 <button onClick={() => { setShowApplyModal(true); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">프로젝트 신청</button>
+                <button onClick={() => { setActiveTab('report'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'report' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>보고서</button>                
                 <button onClick={() => { router.push('/client-mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
               </div>
               <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
@@ -1451,7 +1451,9 @@ export default function Page3() {
           </button>
           <button onClick={() => setActiveTab('report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"/>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>보고서
           </button>
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">

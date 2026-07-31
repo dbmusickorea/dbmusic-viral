@@ -1516,7 +1516,7 @@ export default function Page1() {
                 <div className="flex gap-2">
                   {selectedProject && (
                     <button onClick={async () => {
-                      const url = `https://app.doubleb.kr/api/report?project_code=${selectedProject.project_code}`
+                      const url = `https://app.doubleb.kr/report?project_code=${selectedProject.project_code}`
                       if ((window as any).Capacitor?.isNativePlatform?.()) {
                         const { Browser } = await import('@capacitor/browser')
                         await Browser.open({ url })
@@ -1524,7 +1524,11 @@ export default function Page1() {
                         window.open(url, '_blank')
                       }
                     }} className="text-xs bg-green-600 text-white border rounded px-2 py-1 flex items-center gap-1">
-                      <svg viewBox="0 0 24 24" className="w-3 h-3" fill="white"><path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/></svg>
+                      <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="white" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
                       보고서
                     </button>
                   )}
