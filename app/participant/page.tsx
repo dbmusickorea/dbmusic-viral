@@ -1930,7 +1930,11 @@ useEffect(() => {
                                       ) : null}
                                       {canCover && (
                                         alreadyCover ? (
-                                          <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">커버참여중 🎵</span>
+                                          coverPenaltyUntil && new Date(coverPenaltyUntil) > new Date() ? (
+                                            <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full">⚠️ 커버페널티</span>
+                                          ) : (
+                                            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">커버참여중 🎵</span>
+                                          )
                                         ) : alreadyCoverRequested ? (
                                           <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>
                                         ) : coverFull ? null : (() => {
