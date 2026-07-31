@@ -11,6 +11,124 @@ import { useToast } from '../../components/ToastContext'
 import BottomNav from '../../components/BottomNav'
 import Header from '../../components/Header'
 
+function ParticipantTutorial({ onDone }: { onDone: () => void }) {
+  const [step, setStep] = useState(0)
+  const router = useRouter()
+
+  const steps = [
+    {
+      target: 'tutorial-tab-home',
+      title: '기본 활동 규칙',
+      description: '내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드하면 미션 성공 시 현금 리워드가 즉시 적립돼요.',
+      position: 'top',
+    },
+    {
+      target: 'tutorial-tab-home',
+      title: '체험단 유형',
+      description: '일반 체험단은 게시물에 신곡 음원(BGM)만 입혀 업로드하고, 커버 체험단은 직접 가창하여 업로드해요. 커버 체험단은 리워드가 추가 지급돼요!',
+      position: 'top',
+    },
+    {
+      target: 'tutorial-tab-project',
+      title: '미션 참여 방법',
+      description: '새 캠페인 알림을 받으면 프로젝트 탭에서 참여 버튼을 클릭하세요. SNS에 음원 매칭 후 업로드한 링크를 앱에 등록하면 완료!',
+      position: 'top',
+    },
+    {
+      target: 'tutorial-tab-wallet',
+      title: '리워드 & 레벨업',
+      description: '게시물 1개당 본인 레벨에 맞는 금액이 적립돼요. 레벨 1~50단계로 2,500원부터 1만원까지 단가가 올라가요!',
+      position: 'top',
+    },
+    {
+      target: 'tutorial-tab-mypage',
+      title: '추천인 코드 & 가이드',
+      description: '내 추천인 코드로 가입 시 1명당 1단계 즉시 상승! 마이페이지에서 추천인 코드를 확인하고 자세한 가이드도 볼 수 있어요.',
+      position: 'top',
+      isLast: true,
+    },
+  ]
+
+  const current = steps[step]
+  const [highlightStyle, setHighlightStyle] = useState<any>({})
+
+  useEffect(() => {
+    const el = document.getElementById(current.target)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [step])
+
+  useEffect(() => {
+    const update = () => {
+      const el = document.getElementById(current.target)
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      setHighlightStyle({
+        top: rect.top - 4,
+        left: rect.left - 4,
+        width: rect.width + 8,
+        height: rect.height + 8,
+      })
+    }
+    update()
+    window.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [step])
+
+  const getBubblePosition = () => {
+    if (!highlightStyle.top) return {}
+    if (current.position === 'top') {
+      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
+    }
+    return { top: highlightStyle.top + highlightStyle.height + 12, left: 16, right: 16 }
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[100] pointer-events-none" style={{ background: 'rgba(0,0,0,0.6)' }} />
+      {highlightStyle.top && (
+        <div className="fixed z-[101] rounded-xl pointer-events-none" style={{
+          ...highlightStyle,
+          boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
+          border: '3px solid #60A5FA',
+          background: 'rgba(255,255,255,0.15)',
+        }} />
+      )}
+      <div className="fixed z-[102] bg-white rounded-2xl shadow-xl p-4" style={getBubblePosition()}>
+        <div className="flex justify-between items-start mb-2">
+          <p className="font-bold text-sm text-blue-600">{current.title}</p>
+          <button onClick={onDone} className="text-xs text-gray-400">건너뛰기</button>
+        </div>
+        <p className="text-sm text-gray-600 mb-4">{current.description}</p>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-1">
+            {steps.map((_, i) => (
+              <div key={i} className={`w-2 h-2 rounded-full ${i === step ? 'bg-blue-600' : 'bg-gray-200'}`} />
+            ))}
+          </div>
+          <div className="flex gap-2">
+            {step > 0 && (
+              <button onClick={() => setStep(s => s - 1)} className="text-xs px-3 py-1.5 border rounded-lg text-gray-600">이전</button>
+            )}
+            {step < steps.length - 1 ? (
+              <button onClick={() => setStep(s => s + 1)} className="text-xs px-4 py-1.5 bg-blue-600 text-white rounded-lg">다음</button>
+            ) : (
+              <div className="flex gap-2">
+                <button onClick={() => router.push('/guide')} className="text-xs px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg">가이드 보기</button>
+                <button onClick={onDone} className="text-xs px-4 py-1.5 bg-blue-600 text-white rounded-lg">완료</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="fixed inset-0 z-[99]" onClick={() => {}} />
+    </>
+  )
+}
+
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
@@ -107,6 +225,7 @@ export default function Page2() {
   const [joinAsCover, setJoinAsCover] = useState(false)
   const [coverUrl, setCoverUrl] = useState('')
   const [isSubmittingCover, setIsSubmittingCover] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -128,7 +247,9 @@ useEffect(() => {
 
     // 가이드 팝업 첫 로그인 시 표시
     const guideShown = localStorage.getItem('guideShown')
-    if (!guideShown) setShowGuide(true)
+    if (!guideShown) {
+      setTimeout(() => setShowTutorial(true), 1000)
+    }
 
     const loadData = async () => {
       const res = await fetch(`/api/participant-data?id=${parsed.id}`)
@@ -990,77 +1111,6 @@ useEffect(() => {
 
   return (
    <> 
-      {showGuide && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full flex flex-col" style={{minHeight: '380px', wordBreak: 'keep-all'}}>
-            <div className="flex-1">
-              <p className="text-xs text-blue-600 font-medium mb-1">더블비뮤직 크리에이터 필수 가이드</p>
-              {guideStep === 0 && (
-                <div>
-                  <h2 className="text-lg font-bold mb-3">1. 기본 활동 규칙</h2>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span>미션 성공 시 현금 리워드 즉시 적립</span></div>
-                </div>
-              )}
-              {guideStep === 1 && (
-                <div>
-                  <h2 className="text-lg font-bold mb-3">2. 체험단 유형 선택</h2>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span><span className="font-medium">일반 체험단:</span> 게시물에 신곡 음원(BGM)만 입혀 업로드하는 유저</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span><span className="font-medium">커버 체험단:</span> 게시물 포함 직접 가창하여 업로드하는 유저</span></div>
-                </div>
-              )}
-              {guideStep === 2 && (
-                <div>
-                  <h2 className="text-lg font-bold mb-3">3. 미션 참여 및 제출 동선</h2>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>새 캠페인 알림 푸시 수령 후 앱 내 [참여] 버튼 클릭</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>본인 SNS에 사진 또는 영상과 음원 매칭 후 릴스, 숏츠로 업로드</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span>업로드한 게시물 [링크 복사] 후 더블비뮤직 앱에 등록 제출</span></div>
-                </div>
-              )}
-              {guideStep === 3 && (
-                <div>
-                  <h2 className="text-lg font-bold mb-3">4. 리워드 및 레벨업 치트키</h2>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>게시물 1개당 본인 레벨에 매칭되는 정찰제 금액 적립</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>내 추천인 코드로 가입 시 1명당 1단계 즉시 상승</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600 mb-2"><span className="shrink-0">•</span><span>레벨 1~50단계로 2,500원부터 1만원까지 미션 수행 단가 파격 상향</span></div>
-                  <div className="flex gap-1 text-sm text-gray-600"><span className="shrink-0">•</span><span>커버 체험단의 경우 리워드 추가지급</span></div>
-                </div>
-              )}
-            </div>
-
-            {/* 인디케이터 */}
-            <div className="flex justify-center gap-1.5 my-4">
-              {[0,1,2,3].map(i => (
-                <div key={i} className={`w-2 h-2 rounded-full ${guideStep === i ? 'bg-blue-600' : 'bg-gray-200'}`} />
-              ))}
-            </div>
-
-            {/* 버튼 */}
-            <div>
-              <div className="flex gap-2 mb-3">
-                {guideStep > 0 && (
-                  <button onClick={() => setGuideStep(guideStep - 1)} className="flex-1 border rounded-lg py-2 text-sm text-gray-500">← 이전</button>
-                )}
-                {guideStep < 3 ? (
-                  <button onClick={() => setGuideStep(guideStep + 1)} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">다음 →</button>
-                ) : (
-                  <button onClick={() => router.push('/guide')} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">자세히 보기</button>
-                )}
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" onChange={(e) => {
-                    if (e.target.checked) localStorage.setItem('guideShown', 'true')
-                    else localStorage.removeItem('guideShown')
-                  }} className="w-4 h-4" />
-                  <span className="text-xs text-gray-400">다시 보지 않기</span>
-                </label>
-                <button onClick={() => setShowGuide(false)} className="text-xs text-gray-400">닫기</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       {/* 사이드바 오버레이 */}
         {showSidebar && (
           <div className="fixed inset-0 z-50 flex">
@@ -1985,13 +2035,19 @@ useEffect(() => {
       </button>
       {/* 하단 탭바 */}
       <BottomNav tabs={[
-        { icon: <BarChart2 size={20} />, label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home' },
-        { icon: <Target size={20} />, label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0 },
-        { icon: <Wallet size={20} />, label: '적립금', href: '/wallet' },
-        { icon: <User size={20} />, label: '마이페이지', href: '/mypage' },
+        { icon: <BarChart2 size={20} />, label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home', id: 'tutorial-tab-home' },
+        { icon: <Target size={20} />, label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, id: 'tutorial-tab-project' },
+        { icon: <Wallet size={20} />, label: '적립금', href: '/wallet', id: 'tutorial-tab-wallet' },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', id: 'tutorial-tab-mypage' },
       ]} />
       
     </div>
+      {showTutorial && (
+        <ParticipantTutorial onDone={() => {
+          setShowTutorial(false)
+          localStorage.setItem('guideShown', 'true')
+        }} />
+      )}
     </> 
   )
 }

@@ -9,6 +9,7 @@ type Tab = {
   onClick?: () => void
   active?: boolean
   badge?: number
+  id?: string
 }
 
 export default function BottomNav({ tabs }: { tabs: Tab[] }) {
@@ -20,6 +21,7 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
         {tabs.map((tab, i) => (
           <button
             key={i}
+            id={tab.id}
             onClick={() => {
               if (tab.onClick) tab.onClick()
               else if (tab.href) router.push(tab.href)
