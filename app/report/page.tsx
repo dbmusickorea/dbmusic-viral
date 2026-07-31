@@ -241,34 +241,30 @@ export default function ReportPage() {
   return (
     <div className="bg-white min-h-screen">
       <div className="print:hidden fixed top-4 right-4 z-10 flex gap-2">
-        <button onClick={() => window.print()} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2">
-            <polyline points="6 9 6 2 18 2 18 9"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
+        {/* PDF - 빨간색 */}
+        <button onClick={() => window.print()} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
+            <path d="M20 2H8L4 6v16h16V2zm-9 13H7v-2h4v2zm0-4H7V9h4v2zm6 4h-4v-2h4v2zm0-4h-4V9h4v2z"/>
           </svg>
-          PDF 저장
+          PDF
         </button>
-        <button onClick={handleDownloadWord} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
+        {/* 워드 - 파란색 */}
+        <button onClick={handleDownloadWord} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
+            <path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/>
           </svg>
-          워드 다운로드
+          Word
         </button>
+        {/* 엑셀 - 녹색 */}
         <button onClick={() => {
           const params = new URLSearchParams(window.location.search)
           const projectCode = params.get('project_code')
           window.open(`/api/report?project_code=${projectCode}`, '_blank')
-        }} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="3" y1="15" x2="21" y2="15"/>
-            <line x1="9" y1="3" x2="9" y2="21"/>
+        }} className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
+            <path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/>
           </svg>
-          엑셀 다운로드
+          Excel
         </button>
       </div>
 
