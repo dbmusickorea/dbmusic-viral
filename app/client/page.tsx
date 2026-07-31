@@ -671,7 +671,14 @@ export default function Page3() {
                 </div>
 
                 {myProjects.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-2">프로젝트가 없습니다.</p>
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-400 mb-3">프로젝트가 없습니다.</p>
+                    <button onClick={() => window.open('/demo', '_blank')} className="text-xs bg-blue-50 text-blue-600 border border-blue-200 rounded-xl px-4 py-3 w-full text-left">
+                      <p className="font-medium">🎵 옐로 / 결혼해서 좋겠다</p>
+                      <p className="text-gray-400 mt-1">2026-07-01 ~ 2026-07-15 · 참여자 30명</p>
+                      <p className="text-blue-500 mt-2 text-xs">👆 샘플 프로젝트 보기 →</p>
+                    </button>
+                  </div>
                 ) : (
                   <>
                     <div className="space-y-2">
