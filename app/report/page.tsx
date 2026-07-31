@@ -241,8 +241,35 @@ export default function ReportPage() {
   return (
     <div className="bg-white min-h-screen">
       <div className="print:hidden fixed top-4 right-4 z-10 flex gap-2">
-        <button onClick={() => window.print()} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">🖨️ PDF 저장</button>
-        <button onClick={handleDownloadWord} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">📄 워드 다운로드</button>
+        <button onClick={() => window.print()} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          PDF 저장
+        </button>
+        <button onClick={handleDownloadWord} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          워드 다운로드
+        </button>
+        <button onClick={() => {
+          const params = new URLSearchParams(window.location.search)
+          const projectCode = params.get('project_code')
+          window.open(`/api/report?project_code=${projectCode}`, '_blank')
+        }} className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="3" y1="15" x2="21" y2="15"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
+          엑셀 다운로드
+        </button>
       </div>
 
       <div className="max-w-4xl mx-auto p-8">
