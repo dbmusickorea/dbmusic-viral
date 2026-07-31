@@ -246,7 +246,7 @@ useEffect(() => {
     setUserRole(role ?? '')
 
     // 가이드 팝업 첫 로그인 시 표시
-    const guideShown = localStorage.getItem('guideShown')
+    const guideShown = localStorage.getItem('participantTutorialDone')
     if (!guideShown) {
       setTimeout(() => setShowTutorial(true), 1000)
     }
@@ -2045,7 +2045,7 @@ useEffect(() => {
       {showTutorial && (
         <ParticipantTutorial onDone={() => {
           setShowTutorial(false)
-          localStorage.setItem('guideShown', 'true')
+          localStorage.setItem('participantTutorialDone', 'true')
         }} />
       )}
     </> 
