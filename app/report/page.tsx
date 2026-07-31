@@ -101,44 +101,63 @@ export default function ReportPage() {
       children: [new Paragraph({ children: [new TextRun(text)], alignment: align })],
     })
 
+    const labelCell = (text: string) => new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
+      shading: { fill: 'D6E4F0' },
+      width: { size: 25, type: WidthType.PERCENTAGE },
+    })
+    const valueCell = (text: string) => new TableCell({
+      children: [new Paragraph({ children: [new TextRun(text)] })],
+      width: { size: 25, type: WidthType.PERCENTAGE },
+    })
+
+    const infoRows = [
+      ['의뢰인', project.client_name ?? '-', '시작일', project.start_date ?? '-'],
+      ['가수명', project.artist_name ?? '-', '종료일', project.end_date ?? '-'],
+      ['노래제목', project.song_title ?? '-', '모집인원', `${project.max_participants ?? '-'}명`],
+      ['상품명', project.product_content ?? '-', '계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
+      ['모니터링', project.monitoring_extension > 0 ? `${project.monitoring_extension}일` : '없음', '커버영상', project.cover_video_count > 0 ? `${project.cover_video_count}개` : '없음'],
+    ]
+
     const sections: any[] = [
       new Paragraph({ text: '더블비뮤직 바이럴 결과보고서', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
       new Paragraph({ text: `${project.artist_name ?? ''} / ${project.song_title ?? ''}`, alignment: AlignmentType.CENTER }),
       new Paragraph({ text: '' }),
       new Paragraph({ text: '프로젝트 정보', heading: HeadingLevel.HEADING_2 }),
-      ...[
-        ['의뢰인', project.client_name ?? '-'],
-        ['가수명', project.artist_name ?? '-'],
-        ['노래제목', project.song_title ?? '-'],
-        ['상품명', project.product_content ?? '-'],
-        ['계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
-        ['모집인원', `${project.max_participants ?? '-'}명`],
-        ['시작일', project.start_date ?? '-'],
-        ['종료일', project.end_date ?? '-'],
-        ['요청사항', project.requirements ?? '-'],
-      ].map(([label, value]) => new Paragraph({ 
-        children: [
-          new TextRun({ text: `${label}: `, bold: true }),
-          new TextRun(value)
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          ...infoRows.map(([l1, v1, l2, v2]) => new TableRow({ children: [labelCell(l1), valueCell(v1), labelCell(l2), valueCell(v2)] })),
+          new TableRow({
+            children: [
+              labelCell('요청사항'),
+              new TableCell({
+                children: [new Paragraph({ children: [new TextRun(project.requirements ?? '-')] })],
+                columnSpan: 3,
+              })
+            ]
+          })
         ]
-      })),
+      }),
       new Paragraph({ text: '' }),
       new Paragraph({ text: '성과 요약', heading: HeadingLevel.HEADING_2 }),
-      ...[
-        ['총 게시물', `${posts.length}개`],
-        ['총 좋아요', totalLikes.toLocaleString()],
-        ['총 댓글', totalComments.toLocaleString()],
-        ['총 조회수', totalViews.toLocaleString()],
-        ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
-        ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
-        ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
-        ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
-      ].map(([label, value]) => new Paragraph({
-        children: [
-          new TextRun({ text: `${label}: `, bold: true }),
-          new TextRun(value)
+      new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({ children: [headerCell('항목'), headerCell('수치')] }),
+          ...([
+            ['총 게시물', `${posts.length}개`],
+            ['총 좋아요', totalLikes.toLocaleString()],
+            ['총 댓글', totalComments.toLocaleString()],
+            ['총 조회수', totalViews.toLocaleString()],
+            ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
+            ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
+            ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
+            ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
+            ['댓글미션', `${commentMissions.filter((m: any) => m.project_code !== 'UNLOCK').length}개`],
+          ] as [string, string][]).map(([label, value]) => new TableRow({ children: [dataCell(label), dataCell(value, AlignmentType.RIGHT)] }))
         ]
-      })),
+      }),
       new Paragraph({ text: '' }),
       new Paragraph({ text: '일별 통계', heading: HeadingLevel.HEADING_2 }),
     ]
