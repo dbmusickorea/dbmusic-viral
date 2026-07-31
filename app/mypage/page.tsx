@@ -372,11 +372,7 @@ export default function MyPage() {
                 )}
                 {mobileVerified && <p className="text-xs text-green-600 mt-1">✅ 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
               </div>
-              <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
-                <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 변경 안내</p>
-                <p className="text-xs text-orange-600 mt-1">SNS 계정 변경은 관리자 승인 후 반영됩니다. 반드시 본인 계정을 입력해주세요.</p>
-              </div>
+              <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>              
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                   <input type="checkbox" checked={isCoverPossible} onChange={(e) => setIsCoverPossible(e.target.checked)} className="w-4 h-4" />
@@ -409,6 +405,10 @@ export default function MyPage() {
                   <p className="text-xs text-gray-400 mt-1">관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
                 </div>
               )}
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
+                <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 변경 안내</p>
+                <p className="text-xs text-orange-600 mt-1">SNS 계정 변경은 관리자 승인 후 반영됩니다. 반드시 본인 계정을 입력해주세요.</p>
+              </div>
               {[
                 { label: '인스타그램 ID', value: myInstagram, platform: 'instagram' },
                 { label: '유튜브 ID', value: myYoutube, platform: 'youtube' },
