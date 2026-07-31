@@ -3,6 +3,7 @@ import Sidebar from '../../components/Sidebar'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
+import ApplyModal from '../../components/ApplyModal'
 
 export default function ClientReportPage() {
   const router = useRouter()
@@ -10,6 +11,8 @@ export default function ClientReportPage() {
   const [myProjects, setMyProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [showApplyModal, setShowApplyModal] = useState(false)
+  const [userInfo, setUserInfo] = useState<any>(null)
 
   useEffect(() => {
     const userInfo = localStorage.getItem('userInfo')
@@ -19,6 +22,7 @@ export default function ClientReportPage() {
       return
     }
     const parsed = JSON.parse(userInfo)
+    setUserInfo(parsed)
     const clientId = parsed.client_id
     if (clientId) {
       fetch(`/api/projects?client_id=${clientId}`)
@@ -39,6 +43,7 @@ export default function ClientReportPage() {
 
   return (
     <>
+      <ApplyModal show={showApplyModal} onClose={() => setShowApplyModal(false)} userInfo={userInfo} />
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
@@ -46,7 +51,7 @@ export default function ClientReportPage() {
         items={[
           { icon: '', label: '프로젝트', onClick: () => router.push('/client') },
           { icon: '', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
-          { icon: '', label: '프로젝트 신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
+          { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true) },
           { icon: '', label: '보고서', onClick: () => {}, active: true },
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
