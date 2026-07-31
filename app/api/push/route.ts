@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
           android: {
             notification: {
               sound: 'default',
-              clickAction: 'FLUTTER_NOTIFICATION_CLICK'
-            }
-          }
+            },
+            priority: 'high',
+          },
         })
         results.push({ success: true, result })
       } catch (error) {
