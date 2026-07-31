@@ -240,7 +240,8 @@ export default function ReportPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      <div className="print:hidden fixed top-4 right-4 z-10 flex gap-2">
+      <div className="max-w-4xl mx-auto p-8">
+        <div className="print:hidden flex gap-2 justify-end mb-6 flex-wrap">
         {/* PDF - 빨간색 */}
         <button onClick={() => window.print()} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
@@ -268,9 +269,7 @@ export default function ReportPage() {
           </svg>
           Excel
         </button>
-      </div>
-
-      <div className="max-w-4xl mx-auto p-8">
+        </div>
         <div className="text-center mb-8 border-b pb-6">
           <h1 className="text-2xl font-bold text-blue-900">더블비뮤직 바이럴 결과보고서</h1>
           <p className="text-gray-500 mt-1">{project.artist_name} / {project.song_title}</p>
