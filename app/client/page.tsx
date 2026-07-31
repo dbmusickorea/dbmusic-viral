@@ -94,16 +94,16 @@ function ClientTutorial({ onDone }: { onDone: () => void }) {
       position: 'bottom',
     },
     {
-      target: 'tutorial-stats-tab',
+      target: 'tutorial-stats-btn',
       title: '현황 탭',
       description: '실시간으로 좋아요, 댓글, 조회수 등 통계를 확인할 수 있어요.',
-      position: 'bottom',
+      position: 'top',
     },
     {
-      target: 'tutorial-report-tab',
+      target: 'tutorial-report-btn',
       title: '보고서 탭',
       description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.',
-      position: 'bottom',
+      position: 'top',
     },
   ]
 
@@ -1655,13 +1655,13 @@ export default function Page3() {
           <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400'}`}>
             <LayoutGrid size={20} className="mb-0.5" />프로젝트
           </button>
-          <button onClick={() => setActiveTab('stats')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>
+          <button id="tutorial-stats-btn" onClick={() => setActiveTab('stats')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>
             <BarChart2 size={20} className="mb-0.5" />현황
           </button>
           <button onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
             <FileText size={20} className="mb-0.5" />신청
           </button>
-          <button onClick={() => router.push('/client-report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
+          <button id="tutorial-report-btn" onClick={() => router.push('/client-report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
