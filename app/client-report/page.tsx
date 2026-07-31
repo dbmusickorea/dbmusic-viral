@@ -86,7 +86,15 @@ export default function ClientReportPage() {
                       </span>
                     </div>
                     {p.status === 'COMPLETED' ? (
-                      <button onClick={() => window.open(`/report?project_code=${p.project_code}`, '_blank')} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg shrink-0">
+                      <button onClick={async () => {
+                        const url = `${window.location.origin}/report?project_code=${p.project_code}`
+                        if ((window as any).Capacitor?.isNativePlatform?.()) {
+                          const { Browser } = await import('@capacitor/browser')
+                          await Browser.open({ url })
+                        } else {
+                          window.open(url, '_blank')
+                        }
+                      }} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg shrink-0">
                         결과보고서 받기
                       </button>
                     ) : (
