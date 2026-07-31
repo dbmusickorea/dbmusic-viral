@@ -335,6 +335,14 @@ export default function MyPage() {
               </div>
               {[
                 { label: '이름', value: myName, setter: setMyName },
+              ].map(({ label, value, setter }) => (
+                <div key={label}>
+                  <label className="text-sm font-medium">{label}</label>
+                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                </div>
+              ))}
+              <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
+              {[
                 { label: '은행명', value: myBankName, setter: setMyBankName },
                 { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
                 { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
@@ -371,8 +379,7 @@ export default function MyPage() {
                   </div>
                 )}
                 {mobileVerified && <p className="text-xs text-green-600 mt-1">✅ 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
-              </div>
-              <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>              
+              </div>               
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                   <input type="checkbox" checked={isCoverPossible} onChange={(e) => setIsCoverPossible(e.target.checked)} className="w-4 h-4" />
