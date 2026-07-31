@@ -77,6 +77,122 @@ function GuideCard() {
   )
 }
 
+function ClientTutorial({ onDone }: { onDone: () => void }) {
+  const [step, setStep] = useState(0)
+
+  const steps = [
+    {
+      target: 'tutorial-bottom-nav',
+      title: '하단 탭 네비게이션',
+      description: '하단 탭으로 프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.',
+      position: 'top',
+    },
+    {
+      target: 'tutorial-project-card',
+      title: '프로젝트 선택',
+      description: '계약된 가수 및 곡명을 클릭하면 캠페인 진행상황을 실시간으로 모니터링할 수 있어요.',
+      position: 'bottom',
+    },
+    {
+      target: 'tutorial-stats-tab',
+      title: '현황 탭',
+      description: '실시간으로 좋아요, 댓글, 조회수 등 통계를 확인할 수 있어요.',
+      position: 'bottom',
+    },
+    {
+      target: 'tutorial-report-tab',
+      title: '보고서 탭',
+      description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.',
+      position: 'bottom',
+    },
+  ]
+
+  const current = steps[step]
+
+  useEffect(() => {
+    const el = document.getElementById(current.target)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [step])
+
+  const getHighlightStyle = () => {
+    const el = document.getElementById(current.target)
+    if (!el) return {}
+    const rect = el.getBoundingClientRect()
+    return {
+      top: rect.top - 4,
+      left: rect.left - 4,
+      width: rect.width + 8,
+      height: rect.height + 8,
+    }
+  }
+
+  const [highlightStyle, setHighlightStyle] = useState<any>({})
+
+  useEffect(() => {
+    const update = () => setHighlightStyle(getHighlightStyle())
+    update()
+    window.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [step])
+
+  const getBubblePosition = () => {
+    if (!highlightStyle.top) return {}
+    if (current.position === 'top') {
+      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
+    }
+    return { top: highlightStyle.top + highlightStyle.height + 12, left: 16, right: 16 }
+  }
+
+  return (
+    <>
+      {/* 어두운 오버레이 */}
+      <div className="fixed inset-0 z-[100] pointer-events-none" style={{ background: 'rgba(0,0,0,0.6)' }} />
+
+      {/* 하이라이트 박스 */}
+      {highlightStyle.top && (
+        <div className="fixed z-[101] rounded-xl pointer-events-none" style={{
+          ...highlightStyle,
+          boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
+          border: '2px solid #3B82F6',
+        }} />
+      )}
+
+      {/* 말풍선 */}
+      <div className="fixed z-[102] bg-white rounded-2xl shadow-xl p-4" style={getBubblePosition()}>
+        <div className="flex justify-between items-start mb-2">
+          <p className="font-bold text-sm text-blue-600">{current.title}</p>
+          <button onClick={onDone} className="text-xs text-gray-400">건너뛰기</button>
+        </div>
+        <p className="text-sm text-gray-600 mb-4">{current.description}</p>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-1">
+            {steps.map((_, i) => (
+              <div key={i} className={`w-2 h-2 rounded-full ${i === step ? 'bg-blue-600' : 'bg-gray-200'}`} />
+            ))}
+          </div>
+          <div className="flex gap-2">
+            {step > 0 && (
+              <button onClick={() => setStep(s => s - 1)} className="text-xs px-3 py-1.5 border rounded-lg text-gray-600">이전</button>
+            )}
+            {step < steps.length - 1 ? (
+              <button onClick={() => setStep(s => s + 1)} className="text-xs px-4 py-1.5 bg-blue-600 text-white rounded-lg">다음</button>
+            ) : (
+              <button onClick={onDone} className="text-xs px-4 py-1.5 bg-blue-600 text-white rounded-lg">완료</button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 클릭 차단 */}
+      <div className="fixed inset-0 z-[99]" onClick={() => {}} />
+    </>
+  )
+}
+
 export default function Page3() {
   const [userInfo, setUserInfo] = useState<any>(null)
   const [appVersion, setAppVersion] = useState('0')
@@ -148,6 +264,7 @@ export default function Page3() {
   const [applyJacketFile, setApplyJacketFile] = useState<File | null>(null)
   const [applyMissionDate, setApplyMissionDate] = useState('')
   const [showApplyModal, setShowApplyModal] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
 
 
   useEffect(() => {
@@ -188,6 +305,10 @@ export default function Page3() {
         console.log('setActiveTab 호출:', savedTab)
         setActiveTab(savedTab as 'stats' | 'apply' | 'report')
         sessionStorage.removeItem('clientTab')
+      }
+      // 튜토리얼 첫 방문 체크
+      if (!localStorage.getItem('clientTutorialDone') && role === 'client') {
+        setTimeout(() => setShowTutorial(true), 1000)
       }
     })
   }, [])
@@ -736,7 +857,7 @@ export default function Page3() {
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>
             {/* 의뢰인 - 내 프로젝트 목록 */}
             {isClient && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-project-card" className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-sm font-medium">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
                 </div>
@@ -922,7 +1043,7 @@ export default function Page3() {
           </div>
 
           {/* 오른쪽 컬럼 */}
-          <div className={`${activeTab === 'stats' ? 'block' : 'hidden'} md:block`}>
+          <div id="tutorial-stats-tab" className={`${activeTab === 'stats' ? 'block' : 'hidden'} md:block`}>
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
               <>
@@ -1411,7 +1532,7 @@ export default function Page3() {
           </div>
         </div>
         {/* 보고서 탭 */}
-        <div className={`${activeTab === 'report' ? 'block' : 'hidden'}`}>
+        <div id="tutorial-report-tab" className={`${activeTab === 'report' ? 'block' : 'hidden'}`}>
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-4">📊 결과보고서</h2>
             <div className="space-y-3">
@@ -1530,7 +1651,7 @@ export default function Page3() {
       {userRole === 'admin' ? (
         <AdminBottomNav active="client" onClientClick={() => setActiveTab('project')} />
       ) : (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
+        <div id="tutorial-bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
           <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400'}`}>
             <LayoutGrid size={20} className="mb-0.5" />프로젝트
           </button>
@@ -1554,6 +1675,12 @@ export default function Page3() {
       )}
     </div>
     <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
+      {showTutorial && isClient && (
+        <ClientTutorial onDone={() => {
+          setShowTutorial(false)
+          localStorage.setItem('clientTutorialDone', 'true')
+        }} />
+      )}
     </>
   )
 }
