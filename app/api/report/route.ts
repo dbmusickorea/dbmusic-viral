@@ -123,10 +123,10 @@ export async function GET(request: NextRequest) {
           const platform = platformMap[h.post_id] ?? h.platform
           return platform === key || (key === 'youtube' && ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(platform))
         })
-        dailySheet.cell(`${colLetters[colOffset]}${dataRow}`).value(date)
-        dailySheet.cell(`${colLetters[colOffset+1]}${dataRow}`).value(platformData.reduce((s, h) => s + (h.likes_count ?? 0), 0))
-        dailySheet.cell(`${colLetters[colOffset+2]}${dataRow}`).value(platformData.reduce((s, h) => s + (h.comments_count ?? 0), 0))
-        dailySheet.cell(`${colLetters[colOffset+3]}${dataRow}`).value(platformData.reduce((s, h) => s + (h.views_count ?? 0), 0))
+        dailySheet.cell(`${colLetters[colOffset]}${dataRow}`).value(date).style({ border: true })
+        dailySheet.cell(`${colLetters[colOffset+1]}${dataRow}`).value(platformData.reduce((s, h) => s + (h.likes_count ?? 0), 0)).style({ border: true, numberFormat: '#,##0' })
+        dailySheet.cell(`${colLetters[colOffset+2]}${dataRow}`).value(platformData.reduce((s, h) => s + (h.comments_count ?? 0), 0)).style({ border: true, numberFormat: '#,##0' })
+        dailySheet.cell(`${colLetters[colOffset+3]}${dataRow}`).value(platformData.reduce((s, h) => s + (h.views_count ?? 0), 0)).style({ border: true, numberFormat: '#,##0' })
       })
     })
   }
