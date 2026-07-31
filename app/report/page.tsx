@@ -92,100 +92,129 @@ export default function ReportPage() {
     const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0)
     const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0)
     const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0)
+    
+    const PAGE_WIDTH = 9026
+    const thinBorder = { style: 'single' as const, size: 4, color: 'D9E2EC' }
+    const tableBorders = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder, insideHorizontal: thinBorder, insideVertical: thinBorder }
+    const noBorder = { style: 'none' as const, size: 0, color: 'FFFFFF' }
+    const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideHorizontal: noBorder, insideVertical: noBorder }
 
-    const headerCell = (text: string) => new TableCell({
-      children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
+    const labelCell = (text: string, width: number) => new TableCell({
+      width: { size: width, type: WidthType.DXA },
+      shading: { fill: 'EAF1FB' },
+      children: [new Paragraph({ children: [new TextRun({ text, bold: true, size: 18, color: '1F4E79' })] })],
+    })
+    const valueCell = (text: string, width: number, span = 1) => new TableCell({
+      width: { size: width, type: WidthType.DXA },
+      columnSpan: span,
+      children: [new Paragraph({ children: [new TextRun({ text, size: 18 })] })],
+    })
+    const headerCell = (text: string, width: number) => new TableCell({
+      width: { size: width, type: WidthType.DXA },
       shading: { fill: '1F4E79' },
+      children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text, bold: true, color: 'FFFFFF', size: 18 })] })],
     })
-    const dataCell = (text: string, align: any = AlignmentType.LEFT) => new TableCell({
-      children: [new Paragraph({ children: [new TextRun(text)], alignment: align })],
+    const dataCell = (text: string, width: number, align: any = AlignmentType.LEFT, shade?: string) => new TableCell({
+      width: { size: width, type: WidthType.DXA },
+      shading: shade ? { fill: shade } : undefined,
+      children: [new Paragraph({ alignment: align, children: [new TextRun({ text, size: 17 })] })],
+    })
+    const statCard = (label: string, value: string, width: number) => new TableCell({
+      width: { size: width, type: WidthType.DXA },
+      shading: { fill: 'EEF4FC' },
+      margins: { top: 140, bottom: 140 },
+      children: [
+        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: label, size: 16, color: '6B7280' })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: value, bold: true, size: 26, color: '1F4E79' })] }),
+      ],
     })
 
-    const labelCell = (text: string) => new TableCell({
-      children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
-      shading: { fill: 'D6E4F0' },
-      width: { size: 25, type: WidthType.PERCENTAGE },
-    })
-    const valueCell = (text: string) => new TableCell({
-      children: [new Paragraph({ children: [new TextRun(text)] })],
-      width: { size: 25, type: WidthType.PERCENTAGE },
-    })
+    const optionsList = [
+      project.monitoring_extension > 0 ? `모니터링 연장 ${project.monitoring_extension}일` : null,
+      project.cover_video_count > 0 ? `커버영상 ${project.cover_video_count}개` : null,
+      project.refresh_interval && project.refresh_interval !== '0' && project.refresh_interval !== '12' ? `트래픽 부스터 (${project.refresh_interval}시간)` : null,
+      project.required_posts > 1 ? `게시물 ${project.required_posts}개` : null,
+    ].filter(Boolean).join(', ') || '없음'
 
     const infoRows = [
       ['의뢰인', project.client_name ?? '-', '시작일', project.start_date ?? '-'],
       ['가수명', project.artist_name ?? '-', '종료일', project.end_date ?? '-'],
       ['노래제목', project.song_title ?? '-', '모집인원', `${project.max_participants ?? '-'}명`],
       ['상품명', project.product_content ?? '-', '계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
-      ['모니터링', project.monitoring_extension > 0 ? `${project.monitoring_extension}일` : '없음', '커버영상', project.cover_video_count > 0 ? `${project.cover_video_count}개` : '없음'],
+      ['옵션사항', optionsList, '', ''],
     ]
 
     const sections: any[] = [
       new Paragraph({ text: '더블비뮤직 바이럴 결과보고서', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
-      new Paragraph({ text: `${project.artist_name ?? ''} / ${project.song_title ?? ''}`, alignment: AlignmentType.CENTER }),
-      new Paragraph({ text: '' }),
-      new Paragraph({ text: '프로젝트 정보', heading: HeadingLevel.HEADING_2 }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 300 }, children: [new TextRun({ text: `${project.artist_name ?? ''} / ${project.song_title ?? ''}`, color: '6B7280' })] }),
+      new Paragraph({ text: '프로젝트 정보', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 120 } }),
       new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
+        width: { size: PAGE_WIDTH, type: WidthType.DXA },
+        columnWidths: [1500, 3013, 1500, 3013],
+        borders: tableBorders,
         rows: [
-          ...infoRows.map(([l1, v1, l2, v2]) => new TableRow({ children: [labelCell(l1), valueCell(v1), labelCell(l2), valueCell(v2)] })),
-          new TableRow({
-            children: [
-              labelCell('요청사항'),
-              new TableCell({
-                children: [new Paragraph({ children: [new TextRun(project.requirements ?? '-')] })],
-                columnSpan: 3,
-              })
-            ]
-          })
-        ]
+          ...infoRows.slice(0, 4).map(([l1, v1, l2, v2]) => new TableRow({ children: [labelCell(l1, 1500), valueCell(v1, 3013), labelCell(l2, 1500), valueCell(v2, 3013)] })),
+          new TableRow({ children: [labelCell('옵션사항', 1500), valueCell(optionsList, 7526, 3)] }),
+          new TableRow({ children: [labelCell('요청사항', 1500), valueCell(project.requirements ?? '-', 7526, 3)] }),
+        ],
       }),
-      new Paragraph({ text: '' }),
-      new Paragraph({ text: '성과 요약', heading: HeadingLevel.HEADING_2 }),
+      new Paragraph({ text: '성과 요약', heading: HeadingLevel.HEADING_2, spacing: { before: 300, after: 120 } }),
       new Table({
-        width: { size: 60, type: WidthType.PERCENTAGE },
+        width: { size: PAGE_WIDTH, type: WidthType.DXA },
+        columnWidths: [3009, 3009, 3008],
+        borders: noBorders,
         rows: [
-          new TableRow({ children: [headerCell('항목'), headerCell('수치')] }),
-          ...([
-            ['총 게시물', `${posts.length}개`],
-            ['총 좋아요', totalLikes.toLocaleString()],
-            ['총 댓글', totalComments.toLocaleString()],
-            ['총 조회수', totalViews.toLocaleString()],
-            ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
-            ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
-            ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
-            ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
-            ['댓글미션', `${commentMissions.filter((m: any) => m.project_code !== 'UNLOCK').length}개`],
-          ] as [string, string][]).map(([label, value]) => new TableRow({ children: [dataCell(label), dataCell(value, AlignmentType.RIGHT)] }))
-        ]
+          new TableRow({ children: [
+            statCard('총 게시물', `${posts.length}개`, 3009),
+            statCard('총 좋아요', totalLikes.toLocaleString(), 3009),
+            statCard('총 댓글', totalComments.toLocaleString(), 3008),
+          ]}),
+          new TableRow({ children: [
+            statCard('총 조회수', totalViews.toLocaleString(), 3009),
+            statCard('인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`, 3009),
+            statCard('유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`, 3008),
+          ]}),
+          new TableRow({ children: [
+            statCard('틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`, 3009),
+            statCard('커버영상', `${posts.filter((p: any) => p.is_cover).length}개`, 3009),
+            statCard('댓글미션', `${commentMissions.filter((m: any) => m.project_code !== 'UNLOCK').length}개`, 3008),
+          ]}),
+        ],
       }),
-      new Paragraph({ text: '' }),
-      new Paragraph({ text: '일별 통계', heading: HeadingLevel.HEADING_2 }),
+      new Paragraph({ text: '일별 통계', heading: HeadingLevel.HEADING_2, spacing: { before: 300, after: 120 } }),
     ]
 
     if (instaImg) {
+      sections.push(new Paragraph({ spacing: { before: 100 }, children: [new TextRun({ text: '인스타그램', bold: true, size: 18 })] }))
       sections.push(new Paragraph({ children: [new ImageRun({ data: instaImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
     }
     if (youtubeImg) {
+      sections.push(new Paragraph({ spacing: { before: 200 }, children: [new TextRun({ text: '유튜브', bold: true, size: 18 })] }))
       sections.push(new Paragraph({ children: [new ImageRun({ data: youtubeImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
     }
     if (tiktokImg) {
+      sections.push(new Paragraph({ spacing: { before: 200 }, children: [new TextRun({ text: '틱톡', bold: true, size: 18 })] }))
       sections.push(new Paragraph({ children: [new ImageRun({ data: tiktokImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
     }
 
-    sections.push(new Paragraph({ text: '' }))
-    sections.push(new Paragraph({ text: '게시물 목록', heading: HeadingLevel.HEADING_2 }))
+    sections.push(new Paragraph({ text: '게시물 목록', heading: HeadingLevel.HEADING_2, spacing: { before: 300, after: 120 } }))
     sections.push(new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: PAGE_WIDTH, type: WidthType.DXA },
+      columnWidths: [1400, 1300, 1100, 1100, 1200, 800, 2126],
+      borders: tableBorders,
       rows: [
-        new TableRow({ children: [headerCell('참여자'), headerCell('플랫폼'), headerCell('좋아요'), headerCell('댓글'), headerCell('조회수'), headerCell('커버'), headerCell('등록일')] }),
-        ...posts.map((p: any) => new TableRow({ children: [
-          dataCell(p.influencer_name ?? ''),
-          dataCell(p.platform ?? ''),
-          dataCell((p.likes_count ?? 0).toLocaleString(), AlignmentType.RIGHT),
-          dataCell((p.comments_count ?? 0).toLocaleString(), AlignmentType.RIGHT),
-          dataCell((p.views_count ?? 0).toLocaleString(), AlignmentType.RIGHT),
-          dataCell(p.is_cover ? '✅' : '', AlignmentType.CENTER),
-          dataCell(new Date(p.created_at).toLocaleDateString('ko-KR')),
+        new TableRow({ children: [
+          headerCell('참여자', 1400), headerCell('플랫폼', 1300), headerCell('좋아요', 1100),
+          headerCell('댓글', 1100), headerCell('조회수', 1200), headerCell('커버', 800), headerCell('등록일', 2126),
+        ]}),
+        ...posts.map((p: any, i: number) => new TableRow({ children: [
+          dataCell(p.influencer_name ?? '', 1400, AlignmentType.LEFT, i % 2 ? 'F7F9FC' : undefined),
+          dataCell(p.platform ?? '', 1300, AlignmentType.LEFT, i % 2 ? 'F7F9FC' : undefined),
+          dataCell((p.likes_count ?? 0).toLocaleString(), 1100, AlignmentType.RIGHT, i % 2 ? 'F7F9FC' : undefined),
+          dataCell((p.comments_count ?? 0).toLocaleString(), 1100, AlignmentType.RIGHT, i % 2 ? 'F7F9FC' : undefined),
+          dataCell((p.views_count ?? 0).toLocaleString(), 1200, AlignmentType.RIGHT, i % 2 ? 'F7F9FC' : undefined),
+          dataCell(p.is_cover ? '✅' : '', 800, AlignmentType.CENTER, i % 2 ? 'F7F9FC' : undefined),
+          dataCell(new Date(p.created_at).toLocaleDateString('ko-KR'), 2126, AlignmentType.LEFT, i % 2 ? 'F7F9FC' : undefined),
         ]}))
       ]
     }))
