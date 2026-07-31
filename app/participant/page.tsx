@@ -117,7 +117,7 @@ function ParticipantTutorial({ onDone }: { onDone: () => void }) {
               <button onClick={() => setStep(s => s + 1)} className="text-xs px-4 py-1.5 bg-blue-600 text-white rounded-lg">다음</button>
             ) : (
               <div className="flex gap-2">
-                <button onClick={() => router.push('/guide')} className="text-xs px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg">가이드 보기</button>
+                <button onClick={() => { localStorage.setItem('participantTutorialDone', 'true'); router.push('/guide') }} className="text-xs px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg">가이드 보기</button>
                 <button onClick={onDone} className="text-xs px-4 py-1.5 bg-blue-600 text-white rounded-lg">완료</button>
               </div>
             )}
