@@ -42,3 +42,6 @@ input[type="date"] {
   -webkit-appearance: none !important;
   display: block !important;
 }
+html {
+  overflow-y: scroll;
+}

@@ -58,7 +58,7 @@ export default function ClientReportPage() {
       />
       <div className="min-h-screen bg-gray-50 p-4" style={{paddingTop: "calc(env(safe-area-inset-top) + 1rem)"}}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-center mb-2">
+          <div className="flex justify-center mb-2 max-w-7xl mx-auto">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
           </div>
           <div className="flex items-center mb-2">

@@ -223,7 +223,7 @@ export default function ClientMyPage() {
         <div className="flex justify-center mb-2">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
         </div>
-        <div className="max-w-lg mx-auto flex items-center gap-3">
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
           
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -233,7 +233,7 @@ export default function ClientMyPage() {
           <h1 className="text-xl font-bold">마이페이지</h1>
         </div>
       </div>
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         <div className="bg-white rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-4">

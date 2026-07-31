@@ -52,18 +52,7 @@ export default function Page3() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [myProjectPage, setMyProjectPage] = useState(0)
   const [allProjectPage, setAllProjectPage] = useState(0)
-  const [activeTab, setActiveTab] = useState<'project' | 'stats' | 'apply' | 'report'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('clientTab')
-      if (saved) {
-        sessionStorage.removeItem('clientTab')
-        return saved as 'project' | 'stats' | 'apply' | 'report'
-      }
-      const urlTab = new URLSearchParams(window.location.search).get('tab')
-      if (urlTab === 'stats' || urlTab === 'apply' || urlTab === 'report') return urlTab as 'stats' | 'apply' | 'report'
-    }
-    return 'project'
-  })
+  const [activeTab, setActiveTab] = useState<'project' | 'stats' | 'apply' | 'report'>('project')
   const [postPage, setPostPage] = useState(0)
   const [topRanker, setTopRanker] = useState<any>(null)
   const [igAudioCount, setIgAudioCount] = useState<number | null>(null)
