@@ -56,7 +56,7 @@ export default function ClientReportPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen bg-gray-50 p-4" style={{paddingTop: "env(safe-area-inset-top)"}}>
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
