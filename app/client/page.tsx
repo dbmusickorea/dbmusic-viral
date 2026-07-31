@@ -30,7 +30,7 @@ function GuideCard() {
   ]
 
   return (
-    <div className="bg-white rounded-2xl shadow mb-4 overflow-hidden">
+    <div id="tutorial-guide-card" className="bg-white rounded-2xl shadow mb-4 overflow-hidden">
       <button onClick={() => setOpen(o => !o)} className="w-full flex justify-between items-center p-4">
         <div>
           <p className="font-bold text-sm text-left">📖 더블비뮤직 앱 사용 가이드</p>
@@ -82,16 +82,16 @@ function ClientTutorial({ onDone }: { onDone: () => void }) {
 
   const steps = [
     {
-      target: 'tutorial-bottom-nav',
-      title: '하단 탭 네비게이션',
-      description: '하단 탭으로 프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.',
-      position: 'top',
-    },
-    {
       target: 'tutorial-project-card',
       title: '프로젝트 선택',
       description: '계약된 가수 및 곡명을 클릭하면 캠페인 진행상황을 실시간으로 모니터링할 수 있어요.',
       position: 'bottom',
+    },
+    {
+      target: 'tutorial-bottom-nav',
+      title: '하단 탭 네비게이션',
+      description: '하단 탭으로 프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.',
+      position: 'top',
     },
     {
       target: 'tutorial-stats-btn',
@@ -100,10 +100,28 @@ function ClientTutorial({ onDone }: { onDone: () => void }) {
       position: 'top',
     },
     {
+      target: 'tutorial-apply-btn',
+      title: '프로젝트 신청',
+      description: '새로운 프로젝트를 신청할 수 있어요. 가수명, 노래제목, 희망 시작일 등을 입력해주세요.',
+      position: 'top',
+    },
+    {
       target: 'tutorial-report-btn',
       title: '보고서 탭',
       description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.',
       position: 'top',
+    },
+    {
+      target: 'tutorial-inquiry-card',
+      title: '프로젝트 문의',
+      description: '진행 중인 프로젝트에 대해 궁금한 점을 문의할 수 있어요. 더블비뮤직 담당자가 빠르게 답변드려요.',
+      position: 'bottom',
+    },
+    {
+      target: 'tutorial-guide-card',
+      title: '앱 사용 가이드',
+      description: '더블비뮤직 앱 사용 방법을 자세히 안내해드려요. 펼쳐서 확인해보세요!',
+      position: 'bottom',
     },
   ]
 
@@ -157,7 +175,8 @@ function ClientTutorial({ onDone }: { onDone: () => void }) {
         <div className="fixed z-[101] rounded-xl pointer-events-none" style={{
           ...highlightStyle,
           boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
-          border: '2px solid #3B82F6',
+          border: '3px solid #60A5FA',
+          background: 'rgba(255,255,255,0.15)',
         }} />
       )}
 
@@ -984,7 +1003,7 @@ export default function Page3() {
 
             {/* 프로젝트 문의 게시판 */}
             {isClient && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-inquiry-card" className="bg-white rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold">📋 프로젝트 문의</h2>
                   <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
@@ -1658,7 +1677,7 @@ export default function Page3() {
           <button id="tutorial-stats-btn" onClick={() => setActiveTab('stats')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>
             <BarChart2 size={20} className="mb-0.5" />현황
           </button>
-          <button onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
+          <button id="tutorial-apply-btn" onClick={() => setActiveTab('apply')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'apply' ? 'text-blue-600' : 'text-gray-400'}`}>
             <FileText size={20} className="mb-0.5" />신청
           </button>
           <button id="tutorial-report-btn" onClick={() => router.push('/client-report')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'report' ? 'text-blue-600' : 'text-gray-400'}`}>
