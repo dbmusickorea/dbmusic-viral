@@ -227,7 +227,7 @@ export default function Page3() {
   const [sortOrder, setSortOrder] = useState('desc')
   const [commentMissionData, setCommentMissionData] = useState<any>(null)
   const [requests, setRequests] = useState<any[]>([])
-  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [showRequestForm, setShowRequestForm] = useState(true)
   const [requestTitle, setRequestTitle] = useState('')
   const [requestContent, setRequestContent] = useState('')
   const [requestedPosts, setRequestedPosts] = useState('1')
