@@ -79,7 +79,19 @@ export default function ReportPage() {
   const captureChart = async (ref: React.RefObject<HTMLDivElement | null>): Promise<Uint8Array | null> => {
     if (!ref.current) return null
     const html2canvas = (await import('html2canvas')).default
-    const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: '#ffffff' })
+    const canvas = await html2canvas(ref.current, { 
+      scale: 2, 
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      onclone: (doc) => {
+        doc.querySelectorAll('*').forEach((el: any) => {
+          const style = el.style
+          if (style.color && style.color.includes('lab(')) style.color = '#000000'
+          if (style.backgroundColor && style.backgroundColor.includes('lab(')) style.backgroundColor = '#ffffff'
+        })
+      }
+    })
     const base64 = canvas.toDataURL('image/png').split(',')[1]
     return Uint8Array.from(atob(base64), c => c.charCodeAt(0))
   }
