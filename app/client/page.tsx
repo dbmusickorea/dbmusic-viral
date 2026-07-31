@@ -12,6 +12,7 @@ import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import GuideCard from '../../components/GuideCard'
 import ClientTutorial from '../../components/ClientTutorial'
+import Sidebar from '../../components/Sidebar'
 
 export default function Page3() {
   const [userInfo, setUserInfo] = useState<any>(null)
@@ -531,45 +532,33 @@ export default function Page3() {
         </div>
       )}
       {/* 사이드바 오버레이 */}
-      {showSidebar && (
-        userRole === 'admin' ? (
-          <div className="fixed inset-0 z-50 flex">
-            <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-bold text-lg">더블비뮤직</h2>
-                <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
-              </div>
-              <div className="space-y-2 flex-1">
-                <button onClick={() => { router.push('/admin'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">프로젝트</button>
-                <button onClick={() => setShowSidebar(false)} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium bg-blue-50 text-blue-600">의뢰인</button>
-                <button onClick={() => { router.push('/members'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">회원관리</button>
-                <button onClick={() => { router.push('/settlement'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">정산</button>
-                <button onClick={() => { router.push('/cover'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">커버</button>
-                <button onClick={() => { router.push('/admin-mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
-              </div>
-              <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
-            </div>
-            <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
-          </div>
-        ) : (
-          <div className="fixed inset-0 z-50 flex">
-            <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-bold text-lg">더블비뮤직</h2>
-                <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
-              </div>
-              <div className="space-y-2 flex-1">
-                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>프로젝트</button>
-                <button onClick={() => { setActiveTab('stats'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'stats' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>현황</button>
-                <button onClick={() => { setShowApplyModal(true); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">프로젝트 신청</button>
-                <button onClick={() => { router.push('/client-report'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'report' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>보고서</button>                
-                <button onClick={() => { router.push('/client-mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
-              </div>
-              <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
-            </div>
-            <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
-          </div>
-        )
+      {userRole === 'admin' ? (
+        <Sidebar
+          show={showSidebar}
+          onClose={() => setShowSidebar(false)}
+          onLogout={handleLogout}
+          items={[
+            { icon: '', label: '프로젝트', onClick: () => router.push('/admin') },
+            { icon: '', label: '의뢰인', onClick: () => {}, active: true },
+            { icon: '', label: '회원관리', onClick: () => router.push('/members') },
+            { icon: '', label: '정산', onClick: () => router.push('/settlement') },
+            { icon: '', label: '커버', onClick: () => router.push('/cover') },
+            { icon: '', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
+          ]}
+        />
+      ) : (
+        <Sidebar
+          show={showSidebar}
+          onClose={() => setShowSidebar(false)}
+          onLogout={handleLogout}
+          items={[
+            { icon: '', label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project' },
+            { icon: '', label: '현황', onClick: () => setActiveTab('stats'), active: activeTab === 'stats' },
+            { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true) },
+            { icon: '', label: '보고서', onClick: () => router.push('/client-report'), active: activeTab === 'report' },
+            { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
+          ]}
+        />
       )}
       <div className="min-h-screen bg-gray-50 p-4"
       onTouchStart={(e) => {
