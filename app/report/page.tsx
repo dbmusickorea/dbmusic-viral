@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel, ImageRun, WidthType, AlignmentType, BorderStyle } from 'docx'
 
 export default function ReportPage() {
   const [project, setProject] = useState<any>(null)
@@ -9,12 +10,14 @@ export default function ReportPage() {
   const [history, setHistory] = useState<any[]>([])
   const [commentMissions, setCommentMissions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const instaChartRef = useRef<HTMLDivElement>(null)
+  const youtubeChartRef = useRef<HTMLDivElement>(null)
+  const tiktokChartRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const projectCode = params.get('project_code')
     if (!projectCode) return
-
     const load = async () => {
       const [projectRes, postsRes, historyRes, cmRes] = await Promise.all([
         fetch(`/api/projects?project_code=${projectCode}`),
@@ -37,7 +40,6 @@ export default function ReportPage() {
     const dates = [...new Set(history.map((h: any) => h.recorded_at.split('_')[0]))].sort()
     const platformMap: any = {}
     posts.forEach((p: any) => { platformMap[p.id] = p.platform })
-
     const getLatest = (data: any[]) => {
       const map = new Map()
       data.forEach(h => {
@@ -49,7 +51,6 @@ export default function ReportPage() {
       })
       return Array.from(map.values())
     }
-
     return dates.map((date: any) => {
       const dayData = history.filter((h: any) => h.recorded_at.startsWith(date))
       const latest = getLatest(dayData)
@@ -75,6 +76,118 @@ export default function ReportPage() {
     })
   }
 
+  const captureChart = async (ref: React.RefObject<HTMLDivElement | null>): Promise<Uint8Array | null> => {
+    if (!ref.current) return null
+    const html2canvas = (await import('html2canvas')).default
+    const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: '#ffffff' })
+    const base64 = canvas.toDataURL('image/png').split(',')[1]
+    return Uint8Array.from(atob(base64), c => c.charCodeAt(0))
+  }
+
+  const handleDownloadWord = async () => {
+    const instaImg = posts.some((p: any) => p.platform === 'instagram') ? await captureChart(instaChartRef) : null
+    const youtubeImg = posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) ? await captureChart(youtubeChartRef) : null
+    const tiktokImg = posts.some((p: any) => p.platform === 'tiktok') ? await captureChart(tiktokChartRef) : null
+
+    const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0)
+    const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0)
+    const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0)
+
+    const headerCell = (text: string) => new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
+      shading: { fill: '1F4E79' },
+    })
+    const dataCell = (text: string, align: any = AlignmentType.LEFT) => new TableCell({
+      children: [new Paragraph({ children: [new TextRun(text)], alignment: align })],
+    })
+
+    const sections: any[] = [
+      new Paragraph({ text: '더블비뮤직 바이럴 결과보고서', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
+      new Paragraph({ text: `${project.artist_name ?? ''} / ${project.song_title ?? ''}`, alignment: AlignmentType.CENTER }),
+      new Paragraph({ text: '' }),
+      new Paragraph({ text: '프로젝트 정보', heading: HeadingLevel.HEADING_2 }),
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          ['의뢰인', project.client_name ?? '-'],
+          ['가수명', project.artist_name ?? '-'],
+          ['노래제목', project.song_title ?? '-'],
+          ['상품명', project.product_content ?? '-'],
+          ['계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
+          ['모집인원', `${project.max_participants ?? '-'}명`],
+          ['시작일', project.start_date ?? '-'],
+          ['종료일', project.end_date ?? '-'],
+          ['요청사항', project.requirements ?? '-'],
+        ].map(([label, value]) => new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: label, bold: true })] })], shading: { fill: 'D6E4F0' } }),
+            new TableCell({ children: [new Paragraph(value)] }),
+          ]
+        }))
+      }),
+      new Paragraph({ text: '' }),
+      new Paragraph({ text: '성과 요약', heading: HeadingLevel.HEADING_2 }),
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({ children: [headerCell('항목'), headerCell('수치')] }),
+          ...([
+            ['총 게시물', `${posts.length}개`],
+            ['총 좋아요', totalLikes.toLocaleString()],
+            ['총 댓글', totalComments.toLocaleString()],
+            ['총 조회수', totalViews.toLocaleString()],
+            ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
+            ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
+            ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
+            ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
+          ] as [string, string][]).map(([label, value]) => new TableRow({ children: [dataCell(label), dataCell(value, AlignmentType.RIGHT)] }))
+        ]
+      }),
+      new Paragraph({ text: '' }),
+      new Paragraph({ text: '일별 통계', heading: HeadingLevel.HEADING_2 }),
+    ]
+
+    if (instaImg) {
+      sections.push(new Paragraph({ text: '인스타그램' }))
+      sections.push(new Paragraph({ children: [new ImageRun({ data: instaImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
+    }
+    if (youtubeImg) {
+      sections.push(new Paragraph({ text: '유튜브' }))
+      sections.push(new Paragraph({ children: [new ImageRun({ data: youtubeImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
+    }
+    if (tiktokImg) {
+      sections.push(new Paragraph({ text: '틱톡' }))
+      sections.push(new Paragraph({ children: [new ImageRun({ data: tiktokImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
+    }
+
+    sections.push(new Paragraph({ text: '' }))
+    sections.push(new Paragraph({ text: '게시물 목록', heading: HeadingLevel.HEADING_2 }))
+    sections.push(new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [
+        new TableRow({ children: [headerCell('참여자'), headerCell('플랫폼'), headerCell('좋아요'), headerCell('댓글'), headerCell('조회수'), headerCell('커버'), headerCell('등록일')] }),
+        ...posts.map((p: any) => new TableRow({ children: [
+          dataCell(p.influencer_name ?? ''),
+          dataCell(p.platform ?? ''),
+          dataCell((p.likes_count ?? 0).toLocaleString(), AlignmentType.RIGHT),
+          dataCell((p.comments_count ?? 0).toLocaleString(), AlignmentType.RIGHT),
+          dataCell((p.views_count ?? 0).toLocaleString(), AlignmentType.RIGHT),
+          dataCell(p.is_cover ? '✅' : '', AlignmentType.CENTER),
+          dataCell(new Date(p.created_at).toLocaleDateString('ko-KR')),
+        ]}))
+      ]
+    }))
+
+    const doc = new Document({ sections: [{ children: sections }] })
+    const blob = await Packer.toBlob(doc)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `더블비뮤직_${project.artist_name ?? ''}_${project.song_title ?? ''}_보고서.docx`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   if (loading) return <div className="flex items-center justify-center h-screen">로딩중...</div>
   if (!project) return <div className="flex items-center justify-center h-screen">프로젝트를 찾을 수 없어요</div>
 
@@ -85,8 +198,9 @@ export default function ReportPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      <div className="print:hidden fixed top-4 right-4 z-10">
+      <div className="print:hidden fixed top-4 right-4 z-10 flex gap-2">
         <button onClick={() => window.print()} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">🖨️ PDF 저장</button>
+        <button onClick={handleDownloadWord} className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">📄 워드 다운로드</button>
       </div>
 
       <div className="max-w-4xl mx-auto p-8">
@@ -149,7 +263,7 @@ export default function ReportPage() {
           <div className="mb-8">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
             {posts.some((p: any) => p.platform === 'instagram') && (
-              <div className="mb-6">
+              <div className="mb-6" ref={instaChartRef}>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">인스타그램</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={dailyStats}>
@@ -166,7 +280,7 @@ export default function ReportPage() {
               </div>
             )}
             {posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) && (
-              <div className="mb-6">
+              <div className="mb-6" ref={youtubeChartRef}>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">유튜브</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={dailyStats}>
@@ -183,7 +297,7 @@ export default function ReportPage() {
               </div>
             )}
             {posts.some((p: any) => p.platform === 'tiktok') && (
-              <div className="mb-6">
+              <div className="mb-6" ref={tiktokChartRef}>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">틱톡</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={dailyStats}>
