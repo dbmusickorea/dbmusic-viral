@@ -102,21 +102,25 @@ export default function ReportPage() {
     const labelCell = (text: string, width: number) => new TableCell({
       width: { size: width, type: WidthType.DXA },
       shading: { fill: 'EAF1FB' },
+      margins: { top: 100, bottom: 100, left: 120, right: 120 },
       children: [new Paragraph({ children: [new TextRun({ text, bold: true, size: 18, color: '1F4E79' })] })],
     })
     const valueCell = (text: string, width: number, span = 1) => new TableCell({
       width: { size: width, type: WidthType.DXA },
       columnSpan: span,
+      margins: { top: 100, bottom: 100, left: 120, right: 120 },
       children: [new Paragraph({ children: [new TextRun({ text, size: 18 })] })],
     })
     const headerCell = (text: string, width: number) => new TableCell({
       width: { size: width, type: WidthType.DXA },
       shading: { fill: '1F4E79' },
+      margins: { top: 100, bottom: 100, left: 120, right: 120 },
       children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text, bold: true, color: 'FFFFFF', size: 18 })] })],
     })
     const dataCell = (text: string, width: number, align: any = AlignmentType.LEFT, shade?: string) => new TableCell({
       width: { size: width, type: WidthType.DXA },
       shading: shade ? { fill: shade } : undefined,
+      margins: { top: 80, bottom: 80, left: 120, right: 120 },
       children: [new Paragraph({ alignment: align, children: [new TextRun({ text, size: 17 })] })],
     })
     const statCard = (label: string, value: string, width: number) => new TableCell({
@@ -185,15 +189,12 @@ export default function ReportPage() {
     ]
 
     if (instaImg) {
-      sections.push(new Paragraph({ spacing: { before: 100 }, children: [new TextRun({ text: '인스타그램', bold: true, size: 18 })] }))
       sections.push(new Paragraph({ children: [new ImageRun({ data: instaImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
     }
     if (youtubeImg) {
-      sections.push(new Paragraph({ spacing: { before: 200 }, children: [new TextRun({ text: '유튜브', bold: true, size: 18 })] }))
       sections.push(new Paragraph({ children: [new ImageRun({ data: youtubeImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
     }
     if (tiktokImg) {
-      sections.push(new Paragraph({ spacing: { before: 200 }, children: [new TextRun({ text: '틱톡', bold: true, size: 18 })] }))
       sections.push(new Paragraph({ children: [new ImageRun({ data: tiktokImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
     }
 
