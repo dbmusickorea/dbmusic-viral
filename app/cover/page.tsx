@@ -675,7 +675,7 @@ export default function CoverPage() {
             )}
 
             {/* 재선택 2회 후 공개 모집 */}
-            {userRole === 'client' && selectedProject && coverRequests.filter(r => r.rejected_count >= 2).length > 0 && (
+            {userRole === 'admin' && selectedProject && coverRequests.filter(r => r.rejected_count >= 2).length > 0 && (
               <div className="bg-orange-50 rounded-2xl p-4 mb-4">
                 <p className="text-sm font-medium text-orange-700 mb-2">⚠️ 거절이 2회 발생했어요.</p>
                 <button onClick={async () => {
