@@ -679,7 +679,8 @@ export default function CoverPage() {
               <div className="bg-orange-50 rounded-2xl p-4 mb-4">
                 <p className="text-sm font-medium text-orange-700 mb-2">⚠️ 거절이 2회 발생했어요.</p>
                 <button onClick={async () => {
-                  const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id))
+                  const now = new Date()
+                  const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= now))
                   if (approvedParticipants.length === 0) { showToast('알림 받을 체험단이 없어요.'); return }
                   const ids = approvedParticipants.map(p => String(p.id))
                   const tokensRes = await fetch(`/api/push_tokens?user_ids=${ids.join(',')}`)

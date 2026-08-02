@@ -213,10 +213,11 @@ export default function Page3() {
       const pIds = coverReqData.map((r: any) => r.participant_id).join(',')
       const pRes = await fetch(`/api/participants?ids=${pIds}`)
       const pData = await pRes.json()
+      const now = new Date()
       setCoverRequests(coverReqData.map((r: any) => ({
         ...r,
         participants: pData?.find((p: any) => p.id === r.participant_id)
-      })))
+      })).filter((r: any) => !r.participants?.cover_penalty_until || new Date(r.participants.cover_penalty_until) <= now))
     } else {
       setCoverRequests([])
     }
