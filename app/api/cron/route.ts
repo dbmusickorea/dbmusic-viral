@@ -646,6 +646,11 @@ export async function GET() {
           const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
           await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'not_uploaded' }).eq('id', r.participant_id)
           await supabase.from('cover_requests').update({ status: 'PENALTY' }).eq('id', r.id)
+          // cover_current 감소
+          const { data: projForCover } = await supabase.from('projects').select('cover_current').ilike('project_code', r.project_code).maybeSingle()
+          if (projForCover && (projForCover.cover_current ?? 0) > 0) {
+            await supabase.from('projects').update({ cover_current: (projForCover.cover_current ?? 1) - 1 }).ilike('project_code', r.project_code)
+          }
 
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(r.participant_id))
           if (tokens && tokens.length > 0) {
@@ -693,6 +698,11 @@ export async function GET() {
           
           const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
           await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'not_uploaded' }).eq('id', cp.member_id)
+          // cover_current 감소
+          const { data: projForCover2 } = await supabase.from('projects').select('cover_current').ilike('project_code', cp.project_code).maybeSingle()
+          if (projForCover2 && (projForCover2.cover_current ?? 0) > 0) {
+            await supabase.from('projects').update({ cover_current: (projForCover2.cover_current ?? 1) - 1 }).ilike('project_code', cp.project_code)
+          }
 
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(cp.member_id))
           if (tokens && tokens.length > 0) {
