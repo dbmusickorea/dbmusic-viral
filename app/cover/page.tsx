@@ -585,7 +585,7 @@ export default function CoverPage() {
                               {/* 정보 */}
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium">{p.name}</p>
-                                {coverRequestedIds.includes(p.id) && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 커버 희망</span>}
+                                {coverRequestedIds.includes(p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= new Date()) && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 커버 희망</span>}
                                 {(() => {
                                   const platform = getCoverPlatform(p.cover_video_url)
                                   if (platform === 'instagram' && p.instagram_id) return <p className="text-xs text-gray-500">@{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}</p>
@@ -637,6 +637,8 @@ export default function CoverPage() {
                                   ) : (
                                     <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">거절됨</span>
                                   )
+                                ) : request.status === 'PENALTY' ? (
+                                  <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
                                 ) : null}
                               </div>
                             )}
