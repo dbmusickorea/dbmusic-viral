@@ -982,6 +982,11 @@ export async function GET() {
                   cover_penalty_until: penaltyUntil,
                   cover_penalty_reason: 'deleted'
                 }).eq('id', post.member_id)
+                // cover_current 감소
+                const { data: projForCover3 } = await supabase.from('projects').select('cover_current').ilike('project_code', post.project_code).maybeSingle()
+                if (projForCover3 && (projForCover3.cover_current ?? 0) > 0) {
+                  await supabase.from('projects').update({ cover_current: (projForCover3.cover_current ?? 1) - 1 }).ilike('project_code', post.project_code)
+                }
               }
               await supabase.from('posts').delete().eq('id', post.id)
               await supabase.from('post_stats_history').delete().eq('post_id', post.id)
