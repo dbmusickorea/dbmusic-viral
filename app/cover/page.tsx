@@ -614,6 +614,7 @@ export default function CoverPage() {
                                     if (selectedProject?.status === 'ONGOING' && !coverAddApproved && daysSinceStart >= 3 && !selectedProject?.cover_deadline_extended) {
                                       return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">선택 마감</span>
                                     }
+                                    if (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date()) return <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
                                     return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                   })()
                                 ) : request.status === 'PENDING' ? (
@@ -642,7 +643,7 @@ export default function CoverPage() {
                             {userRole === 'admin' && (
                               <div>
                                 {!request ? (
-                                  <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                                  p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date() ? <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span> : <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                 ) : (
                                   <span className={`text-xs px-2 py-1 rounded-full ${
                                     request.status === 'PENDING' && coverPost ? 'bg-yellow-100 text-yellow-700' :
