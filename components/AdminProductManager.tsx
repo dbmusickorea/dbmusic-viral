@@ -18,7 +18,7 @@ export default function AdminProductManager({ products, newProduct, setNewProduc
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-bold dark:text-white">📦 상품 사전 등록</h2>
-        <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border rounded px-2 py-1">{showProductManager ? '닫기' : '관리'}</button>
+        <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showProductManager ? '닫기' : '관리'}</button>
       </div>
       {showProductManager && (
         <div className="space-y-3">

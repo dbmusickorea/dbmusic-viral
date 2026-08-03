@@ -12,6 +12,29 @@ export default function AdminMypagePage() {
   const { showToast } = useToast()
   const [userInfo, setUserInfo] = useState<any>(null)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
+    setTheme(saved ?? 'system')
+  }, [])
+
+  const applyTheme = (t: 'system' | 'light' | 'dark') => {
+    setTheme(t)
+    localStorage.setItem('theme', t)
+    const html = document.documentElement
+    if (t === 'dark') {
+      html.classList.add('dark')
+      localStorage.setItem('darkMode', 'true')
+    } else if (t === 'light') {
+      html.classList.remove('dark')
+      localStorage.setItem('darkMode', 'false')
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      prefersDark ? html.classList.add('dark') : html.classList.remove('dark')
+      localStorage.removeItem('darkMode')
+    }
+  }
   const [myPassword, setMyPassword] = useState('')
   const [myCurrentPassword, setMyCurrentPassword] = useState('')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -99,7 +122,7 @@ export default function AdminMypagePage() {
         ]}
         onLogout={handleLogout}
       />
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
@@ -123,9 +146,9 @@ export default function AdminMypagePage() {
           </div>
         )}
         <div className="max-w-lg mx-auto">
-          <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
             <div className="flex justify-center mb-2">
-              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
             </div>
             <div className="flex items-center gap-3 mb-2">
               <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
@@ -138,31 +161,31 @@ export default function AdminMypagePage() {
           </div>
 
           {/* 관리자 정보 */}
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">👤 내 정보</h2>
-            <div className="bg-gray-50 rounded-lg px-3 py-2 mb-2">
-              <p className="text-xs text-gray-500">이름</p>
-              <p className="text-sm font-medium">{userInfo?.name ?? '-'}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3 dark:text-white">👤 내 정보</h2>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 mb-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">이름</p>
+              <p className="text-sm font-medium dark:text-white">{userInfo?.name ?? '-'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">이메일</p>
-              <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">이메일</p>
+              <p className="text-sm font-medium dark:text-white">{userInfo?.email ?? '-'}</p>
             </div>
           </div>
 
           {/* 비밀번호 변경 */}
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">🔒 비밀번호 변경</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3 dark:text-white">🔒 비밀번호 변경</h2>
             <div className="space-y-3">
               <div className="relative">
-                <input type={showCurrentPassword ? 'text' : 'password'} value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="기존 비밀번호" />
-                <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-2.5 text-gray-400">
+                <input type={showCurrentPassword ? 'text' : 'password'} value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="기존 비밀번호" />
+                <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-2.5 text-gray-400 dark:text-gray-500">
                   {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               <div className="relative">
-                <input type={showNewPassword ? 'text' : 'password'} value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="새 비밀번호" />
-                <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-2.5 text-gray-400">
+                <input type={showNewPassword ? 'text' : 'password'} value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="새 비밀번호" />
+                <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-2.5 text-gray-400 dark:text-gray-500">
                   {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -180,17 +203,17 @@ export default function AdminMypagePage() {
           </div>
 
           {/* 관리자 추가 */}
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3">➕ 관리자 추가</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3 dark:text-white">➕ 관리자 추가</h2>
             <div className="flex gap-2 mb-3">
-              <input value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="이메일로 검색" />
+              <input value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일로 검색" />
               <button onClick={handleSearchUser} className="bg-gray-600 text-white rounded-lg px-3 py-2 text-sm">검색</button>
             </div>
             {foundUser && (
-              <div className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-medium">{foundUser.name}</p>
-                  <p className="text-xs text-gray-500">{foundUser.email} · {foundUser.role}</p>
+                  <p className="text-sm font-medium dark:text-white">{foundUser.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{foundUser.email} · {foundUser.role}</p>
                 </div>
                 <button onClick={handleAddAdmin} className="text-xs bg-blue-600 text-white rounded px-3 py-1">관리자 추가</button>
               </div>
@@ -217,9 +240,18 @@ export default function AdminMypagePage() {
               }
             }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
-          <hr className="my-3 border-gray-100" />
+          <hr className="my-3 border-gray-100 dark:border-gray-700" />
+          {/* 다크모드 */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <p className="text-sm font-medium dark:text-white mb-3">🌙 화면 모드</p>
+            <div className="flex gap-2">
+              <button onClick={() => applyTheme('system')} className={`flex-1 py-2 text-xs rounded-lg border ${theme === 'system' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>시스템</button>
+              <button onClick={() => applyTheme('light')} className={`flex-1 py-2 text-xs rounded-lg border ${theme === 'light' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>라이트</button>
+              <button onClick={() => applyTheme('dark')} className={`flex-1 py-2 text-xs rounded-lg border ${theme === 'dark' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>다크</button>
+            </div>
+          </div>
           {/* 로그아웃 */}
-          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-3 bg-white mb-4">로그아웃</button>
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 mb-4">로그아웃</button>
         </div>
         <AdminBottomNav active="mypage" />
       </div>

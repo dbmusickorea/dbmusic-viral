@@ -75,19 +75,7 @@ export default function Page1() {
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
   const [showSidebar, setShowSidebar] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
 
-  const toggleDarkMode = () => {
-    const html = document.documentElement
-    if (darkMode) {
-      html.classList.remove('dark')
-      localStorage.setItem('darkMode', 'false')
-    } else {
-      html.classList.add('dark')
-      localStorage.setItem('darkMode', 'true')
-    }
-    setDarkMode(!darkMode)
-  }
   const PAGE_SIZE = 5
   const router = useRouter()
   const { showToast } = useToast()
@@ -1066,9 +1054,7 @@ export default function Page1() {
                 </svg>
               </button>
               <h1 className="text-xl font-bold dark:text-white">프로젝트 관리</h1>
-              <button onClick={toggleDarkMode} className="text-xs border rounded px-2 py-1 ml-2">
-                {darkMode ? '☀️' : '🌙'}
-              </button>
+
             </div>
             <div className="relative">
               <button onClick={() => { 
