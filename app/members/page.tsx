@@ -355,6 +355,7 @@ export default function Page4() {
   
   const [participants, setParticipants] = useState<any[]>([])
   const [selected, setSelected] = useState<any>(null)
+  const [selectedReferredUsers, setSelectedReferredUsers] = useState<any[]>([])
   const [expandedCard, setExpandedCard] = useState<number | null>(null)
   const [name, setName] = useState('')
   const [mobile, setMobile] = useState('')
@@ -446,6 +447,13 @@ export default function Page4() {
 
   const handleSelect = async (p: any) => {
     setSelected(p)
+    setSelectedReferredUsers([])
+    if (p?.referral_code) {
+      fetch(`/api/participants?referred_by=${p.referral_code}`)
+        .then(r => r.json())
+        .then(d => setSelectedReferredUsers(Array.isArray(d) ? d : []))
+        .catch(() => {})
+    }
     setExpandedCard(null)
     setName(p.name ?? ''); setMobile(p.mobile ?? ''); setEmail(p.email ?? '')
     setBankName(p.bank_name ?? ''); setAccountHolder(p.account_holder ?? '')
@@ -1339,10 +1347,27 @@ export default function Page4() {
                   </div>
                 )}
 
+                {selectedReferredUsers.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-gray-600 mb-1">🎯 추천인 수익</p>
+                    <div className="space-y-1">
+                      {selectedReferredUsers.map((u: any) => (
+                        <div key={u.id} className="flex justify-between text-xs border rounded p-2">
+                          <span>추천인 보상 ({u.name})</span>
+                          <span className="text-orange-600 font-medium">150P</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-xs font-bold bg-orange-50 rounded p-2">
+                        <span>추천인 수익 합계</span>
+                        <span className="text-orange-600">{(selectedReferredUsers.length * 150).toLocaleString()}P</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold bg-gray-100 rounded p-2">
                   <span>총 수익</span>
                   <span className="text-blue-600">
-                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0)).toLocaleString()}P
+                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0) + selectedReferredUsers.length * 150).toLocaleString()}P
                   </span>
                 </div>
               </div>
