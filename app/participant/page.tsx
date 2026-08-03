@@ -14,6 +14,7 @@ import ParticipantTutorial from '../../components/ParticipantTutorial'
 import ParticipantPostList from '../../components/ParticipantPostList'
 import ParticipantProjectList from '../../components/ParticipantProjectList'
 import ParticipantStatusCards from '../../components/ParticipantStatusCards'
+import ParticipantCoverRequests from '../../components/ParticipantCoverRequests'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -548,6 +549,78 @@ useEffect(() => {
     const res = await fetch(`/api/settlements?member_id=${id}`)
     const data = await res.json()
     setMySettlements(data ?? [])
+  }
+
+  const handleAcceptCoverRequest = async (r: any) => {
+    const confirmed = confirm(
+      `커버영상 미션을 수락하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내에 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
+    )
+    if (!confirmed) return
+    await fetch(`/api/cover_requests?id=${r.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'APPROVED', approved_at: new Date().toISOString() })
+    })
+    setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
+    const projectRes = await fetch(`/api/projects?project_code=${r.project_code}`)
+    const projectData = await projectRes.json()
+    const proj = Array.isArray(projectData) ? projectData[0] : projectData
+    if (proj?.client_id) {
+      const clientRes = await fetch(`/api/users?client_id=${proj.client_id}`)
+      const clientData = await clientRes.json()
+      const clientUser = clientData?.[0]
+      if (clientUser) {
+        const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+        const tokens = await tokensRes.json()
+        if (tokens && tokens.length > 0) {
+          await fetch('/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🎵 커버영상 미션 승인됐어요!',
+              body: `[${proj.artist_name || proj.client_name} - ${proj.song_title}] 커버 체험단이 미션을 수락했어요!`,
+              tokens: tokens.map((t: any) => t.token),
+              userIds: [String(clientUser.id)]
+            })
+          })
+        }
+      }
+    }
+    showToast('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.')
+  }
+
+  const handleRejectCoverRequest = async (r: any) => {
+    await fetch(`/api/cover_requests?id=${r.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
+    })
+    setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'REJECTED'} : cr))
+    const projectRes = await fetch(`/api/projects?project_code=${r.project_code}`)
+    const projectData = await projectRes.json()
+    const proj = Array.isArray(projectData) ? projectData[0] : projectData
+    if (proj?.client_id) {
+      const clientRes = await fetch(`/api/users?client_id=${proj.client_id}`)
+      const clientData = await clientRes.json()
+      const clientUser = clientData?.[0]
+      if (clientUser) {
+        const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+        const tokens = await tokensRes.json()
+        if (tokens && tokens.length > 0) {
+          await fetch('/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '⚠️ 커버영상 미션 거절됐어요',
+              body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
+              tokens: tokens.map((t: any) => t.token),
+              userIds: [String(clientUser.id)]
+            })
+          })
+        }
+      }
+    }
+    showToast('거절했어요.')
   }
 
   const handleDeleteMyPost = async (post: any) => {
@@ -1553,110 +1626,12 @@ useEffect(() => {
               )
             })()}
           </div>
-          {coverRequests.filter(r => r.status === 'PENDING' && !coverPenaltyUntil).map(r => (
-            <div key={r.id} className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4">
-              <p className="text-sm font-medium text-purple-800 mb-2">🎵 커버영상 미션 선택됐어요!</p>
-              <p className="text-xs text-gray-600 mb-3">프로젝트: {r.project_code}</p>
-              <p className="text-xs text-red-400 mb-3">⚠️ 24시간 이내 응답하지 않으면 거절로 처리됩니다.</p>
-              <div className="flex gap-2">                
-                <button onClick={async () => {
-                  const confirmed = confirm(
-                    `커버영상 미션을 수락하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내에 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
-                  )
-                  if (!confirmed) return
-                  await fetch(`/api/cover_requests?id=${r.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'APPROVED' })
-                  })
-                  // project_participants is_cover = true로 변경
-                  await fetch(`/api/project_participants?member_id=${userInfo?.id}&project_code=${r.project_code}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ is_cover: true })
-                  })
-                  // cover_current 증가
-                  const projectRes = await fetch(`/api/projects?project_code=${r.project_code}`)
-                  const projectData = await projectRes.json()
-                  const currentCount = projectData?.[0]?.cover_current ?? 0
-                  await fetch(`/api/projects?project_code=${r.project_code}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cover_current: currentCount + 1 })
-                  })
-                  setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
-                  
-                  // 의뢰인에게 푸시
-                  const clientRes = await fetch(`/api/users?client_id=${r.client_id}`)
-                  const clientData = await clientRes.json()
-                  const clientUser = clientData?.[0]
-                  if (clientUser) {
-                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
-                    const tokens = await tokensRes.json()
-                    if (tokens && tokens.length > 0) {
-                      await fetch('/api/push', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          title: '🎵 커버영상 미션 승인됐어요!',
-                          body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 수락했어요!`,
-                          tokens: tokens.map((t: any) => t.token),
-                          userIds: [String(clientUser.id)]
-                        })
-                      })
-                    }
-                  }
-                  // 관리자에게 푸시
-                  const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
-                  const adminTokens = await adminTokensRes.json()
-                  if (adminTokens && adminTokens.length > 0) {
-                    await fetch('/api/push', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        title: '🎵 커버영상 미션 수락!',
-                        body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 커버 체험단이 미션을 수락했어요.`,
-                        tokens: adminTokens.map((t: any) => t.token),
-                        userIds: adminTokens.map((t: any) => t.user_id)
-                      })
-                    })
-                  }
-                  showToast('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.\n⚠️ 미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.')
-                }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">승인</button>
-                <button onClick={async () => {
-                  await fetch(`/api/cover_requests?id=${r.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
-                  })
-                  setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'REJECTED'} : cr))
-                  
-                  // 의뢰인에게 푸시
-                  const clientRes = await fetch(`/api/users?client_id=${r.client_id}`)
-                  const clientData = await clientRes.json()
-                  const clientUser = clientData?.[0]
-                  if (clientUser) {
-                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
-                    const tokens = await tokensRes.json()
-                    if (tokens && tokens.length > 0) {
-                      await fetch('/api/push', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          title: '⚠️ 커버영상 미션 거절됐어요',
-                          body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
-                          tokens: tokens.map((t: any) => t.token),
-                          userIds: [String(clientUser.id)]
-                        })
-                      })
-                    }
-                  }
-                  showToast('거절했어요.')
-                }} className="flex-1 bg-gray-400 text-white rounded-lg py-2 text-sm font-medium">거절</button>
-              </div>
-            </div>
-          ))}
-
+          <ParticipantCoverRequests
+            coverRequests={coverRequests}
+            coverPenaltyUntil={coverPenaltyUntil}
+            onAccept={handleAcceptCoverRequest}
+            onReject={handleRejectCoverRequest}
+          />
           {/* 오른쪽 컬럼 */}
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>
          
