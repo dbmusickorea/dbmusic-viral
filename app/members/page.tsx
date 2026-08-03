@@ -102,13 +102,13 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
 
       {activityTab === 'points' && (
         <div className="space-y-2">
-          <div className="bg-blue-50 rounded-lg p-3 mb-2">
+          <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3 mb-2">
             <p className="text-xs text-gray-500 dark:text-gray-400">현재 잔액</p>
             <p className="text-lg font-bold text-blue-600">{participant?.balance?.toLocaleString()}P</p>
           </div>
           {settlements.length === 0 ? <p className="text-sm text-gray-400 text-center py-2">환전 내역 없음</p> :
           settlements.map(s => (
-            <div key={s.id} className="border rounded-lg p-3 flex justify-between items-center">
+            <div key={s.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">환전 신청</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
@@ -120,7 +120,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             </div>
           ))}
           {referredUsers.map(u => (
-            <div key={`ref-${u.id}`} className="border rounded-lg p-3 flex justify-between items-center">
+            <div key={`ref-${u.id}`} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">추천인 보상 ({u.name})</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(u.created_at).toLocaleDateString('ko-KR')}</p>
@@ -129,7 +129,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             </div>
           ))}
           {pointHistory.length > 0 && pointHistory.map(ph => (
-            <div key={ph.id} className="border rounded-lg p-3 flex justify-between items-center">
+            <div key={ph.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">{ph.memo || '관리자 지급'}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(ph.created_at).toLocaleDateString('ko-KR')}</p>
@@ -143,7 +143,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       {activityTab === 'penalty' && (
         <div className="space-y-2">
           {!participations.some(p => p.status === 'BANNED' && !p.is_cover) && (
-            <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : 'bg-green-50'}`}>
+            <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50 dark:bg-red-900' : 'bg-green-50 dark:bg-green-900'}`}>
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium dark:text-white">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
@@ -223,13 +223,13 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             </div>
           )}
           {participant?.cover_penalty_until && new Date(participant.cover_penalty_until) > new Date() && (
-            <div className="bg-orange-50 rounded-lg p-3">
+            <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-3">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-orange-600">
                     {participant?.cover_penalty_reason === 'deleted' ? '⚠️ 커버 게시물 삭제 페널티' : '⚠️ 커버 미업로드 페널티'}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
                 </div>
                 <div className="flex gap-1">
@@ -980,7 +980,7 @@ export default function Page4() {
                                   defaultValue={p.admin_memo ?? ''}
                                   placeholder="관리자 메모..."
                                   rows={2}
-                                  className="w-full border rounded-lg px-2 py-1 text-xs"
+                                  className="w-full border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:bg-gray-700 dark:text-white"
                                   onClick={(e) => e.stopPropagation()}
                                 />
                                 <button onClick={async (e) => {
@@ -1435,7 +1435,7 @@ export default function Page4() {
                     <div className="space-y-2 mt-1">
                       {artistList.map((a) => (
                         <div key={a.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
-                          <span className="text-sm">{a.artist_name}</span>
+                          <span className="text-sm dark:text-white">{a.artist_name}</span>
                           <button onClick={async () => {
                             await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
                             fetchArtists(selectedClient.client_id)
@@ -1443,7 +1443,7 @@ export default function Page4() {
                         </div>
                       ))}
                       <div className="flex gap-2 mt-3">
-                        <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="아티스트명 입력" />
+                        <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
                         <button onClick={async () => {
                           if (!newArtistName) return
                           await fetch('/api/artists', {
