@@ -414,6 +414,7 @@ export default function CoverPage() {
             else { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') }
             setShowSidebar(false) 
           } },
+          { icon: '📥', label: '보고서', onClick: () => router.push('/client-report') },
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
@@ -440,7 +441,6 @@ export default function CoverPage() {
         {/* 의뢰인 안내 */}
         {userRole === 'client' && (
           <>
-            <button onClick={() => router.push('/client')} className="w-full text-xs border rounded py-2 text-center mb-3">← 의뢰인 페이지로 돌아가기</button>
             <div className="bg-blue-50 rounded-2xl p-4 mb-4">
               <p className="text-sm font-medium text-blue-800 mb-1">📢 커버영상 안내</p>
               <p className="text-xs text-blue-700">• 커버영상은 음원 발매 15일 이내에 업로드됩니다.</p>
@@ -771,6 +771,9 @@ export default function CoverPage() {
           </button>
           <button onClick={() => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') }} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
             <FileText size={20} className="mb-0.5" />신청
+          </button>
+          <button onClick={() => router.push('/client-report')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>보고서
           </button>
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
             <User size={20} className="mb-0.5" />마이페이지
