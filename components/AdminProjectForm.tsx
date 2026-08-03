@@ -435,7 +435,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                           }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium">📄 계약서 발송</button>
                         </>
                       ) : (
-                        <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
+                        <button onClick={handleInsert} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">프로젝트 등록</button>
                       )}
                     </div>
                   </div>
