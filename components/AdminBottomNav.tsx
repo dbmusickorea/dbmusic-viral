@@ -36,32 +36,32 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
-        <button onClick={() => router.push('/admin')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'admin' ? 'text-blue-600' : 'text-gray-400'}`}>
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
+        <button onClick={() => router.push('/admin')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'admin' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
           <LayoutGrid size={20} className="mb-0.5" />프로젝트
         </button>
-        <button onClick={() => onClientClick ? onClientClick() : router.push('/client')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'client' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => onClientClick ? onClientClick() : router.push('/client')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'client' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
           <Building2 size={20} className="mb-0.5" />의뢰인
         </button>
-        <button onClick={() => router.push('/members')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'members' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => router.push('/members')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'members' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
           <div className="relative">
             <Users size={20} className="mb-0.5" />
             {snsRequestCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{snsRequestCount}</span>}
           </div>회원관리
         </button>
-        <button onClick={() => router.push('/settlement')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'settlement' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => router.push('/settlement')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'settlement' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
           <div className="relative">
             <Wallet size={20} className="mb-0.5" />
             {settlementCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{settlementCount}</span>}
           </div>정산
         </button>
-        <button onClick={() => router.push('/cover')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'cover' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => router.push('/cover')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'cover' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
           <div className="relative">
             <Music size={20} className="mb-0.5" />
             {coverPendingCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{coverPendingCount}</span>}
           </div>커버
         </button>
-        <button onClick={() => router.push('/admin-mypage')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'mypage' ? 'text-blue-600' : 'text-gray-400'}`}>
+        <button onClick={() => router.push('/admin-mypage')} className={`flex-1 flex flex-col items-center py-3 text-xs ${active === 'mypage' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
           <UserCircle size={20} className="mb-0.5" />마이페이지
         </button>
       </div>
