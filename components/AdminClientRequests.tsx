@@ -147,7 +147,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
             <button onClick={() => setRequestPage(p => Math.max(0, p - 1))} disabled={requestPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
             <div className="flex gap-1">
               {Array.from({length: Math.ceil(filtered.length / PAGE_SIZE)}, (_, i) => (
-                <button key={i} onClick={() => setRequestPage(i)} className={`text-xs px-2 py-1 border rounded ${requestPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                <button key={i} onClick={() => setRequestPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${requestPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
               ))}
             </div>
             <button onClick={() => setRequestPage(p => Math.min(Math.ceil(filtered.length / PAGE_SIZE) - 1, p + 1))} disabled={(requestPage + 1) * PAGE_SIZE >= filtered.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>

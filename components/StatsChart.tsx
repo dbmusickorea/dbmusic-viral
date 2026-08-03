@@ -17,7 +17,7 @@ type StatsChartProps = {
 const platformConfig = {
   instagram: { label: '인스타그램', color: '#E1306C', likeLabel: '하트', textColor: 'text-pink-600' },
   youtube: { label: '유튜브', color: '#FF0000', likeLabel: '좋아요', textColor: 'text-red-600' },
-  tiktok: { label: '틱톡', color: '#000000', likeLabel: '하트', textColor: 'text-black' },
+  tiktok: { label: '틱톡', color: '#000000', likeLabel: '하트', textColor: 'text-black dark:text-white' },
 }
 
 export default function StatsChart({ data, platform, likesKey, commentsKey, viewsKey, audioKey, containerRef }: StatsChartProps) {
