@@ -38,11 +38,12 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       const data = await memberRes.json()
       setParticipant(data?.[0])
       setPointHistory(await phRes.json())
-      const memberData = await memberRes.json()
-      if (memberData?.[0]?.referral_code) {
-        const refRes = await fetch(`/api/participants?referred_by=${memberData[0].referral_code}`)
-        const refData = await refRes.json()
-        setReferredUsers(Array.isArray(refData) ? refData : [])
+      if (data?.[0]?.referral_code) {
+        try {
+          const refRes = await fetch(`/api/participants?referred_by=${data[0].referral_code}`)
+          const refData = await refRes.json()
+          setReferredUsers(Array.isArray(refData) ? refData : [])
+        } catch {}
       }
       setLoading(false)
     }
