@@ -276,7 +276,7 @@ export default function Page5() {
                     }} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium text-sm">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
+                          <p className="font-medium text-sm dark:text-white">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                           {s.paid_at && <p className="text-xs text-blue-600">정산완료: {new Date(s.paid_at).toLocaleDateString('ko-KR')}</p>}
                           {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
@@ -300,23 +300,23 @@ export default function Page5() {
                 <h2 className="font-bold mb-3 dark:text-white">💰 환전 신청 상세</h2>
                 <div className="space-y-2 text-sm">
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                    <p className="font-medium text-base">{selectedParticipant?.name ?? '-'}</p>
+                    <p className="font-medium text-base dark:text-white">{selectedParticipant?.name ?? '-'}</p>
                     {selectedParticipant?.referral_code && (
                       <p className="text-xs text-blue-600 mt-1">추천인 코드: {selectedParticipant.referral_code}</p>
                     )}
                   </div>
-                  <p>현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}P</span></p>
-                  <p>신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}P</span></p>
-                  <p>원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}P</span></p>
-                  <p>실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}P</span></p>
-                  <p>주민번호: <span className="font-medium">{decryptedResident || '-'}</span></p>
-                  <p>계좌: <span className="font-medium">{selectedParticipant?.bank_name} {decryptedAccount} ({selectedParticipant?.account_holder})</span></p>
-                  <p>상태: {statusLabel(selected.status)}</p>
+                  <p className="dark:text-gray-300">현재 잔액: <span className="font-medium">{selectedParticipant?.balance?.toLocaleString() ?? 0}P</span></p>
+                  <p className="dark:text-gray-300">신청 금액: <span className="font-medium">{selected.amount?.toLocaleString()}P</span></p>
+                  <p className="dark:text-gray-300">원천징수: <span className="font-medium">{selected.tax_amount?.toLocaleString() ?? 0}P</span></p>
+                  <p className="dark:text-gray-300">실수령액: <span className="font-medium">{selected.net_amount?.toLocaleString() ?? 0}P</span></p>
+                  <p className="dark:text-gray-300">주민번호: <span className="font-medium">{decryptedResident || '-'}</span></p>
+                  <p className="dark:text-gray-300">계좌: <span className="font-medium">{selectedParticipant?.bank_name} {decryptedAccount} ({selectedParticipant?.account_holder})</span></p>
+                  <p className="dark:text-gray-300">상태: {statusLabel(selected.status)}</p>
                 </div>
                 <div className="mt-4">
                   <label className="text-sm font-medium dark:text-white">📝 관리자 메모 (체험단에게 전달)</label>
-                  <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
-                  <button onClick={handleSaveMemo} className="w-full border rounded-lg py-2 text-sm mt-1">메모 저장</button>
+                  <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
+                  <button onClick={handleSaveMemo} className="w-full border dark:border-gray-600 dark:text-gray-300 rounded-lg py-2 text-sm mt-1">메모 저장</button>
                 </div>
                 {selected.status === 'PENDING' && (
                   <div className="flex gap-2 mt-4">
@@ -328,7 +328,7 @@ export default function Page5() {
             )}
 
             {memberPosts.length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
                 <h2 className="font-bold mb-3 dark:text-white">📋 체험단 게시물 내역</h2>
                 <div className="space-y-2">
                   {memberPosts.slice(memberPostPage * PAGE_SIZE, (memberPostPage + 1) * PAGE_SIZE).map((post) => (
@@ -349,9 +349,9 @@ export default function Page5() {
                 </div>
                 {memberPosts.length > PAGE_SIZE && (
                   <div className="flex justify-between items-center mt-3">
-                    <button onClick={() => setMemberPostPage(p => Math.max(0, p - 1))} disabled={memberPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                    <button onClick={() => setMemberPostPage(p => Math.max(0, p - 1))} disabled={memberPostPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                     <span className="text-xs text-gray-500 dark:text-gray-400">{memberPostPage + 1} / {Math.ceil(memberPosts.length / PAGE_SIZE)}</span>
-                    <button onClick={() => setMemberPostPage(p => Math.min(Math.ceil(memberPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(memberPostPage + 1) * PAGE_SIZE >= memberPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                    <button onClick={() => setMemberPostPage(p => Math.min(Math.ceil(memberPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(memberPostPage + 1) * PAGE_SIZE >= memberPosts.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                   </div>
                 )}
               </div>
