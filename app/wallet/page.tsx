@@ -218,7 +218,7 @@ export default function WalletPage() {
     memo: s.memo,
   }))
 
-  const adminHistory = pointHistory.filter(ph => !ph.memo?.includes('친구추천 보상')).map(ph => ({
+  const adminHistory = pointHistory.map(ph => ({
     type: ph.amount < 0 ? 'deduct' : 'admin',
     date: ph.created_at,
     label: ph.memo || '관리자 지급',
@@ -226,12 +226,12 @@ export default function WalletPage() {
     amount: ph.amount,
   }))
 
-  const allHistory = [...exchangeHistory, ...referralHistory, ...adminHistory].sort(
+  const allHistory = [...exchangeHistory, ...adminHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
   const filteredHistory = filter === 'earn'
-    ? [...referralHistory, ...adminHistory.filter(h => h.amount > 0)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    ? [...adminHistory.filter(h => h.amount > 0)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : filter === 'exchange'
     ? [...exchangeHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : allHistory
