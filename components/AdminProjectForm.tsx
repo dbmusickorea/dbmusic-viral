@@ -439,6 +439,24 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       )}
                     </div>
                   </div>
+
+                  {selectedProject && (
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <p className="text-xs text-gray-400 mb-2">⚠️ 위험 구역</p>
+                      <button onClick={async () => {
+                        const input = prompt(`프로젝트를 삭제하려면 프로젝트 코드를 입력하세요.
+
+코드: ${selectedProject.project_code}`)
+                        if (input !== selectedProject.project_code) { showToast('코드가 일치하지 않아요.'); return }
+                        if (!confirm('정말 삭제하시겠어요? 이 작업은 되돌릴 수 없어요.')) return
+                        await fetch(`/api/projects?project_code=${selectedProject.project_code}`, { method: 'DELETE' })
+                        showToast('프로젝트가 삭제됐어요.')
+                        window.location.reload()
+                      }} className="w-full bg-red-50 text-red-500 border border-red-300 rounded-lg py-2 text-sm font-medium">
+                        🗑️ 프로젝트 삭제
+                      </button>
+                    </div>
+                  )}
     </>
   )
 }
