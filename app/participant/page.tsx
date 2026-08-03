@@ -11,6 +11,7 @@ import { useToast } from '../../components/ToastContext'
 import BottomNav from '../../components/BottomNav'
 import Header from '../../components/Header'
 import ParticipantTutorial from '../../components/ParticipantTutorial'
+import ParticipantPostList from '../../components/ParticipantPostList'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -545,6 +546,33 @@ useEffect(() => {
     const res = await fetch(`/api/settlements?member_id=${id}`)
     const data = await res.json()
     setMySettlements(data ?? [])
+  }
+
+  const handleDeleteMyPost = async (post: any) => {
+    if (!confirm('게시물을 삭제하시겠어요? 적립금도 차감됩니다.')) return
+    setIsDeletingPost(true)
+    const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
+    const freshData = await freshRes.json()
+    const currentBalance = freshData?.[0]?.balance ?? 0
+    const baseAmount = projectsMap[post.project_code?.toUpperCase()]?.reward_per_post ?? 0
+    const myAmount = getLevelAmount(baseAmount, level)
+    const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) + myAmount : myAmount
+    if (deductAmount > 0) {
+      await fetch(`/api/participants?id=${userInfo?.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
+      })
+      await fetch('/api/point_history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})`, project_code: post.project_code })
+      })
+    }
+    await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
+    fetchMyPostsAndProjects(userInfo?.id)
+    showToast('게시물이 삭제됐어요.')
+    setIsDeletingPost(false)
   }
 
   const fetchMyPostsAndProjects = async (id: number) => {
@@ -1153,113 +1181,33 @@ useEffect(() => {
               </div>
             )}
             {/* 게시물 현황 */}
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold">📊 나의 게시물 현황</h2>
-                <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
-              </div>
-              <div className="flex gap-2 mb-3">
-                <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'current' || !showParticipation) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-                <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'all' || !showParticipation) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
-              </div>
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <div className="bg-gray-50 rounded-lg p-3 col-span-3">
-                  <p className="text-xs text-gray-500">총 게시물</p>
-                  <p className="text-xl font-bold text-blue-600">{displayPosts.length}개</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">인스타그램</p>
-                  <p className="text-lg font-bold">{instagramPosts.length}개</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">유튜브</p>
-                  <p className="text-lg font-bold">{youtubePosts.length}개</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">틱톡</p>
-                  <p className="text-lg font-bold">{tiktokPosts.length}개</p>
-                </div>
-              </div>
-              {showPosts && (
-                <div className="space-y-2">
-                  {displayPosts.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
-                  ) : (
-                    <>
-                      {displayPosts.slice(myPostPage * PAGE_SIZE, (myPostPage + 1) * PAGE_SIZE).map((post) => {
-                        const baseAmount = projectsMap[post.project_code?.toUpperCase()]?.reward_per_post ?? 0
-                        const myAmount = getLevelAmount(baseAmount, level)
-                        return (
-                          <div key={post.id} className="border rounded-lg p-3">
-                            <div className="flex justify-between items-start">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-1 mb-1">
-                                  <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
-                                  {statusBadge(post.project_code)}
-                                </div>
-                                <p className="text-xs text-gray-400">
-                                  {projectsMap[post.project_code?.toUpperCase()]?.artist_name 
-                                    ? `${projectsMap[post.project_code?.toUpperCase()].artist_name} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''}`
-                                    : post.project_code}
-                                </p>
-                                <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
-                                <button onClick={() => {
-                                  const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                                  if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
-                                }} className="text-xs text-orange-500 mt-1 block">URL 수정</button>
-                              </div>
-                              <div className="text-right shrink-0 ml-2">
-                                <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
-                                <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
-                                {post.is_cover && (
-                                  <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
-                                )}
-                                <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
-                                <button disabled={isDeletingPost} onClick={async () => {
-                                  if (!confirm('게시물을 삭제하시겠어요? 적립금도 차감됩니다.')) return
-                                  setIsDeletingPost(true)
-                                  const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
-                                  const freshData = await freshRes.json()
-                                  const currentBalance = freshData?.[0]?.balance ?? 0
-                                  const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) + myAmount : myAmount
-                                  if (deductAmount > 0) {
-                                    await fetch(`/api/participants?id=${userInfo?.id}`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
-                                    })
-                                    await fetch('/api/point_history', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})`, project_code: post.project_code })
-                                    })
-                                  }
-                                  await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
-                                  fetchMyPostsAndProjects(userInfo?.id)
-                                  showToast('게시물이 삭제됐어요.')
-                                  setIsDeletingPost(false)
-                                }} className="text-xs text-red-400 mt-1">삭제</button>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                      {displayPosts.length > PAGE_SIZE && (
-                        <div className="flex justify-between items-center mt-3">
-                          <button onClick={() => setMyPostPage(p => Math.max(0, p - 1))} disabled={myPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                          <div className="flex gap-1">
-                            {Array.from({length: Math.ceil(displayPosts.length / PAGE_SIZE)}, (_, i) => (
-                              <button key={i} onClick={() => setMyPostPage(i)} className={`text-xs px-2 py-1 border rounded ${myPostPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
-                            ))}
-                          </div>
-                          <button onClick={() => setMyPostPage(p => Math.min(Math.ceil(displayPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(myPostPage + 1) * PAGE_SIZE >= displayPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+            <ParticipantPostList
+              displayPosts={displayPosts}
+              instagramPosts={instagramPosts}
+              youtubePosts={youtubePosts}
+              tiktokPosts={tiktokPosts}
+              showPosts={showPosts}
+              setShowPosts={setShowPosts}
+              postFilter={postFilter}
+              setPostFilter={setPostFilter}
+              setParticipationFilter={setParticipationFilter}
+              setSelectedParticipation={setSelectedParticipation}
+              setShowParticipation={setShowParticipation}
+              myPostPage={myPostPage}
+              setMyPostPage={setMyPostPage}
+              PAGE_SIZE={PAGE_SIZE}
+              level={level}
+              coverReward={coverReward}
+              projectsMap={projectsMap}
+              isDeletingPost={isDeletingPost}
+              onDeletePost={handleDeleteMyPost}
+              onUrlEdit={(post) => {
+                const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
+                if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
+              }}
+              statusBadge={statusBadge}
+              getLevelAmount={getLevelAmount}
+            />
 
             {/* 내 참여 현황 */}
             {showParticipation && myParticipations.length > 0 && (() => {
