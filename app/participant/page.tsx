@@ -551,6 +551,40 @@ useEffect(() => {
     setMySettlements(data ?? [])
   }
 
+  const handleCancelParticipation = async (p: any) => {
+    if (!confirm('참여를 취소하시겠어요? 취소 후 재참여가 불가합니다.')) return
+    await fetch(`/api/project_participants?id=${p.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'CANCELLED' })
+    })
+    await fetch(`/api/projects?project_code=${p.project_code}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_participants: Math.max(0, (p.projects?.current_participants ?? 1) - 1) })
+    })
+    if (p.projects?.max_participants > 0) {
+      const tokenRes = await fetch('/api/push_tokens?user_role=participant')
+      const tokens = await tokenRes.json()
+      if (tokens && tokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '🎵 참여 공석이 생겼어요!',
+            body: `${p.projects?.artist_name || p.projects?.client_name} - ${p.projects?.song_title} 프로젝트에 공석이 생겼어요. 지금 바로 참여하세요!`,
+            tokens: tokens.map((t: any) => t.token),
+            userIds: tokens.map((t: any) => t.user_id),
+            saveToRole: 'participant'
+          })
+        })
+      }
+    }
+    setMyParticipations(prev => prev.map(mp => mp.project_code === p.project_code ? {...mp, status: 'CANCELLED'} : mp))
+    setSelectedParticipation(null)
+    showToast('참여가 취소됐어요.')
+  }
+
   const handleAcceptCoverRequest = async (r: any) => {
     const confirmed = confirm(
       `커버영상 미션을 수락하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내에 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
@@ -1328,41 +1362,7 @@ useEffect(() => {
                         )}
                         {p.status !== 'CANCELLED' && p.projects?.status === 'ONGOING' && p.joined_at && 
                           (new Date().getTime() - new Date(p.joined_at).getTime()) < 3 * 60 * 60 * 1000 && (
-                          <button onClick={async (e) => {
-                            e.stopPropagation()
-                            if (!confirm('참여를 취소하시겠어요? 취소 후 재참여가 불가합니다.')) return
-                            await fetch(`/api/project_participants?id=${p.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ status: 'CANCELLED' })
-                            })
-                            await fetch(`/api/projects?project_code=${p.project_code}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ current_participants: Math.max(0, (p.projects?.current_participants ?? 1) - 1) })
-                            })
-                            // 공석 알림
-                            if (p.projects?.max_participants > 0) {
-                              const tokenRes = await fetch('/api/push_tokens?user_role=participant')
-                              const tokens = await tokenRes.json()
-                              if (tokens && tokens.length > 0) {
-                                await fetch('/api/push', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    title: '🎵 참여 공석이 생겼어요!',
-                                    body: `${p.projects?.artist_name || p.projects?.client_name} - ${p.projects?.song_title} 프로젝트에 공석이 생겼어요. 지금 바로 참여하세요!`,
-                                    tokens: tokens.map((t: any) => t.token),
-                                    userIds: tokens.map((t: any) => t.user_id),
-                                    saveToRole: 'participant'
-                                  })
-                                })
-                              }
-                            }
-                            setMyParticipations(prev => prev.map(mp => mp.project_code === p.project_code ? {...mp, status: 'CANCELLED'} : mp))
-                            setSelectedParticipation(null)
-                            showToast('참여가 취소됐어요.')
-                          }} className="mt-2 w-full text-xs text-red-400 border border-red-200 rounded-lg py-1.5">참여 취소 (3시간 이내 가능)</button>
+                          <button onClick={(e) => { e.stopPropagation(); handleCancelParticipation(p) }} className="mt-2 w-full text-xs text-red-400 border border-red-200 rounded-lg py-1.5">참여 취소 (3시간 이내 가능)</button>
                         )}
                       </div>
                     ))}
