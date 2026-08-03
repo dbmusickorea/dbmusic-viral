@@ -21,25 +21,20 @@ import PlatformIcon from '../../components/PlatformIcon'
 
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
-  const [shortsUrl1, setShortsUrl1] = useState('')
-  const [maxParticipants, setMaxParticipants] = useState('')
-  const [missionDate, setMissionDate] = useState('')
-  const [missionTime, setMissionTime] = useState('')
-  const [shortsUrl2, setShortsUrl2] = useState('')
-  const [playlistUrl, setPlaylistUrl] = useState('')
+  const [formData, setFormData] = useState({
+    artistName: '', songTitle: '', clientName: '', projectCode: '', projectPrefix: '',
+    productContent: '', requirements: '', status: 'PENDING',
+    startDate: '', endDate: '', startTime: '', endTime: '',
+    missionDate: '', missionTime: '', maxParticipants: '', rewardPerPost: '2500',
+    requiredPosts: '1', refreshInterval: '' as string, monitoringExtension: 0, coverVideoCount: 0,
+    coverRewardAmount: '', shortsUrl1: '', shortsUrl2: '', playlistUrl: '',
+    instagramAudioId: '', tiktokAudioId: '', youtubeAudioId: '',
+    secondPostDate: '', secondPostTime: '', coverImageUrl: '', selectedClientId: '',
+    projectLinks: [{ platform: 'youtube_shorts', url: '', isNew: true }] as any[],
+    optionName: '', optionPrice: '',
+  })
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const [clientName, setClientName] = useState('')
-  const [projectCode, setProjectCode] = useState('')
-  const [projectPrefix, setProjectPrefix] = useState('')
-  const [productContent, setProductContent] = useState('')
-  const [requirements, setRequirements] = useState('')
-  const [status, setStatus] = useState('PENDING')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [rewardPerPost, setRewardPerPost] = useState('2500')
-  const [optionName, setOptionName] = useState('')
-  const [optionPrice, setOptionPrice] = useState('')
   const [isUpdatingLikes, setIsUpdatingLikes] = useState(false)
   const [posts, setPosts] = useState<any[]>([])
   const [updatingPostId, setUpdatingPostId] = useState<number | null>(null)
@@ -48,7 +43,6 @@ export default function Page1() {
   const [newProductPrice, setNewProductPrice] = useState('')
   const [showProductManager, setShowProductManager] = useState(false)
   const [clients, setClients] = useState<any[]>([])
-  const [selectedClientId, setSelectedClientId] = useState('')
   const [clientSearch, setClientSearch] = useState('')
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
@@ -59,17 +53,12 @@ export default function Page1() {
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [unlockVideos, setUnlockVideos] = useState<any[]>([])
   const [newUnlockUrl, setNewUnlockUrl] = useState('')
-  const [requiredPosts, setRequiredPosts] = useState('1')
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null)
-  const [refreshInterval, setRefreshInterval] = useState<string>('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [coverPosts, setCoverPosts] = useState<any[]>([])
-  const [coverRewardAmount, setCoverRewardAmount] = useState('')
   const [topRanker, setTopRanker] = useState<any>(null)
-  const [monitoringExtension, setMonitoringExtension] = useState(0)
-  const [coverVideoCount, setCoverVideoCount] = useState(0)
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -78,23 +67,12 @@ export default function Page1() {
   const [activeTab, setActiveTab] = useState<'left' | 'right'>('left')
   const [adminPostPage, setAdminPostPage] = useState(0)
   const [participantPage, setParticipantPage] = useState(0)
-  const [songTitle, setSongTitle] = useState('')
   const [pushTarget, setPushTarget] = useState<'all' | 'participant' | 'client'>('all')
-  const [instagramAudioId, setInstagramAudioId] = useState('')
-  const [tiktokAudioId, setTiktokAudioId] = useState('')
-  const [projectLinks, setProjectLinks] = useState<any[]>([{ platform: '', url: '', isNew: true }])
-  const [startTime, setStartTime] = useState('')
-  const [endTime, setEndTime] = useState('')
-  const [artistName, setArtistName] = useState('')
-  const [secondPostDate, setSecondPostDate] = useState('')
-  const [secondPostTime, setSecondPostTime] = useState('')
   const [artistList, setArtistList] = useState<any[]>([])
   const [replyText, setReplyText] = useState<{[key: number]: string}>({})
   const [expandedReply, setExpandedReply] = useState<{[key: number]: boolean}>({})
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
-  const [coverImageUrl, setCoverImageUrl] = useState('')
   const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
-  const [youtubeAudioId, setYoutubeAudioId] = useState('')
   const [showSidebar, setShowSidebar] = useState(false)
   const PAGE_SIZE = 5
   const router = useRouter()
@@ -173,8 +151,8 @@ export default function Page1() {
   }
 
   const handleApproveCover = async (post: any, type: string = 'long') => {
-    if (!coverRewardAmount) { showToast('지급할 금액을 입력해주세요.'); return }
-    const reward = Number(coverRewardAmount)
+    if (!formData.coverRewardAmount) { showToast('지급할 금액을 입력해주세요.'); return }
+    const reward = Number(formData.coverRewardAmount)
     
     // 커버영상 승인 처리
     await fetch(`/api/posts?id=${post.id}`, {
@@ -215,7 +193,7 @@ export default function Page1() {
     }
     
     showToast('승인 완료!')
-    setCoverRewardAmount('')
+    setFormData(prev => ({...prev, coverRewardAmount: ''}))
     fetchCoverPosts()
   }
 
@@ -382,13 +360,13 @@ export default function Page1() {
   // 알파벳 입력 시 자동으로 프로젝트 코드 생성
   const handlePrefixChange = async (prefix: string) => {
     const upper = prefix.toUpperCase().replace(/[^A-Z]/g, '')
-    setProjectPrefix(upper)
-    if (!upper) { setProjectCode(''); return }
+    setFormData(prev => ({...prev, projectPrefix: upper}))
+    if (!upper) { setFormData(prev => ({...prev, projectCode: ''})); return }
 
     const res = await fetch(`/api/projects?prefix=${upper}`)
     const data = await res.json()
     const nextNum = (data?.length ?? 0) + 1
-    setProjectCode(`${upper}_${nextNum}`)
+    setFormData(prev => ({...prev, projectCode: `${upper}_${nextNum}`}))
   }
 
   const handleSelectProject = (project: any) => {
@@ -398,47 +376,49 @@ export default function Page1() {
     }
     setSelectedProject(project)
     setActiveTab('right')
-    setClientName(project.client_name ?? '')
-    setArtistName(project.artist_name ?? '')
-    setProjectCode(project.project_code ?? '')
-    setProjectPrefix(project.project_code?.split('_')[0] ?? '')
-    setProductContent(project.product_content ?? '')
-    setSongTitle(project.song_title ?? '')
-    setCoverImageUrl(project.cover_image_url ?? '')
     setCoverImageFile(null)
-    setInstagramAudioId(project.instagram_audio_id ?? '')
-    setTiktokAudioId(project.tiktok_audio_id ?? '')
-    setRequirements(project.requirements ?? '')
-    setStatus(project.status ?? 'PENDING')
-    setStartDate(project.start_date ? project.start_date.substring(0, 10) : '')
-    setEndDate(project.end_date ? project.end_date.substring(0, 10) : '')
-    setRewardPerPost(project.reward_per_post ?? '')
-    setOptionName(project.option_name ?? '')
-    setOptionPrice(project.option_price ?? '')
-    setMonitoringExtension(project.monitoring_extension ?? 0)
-    setCoverVideoCount(project.cover_video_count ?? 0)
-    setSelectedClientId(project.client_id ?? '')
-    setYoutubeAudioId(project.youtube_audio_id ?? '')
-    setShortsUrl1('')
-    setShortsUrl2('')
-    setPlaylistUrl('')
-    setStartTime(project.start_time ?? '')
-    setEndTime(project.end_time ?? '')
-    setMaxParticipants(project.max_participants ?? '')
-    setMissionDate(project.mission_date ?? '')
-    setMissionTime(project.mission_time ?? '')
-    setRequiredPosts(String(project.required_posts ?? 1))
-    setRefreshInterval(String(project.refresh_interval ?? ''))
+    setFormData(prev => ({ ...prev,
+      clientName: project.client_name ?? '',
+      artistName: project.artist_name ?? '',
+      projectCode: project.project_code ?? '',
+      projectPrefix: project.project_code?.split('_')[0] ?? '',
+      productContent: project.product_content ?? '',
+      songTitle: project.song_title ?? '',
+      coverImageUrl: project.cover_image_url ?? '',
+      instagramAudioId: project.instagram_audio_id ?? '',
+      tiktokAudioId: project.tiktok_audio_id ?? '',
+      requirements: project.requirements ?? '',
+      status: project.status ?? 'PENDING',
+      startDate: project.start_date ? project.start_date.substring(0, 10) : '',
+      endDate: project.end_date ? project.end_date.substring(0, 10) : '',
+      rewardPerPost: String(project.reward_per_post ?? ''),
+      optionName: project.option_name ?? '',
+      optionPrice: project.option_price ?? '',
+      monitoringExtension: project.monitoring_extension ?? 0,
+      coverVideoCount: project.cover_video_count ?? 0,
+      selectedClientId: project.client_id ?? '',
+      youtubeAudioId: project.youtube_audio_id ?? '',
+      shortsUrl1: '', shortsUrl2: '', playlistUrl: '',
+      startTime: project.start_time ?? '',
+      endTime: project.end_time ?? '',
+      maxParticipants: String(project.max_participants ?? ''),
+      missionDate: project.mission_date ?? '',
+      missionTime: project.mission_time ?? '',
+      requiredPosts: String(project.required_posts ?? 1),
+      refreshInterval: String(project.refresh_interval ?? ''),
+      secondPostDate: project.second_post_date ?? '',
+      secondPostTime: project.second_post_time ?? '',
+    }))
     fetchPosts(project.project_code)
-    setSecondPostDate(project.second_post_date ?? '')
-    setSecondPostTime(project.second_post_time ?? '')
     fetch(`/api/project_videos?project_code=${project.project_code}`)
       .then(res => res.json())
       .then(data => {
         if (data) {
-          setShortsUrl1(data.shorts_url_1 ?? '')
-          setShortsUrl2(data.shorts_url_2 ?? '')
-          setPlaylistUrl(data.playlist_url ?? '')
+          setFormData(prev => ({ ...prev,
+            shortsUrl1: data.shorts_url_1 ?? '',
+            shortsUrl2: data.shorts_url_2 ?? '',
+            playlistUrl: data.playlist_url ?? '',
+          }))
         }
       })
     fetchParticipants(project.project_code)
@@ -447,22 +427,22 @@ export default function Page1() {
       .then(res => res.json())
       .then(data => {
         const existing = Array.isArray(data) ? data.map((link: any) => ({ ...link, isNew: false })) : []
-        setProjectLinks([...existing, { platform: 'youtube_shorts', url: '', isNew: true }])
+        setFormData(prev => ({...prev, projectLinks: [...existing, { platform: 'youtube_shorts', url: '', isNew: true }]}))
       })
   }
 
   const getSelectedProductPrice = () => {
-    const product = products.find(p => p.name === productContent)
+    const product = products.find(p => p.name === formData.productContent)
     return product?.price ?? 0
   }
 
   const getTotalCost = () => {
     const productPrice = getSelectedProductPrice()
-    const option = Number(optionPrice) || 0
-    const monitoring = monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : monitoringExtension === 45 ? 600000 : 0
-    const traffic = refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : refreshInterval === '1' ? 800000 : 0
-    const cover = coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : coverVideoCount === 30 ? 4500000 : 0
-    const extraPosts = Number(requiredPosts) === 2 ? Math.floor(productPrice * 0.5) : 0
+    const option = Number(formData.optionPrice) || 0
+    const monitoring = formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : formData.monitoringExtension === 45 ? 600000 : 0
+    const traffic = formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : formData.refreshInterval === '1' ? 800000 : 0
+    const cover = formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : formData.coverVideoCount === 30 ? 4500000 : 0
+    const extraPosts = Number(formData.requiredPosts) === 2 ? Math.floor(productPrice * 0.5) : 0
     return productPrice + option + monitoring + traffic + cover + extraPosts
   }
 
@@ -476,12 +456,12 @@ export default function Page1() {
     const existing = await existingRes.json()
     const data = {
       project_code: projectCode,
-      shorts_url_1: shortsUrl1 || null,
-      shorts_video_id_1: shortsUrl1 ? extractVideoId(shortsUrl1) : null,
-      shorts_url_2: shortsUrl2 || null,
-      shorts_video_id_2: shortsUrl2 ? extractVideoId(shortsUrl2) : null,
-      playlist_url: playlistUrl || null,
-      playlist_video_id: playlistUrl ? extractVideoId(playlistUrl) : null,
+      shorts_url_1: formData.shortsUrl1 || null,
+      shorts_video_id_1: formData.shortsUrl1 ? extractVideoId(formData.shortsUrl1) : null,
+      shorts_url_2: formData.shortsUrl2 || null,
+      shorts_video_id_2: formData.shortsUrl2 ? extractVideoId(formData.shortsUrl2) : null,
+      playlist_url: formData.playlistUrl || null,
+      playlist_video_id: formData.playlistUrl ? extractVideoId(formData.playlistUrl) : null,
     }
     if (existing) {
       await fetch(`/api/project_videos?project_code=${projectCode}`, {
@@ -499,7 +479,7 @@ export default function Page1() {
   }
 
   const saveProjectLinks = async (projectCode: string) => {
-    for (const link of projectLinks) {
+    for (const link of formData.projectLinks) {
       if (!link.url) continue
       
       const videoId = extractVideoId(link.url)
@@ -550,18 +530,18 @@ export default function Page1() {
     // 저장 후 최신 데이터 다시 불러오기
     const res = await fetch(`/api/project_links?project_code=${projectCode}`)
     const data = await res.json()
-    setProjectLinks(data ?? [])
+    setFormData(prev => ({...prev, projectLinks: data ?? []}))
   }
 
   const handleInsert = async () => {
-    if (!projectCode) { showToast('프로젝트 코드를 입력해주세요.'); return }
+    if (!formData.projectCode) { showToast('프로젝트 코드를 입력해주세요.'); return }
     
     // 이미지 업로드
     let uploadedImageUrl = ''
     if (coverImageFile) {
       const { data, error } = await supabase.storage
         .from('covers')
-        .upload(`${projectCode.toUpperCase()}_${Date.now()}`, coverImageFile, { upsert: true })
+        .upload(`${formData.projectCode.toUpperCase()}_${Date.now()}`, coverImageFile, { upsert: true })
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
@@ -572,55 +552,55 @@ export default function Page1() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        project_code: projectCode.toUpperCase(),
-        client_name: clientName,
-        product_content: productContent,
-        song_title: songTitle,
-        artist_name: artistName || null,
+        project_code: formData.projectCode.toUpperCase(),
+        client_name: formData.clientName,
+        product_content: formData.productContent,
+        song_title: formData.songTitle,
+        artist_name: formData.artistName || null,
         cover_image_url: uploadedImageUrl || null,
-        instagram_audio_id: instagramAudioId || null,
-        tiktok_audio_id: tiktokAudioId || null,
-        youtube_audio_id: youtubeAudioId || null,
-        requirements,
-        status,
-        start_date: startDate || null,
-        end_date: endDate || null,
-        reward_per_post: Number(rewardPerPost) || 2500,
-        max_participants: Number(maxParticipants) || 0,
-        mission_date: missionDate || null,
-        mission_time: missionTime || null,
-        option_name: optionName || null,
-        option_price: Number(optionPrice) || null,
-        client_id: selectedClientId || null,
-        required_posts: Number(requiredPosts) || 1,
-        refresh_interval: refreshInterval ? Number(refreshInterval) : null,
-        base_refresh_interval: productContent.includes('프리미엄') || productContent.includes('메가') ? 6 : 12,
-        monitoring_extension: Number(monitoringExtension) || 0,
-        cover_video_count: Number(coverVideoCount) || 0,
-        start_time: startTime || null,
-        end_time: endTime || null,
-        second_post_date: secondPostDate || null,
-        second_post_time: secondPostTime || null,
+        instagram_audio_id: formData.instagramAudioId || null,
+        tiktok_audio_id: formData.tiktokAudioId || null,
+        youtube_audio_id: formData.youtubeAudioId || null,
+        requirements: formData.requirements,
+        status: formData.status,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        reward_per_post: Number(formData.rewardPerPost) || 2500,
+        max_participants: Number(formData.maxParticipants) || 0,
+        mission_date: formData.missionDate || null,
+        mission_time: formData.missionTime || null,
+        option_name: formData.optionName || null,
+        option_price: Number(formData.optionPrice) || null,
+        client_id: formData.selectedClientId || null,
+        required_posts: Number(formData.requiredPosts) || 1,
+        refresh_interval: formData.refreshInterval ? Number(formData.refreshInterval) : null,
+        base_refresh_interval: formData.productContent.includes('프리미엄') || formData.productContent.includes('메가') ? 6 : 12,
+        monitoring_extension: Number(formData.monitoringExtension) || 0,
+        cover_video_count: Number(formData.coverVideoCount) || 0,
+        start_time: formData.startTime || null,
+        end_time: formData.endTime || null,
+        second_post_date: formData.secondPostDate || null,
+        second_post_time: formData.secondPostTime || null,
       })
     })
     if (!res.ok) { showToast('등록 실패!'); return }
-    if (selectedClientId) {
-      await fetch(`/api/users?client_id=${selectedClientId}`, {
+    if (formData.selectedClientId) {
+      await fetch(`/api/users?client_id=${formData.selectedClientId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_code: projectCode.toUpperCase() })
+        body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
       })
     }
-    await saveProjectVideos(projectCode.toUpperCase())
-    await saveProjectLinks(projectCode.toUpperCase())
+    await saveProjectVideos(formData.projectCode.toUpperCase())
+    await saveProjectLinks(formData.projectCode.toUpperCase())
     
     // 신청에서 불러온 경우 project_code 저장
-    const approvedApp = projectApplications.find(a => a.status === 'APPROVED' && !a.project_code && a.artist_name === artistName && a.song_title === songTitle)
+    const approvedApp = projectApplications.find(a => a.status === 'APPROVED' && !a.project_code && a.artist_name === formData.artistName && a.song_title === formData.songTitle)
     if (approvedApp) {
       await fetch(`/api/project_applications?id=${approvedApp.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_code: projectCode.toUpperCase() })
+        body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
       })
       fetchProjectApplications()
     }
@@ -634,7 +614,7 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 새 프로젝트가 등록됐어요!',
-          body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 등록됐어요. 모집일: ${missionDate || '미정'}. 앱에서 확인해보세요!`,
+          body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 등록됐어요. 모집일: ${formData.missionDate || '미정'}. 앱에서 확인해보세요!`,
           tokens: participantTokens.map((t: any) => t.token),
           userIds: participantTokens.map((t: any) => t.user_id),
           saveToRole: 'participant'
@@ -643,8 +623,8 @@ export default function Page1() {
     }
 
     // 해당 의뢰인에게만 푸시
-    if (selectedClientId) {
-      const clientUserRes = await fetch(`/api/users?client_id=${selectedClientId}`)
+    if (formData.selectedClientId) {
+      const clientUserRes = await fetch(`/api/users?client_id=${formData.selectedClientId}`)
       const clientUserData = await clientUserRes.json()
       const clientUser = clientUserData?.[0]
       if (clientUser) {
@@ -656,7 +636,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 프로젝트가 등록됐어요!',
-              body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
+              body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
               tokens: clientTokens.map((t: any) => t.token),
               userIds: [String(clientUser.id)]
             })
@@ -690,49 +670,49 @@ export default function Page1() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        client_name: clientName,
-        product_content: productContent,
-        song_title: songTitle,
-        artist_name: artistName || null,
+        client_name: formData.clientName,
+        product_content: formData.productContent,
+        song_title: formData.songTitle,
+        artist_name: formData.artistName || null,
         cover_image_url: uploadedImageUrl || null,
-        instagram_audio_id: instagramAudioId || null,
-        tiktok_audio_id: tiktokAudioId || null,
-        youtube_audio_id: youtubeAudioId || null,
-        requirements,
-        status,
-        start_date: startDate || null,
-        end_date: endDate || null,
-        reward_per_post: Number(rewardPerPost) || 2500,
-        max_participants: Number(maxParticipants) || 0,
-        mission_date: missionDate || null,
-        mission_time: missionTime || null,
-        option_name: optionName || null,
-        option_price: Number(optionPrice) || null,
-        client_id: selectedClientId || null,
-        required_posts: Number(requiredPosts) || 1,
-        refresh_interval: refreshInterval ? Number(refreshInterval) : null,
-        base_refresh_interval: productContent.includes('프리미엄') || productContent.includes('메가') ? 6 : 12,
-        monitoring_extension: Number(monitoringExtension) || 0,
-        cover_video_count: Number(coverVideoCount) || 0,
-        start_time: startTime || null,
-        end_time: endTime || null,
-        second_post_date: secondPostDate || null,
-        second_post_time: secondPostTime || null,
+        instagram_audio_id: formData.instagramAudioId || null,
+        tiktok_audio_id: formData.tiktokAudioId || null,
+        youtube_audio_id: formData.youtubeAudioId || null,
+        requirements: formData.requirements,
+        status: formData.status,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        reward_per_post: Number(formData.rewardPerPost) || 2500,
+        max_participants: Number(formData.maxParticipants) || 0,
+        mission_date: formData.missionDate || null,
+        mission_time: formData.missionTime || null,
+        option_name: formData.optionName || null,
+        option_price: Number(formData.optionPrice) || null,
+        client_id: formData.selectedClientId || null,
+        required_posts: Number(formData.requiredPosts) || 1,
+        refresh_interval: formData.refreshInterval ? Number(formData.refreshInterval) : null,
+        base_refresh_interval: formData.productContent.includes('프리미엄') || formData.productContent.includes('메가') ? 6 : 12,
+        monitoring_extension: Number(formData.monitoringExtension) || 0,
+        cover_video_count: Number(formData.coverVideoCount) || 0,
+        start_time: formData.startTime || null,
+        end_time: formData.endTime || null,
+        second_post_date: formData.secondPostDate || null,
+        second_post_time: formData.secondPostTime || null,
       })
     })
     if (!res.ok) { showToast('수정 실패!'); return }
-    if (selectedClientId) {
-      await fetch(`/api/users?client_id=${selectedClientId}`, {
+    if (formData.selectedClientId) {
+      await fetch(`/api/users?client_id=${formData.selectedClientId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_code: projectCode.toUpperCase() })
+        body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
       })
     }
-    await saveProjectLinks(projectCode.toUpperCase())
+    await saveProjectLinks(formData.projectCode.toUpperCase())
 
     // 프로젝트 상태 변경 시 푸시
-    if (status === 'COMPLETED') {
-      const joinedRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
+    if (formData.status === 'COMPLETED') {
+      const joinedRes = await fetch(`/api/project_participants?project_code=${formData.projectCode}`)
       const joinedTokens = await joinedRes.json()
       if (joinedTokens && joinedTokens.length > 0) {
         const memberIds = joinedTokens.map((j: any) => String(j.member_id))
@@ -744,7 +724,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '📢 프로젝트가 종료됐어요!',
-              body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 종료됐어요. 환전 신청을 확인해보세요!`,
+              body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 종료됐어요. 환전 신청을 확인해보세요!`,
               tokens: tokens.map((t: any) => t.token),
               userIds: tokens.map((t: any) => t.user_id)
             })
@@ -760,7 +740,7 @@ export default function Page1() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '📢 프로젝트가 종료됐어요!',
-            body: `${artistName || productContent} - ${songTitle || productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
+            body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
             tokens: clientTokens.map((t: any) => t.token),
             userIds: clientTokens.map((t: any) => t.user_id)
           })
@@ -943,26 +923,21 @@ export default function Page1() {
 
   const clearForm = () => {
     setSelectedProject(null)
-    setClientName(''); setProjectCode(''); setProjectPrefix(''); setProductContent('')
-    setArtistName('')
-    setRequirements(''); setStatus('PENDING'); setStartDate('')
-    setEndDate(''); setRewardPerPost(''); setOptionName(''); setOptionPrice('')
-    setSelectedClientId(''); setClientSearch('')
-    setSongTitle('')
-    setInstagramAudioId('')
-    setTiktokAudioId('')
-    setYoutubeAudioId('')
+    setClientSearch('')
     setPosts([])
-    setStartTime('')
-    setEndTime('')
-    setMaxParticipants(''); setMissionDate(''); setMissionTime('')
-    setShortsUrl1(''); setShortsUrl2(''); setPlaylistUrl('')
-    setRequiredPosts('1')
-    setRefreshInterval('')
-    setSecondPostDate('')
-    setSecondPostTime('')
     setArtistList([])
-    setProjectLinks([{ platform: 'youtube_shorts', url: '', isNew: true }])
+    setFormData({
+      artistName: '', songTitle: '', clientName: '', projectCode: '', projectPrefix: '',
+      productContent: '', requirements: '', status: 'PENDING',
+      startDate: '', endDate: '', startTime: '', endTime: '',
+      missionDate: '', missionTime: '', maxParticipants: '', rewardPerPost: '',
+      requiredPosts: '1', refreshInterval: '', monitoringExtension: 0, coverVideoCount: 0,
+      coverRewardAmount: '', shortsUrl1: '', shortsUrl2: '', playlistUrl: '',
+      instagramAudioId: '', tiktokAudioId: '', youtubeAudioId: '',
+      secondPostDate: '', secondPostTime: '', coverImageUrl: '', selectedClientId: '',
+      projectLinks: [{ platform: 'youtube_shorts', url: '', isNew: true }],
+      optionName: '', optionPrice: '',
+    })
   }
 
   const handleLogout = () => {
@@ -1172,12 +1147,7 @@ export default function Page1() {
           <AdminProjectApplications
             projectApplications={projectApplications}
             onApprove={(app) => {
-              setArtistName(app.artist_name ?? '')
-              setSongTitle(app.song_title ?? '')
-              setMissionDate(app.mission_date ?? '')
-              setCoverVideoCount(app.cover_count ?? 0)
-              setRequirements(app.requirements ?? '')
-              setCoverImageUrl(app.jacket_image ?? '')
+              setFormData(prev => ({...prev, artistName: app.artist_name ?? '', songTitle: app.song_title ?? '', missionDate: app.mission_date ?? '', coverVideoCount: app.cover_count ?? 0, requirements: app.requirements ?? '', coverImageUrl: app.jacket_image ?? ''}))
               fetch(`/api/project_applications?id=${app.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -1188,12 +1158,7 @@ export default function Page1() {
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
             onLoad={(app) => {
-              setArtistName(app.artist_name ?? '')
-              setSongTitle(app.song_title ?? '')
-              setMissionDate(app.mission_date ?? '')
-              setCoverVideoCount(app.cover_count ?? 0)
-              setRequirements(app.requirements ?? '')
-              setCoverImageUrl(app.jacket_image ?? '')
+              setFormData(prev => ({...prev, artistName: app.artist_name ?? '', songTitle: app.song_title ?? '', missionDate: app.mission_date ?? '', coverVideoCount: app.cover_count ?? 0, requirements: app.requirements ?? '', coverImageUrl: app.jacket_image ?? ''}))
               setSelectedProject(null)
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
@@ -1201,7 +1166,7 @@ export default function Page1() {
           <AdminClientRequests
             clientRequests={clientRequests}
             PAGE_SIZE={PAGE_SIZE}
-            projectCode={projectCode}
+            projectCode={formData.projectCode}
             onConfirm={async (reqId) => {
               await fetch(`/api/client_requests?id=${reqId}`, {
                 method: 'PATCH',
@@ -1221,7 +1186,7 @@ export default function Page1() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  project_code: req.project_code ?? projectCode,
+                  project_code: req.project_code ?? formData.projectCode,
                   participant_id: participant.id,
                   status: 'APPROVED',
                   approved_at: new Date().toISOString()
@@ -1292,17 +1257,17 @@ export default function Page1() {
               </div>
               {showProjectForm && (
                 <>
-                  {(productContent && productContent !== '__direct__') && (
+                  {(formData.productContent && formData.productContent !== '__direct__') && (
                     <div className="bg-blue-50 rounded-lg p-3 mb-3">
                       <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
                       <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
                       <div className="text-xs text-gray-500 mt-1 space-y-1">
                         <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
-                        {optionPrice && <p>추가 옵션: +{Number(optionPrice).toLocaleString()}원</p>}
-                        {Number(requiredPosts) === 2 && <p>게시물 2개 (+50%): +{Math.floor(getSelectedProductPrice() * 0.5).toLocaleString()}원</p>}
-                        {monitoringExtension > 0 && <p>모니터링 연장 ({monitoringExtension}일): +{(monitoringExtension === 15 ? 200000 : monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
-                        {refreshInterval && refreshInterval !== '' && refreshInterval !== '0' && refreshInterval !== '12' && <p>트래픽 부스터: +{(refreshInterval === '6' ? 150000 : refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
-                        {coverVideoCount > 0 && <p>커버영상 ({coverVideoCount}개): +{(coverVideoCount === 10 ? 1500000 : coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
+                        {formData.optionPrice && <p>추가 옵션: +{Number(formData.optionPrice).toLocaleString()}원</p>}
+                        {Number(formData.requiredPosts) === 2 && <p>게시물 2개 (+50%): +{Math.floor(getSelectedProductPrice() * 0.5).toLocaleString()}원</p>}
+                        {formData.monitoringExtension > 0 && <p>모니터링 연장 ({formData.monitoringExtension}일): +{(formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
+                        {formData.refreshInterval && formData.refreshInterval !== '' && formData.refreshInterval !== '0' && formData.refreshInterval !== '12' && <p>트래픽 부스터: +{(formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
+                        {formData.coverVideoCount > 0 && <p>커버영상 ({formData.coverVideoCount}개): +{(formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
                       </div>
                     </div>
                   )}
@@ -1311,15 +1276,15 @@ export default function Page1() {
                       <div>
                         <label className="text-sm font-medium">프로젝트 코드 자동생성</label>
                         <div className="flex gap-2 mt-1">
-                          <input value={projectPrefix} onChange={(e) => handlePrefixChange(e.target.value)} className="w-20 border rounded-lg px-3 py-2 text-base" placeholder="A" maxLength={3} />
-                          <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600">{projectCode || '코드 자동생성'}</div>
+                          <input value={formData.projectPrefix} onChange={(e) => handlePrefixChange(e.target.value)} className="w-20 border rounded-lg px-3 py-2 text-base" placeholder="A" maxLength={3} />
+                          <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600">{formData.projectCode || '코드 자동생성'}</div>
                         </div>
                         <p className="text-xs text-gray-400 mt-1">알파벳 입력 시 자동으로 코드가 생성돼요</p>
                       </div>
                     ) : (
                       <div>
                         <label className="text-sm font-medium">프로젝트 코드</label>
-                        <input value={projectCode} className={`${inputClass} bg-gray-100`} disabled />
+                        <input value={formData.projectCode} className={`${inputClass} bg-gray-100`} disabled />
                       </div>
                     )}
                     <div>
@@ -1328,8 +1293,8 @@ export default function Page1() {
                       {coverImageFile && (
                         <img src={URL.createObjectURL(coverImageFile)} className="w-20 h-20 rounded-lg object-cover mt-2" />
                       )}
-                      {!coverImageFile && coverImageUrl && (
-                        <img src={coverImageUrl} className="w-20 h-20 rounded-lg object-cover mt-2" />
+                      {!coverImageFile && formData.coverImageUrl && (
+                        <img src={formData.coverImageUrl} className="w-20 h-20 rounded-lg object-cover mt-2" />
                       )}
                     </div>
                     <div>
@@ -1339,27 +1304,25 @@ export default function Page1() {
                         <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
                           {filteredClients.map((c) => (
                             <div key={c.id} onClick={async () => { 
-                              setSelectedClientId(c.client_id)
-                              setClientName(c.name)
-                              setArtistName(c.artist ?? '')
+                              setFormData(prev => ({...prev, selectedClientId: c.client_id, clientName: c.name, artistName: c.artist ?? ''}))
                               setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
                               // 아티스트 목록 불러오기
                               const res = await fetch(`/api/artists?client_id=${c.client_id}`)
                               const data = await res.json()
                               setArtistList(data ?? [])
-                            }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
+                            }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${formData.selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                               <p className="font-medium">{c.name}</p>
                               <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
                             </div>
                           ))}
                         </div>
                       )}
-                      {selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {selectedClientId}</p>}
+                      {formData.selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {formData.selectedClientId}</p>}
                     </div>
-                    {selectedClientId && artistList.length > 0 && (
+                    {formData.selectedClientId && artistList.length > 0 && (
                       <div>
                         <label className="text-sm font-medium">아티스트 선택</label>
-                        <select value={artistName} onChange={(e) => setArtistName(e.target.value)} className={inputClass}>
+                        <select value={formData.artistName} onChange={(e) => setFormData(prev => ({...prev, artistName: e.target.value}))} className={inputClass}>
                           <option value="">아티스트 선택</option>
                           {artistList.map((a) => (
                             <option key={a.id} value={a.artist_name}>{a.artist_name}</option>
@@ -1369,44 +1332,38 @@ export default function Page1() {
                     )}
                     <div>
                       <label className="text-sm font-medium">노래제목</label>
-                      <input value={songTitle} onChange={(e) => setSongTitle(e.target.value)} className={inputClass} placeholder="노래제목 입력" />
+                      <input value={formData.songTitle} onChange={(e) => setFormData(prev => ({...prev, songTitle: e.target.value}))} className={inputClass} placeholder="노래제목 입력" />
                     </div>
                     <div>
                       <label className="text-sm font-medium">인스타그램 음원 URL</label>
-                      <input value={instagramAudioId} onChange={(e) => {
+                      <input value={formData.instagramAudioId} onChange={(e) => {
                         const match = e.target.value.match(/reels\/audio\/(\d+)/)
-                        setInstagramAudioId(match ? match[1] : e.target.value)
+                        setFormData(prev => ({...prev, instagramAudioId: match ? match[1] : e.target.value}))
                       }} className={inputClass} placeholder="https://www.instagram.com/reels/audio/..." />
                     </div>
                     <div>
                       <label className="text-sm font-medium">틱톡 음원 URL</label>
-                      <input value={tiktokAudioId} onChange={(e) => {
-                        setTiktokAudioId(e.target.value)
+                      <input value={formData.tiktokAudioId} onChange={(e) => {
+                        setFormData(prev => ({...prev, tiktokAudioId: e.target.value}))
                       }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
                     </div>
                     <div>
                       <label className="text-sm font-medium">유튜브 음원 URL</label>
-                      <input value={youtubeAudioId} onChange={(e) => {
+                      <input value={formData.youtubeAudioId} onChange={(e) => {
                         const watchMatch = e.target.value.match(/[?&]v=([^&]+)/)
                         const sourceMatch = e.target.value.match(/source\/([^/]+)\/shorts/)
-                        setYoutubeAudioId(watchMatch ? watchMatch[1] : sourceMatch ? sourceMatch[1] : e.target.value)
+                        setFormData(prev => ({...prev, youtubeAudioId: watchMatch ? watchMatch[1] : sourceMatch ? sourceMatch[1] : e.target.value}))
                       }} className={inputClass} placeholder="https://youtube.com/source/ID/shorts 또는 watch?v=..." />
                     </div>
                     <div>
                       <label className="text-sm font-medium">상품내용</label>
                       {products.length > 0 ? (
-                        <select value={productContent} onChange={(e) => {
-                          setProductContent(e.target.value)
-                          if (e.target.value.includes('스탠다드') || e.target.value.includes('디럭스')) {
-                            setRefreshInterval('12')
-                          } else if (e.target.value.includes('프리미엄') || e.target.value.includes('메가')) {
-                            setRefreshInterval('6')
-                          }
-                          // 스탠다드30 제한
-                          if (e.target.value.includes('스탠다드 30') || e.target.value.includes('스탠다드30')) {
-                            setRefreshInterval('12')  // 기본 트래픽으로 설정
-                            setRequiredPosts('1')
-                          }
+                        <select value={formData.productContent} onChange={(e) => {
+                          setFormData(prev => ({...prev, productContent: e.target.value,
+                            refreshInterval: (e.target.value.includes('스탠다드') || e.target.value.includes('디럭스')) ? '12' :
+                              (e.target.value.includes('프리미엄') || e.target.value.includes('메가')) ? '6' : prev.refreshInterval,
+                            requiredPosts: (e.target.value.includes('스탠다드 30') || e.target.value.includes('스탠다드30')) ? '1' : prev.requiredPosts,
+                          }))
                         }} className={inputClass}>
                           <option value="">상품 선택</option>
                           {products.map((p) => (
@@ -1415,34 +1372,34 @@ export default function Page1() {
                           <option value="__direct__">직접 입력</option>
                         </select>
                       ) : (
-                        <input value={productContent} onChange={(e) => setProductContent(e.target.value)} className={inputClass} placeholder="상품내용 입력" />
+                        <input value={formData.productContent} onChange={(e) => setFormData(prev => ({...prev, productContent: e.target.value}))} className={inputClass} placeholder="상품내용 입력" />
                       )}
-                      {productContent === '__direct__' && (
-                        <input value="" onChange={(e) => setProductContent(e.target.value)} className={`${inputClass} mt-2`} placeholder="직접 입력" autoFocus />
+                      {formData.productContent === '__direct__' && (
+                        <input value="" onChange={(e) => setFormData(prev => ({...prev, productContent: e.target.value}))} className={`${inputClass} mt-2`} placeholder="직접 입력" autoFocus />
                       )}
                     </div>
                     <div>
                       <label className="text-sm font-medium">추가 옵션명 (선택)</label>
-                      <input value={optionName} onChange={(e) => setOptionName(e.target.value)} className={inputClass} placeholder="예: 숏츠 3개 추가" />
+                      <input value={formData.optionName} onChange={(e) => setFormData(prev => ({...prev, optionName: e.target.value}))} className={inputClass} placeholder="예: 숏츠 3개 추가" />
                     </div>
                     <div>
                       <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
-                      <input type="number" value={optionPrice} onChange={(e) => setOptionPrice(e.target.value)} className={inputClass} placeholder="옵션 가격 입력" />
+                      <input type="number" value={formData.optionPrice} onChange={(e) => setFormData(prev => ({...prev, optionPrice: e.target.value}))} className={inputClass} placeholder="옵션 가격 입력" />
                     </div>
                     <div>
                       {/* 유튜브 링크 */}
                       <div className="flex justify-between items-center mb-2">
                         <label className="text-sm font-medium">댓글 부스팅 유튜브 링크</label>
-                        <button onClick={() => setProjectLinks([...projectLinks, { platform: 'youtube_shorts', url: '', isNew: true }])} className="text-xs bg-red-600 text-white px-2 py-1 rounded">+ 추가</button>
+                        <button onClick={() => setFormData(prev => ({...prev, projectLinks: [...prev.projectLinks, { platform: 'youtube_shorts', url: '', isNew: true }]}))} className="text-xs bg-red-600 text-white px-2 py-1 rounded">+ 추가</button>
                       </div>
-                      {projectLinks.filter(l => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform)).map((link, i) => {
-                        const realIdx = projectLinks.indexOf(link)
+                      {formData.projectLinks.filter((l: any) => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform)).map((link: any, i: any) => {
+                        const realIdx = formData.projectLinks.indexOf(link)
                         return (
                           <div key={i} className="flex gap-2 mt-2 items-center">
                             <select value={link.platform} onChange={(e) => {
-                              const newLinks = [...projectLinks]
+                              const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].platform = e.target.value
-                              setProjectLinks(newLinks)
+                              setFormData(prev => ({...prev, projectLinks: newLinks}))
                             }} className="border rounded-lg px-2 py-2 text-base box-border">
                               <option value="youtube_shorts">유튜브 숏츠</option>
                               <option value="youtube_long">유튜브 영상</option>
@@ -1450,13 +1407,13 @@ export default function Page1() {
                               <option value="playlist">플레이리스트</option>
                             </select>
                             <input value={link.url} onChange={(e) => {
-                              const newLinks = [...projectLinks]
+                              const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].url = e.target.value
-                              setProjectLinks(newLinks)
+                              setFormData(prev => ({...prev, projectLinks: newLinks}))
                             }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border" placeholder="URL 입력" />
                             <button onClick={async () => {
                               if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
-                              setProjectLinks(projectLinks.filter((_, idx) => idx !== realIdx))
+                              setFormData(prev => ({...prev, projectLinks: formData.projectLinks.filter((_, idx) => idx !== realIdx)}))
                             }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
                           </div>
                         )
@@ -1465,28 +1422,28 @@ export default function Page1() {
                       {/* 인스타/틱톡 링크 */}
                       <div className="flex justify-between items-center mb-2 mt-4">
                         <label className="text-sm font-medium">인스타/틱톡 링크</label>
-                        <button onClick={() => setProjectLinks([...projectLinks, { platform: 'instagram', url: '', isNew: true }])} className="text-xs bg-pink-600 text-white px-2 py-1 rounded">+ 추가</button>
+                        <button onClick={() => setFormData(prev => ({...prev, projectLinks: [...prev.projectLinks, { platform: 'instagram', url: '', isNew: true }]}))} className="text-xs bg-pink-600 text-white px-2 py-1 rounded">+ 추가</button>
                       </div>
-                      {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).map((link, i) => {
-                        const realIdx = projectLinks.indexOf(link)
+                      {formData.projectLinks.filter((l: any) => ['instagram', 'tiktok'].includes(l.platform)).map((link: any, i: any) => {
+                        const realIdx = formData.projectLinks.indexOf(link)
                         return (
                           <div key={i} className="flex gap-2 mt-2 items-center">
                             <select value={link.platform} onChange={(e) => {
-                              const newLinks = [...projectLinks]
+                              const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].platform = e.target.value
-                              setProjectLinks(newLinks)
+                              setFormData(prev => ({...prev, projectLinks: newLinks}))
                             }} className="border rounded-lg px-2 py-2 text-base box-border">
                               <option value="instagram">인스타그램</option>
                               <option value="tiktok">틱톡</option>
                             </select>
                             <input value={link.url} onChange={(e) => {
-                              const newLinks = [...projectLinks]
+                              const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].url = e.target.value
-                              setProjectLinks(newLinks)
+                              setFormData(prev => ({...prev, projectLinks: newLinks}))
                             }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border" placeholder="URL 입력" />
                             <button onClick={async () => {
                               if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
-                              setProjectLinks(projectLinks.filter((_, idx) => idx !== realIdx))
+                              setFormData(prev => ({...prev, projectLinks: formData.projectLinks.filter((_, idx) => idx !== realIdx)}))
                             }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
                           </div>
                         )
@@ -1494,25 +1451,25 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
-                      <select value={refreshInterval} onChange={(e) => setRefreshInterval(e.target.value)} className={inputClass}>
+                      <select value={formData.refreshInterval} onChange={(e) => setFormData(prev => ({...prev, refreshInterval: e.target.value}))} className={inputClass}>
                         <option value="12">기본 트래픽 - 일 2회 / 12시간 주기</option>
-                        <option value="6" disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>실버 트래픽 - 일 4회 / 6시간 주기 (150,000원)</option>
-                        <option value="3" disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>골드 트래픽 - 일 8회 / 3시간 주기 (300,000원)</option>
-                        <option value="1" disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>다이아 VIP - 일 24회 / 1시간 주기 (800,000원)</option>
+                        <option value="6" disabled={formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')}>실버 트래픽 - 일 4회 / 6시간 주기 (150,000원)</option>
+                        <option value="3" disabled={formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')}>골드 트래픽 - 일 8회 / 3시간 주기 (300,000원)</option>
+                        <option value="1" disabled={formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')}>다이아 VIP - 일 24회 / 1시간 주기 (800,000원)</option>
                       </select>
-                      {(productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')) && (
+                      {(formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')) && (
                         <p className="text-xs text-red-400 mt-1">스탠다드 30은 트래픽 추가가 불가합니다. (기본 트래픽 일 2회 적용)</p>
                       )}
                     </div>
                     <div>
                       <label className="text-sm font-medium">모니터링 기간 연장 (추가 옵션)</label>
-                      <select value={monitoringExtension} onChange={(e) => {
+                      <select value={formData.monitoringExtension} onChange={(e) => {
                         const days = Number(e.target.value)
-                        setMonitoringExtension(days)
-                        if (startDate) {
-                          const end = new Date(startDate)
+                        setFormData(prev => ({...prev, monitoringExtension: days}))
+                        if (formData.startDate) {
+                          const end = new Date(formData.startDate)
                           end.setDate(end.getDate() + 15 + days)
-                          setEndDate(end.toISOString().split('T')[0])
+                          setFormData(prev => ({...prev, monitoringExtension: days, endDate: end.toISOString().split('T')[0]}))
                         }
                       }} className={inputClass}>
                         <option value="0">없음</option>
@@ -1523,7 +1480,7 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">커버영상 옵션 (추가 옵션)</label>
-                      <select value={coverVideoCount} onChange={(e) => setCoverVideoCount(Number(e.target.value))} className={inputClass}>
+                      <select value={formData.coverVideoCount} onChange={(e) => setFormData(prev => ({...prev, coverVideoCount: Number(e.target.value)}))} className={inputClass}>
                         <option value="0">없음</option>
                         <option value="10">10개 (1,500,000원)</option>
                         <option value="20">20개 (3,000,000원)</option>
@@ -1532,24 +1489,24 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">요청 게시물 수 (추가 옵션)</label>
-                      <select value={requiredPosts} onChange={(e) => setRequiredPosts(e.target.value)} className={inputClass}
-                        disabled={productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')}>
+                      <select value={formData.requiredPosts} onChange={(e) => setFormData(prev => ({...prev, requiredPosts: e.target.value}))} className={inputClass}
+                        disabled={formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')}>
                         <option value="1">1개</option>
                         <option value="2">2개 (+상품금액의 50%)</option>
                       </select>
-                      {(productContent.includes('스탠다드 30') || productContent.includes('스탠다드30')) && (
+                      {(formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')) && (
                         <p className="text-xs text-red-400 mt-1">스탠다드 30은 게시물 추가가 불가합니다.</p>
                       )}
                     </div>
                     <div>
                       <label className="text-sm font-medium">모집인원</label>
-                      <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} className={inputClass} placeholder="모집 인원 수 입력" />
+                      <input type="number" value={formData.maxParticipants} onChange={(e) => setFormData(prev => ({...prev, maxParticipants: e.target.value}))} className={inputClass} placeholder="모집 인원 수 입력" />
                     </div>
                     <div>
                       <label className="text-sm font-medium">모집일</label>
                       <div className="flex gap-2">
-                        <input type="date" value={missionDate} onChange={(e) => setMissionDate(e.target.value)} className={inputClass} style={dateInputStyle} />
-                        <select value={missionTime} onChange={(e) => setMissionTime(e.target.value)} className={inputClass}>
+                        <input type="date" value={formData.missionDate} onChange={(e) => setFormData(prev => ({...prev, missionDate: e.target.value}))} className={inputClass} style={dateInputStyle} />
+                        <select value={formData.missionTime} onChange={(e) => setFormData(prev => ({...prev, missionTime: e.target.value}))} className={inputClass}>
                           <option value="">시간 선택</option>
                           {Array.from({length: 24}, (_, i) => (
                             <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
@@ -1559,11 +1516,11 @@ export default function Page1() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">요청사항</label>
-                      <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} className={inputClass} rows={3} />
+                      <textarea value={formData.requirements} onChange={(e) => setFormData(prev => ({...prev, requirements: e.target.value}))} className={inputClass} rows={3} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">프로젝트 상태</label>
-                      <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
+                      <select value={formData.status} onChange={(e) => setFormData(prev => ({...prev, status: e.target.value}))} className={inputClass}>
                         <option value="PENDING">대기중</option>
                         <option value="ONGOING">진행중</option>
                         <option value="COMPLETED">완료</option>
@@ -1572,17 +1529,17 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">시작일</label>
                       <div className="flex gap-2">
-                        <input type="date" value={startDate} onChange={(e) => {
-                          setStartDate(e.target.value)
+                        <input type="date" value={formData.startDate} onChange={(e) => {
                           if (e.target.value) {
                             const end = new Date(e.target.value)
-                            end.setDate(end.getDate() + 15 + Number(monitoringExtension))
-                            setEndDate(end.toISOString().split('T')[0])
+                            end.setDate(end.getDate() + 15 + Number(formData.monitoringExtension))
+                            setFormData(prev => ({...prev, startDate: e.target.value, endDate: end.toISOString().split('T')[0]}))
+                          } else {
+                            setFormData(prev => ({...prev, startDate: e.target.value}))
                           }
                         }} className={inputClass} style={dateInputStyle} />
-                        <select value={startTime} onChange={(e) => {
-                          setStartTime(e.target.value)
-                          setEndTime(e.target.value)
+                        <select value={formData.startTime} onChange={(e) => {
+                          setFormData(prev => ({...prev, startTime: e.target.value, endTime: e.target.value}))
                         }} className={inputClass}>
                           <option value="">시간 선택</option>
                           {Array.from({length: 24}, (_, i) => (
@@ -1594,8 +1551,8 @@ export default function Page1() {
                     <div>
                       <label className="text-sm font-medium">종료일</label>
                       <div className="flex gap-2">
-                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} style={dateInputStyle} />
-                        <select value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass}>
+                        <input type="date" value={formData.endDate} onChange={(e) => setFormData(prev => ({...prev, endDate: e.target.value}))} className={inputClass} style={dateInputStyle} />
+                        <select value={formData.endTime} onChange={(e) => setFormData(prev => ({...prev, endTime: e.target.value}))} className={inputClass}>
                           <option value="">시간 선택</option>
                           {Array.from({length: 24}, (_, i) => (
                             <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
@@ -1603,12 +1560,12 @@ export default function Page1() {
                         </select>
                       </div>
                     </div>
-                    {Number(requiredPosts) === 2 && (
+                    {Number(formData.requiredPosts) === 2 && (
                       <div>
                         <label className="text-sm font-medium">2차 게시물 날짜</label>
                         <div className="flex gap-2">
-                          <input type="date" value={secondPostDate} onChange={(e) => setSecondPostDate(e.target.value)} className={inputClass} style={dateInputStyle} />
-                          <select value={secondPostTime} onChange={(e) => setSecondPostTime(e.target.value)} className={inputClass}>
+                          <input type="date" value={formData.secondPostDate} onChange={(e) => setFormData(prev => ({...prev, secondPostDate: e.target.value}))} className={inputClass} style={dateInputStyle} />
+                          <select value={formData.secondPostTime} onChange={(e) => setFormData(prev => ({...prev, secondPostTime: e.target.value}))} className={inputClass}>
                             <option value="">시간 선택</option>
                             {Array.from({length: 24}, (_, i) => (
                               <option key={i} value={`${String(i).padStart(2,'0')}:00`}>{`${String(i).padStart(2,'0')}:00`}</option>
@@ -1619,7 +1576,7 @@ export default function Page1() {
                     )}
                     <div>
                       <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
-                      <input type="number" value={rewardPerPost} onChange={(e) => setRewardPerPost(e.target.value)} className={inputClass} placeholder="기본값: 2,500원" />
+                      <input type="number" value={formData.rewardPerPost} onChange={(e) => setFormData(prev => ({...prev, rewardPerPost: e.target.value}))} className={inputClass} placeholder="기본값: 2,500원" />
                       <p className="text-xs text-gray-400 mt-1">※ 미입력 시 기본값 2,500원으로 등록됩니다</p>
                     </div>
                     <div>
@@ -1627,30 +1584,30 @@ export default function Page1() {
                         <>
                           <button onClick={handleUpdate} disabled={isSaving} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2 disabled:bg-gray-400">{isSaving ? '저장 중...' : '정보 수정하기'}</button>
                           <button onClick={async () => {
-                            if (!selectedClientId) { showToast('의뢰인을 선택해주세요.'); return }
+                            if (!formData.selectedClientId) { showToast('의뢰인을 선택해주세요.'); return }
                             
                             // 총비용 계산
                             const totalCost = getTotalCost()
                             const optionsText = [
-                              refreshInterval ? ({'12':'기본 트래픽','6':'실버 트래픽','3':'골드 트래픽','1':'다이아 VIP'} as any)[String(refreshInterval)] : '',
-                              Number(monitoringExtension) > 0 ? `모니터링 ${monitoringExtension}일 연장` : '',
-                              Number(coverVideoCount) > 0 ? `커버영상 ${coverVideoCount}개` : '',
-                              Number(requiredPosts) > 1 ? `게시물 ${requiredPosts}개` : '',
-                              optionName || ''
+                              formData.refreshInterval ? ({'12':'기본 트래픽','6':'실버 트래픽','3':'골드 트래픽','1':'다이아 VIP'} as any)[String(formData.refreshInterval)] : '',
+                              Number(formData.monitoringExtension) > 0 ? `모니터링 ${formData.monitoringExtension}일 연장` : '',
+                              Number(formData.coverVideoCount) > 0 ? `커버영상 ${formData.coverVideoCount}개` : '',
+                              Number(formData.requiredPosts) > 1 ? `게시물 ${formData.requiredPosts}개` : '',
+                              formData.optionName || ''
                             ].filter(Boolean).join(' / ')
                             const confirmed = confirm(
                               `계약서를 발송하시겠어요?\n\n` +
-                              `의뢰인: ${clientName}\n` +
-                              `가수명: ${artistName || '-'}\n` +
-                              `곡명: ${songTitle}\n` +
-                              `상품: ${productContent}${optionsText ? ` + ${optionsText}` : ''}\n` +
+                              `의뢰인: ${formData.clientName}\n` +
+                              `가수명: ${formData.artistName || '-'}\n` +
+                              `곡명: ${formData.songTitle}\n` +
+                              `상품: ${formData.productContent}${optionsText ? ` + ${optionsText}` : ''}\n` +
                               `계약금액: ${totalCost.toLocaleString()}원\n` +
-                              `계약기간: ${startDate} ~ ${endDate}\n\n` +
+                              `계약기간: ${formData.startDate} ~ ${formData.endDate}\n\n` +
                               `위 내용으로 계약서를 발송합니다.`
                             )
                             if (!confirmed) return
 
-                            const clientRes = await fetch(`/api/users?client_id=${selectedClientId}`)
+                            const clientRes = await fetch(`/api/users?client_id=${formData.selectedClientId}`)
                             const clientData = await clientRes.json()
                             const client = clientData?.[0]
                             if (!client) { showToast('의뢰인 정보를 찾을 수 없어요.'); return }
@@ -1659,27 +1616,27 @@ export default function Page1() {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
-                                clientName: clientName,
+                                clientName: formData.clientName,
                                 clientEmail: client.email,
                                 clientMobile: client.mobile,
-                                projectCode: projectCode.toUpperCase(),
-                                productContent: productContent,
-                                songTitle: songTitle,
+                                projectCode: formData.projectCode.toUpperCase(),
+                                productContent: formData.productContent,
+                                songTitle: formData.songTitle,
                                 totalCost: totalCost,
-                                startDate: startDate,
-                                endDate: endDate,
-                                artistName: artistName,
-                                optionName: optionName,
-                                refreshInterval: refreshInterval,
-                                monitoringExtension: monitoringExtension,
-                                coverVideoCount: coverVideoCount,
-                                requiredPosts: requiredPosts
+                                startDate: formData.startDate,
+                                endDate: formData.endDate,
+                                artistName: formData.artistName,
+                                optionName: formData.optionName,
+                                refreshInterval: formData.refreshInterval,
+                                monitoringExtension: formData.monitoringExtension,
+                                coverVideoCount: formData.coverVideoCount,
+                                requiredPosts: formData.requiredPosts
                               })
                             })
                             const data = await res.json()
                             console.log('eformsign result:', JSON.stringify(data))
                             if (data.success) {
-                              await fetch(`/api/projects?project_code=${projectCode.toUpperCase()}`, {
+                              await fetch(`/api/projects?project_code=${formData.projectCode.toUpperCase()}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ document_id: data.document_id, total_cost: totalCost })
