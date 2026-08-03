@@ -243,7 +243,13 @@ export default function AdminMypagePage() {
           <hr className="my-3 border-gray-100 dark:border-gray-700" />
           {/* 다크모드 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <p className="text-sm font-medium dark:text-white mb-3">🌙 화면 모드</p>
+            <div className="flex items-center gap-2 mb-3">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 dark:invert">
+                <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z" fill="currentColor"/>
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="currentColor"/>
+              </svg>
+              <p className="text-sm font-medium dark:text-white">화면 모드</p>
+            </div>
             <div className="flex gap-2">
               <button onClick={() => applyTheme('system')} className={`flex-1 py-2 text-xs rounded-lg border ${theme === 'system' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>시스템</button>
               <button onClick={() => applyTheme('light')} className={`flex-1 py-2 text-xs rounded-lg border ${theme === 'light' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>라이트</button>

@@ -40,7 +40,7 @@ export default function StatsChart({ data, platform, likesKey, commentsKey, view
           <Legend
             wrapperStyle={{ fontSize: '10px', paddingTop: '4px' }}
             content={({ payload }) => (
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '10px', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '10px', justifyContent: 'center', color: document.documentElement.classList.contains('dark') ? '#d1d5db' : 'inherit' }}>
                 {legendItems.map(name => {
                   const item = payload?.find((p: any) => p.value === name)
                   if (!item) return null

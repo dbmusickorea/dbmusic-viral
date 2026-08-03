@@ -1326,7 +1326,7 @@ export default function Page1() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
       >
         ↑
       </button>

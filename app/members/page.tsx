@@ -68,17 +68,17 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
           participations.map(p => {
             const projectPosts = posts.filter(post => post.project_code?.toLowerCase() === p.project_code?.toLowerCase())
             return (
-              <div key={p.id} className="border rounded-lg p-3">
+              <div key={p.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium dark:text-white">
                       {p.projects?.artist_name || p.projects?.client_name 
                         ? `${p.projects?.artist_name || p.projects?.client_name} / ${p.projects?.song_title ?? ''}` 
                         : p.project_code}
                     </p>
-                    <p className="text-xs text-gray-400">{p.project_code}</p>
-                    <p className="text-xs text-gray-500">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
-                    <p className="text-xs text-gray-500">게시물: {projectPosts.length}개</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{p.project_code}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">게시물: {projectPosts.length}개</p>
                   </div>
                   <div className="flex flex-col gap-1 items-end">
                     <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' : p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
@@ -89,8 +89,8 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                   </div>
                 </div>
                 {projectPosts.map(post => (
-                  <div key={post.id} className="mt-2 bg-gray-50 rounded p-2">
-                    <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                  <div key={post.id} className="mt-2 bg-gray-50 dark:bg-gray-700 rounded p-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                     <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                   </div>
                 ))}
@@ -103,15 +103,15 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       {activityTab === 'points' && (
         <div className="space-y-2">
           <div className="bg-blue-50 rounded-lg p-3 mb-2">
-            <p className="text-xs text-gray-500">현재 잔액</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">현재 잔액</p>
             <p className="text-lg font-bold text-blue-600">{participant?.balance?.toLocaleString()}P</p>
           </div>
           {settlements.length === 0 ? <p className="text-sm text-gray-400 text-center py-2">환전 내역 없음</p> :
           settlements.map(s => (
             <div key={s.id} className="border rounded-lg p-3 flex justify-between items-center">
               <div>
-                <p className="text-sm font-medium">환전 신청</p>
-                <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                <p className="text-sm font-medium dark:text-white">환전 신청</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${s.status === 'APPROVED' ? 'bg-green-100 text-green-700' : s.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
                   {s.status === 'APPROVED' ? '승인' : s.status === 'PENDING' ? '검토중' : '반려'}
                 </span>
@@ -122,8 +122,8 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
           {referredUsers.map(u => (
             <div key={`ref-${u.id}`} className="border rounded-lg p-3 flex justify-between items-center">
               <div>
-                <p className="text-sm font-medium">추천인 보상 ({u.name})</p>
-                <p className="text-xs text-gray-500">{new Date(u.created_at).toLocaleDateString('ko-KR')}</p>
+                <p className="text-sm font-medium dark:text-white">추천인 보상 ({u.name})</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(u.created_at).toLocaleDateString('ko-KR')}</p>
               </div>
               <p className="text-sm font-bold text-blue-500">+150P</p>
             </div>
@@ -131,8 +131,8 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
           {pointHistory.length > 0 && pointHistory.map(ph => (
             <div key={ph.id} className="border rounded-lg p-3 flex justify-between items-center">
               <div>
-                <p className="text-sm font-medium">{ph.memo || '관리자 지급'}</p>
-                <p className="text-xs text-gray-500">{new Date(ph.created_at).toLocaleDateString('ko-KR')}</p>
+                <p className="text-sm font-medium dark:text-white">{ph.memo || '관리자 지급'}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(ph.created_at).toLocaleDateString('ko-KR')}</p>
               </div>
               <p className={`text-sm font-bold ${ph.amount < 0 ? "text-red-500" : "text-blue-500"}`}>{ph.amount > 0 ? "+" : ""}{ph.amount?.toLocaleString()}P</p>
             </div>
@@ -146,7 +146,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             <div className={`rounded-lg p-3 ${participant?.is_locked ? 'bg-red-50' : 'bg-green-50'}`}>
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
+                  <p className="text-sm font-medium dark:text-white">{participant?.is_locked ? '⚠️ 계정 잠금 상태' : '✅ 정상 상태'}</p>
                   {participant?.is_locked && <p className="text-xs text-gray-500 mt-1">댓글 인증 {participant?.comment_count_for_unlock ?? 0}/10</p>}
                 </div>
                 {participant?.is_locked && (
@@ -230,7 +230,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     {participant?.cover_penalty_reason === 'deleted' ? '⚠️ 커버 게시물 삭제 페널티' : '⚠️ 커버 미업로드 페널티'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">해제일: {new Date(participant.cover_penalty_until).toLocaleDateString('ko-KR')}</p>
-                  <p className="text-xs text-gray-500">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">남은 기간: {Math.ceil((new Date(participant.cover_penalty_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}일</p>
                 </div>
                 <div className="flex gap-1">
                   <button onClick={async () => {
@@ -331,13 +331,13 @@ function ClientProjects({ clientId }: { clientId: string }) {
         <p className="text-sm text-gray-400 text-center py-2">진행 프로젝트 없음</p>
       ) : (
         projects.map(p => (
-          <div key={p.id} className="border rounded-lg p-3">
+          <div key={p.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium">{p.artist_name || p.client_name} - {p.song_title ?? p.product_content}</p>
-                <p className="text-xs text-gray-500">코드: {p.project_code}</p>
-                <p className="text-xs text-gray-500">기간: {p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
-                <p className="text-xs text-gray-500">참여: {p.current_participants}/{p.max_participants}명</p>
+                <p className="text-sm font-medium dark:text-white">{p.artist_name || p.client_name} - {p.song_title ?? p.product_content}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">코드: {p.project_code}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">기간: {p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">참여: {p.current_participants}/{p.max_participants}명</p>
               </div>
               <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
                 {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '완료'}
@@ -797,7 +797,7 @@ export default function Page4() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />
-    <div className="min-h-screen bg-gray-50 p-4"
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -816,7 +816,7 @@ export default function Page4() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -827,7 +827,7 @@ export default function Page4() {
             </div>
           )}
           <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
           </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
@@ -842,28 +842,28 @@ export default function Page4() {
         </div>
 
         <div className="flex gap-2 mb-4">
-          <button onClick={() => { setTab('participant'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'participant' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>체험단</button>
-          <button onClick={() => { setTab('client'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'client' ? 'bg-green-600 text-white' : 'bg-white border'}`}>의뢰인</button>
+          <button onClick={() => { setTab('participant'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'participant' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 border dark:border-gray-600 dark:text-gray-300'}`}>체험단</button>
+          <button onClick={() => { setTab('client'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'client' ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-700 border dark:border-gray-600 dark:text-gray-300'}`}>의뢰인</button>
         </div>
 
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 - 목록 */}
           <div>
             {tab === 'participant' && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">💰 적립금 지급</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">💰 적립금 지급</h2>
                 <div className="space-y-3">
                   <div className="flex gap-2 mt-3">
                     <button onClick={() => {
                       if (rewardSelected.length === filteredParticipants.length) setRewardSelected([])
                       else setRewardSelected(filteredParticipants.map((p: any) => p.id))
-                    }} className="text-xs border rounded px-2 py-1">
+                    }} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
                       {rewardSelected.length === filteredParticipants.length ? '전체 해제' : '전체 선택'}
                     </button>
                     <span className="text-xs text-gray-500 self-center">{rewardSelected.length}명 선택</span>
                   </div>
-                  <input type="number" value={rewardAmount} onChange={(e) => setRewardAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="지급 금액 입력" />
-                  <input value={rewardMemo} onChange={(e) => setRewardMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="메모 입력 (예: 가입 축하금)" />
+                  <input type="number" value={rewardAmount} onChange={(e) => setRewardAmount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="지급 금액 입력" />
+                  <input value={rewardMemo} onChange={(e) => setRewardMemo(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="메모 입력 (예: 가입 축하금)" />
                   <button onClick={async () => {
                     if (rewardSelected.length === 0) { showToast('체험단을 선택해주세요.', 'error'); return }
                     if (!rewardAmount) { showToast('금액을 입력해주세요.', 'error'); return }
@@ -912,19 +912,19 @@ export default function Page4() {
               </div>
             )}
             {tab === 'participant' && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
+                  <h2 className="font-bold dark:text-white">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
                   <div className="flex gap-1">
-                    <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : ''}`}>전체</button>
-                    <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : ''}`}>커버가능</button>
-                    <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : ''}`}>일반회원</button>
+                    <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>전체</button>
+                    <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : 'dark:text-gray-300'}`}>커버가능</button>
+                    <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : 'dark:text-gray-300'}`}>일반회원</button>
                   </div>
                 </div>
                 <input 
                   value={participantSearch} 
                   onChange={(e) => { setParticipantSearch(e.target.value); setParticipantPage(0) }} 
-                  className="w-full border rounded-lg px-3 py-2 text-sm mb-3" 
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mb-3 dark:bg-gray-700 dark:text-white" 
                   placeholder="이름, 이메일, 연락처, SNS ID 검색" 
                 />
                 
@@ -934,7 +934,7 @@ export default function Page4() {
                   <>
                     <div className="space-y-2">
                       {filteredParticipants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
-                        <div key={p.id} className={`border rounded-lg cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                        <div key={p.id} className={`border dark:border-gray-600 rounded-lg cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
                           <div className="p-3" onClick={() => {
                             if (expandedCard !== p.id) clearForm()
                             setExpandedCard(expandedCard === p.id ? null : p.id)
@@ -946,7 +946,7 @@ export default function Page4() {
                                   setRewardSelected(prev => prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id])
                                 }} className="cursor-pointer" />
                                 <div className="flex items-center gap-1 flex-wrap">
-                                  <p className="font-medium text-sm">{p.name}</p>
+                                  <p className="font-medium text-sm dark:text-white">{p.name}</p>
                                   <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
                                   {p.is_cover_possible && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버가능</span>}
                                   {p.cover_approved && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>}
@@ -962,8 +962,8 @@ export default function Page4() {
                           </div>
                           {expandedCard === p.id && (
                             <div className="px-3 pb-3 border-t pt-2 space-y-1">
-                              <p className="text-xs text-gray-500">{p.email}</p>
-                              <p className="text-xs text-gray-500">{p.mobile}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{p.email}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{p.mobile}</p>
                               {p.instagram_id && <a href={`https://www.instagram.com/${p.instagram_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">
                                 <PlatformIcon platform="instagram" size={12} />{p.instagram_id} ({p.instagram_followers?.toLocaleString() ?? '-'}명)
                               </a>}
@@ -973,7 +973,7 @@ export default function Page4() {
                               {p.tiktok_id && <a href={`https://www.tiktok.com/@${p.tiktok_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">
                                 <PlatformIcon platform="tiktok" size={12} />{p.tiktok_id} ({p.tiktok_followers?.toLocaleString() ?? '-'}명)
                               </a>}
-                              <p className="text-xs text-gray-400">가입일: {new Date(p.created_at).toLocaleDateString('ko-KR')}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">가입일: {new Date(p.created_at).toLocaleDateString('ko-KR')}</p>
                               <div className="mt-2">
                                 <textarea
                                   id={`memo-${p.id}`}
@@ -1002,13 +1002,13 @@ export default function Page4() {
                     </div>
                     {filteredParticipants.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
-                        <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
                           {Array.from({length: Math.ceil(filteredParticipants.length / PAGE_SIZE)}, (_, i) => (
-                            <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs px-2 py-1 border rounded ${participantPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                            <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${participantPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(filteredParticipants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= filteredParticipants.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(filteredParticipants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= filteredParticipants.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
@@ -1017,12 +1017,12 @@ export default function Page4() {
             )}
 
             {tab === 'client' && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({filteredClients.length}명)</span></h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({filteredClients.length}명)</span></h2>
                 <input 
                   value={clientSearch} 
                   onChange={(e) => { setClientSearch(e.target.value) }} 
-                  className="w-full border rounded-lg px-3 py-2 text-sm mb-3" 
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mb-3 dark:bg-gray-700 dark:text-white" 
                   placeholder="이름, 이메일, 연락처 검색" 
                 />
                 {filteredClients.length === 0 ? (
@@ -1031,12 +1031,12 @@ export default function Page4() {
                   <>
                     <div className="space-y-2">
                       {filteredClients.slice(clientPage * PAGE_SIZE, (clientPage + 1) * PAGE_SIZE).map((c) => (
-                        <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50' : ''}`}>
+                        <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50 dark:bg-green-900' : 'dark:bg-gray-700'}`}>
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="font-medium text-sm">{c.name}</p>
-                              <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''}</p>
-                              <p className="text-xs text-gray-400">{c.email}</p>
+                              <p className="font-medium text-sm dark:text-white">{c.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{c.company} {c.artist ? `· ${c.artist}` : ''}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">{c.email}</p>
                             </div>
                             <div className="text-right">
                               {c.client_id && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">{c.client_id}</span>}
@@ -1048,13 +1048,13 @@ export default function Page4() {
                     </div>
                     {filteredClients.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
-                        <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
                           {Array.from({length: Math.ceil(filteredClients.length / PAGE_SIZE)}, (_, i) => (
-                            <button key={i} onClick={() => setClientPage(i)} className={`text-xs px-2 py-1 border rounded ${clientPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                            <button key={i} onClick={() => setClientPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${clientPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(filteredClients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= filteredClients.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(filteredClients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= filteredClients.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
@@ -1066,12 +1066,12 @@ export default function Page4() {
           {/* 오른쪽 - 등록/수정 */}
           <div>
             {tab === 'participant' && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold">{selected ? '체험단 수정' : '체험단 등록'}</h2>
+                  <h2 className="font-bold dark:text-white">{selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2 mt-3">
-                    {selected && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
-                    {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs border rounded px-2 py-1">
+                    {selected && <button onClick={clearForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">새 등록</button>}
+                    {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
                       {showParticipantInsert ? '접기 ▲' : '펼치기 ▼'}
                     </button>}
                   </div>
@@ -1093,16 +1093,16 @@ export default function Page4() {
                       { label: '틱톡 ID', value: tiktok, setter: setTiktok },
                     ].map(({ label, value, setter, type }) => (
                       <div key={label}>
-                        <label className="text-sm font-medium">
+                        <label className="text-sm font-medium dark:text-white">
                           {label.replace(' *', '')}
                           {label.includes('*') && <span className="text-red-500"> *</span>}
                         </label>
-                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                       </div>
                     ))}
                     <div>
-                      <label className="text-sm font-medium">등급 (레벨)</label>
-                      <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                      <label className="text-sm font-medium dark:text-white">등급 (레벨)</label>
+                      <select value={level} onChange={(e) => setLevel(Number(e.target.value))} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
                         {Array.from({length: 50}, (_, i) => i + 1).map(lv => (
                           <option key={lv} value={lv}>Lv.{lv} ({lv === 50 ? '10,000P' : `${(2500 + (lv-1) * 150).toLocaleString()}P`})</option>
                         ))}
@@ -1119,7 +1119,7 @@ export default function Page4() {
                         setSelected((prev: any) => ({ ...prev, is_cover_possible: checked }))
                         setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, is_cover_possible: checked } : p))
                       }} />
-                      <label className="text-sm font-medium">커버가능 체험단</label>
+                      <label className="text-sm font-medium dark:text-white">커버가능 체험단</label>
                     </div>
                     {selected?.is_cover_possible && (
                       <div className="bg-purple-50 rounded-lg p-3">
@@ -1225,8 +1225,8 @@ export default function Page4() {
                         <p className="text-xs font-medium text-blue-700 mb-2">📱 SNS 계정 변경 요청</p>
                         <div className="space-y-2">
                           {snsRequests.map((req) => (
-                            <div key={req.id} className="border border-blue-200 rounded-lg p-2 bg-white">
-                              <p className="text-xs text-gray-500">{req.platform} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                            <div key={req.id} className="border border-blue-200 dark:border-blue-800 rounded-lg p-2 bg-white dark:bg-gray-700">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{req.platform} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                               <p className="text-xs">{req.old_id} → <a href={
                                 req.platform === 'instagram' ? `https://www.instagram.com/${req.new_id.replace('@','')}` :
                                 req.platform === 'youtube' ? `https://www.youtube.com/@${req.new_id.replace('@','')}` :
@@ -1293,8 +1293,8 @@ export default function Page4() {
 
             {/* 수익 내역 */}
             {tab === 'participant' && selected && (memberPosts.length > 0 || memberCommentMissions.length > 0) && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h3 className="font-bold mb-3">💰 수익 내역</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h3 className="font-bold mb-3 dark:text-white">💰 수익 내역</h3>
                 
                 {memberPosts.length > 0 && (
                   <div className="mb-3">
@@ -1374,10 +1374,10 @@ export default function Page4() {
             )}
 
             {tab === 'client' && !selectedClient && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold">의뢰인 등록</h2>
-                  <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs border rounded px-2 py-1">
+                  <h2 className="font-bold dark:text-white">의뢰인 등록</h2>
+                  <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
                     {showClientInsert ? '접기 ▲' : '펼치기 ▼'}
                   </button>
                 </div>
@@ -1390,11 +1390,11 @@ export default function Page4() {
                       { label: '이메일 *', value: newClientEmail, setter: setNewClientEmail, type: 'email' },
                     ].map(({ label, value, setter, type }) => (
                       <div key={label}>
-                        <label className="text-sm font-medium">
+                        <label className="text-sm font-medium dark:text-white">
                           {label.replace(' *', '')}
                           {label.includes('*') && <span className="text-red-500"> *</span>}
                         </label>
-                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                       </div>
                     ))}
                     <button onClick={handleInsertClient} className="w-full bg-green-600 text-white rounded-lg py-2 font-medium">의뢰인 등록</button>
@@ -1404,10 +1404,10 @@ export default function Page4() {
             )}
 
             {tab === 'client' && selectedClient && (
-              <div className="bg-white rounded-2xl shadow p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold">의뢰인 수정</h2>
-                  <button onClick={clearClientForm} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+                  <h2 className="font-bold dark:text-white">의뢰인 수정</h2>
+                  <button onClick={clearClientForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">닫기</button>
                 </div>
                 <div className="flex gap-2 mb-3">
                   <button onClick={() => setClientDetailTab('projects')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${clientDetailTab === 'projects' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>프로젝트 현황</button>
@@ -1422,19 +1422,19 @@ export default function Page4() {
                       { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
                     ].map(({ label, value, setter, type }) => (
                       <div key={label}>
-                        <label className="text-sm font-medium">
+                        <label className="text-sm font-medium dark:text-white">
                           {label.replace(' *', '')}
                           {label.includes('*') && <span className="text-red-500"> *</span>}
                         </label>
-                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                        <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                       </div>
                     ))}
                   {/* 아티스트 목록 */}
                   <div>
-                    <label className="text-sm font-medium">아티스트 목록</label>
+                    <label className="text-sm font-medium dark:text-white">아티스트 목록</label>
                     <div className="space-y-2 mt-1">
                       {artistList.map((a) => (
-                        <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                        <div key={a.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                           <span className="text-sm">{a.artist_name}</span>
                           <button onClick={async () => {
                             await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
@@ -1458,8 +1458,8 @@ export default function Page4() {
                     </div>
                   </div>
                   {selectedClient.client_id && (
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-xs text-gray-500">의뢰인 코드: <span className="font-bold text-green-600">{selectedClient.client_id}</span></p>
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">의뢰인 코드: <span className="font-bold text-green-600">{selectedClient.client_id}</span></p>
                     </div>
                   )}
                   <div className="flex gap-2 mt-3">
@@ -1481,7 +1481,7 @@ export default function Page4() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
       >
         ↑
       </button>

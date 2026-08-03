@@ -307,20 +307,20 @@ export default function CoverPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold text-lg">📝 프로젝트 신청</h2>
+              <h2 className="font-bold text-lg dark:text-white">📝 프로젝트 신청</h2>
               <button onClick={() => setShowApplyModal(false)} className="text-gray-400 text-xl">✕</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">가수명/아티스트명</label>
+                <label className="text-sm font-medium dark:text-white">가수명/아티스트명</label>
                 <input value={applyArtistName} onChange={(e) => setApplyArtistName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="가수명 또는 아티스트명 입력" />
               </div>
               <div>
-                <label className="text-sm font-medium">노래 제목</label>
+                <label className="text-sm font-medium dark:text-white">노래 제목</label>
                 <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="노래 제목 입력" />
               </div>
               <div>
-                <label className="text-sm font-medium">희망 미션 시작일 (음원 발매일)</label>
+                <label className="text-sm font-medium dark:text-white">희망 미션 시작일 (음원 발매일)</label>
                 <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
               </div>
               <div>
@@ -330,13 +330,13 @@ export default function CoverPage() {
                 </label>
                 {applyHasCover && (
                   <div className="mt-2">
-                    <label className="text-sm font-medium">커버 인원</label>
+                    <label className="text-sm font-medium dark:text-white">커버 인원</label>
                     <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버 인원 수 입력" min={1} />
                   </div>
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium">요청사항</label>
+                <label className="text-sm font-medium dark:text-white">요청사항</label>
                 <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
               </div>
               <button onClick={async () => {
@@ -369,7 +369,7 @@ export default function CoverPage() {
           </div>
         </div>
       )}
-    <div className="min-h-screen bg-gray-50 p-4"
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -421,9 +421,9 @@ export default function CoverPage() {
       />
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
-        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
           </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
@@ -432,7 +432,7 @@ export default function CoverPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold">커버 페이지</h1>
+              <h1 className="text-xl font-bold dark:text-white">커버 페이지</h1>
             </div>
           </div>
           <div className="flex gap-1 mb-2">
@@ -442,7 +442,7 @@ export default function CoverPage() {
         {/* 의뢰인 안내 */}
         {userRole === 'client' && (
           <>
-            <div className="bg-blue-50 rounded-2xl p-4 mb-4">
+            <div className="bg-blue-50 dark:bg-blue-900 rounded-2xl p-4 mb-4">
               <p className="text-sm font-medium text-blue-800 mb-1">📢 커버영상 안내</p>
               <p className="text-xs text-blue-700">• 커버영상은 음원 발매 15일 이내에 업로드됩니다.</p>
               <p className="text-xs text-blue-700">• 미션 시작 전까지 커버 체험단을 선택할 수 있습니다.</p>
@@ -453,22 +453,22 @@ export default function CoverPage() {
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 - 프로젝트 선택 */}
           <div>
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">프로젝트 선택</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3 dark:text-white">프로젝트 선택</h2>
               <div className="space-y-2">
                 {projects.map(p => (
                   <div key={p.id} onClick={() => { 
                     if (selectedProject?.id === p.id) { setSelectedProject(null) } 
                     else { setSelectedProject(p); loadCoverRequests(p.project_code) }
                   }}
-                    className={`border rounded-lg p-3 cursor-pointer ${selectedProject?.id === p.id ? 'border-purple-500 bg-purple-50' : ''}`}>
+                    className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedProject?.id === p.id ? 'border-purple-500 bg-purple-50 dark:bg-purple-900' : 'dark:bg-gray-700'}`}>
                     <div className="flex justify-between items-center gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         {p.cover_image_url && (
                           <img src={p.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                         )}
                         <div className="min-w-0">
-                          <p className="text-base font-bold">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
+                          <p className="text-base font-bold dark:text-white">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
                           <p className="text-xs text-gray-500 mt-1">{p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
                         </div>
                       </div>
@@ -481,18 +481,18 @@ export default function CoverPage() {
               </div>
             </div>
             {selectedProject && userRole === 'admin' && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">🎵 커버영상 승인 목록</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">🎵 커버영상 승인 목록</h2>
                 
                 {coverPosts.filter(p => p.project_code === selectedProject.project_code).length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">커버영상 신청이 없습니다.</p>
                 ) : (
                   <div className="space-y-2">
                     {coverPosts.filter(p => p.project_code === selectedProject.project_code).map((post) => (
-                      <div key={post.id} className="border rounded-lg p-3">
+                      <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="text-sm font-medium">{post.participants?.name}</p>
+                            <p className="text-sm font-medium dark:text-white">{post.participants?.name}</p>
                             <p className="text-xs text-gray-700">{post.projects?.artist_name || post.projects?.client_name} / {post.projects?.song_title}</p>
                             <a href={post.post_url} target="_blank" className="text-xs text-blue-500">링크 보기 →</a>
                           </div>
@@ -522,8 +522,8 @@ export default function CoverPage() {
           {/* 오른쪽 - 커버 가능 체험단 */}
           <div>
             {selectedProject && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">🎤 커버 가능 체험단</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">🎤 커버 가능 체험단</h2>
                 {userRole === 'admin' && selectedProject && (() => {
                   const daysSinceStart = selectedProject.start_date ? Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
                   const coverClosed = daysSinceStart >= 3 && !selectedProject.cover_deadline_extended
@@ -562,7 +562,7 @@ export default function CoverPage() {
                       const request = coverRequests.find(r => r.participant_id === p.id)
                       const coverPost = coverPosts.find(post => post.member_id === p.id && request?.project_code === post.project_code)
                       return (
-                        <div key={p.id} className="border rounded-lg p-3">
+                        <div key={p.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                           <div className="flex justify-between items-center">
                             <div className="flex gap-3 flex-1 min-w-0">
                               {/* 프로필사진 */}
@@ -583,16 +583,16 @@ export default function CoverPage() {
                               </div>
                               {/* 정보 */}
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium">{p.name}</p>
+                                <p className="text-sm font-medium dark:text-white">{p.name}</p>
                                 {coverRequestedIds.includes(p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= new Date()) && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 커버 희망</span>}
                                 {(() => {
                                   const platform = getCoverPlatform(p.cover_video_url)
-                                  if (platform === 'instagram' && p.instagram_id) return <p className="text-xs text-gray-500">@{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}</p>
-                                  if (platform === 'youtube' && p.youtube_id) return <p className="text-xs text-gray-500">@{p.youtube_id.replace('@','')} {p.youtube_subscribers > 0 && `(${p.youtube_subscribers.toLocaleString()}명)`}</p>
-                                  if (platform === 'tiktok' && p.tiktok_id) return <p className="text-xs text-gray-500">@{p.tiktok_id.replace('@','')} {p.tiktok_followers > 0 && `(${p.tiktok_followers.toLocaleString()}명)`}</p>
+                                  if (platform === 'instagram' && p.instagram_id) return <p className="text-xs text-gray-500 dark:text-gray-400">@{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}</p>
+                                  if (platform === 'youtube' && p.youtube_id) return <p className="text-xs text-gray-500 dark:text-gray-400">@{p.youtube_id.replace('@','')} {p.youtube_subscribers > 0 && `(${p.youtube_subscribers.toLocaleString()}명)`}</p>
+                                  if (platform === 'tiktok' && p.tiktok_id) return <p className="text-xs text-gray-500 dark:text-gray-400">@{p.tiktok_id.replace('@','')} {p.tiktok_followers > 0 && `(${p.tiktok_followers.toLocaleString()}명)`}</p>
                                   return null
                                 })()}                                
-                                <p className="text-xs text-gray-400">※ 팔로워수는 오차가 있을 수 있습니다.</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">※ 팔로워수는 오차가 있을 수 있습니다.</p>
                                 {p.cover_video_url && (
                                   <>
                                     <button onClick={() => setPreviewUrl(previewUrl === p.cover_video_url ? '' : p.cover_video_url)} className="text-xs text-blue-500">영상 보기 →</button>
@@ -706,8 +706,8 @@ export default function CoverPage() {
             )}
             {/* 커버 대시보드 */}
             {selectedProject && coverRequests.filter(r => r.status === 'APPROVED').length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-1">📊 커버 대시보드</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-1 dark:text-white">📊 커버 대시보드</h2>
                 <p className="text-xs text-gray-400 mb-3">
                   {selectedProject.start_date} ~ {selectedProject.end_date ? 
                     new Date(new Date(selectedProject.end_date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
@@ -718,10 +718,10 @@ export default function CoverPage() {
                     const participant = coverParticipants.find(p => p.id === r.participant_id)
                     const coverPost = coverPosts.find(post => post.member_id === r.participant_id && post.project_code === r.project_code)
                     return (
-                      <div key={r.id} className="border rounded-lg p-3">
+                      <div key={r.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                         <div className="flex justify-between items-center">
                           <div>
-                            <p className="text-sm font-medium">{participant?.name ?? '-'}</p>
+                            <p className="text-sm font-medium dark:text-white">{participant?.name ?? '-'}</p>
                             {coverPost && (
                               <>
                                 <button onClick={async () => {
@@ -754,7 +754,7 @@ export default function CoverPage() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
       >
         ↑
       </button>

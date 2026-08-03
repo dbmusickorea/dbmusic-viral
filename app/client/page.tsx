@@ -459,7 +459,7 @@ export default function Page3() {
           ]}
         />
       )}
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -477,7 +477,7 @@ export default function Page3() {
         setIsPulling(false)
       }}
     >
-      <div className="sticky top-0 z-30 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      <div className="sticky top-0 z-30 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         {(isPulling || isRefreshing) && (
           <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
             {isRefreshing ? (
@@ -488,7 +488,7 @@ export default function Page3() {
           </div>
         )}
           <div className="flex justify-center mb-2 max-w-7xl mx-auto">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => { if (userRole === 'admin') router.push('/admin'); else { setActiveTab('project'); window.scrollTo({ top: 0, behavior: 'smooth' }) } }} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (userRole === 'admin') router.push('/admin'); else { setActiveTab('project'); window.scrollTo({ top: 0, behavior: 'smooth' }) } }} />
           </div>
           <div className="flex justify-between items-center mb-2 max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
@@ -498,8 +498,8 @@ export default function Page3() {
                 </svg>
               </button>
               <div>
-                <p className="text-xs text-gray-500">안녕하세요</p>
-                <h1 className="text-lg font-bold">{userInfo?.name}님 👋</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">안녕하세요</p>
+                <h1 className="text-lg font-bold dark:text-white">{userInfo?.name}님 👋</h1>
               </div>
             </div>
             <div className="relative">
@@ -518,9 +518,9 @@ export default function Page3() {
               </button>
               {showNotifications && (
                 <div className="absolute right-0 top-8 z-50 w-80 max-h-[70vh] overflow-y-auto">
-                  <div className="bg-white rounded-2xl shadow-xl p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4">
                     <div className="flex justify-between items-center mb-3">
-                      <h2 className="font-bold">알림 내역</h2>
+                      <h2 className="font-bold dark:text-white">알림 내역</h2>
                       <div className="flex gap-2">
                         {unreadCount > 0 && (
                           <button onClick={() => markAllRead(String(userInfo?.id))} className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1">모두읽음</button>
@@ -538,7 +538,7 @@ export default function Page3() {
                         {notifications.map((n) => (
                           <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
                             <div className="flex-1">
-                              <p className="text-sm font-medium">{n.title}</p>
+                              <p className="text-sm font-medium dark:text-white">{n.title}</p>
                               <p className="text-xs text-gray-500 mt-1">{n.body}</p>
                               <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
@@ -565,9 +565,9 @@ export default function Page3() {
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>
             {/* 의뢰인 - 내 프로젝트 목록 */}
             {isClient && (
-              <div id="tutorial-project-card" className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-project-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <p className="text-sm font-medium">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
+                  <p className="text-sm font-medium dark:text-white">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
                 </div>
 
                 {myProjects.length === 0 && (
@@ -575,16 +575,16 @@ export default function Page3() {
                     <div className="text-center py-4">
                       <p className="text-sm text-gray-400 mb-3">프로젝트가 없습니다.</p>
                     </div>
-                    <div onClick={() => window.open('/demo', '_blank')} className="border rounded-lg p-3 cursor-pointer border-dashed border-blue-300 bg-blue-50 mt-2">
+                    <div onClick={() => window.open('/demo', '_blank')} className="border rounded-lg p-3 cursor-pointer border-dashed border-blue-300 bg-blue-50 dark:bg-blue-900 dark:border-blue-700 mt-2">
                       <div className="flex items-center gap-2">
                         <img src="https://tbohdflubypnvlgwjxtp.supabase.co/storage/v1/object/public/covers/A_1_1784796044828" className="w-10 h-10 rounded-lg object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm">옐로 / 결혼해서 좋겠다</p>
                           <div className="flex items-center gap-1 mt-0.5">
-                            <p className="text-xs text-gray-500">DEMO · 2026-07-01</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">DEMO · 2026-07-01</p>
                             <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>
                           </div>
-                          <p className="text-xs text-gray-400">👥 30/30명 · 커버 3/3</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">👥 30/30명 · 커버 3/3</p>
                         </div>
                         <span className="text-sm text-blue-600 font-medium shrink-0">샘플 보기 →</span>
                       </div>
@@ -595,19 +595,19 @@ export default function Page3() {
                   <>
                     <div className="space-y-2">
                       {myProjects.slice(myProjectPage * PAGE_SIZE, (myProjectPage + 1) * PAGE_SIZE).map((project) => (
-                        <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                        <div key={project.id} onClick={() => handleSelectProject(project)} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
                           <div className="flex justify-between items-center gap-2">
                             <div className="flex items-center gap-2 min-w-0">
                               {project.cover_image_url && (
                                 <img src={project.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                               )}
                               <div className="min-w-0">
-                                <p className="font-medium text-sm">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
+                                <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                                 <div className="flex items-center gap-1 mt-0.5">
-                                  <p className="text-xs text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
                                   {project.cover_video_count > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>}
                                 </div>
-                                <p className="text-xs text-gray-400">👥 {project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">👥 {project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
                               </div>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
@@ -619,13 +619,13 @@ export default function Page3() {
                     </div>
                     {myProjects.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
-                        <button onClick={() => setMyProjectPage(p => Math.max(0, p - 1))} disabled={myProjectPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <button onClick={() => setMyProjectPage(p => Math.max(0, p - 1))} disabled={myProjectPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
                           {Array.from({length: Math.ceil(myProjects.length / PAGE_SIZE)}, (_, i) => (
                             <button key={i} onClick={() => setMyProjectPage(i)} className={`text-xs px-2 py-1 border rounded ${myProjectPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setMyProjectPage(p => Math.min(Math.ceil(myProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(myProjectPage + 1) * PAGE_SIZE >= myProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setMyProjectPage(p => Math.min(Math.ceil(myProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(myProjectPage + 1) * PAGE_SIZE >= myProjects.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
@@ -635,17 +635,17 @@ export default function Page3() {
 
             {/* 관리자 - 프로젝트 목록 */}
             {!isClient && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">프로젝트 목록</h2>
-                <input value={clientCode} onChange={(e) => handleCodeChange(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mb-3" placeholder="프로젝트 코드 검색 (예: A_1)" />
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">프로젝트 목록</h2>
+                <input value={clientCode} onChange={(e) => handleCodeChange(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mb-3 dark:bg-gray-700 dark:text-white" placeholder="프로젝트 코드 검색 (예: A_1)" />
                 <div className="flex gap-2 mb-3">
-                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="flex-1 border rounded-lg px-2 py-1 text-xs">
+                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:bg-gray-700 dark:text-white">
                     <option value="ALL">전체</option>
                     <option value="ONGOING">진행중</option>
                     <option value="PAUSED">대기중</option>
                     <option value="COMPLETED">완료</option>
                   </select>
-                  <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="flex-1 border rounded-lg px-2 py-1 text-xs">
+                  <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:bg-gray-700 dark:text-white">
                     <option value="desc">최신순</option>
                     <option value="asc">오래된순</option>
                   </select>
@@ -656,15 +656,15 @@ export default function Page3() {
                   <>
                     <div className="space-y-2">
                       {filteredProjects.slice(allProjectPage * PAGE_SIZE, (allProjectPage + 1) * PAGE_SIZE).map((project) => (
-                        <div key={project.id} onClick={() => handleSelectProject(project)} className={`border rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                        <div key={project.id} onClick={() => handleSelectProject(project)} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${projectInfo?.id === project.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
                           <div className="flex justify-between items-center gap-2">
                             <div className="flex items-center gap-2 min-w-0">
                               {project.cover_image_url && (
                                 <img src={project.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                               )}
                               <div className="min-w-0">
-                                <p className="font-medium text-sm">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
-                                <p className="text-xs text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                                <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
                               </div>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
@@ -676,13 +676,13 @@ export default function Page3() {
                     </div>
                     {filteredProjects.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
-                        <button onClick={() => setAllProjectPage(p => Math.max(0, p - 1))} disabled={allProjectPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                        <button onClick={() => setAllProjectPage(p => Math.max(0, p - 1))} disabled={allProjectPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
                           {Array.from({length: Math.ceil(filteredProjects.length / PAGE_SIZE)}, (_, i) => (
                             <button key={i} onClick={() => setAllProjectPage(i)} className={`text-xs px-2 py-1 border rounded ${allProjectPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setAllProjectPage(p => Math.min(Math.ceil(filteredProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(allProjectPage + 1) * PAGE_SIZE >= filteredProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setAllProjectPage(p => Math.min(Math.ceil(filteredProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(allProjectPage + 1) * PAGE_SIZE >= filteredProjects.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
@@ -692,9 +692,9 @@ export default function Page3() {
 
             {/* 프로젝트 문의 게시판 */}
             {isClient && (
-              <div id="tutorial-inquiry-card" className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold">📋 프로젝트 문의</h2>
+                  <h2 className="font-bold dark:text-white">📋 프로젝트 문의</h2>
                   <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
                     {showRequestForm ? '취소' : '+ 문의하기'}
                   </button>
@@ -702,8 +702,8 @@ export default function Page3() {
                 {showRequestForm && (
                   <div className="space-y-3 mb-4 border-b pb-4">
                     <div>
-                      <label className="text-sm font-medium">문의 유형</label>
-                      <select value={requestCategory} onChange={(e) => { setRequestCategory(e.target.value); if (e.target.value !== '기타 문의') setRequestTitle(e.target.value) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                      <label className="text-sm font-medium dark:text-white">문의 유형</label>
+                      <select value={requestCategory} onChange={(e) => { setRequestCategory(e.target.value); if (e.target.value !== '기타 문의') setRequestTitle(e.target.value) }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
                         <option value="">선택해주세요</option>
                         <option value="커버 체험단 추가 요청">커버 체험단 추가 요청</option>
                         <option value="기타 문의">기타 문의</option>
@@ -711,13 +711,13 @@ export default function Page3() {
                     </div>
                     {requestCategory === '기타 문의' && (
                       <div>
-                        <label className="text-sm font-medium">제목</label>
-                        <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="문의 제목" />
+                        <label className="text-sm font-medium dark:text-white">제목</label>
+                        <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="문의 제목" />
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium">내용</label>
-                      <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="문의 내용을 입력해주세요" />
+                      <label className="text-sm font-medium dark:text-white">내용</label>
+                      <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={4} placeholder="문의 내용을 입력해주세요" />
                     </div>
                     <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록</button>
                   </div>
@@ -727,16 +727,16 @@ export default function Page3() {
                 ) : (
                   <div className="space-y-2">
                     {requests.map((req) => (
-                      <div key={req.id} className="border rounded-lg p-3">
+                      <div key={req.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                         <div className="flex justify-between items-start">
-                          <p className="text-sm font-medium">{req.title}</p>
+                          <p className="text-sm font-medium dark:text-white">{req.title}</p>
                           <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
                             {req.status === 'PENDING' ? '검토중' : '✅ 확인됨'}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{req.content}</p>
                         {req.reply && (
-                          <div className="mt-2 bg-blue-50 rounded p-2">
+                          <div className="mt-2 bg-blue-50 dark:bg-blue-900 rounded p-2">
                             <p className="text-xs text-blue-700 font-medium mb-1">💬 답장</p>
                             <p className="text-xs text-blue-600">{req.reply}</p>
                           </div>
@@ -759,12 +759,12 @@ export default function Page3() {
                   <button onClick={() => router.push('/cover')} className="w-full text-xs border rounded px-3 py-2 text-gray-600 mb-3">🎵 커버 페이지</button>
                 )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-white rounded-2xl shadow p-3 h-full flex flex-col">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 h-full flex flex-col">
                     <div>
-                    <p className="text-xs text-gray-500 mb-1">📅 프로젝트 기간</p>
-                    <p className="text-xs">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
-                    <p className="text-xs">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
-                    <p className="text-xs">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📅 프로젝트 기간</p>
+                    <p className="text-xs dark:text-gray-300">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
+                    <p className="text-xs dark:text-gray-300">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
+                    <p className="text-xs dark:text-gray-300">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
                     </div>
                     <div className="mt-auto">
                     {projectInfo.document_id && typeof window !== 'undefined' && (!(window as any).Capacitor?.isNativePlatform?.() || appVersion >= '1.2') && (
@@ -818,23 +818,23 @@ export default function Page3() {
                     )}
                     </div>                  
                   </div>
-                  <div className="bg-white rounded-2xl shadow p-3">
-                    <p className="text-xs text-gray-500 mb-1">📦 프로젝트 정보</p>
-                    <p className="text-xs">의뢰인: {projectInfo.client_name ?? '-'}</p>
-                    {projectInfo.artist_name && <p className="text-xs">가수명: {projectInfo.artist_name}</p>}
-                    {projectInfo.song_title && <p className="text-xs">노래제목: {projectInfo.song_title}</p>}
-                    <p className="text-xs">상품: {projectInfo.product_content ?? '-'}</p>
-                    <p className="text-xs">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
-                    <p className="text-xs">모집인원: {projectInfo.max_participants ?? '-'}명</p>
-                    {projectInfo.monitoring_extension > 0 && <p className="text-xs">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
-                    {projectInfo.refresh_interval && <p className="text-xs">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
-                    {projectInfo.cover_video_count > 0 && <p className="text-xs">커버영상: {projectInfo.cover_video_count}개</p>}
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📦 프로젝트 정보</p>
+                    <p className="text-xs dark:text-gray-300">의뢰인: {projectInfo.client_name ?? '-'}</p>
+                    {projectInfo.artist_name && <p className="text-xs dark:text-gray-300">가수명: {projectInfo.artist_name}</p>}
+                    {projectInfo.song_title && <p className="text-xs dark:text-gray-300">노래제목: {projectInfo.song_title}</p>}
+                    <p className="text-xs dark:text-gray-300">상품: {projectInfo.product_content ?? '-'}</p>
+                    <p className="text-xs dark:text-gray-300">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
+                    <p className="text-xs dark:text-gray-300">모집인원: {projectInfo.max_participants ?? '-'}명</p>
+                    {projectInfo.monitoring_extension > 0 && <p className="text-xs dark:text-gray-300">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
+                    {projectInfo.refresh_interval && <p className="text-xs dark:text-gray-300">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
+                    {projectInfo.cover_video_count > 0 && <p className="text-xs dark:text-gray-300">커버영상: {projectInfo.cover_video_count}개</p>}
                   </div>
                 </div>
                 {projectInfo.requirements && (
-                  <div className="bg-white rounded-2xl shadow p-3 mb-4">
-                    <p className="text-xs text-gray-500 mb-1">📋 의뢰인 요청사항</p>
-                    <p className="text-xs whitespace-pre-wrap text-gray-700">{projectInfo.requirements}</p>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 mb-4">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📋 의뢰인 요청사항</p>
+                    <p className="text-xs whitespace-pre-wrap text-gray-700 dark:text-gray-300">{projectInfo.requirements}</p>
                   </div>
                 )}
               </>
@@ -842,7 +842,7 @@ export default function Page3() {
 
             {/* 결과보고서 다운로드 */}
             {projectInfo && projectInfo.status === 'COMPLETED' && (
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4">
+              <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-2xl p-3 mb-4">
                 <p className="text-sm font-medium text-blue-800 mb-2">📊 프로젝트 결과보고서</p>
                 <button onClick={() => window.open(`/report?project_code=${projectInfo.project_code}`, '_blank')} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
                   결과보고서 받기
@@ -852,32 +852,32 @@ export default function Page3() {
 
             {/* 총 통계 */}
             {posts.length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">📊 전체 통계</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">📊 전체 통계</h2>
                 <div className={`grid gap-3 ${topRanker ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-500">총 게시물</p>
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">총 게시물</p>
                     <p className="text-lg font-bold text-blue-600">{posts.length}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-500">총 좋아요</p>
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">총 좋아요</p>
                     <p className="text-lg font-bold text-red-500">{totalLikes.toLocaleString()}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-500">총 댓글</p>
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">총 댓글</p>
                     <p className="text-lg font-bold text-green-600">{totalComments.toLocaleString()}</p>
                   </div>
                   {topRanker && (
-                    <div className="bg-yellow-50 rounded-lg p-3 text-center">
-                      <p className="text-xs text-gray-500">🏆 1등</p>
+                    <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">🏆 1등</p>
                       <p className="text-sm font-bold text-yellow-700">{topRanker.influencer_name}</p>
-                      <p className="text-xs text-gray-500">❤️ {topRanker.likes_count?.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">❤️ {topRanker.likes_count?.toLocaleString()}</p>
                     </div>
                   )}
                 </div>
                 {dailyStats.length > 0 && (
                   <div className="mt-4 relative z-10">
-                    <p className="text-sm font-medium mb-2">📈 일별 변화 추이</p>
+                    <p className="text-sm font-medium mb-2 dark:text-white">📈 일별 변화 추이</p>
                     
                     {/* 인스타그램 */}
                     {dailyStats.some(d => d.ig_likes || d.ig_comments || d.ig_views || d.ig_audio) && (
@@ -902,28 +902,28 @@ export default function Page3() {
 
             {/* SNS별 통계 */}
             {posts.length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">📱 SNS별 통계</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">📱 SNS별 통계</h2>
                 <div className="space-y-2">
                   {snsList.map(({ label, posts: snsPosts, links: snsLinks, icon }) => (
-                    <div key={label} className="border rounded-lg p-3">
-                      <p className="text-sm font-medium mb-2 flex items-center gap-1">{icon} {label}</p>
+                    <div key={label} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                      <p className="text-sm font-medium mb-2 flex items-center gap-1 dark:text-white">{icon} {label}</p>
                       <div className="grid grid-cols-4 gap-2">
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">게시물</p>
-                          <p className="text-sm font-bold">{snsPosts.length}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">게시물</p>
+                          <p className="text-sm font-bold dark:text-white">{snsPosts.length}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">{label === '유튜브' ? '좋아요' : '하트'}</p>
-                          <p className="text-sm font-bold text-red-500">{(snsPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0) + snsLinks.reduce((s, l) => s + (l.likes_count ?? 0), 0)).toLocaleString()}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{label === '유튜브' ? '좋아요' : '하트'}</p>
+                          <p className="text-sm font-bold text-red-500 dark:text-red-400">{(snsPosts.reduce((s, p) => s + (p.likes_count ?? 0), 0) + snsLinks.reduce((s, l) => s + (l.likes_count ?? 0), 0)).toLocaleString()}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">댓글</p>
-                          <p className="text-sm font-bold text-green-600">{(snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0) + snsLinks.reduce((s, l) => s + (l.comments_count ?? 0), 0)).toLocaleString()}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">댓글</p>
+                          <p className="text-sm font-bold text-green-600 dark:text-green-400">{(snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0) + snsLinks.reduce((s, l) => s + (l.comments_count ?? 0), 0)).toLocaleString()}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500">총 음원사용</p>
-                          <p className="text-sm font-bold text-purple-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">총 음원사용</p>
+                          <p className="text-sm font-bold text-purple-600 dark:text-purple-400">
                             {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
                             {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
                             {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
@@ -934,7 +934,7 @@ export default function Page3() {
                             </a>
                           )}
                           {label === '틱톡' && projectInfo?.tiktok_audio_id && (
-                            <a href={projectInfo.tiktok_audio_id} target="_blank" className="text-xs text-black border border-gray-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                            <a href={projectInfo.tiktok_audio_id} target="_blank" className="text-xs text-black dark:text-gray-300 border border-gray-300 dark:border-gray-500 rounded-lg px-3 py-1.5 mt-2 block text-center">
                               재사용 현황
                             </a>
                           )}
@@ -947,15 +947,15 @@ export default function Page3() {
                       </div>
                     </div>
                   ))}
-                  <p className="text-xs text-gray-400 mt-2">※ 게시물 수는 더블비뮤직 체험단 업로드 기준이며, 음원 사용량은 인스타그램/틱톡 전체 기준(체험단 외 일반 사용자 포함)입니다.</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">※ 게시물 수는 더블비뮤직 체험단 업로드 기준이며, 음원 사용량은 인스타그램/틱톡 전체 기준(체험단 외 일반 사용자 포함)입니다.</p>
                 </div>
               </div>
             )}
 
             {/* 댓글 미션 현황 */}
             {commentMissionData && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">💬 댓글 부스팅 현황</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">💬 댓글 부스팅 현황</h2>
                 <div className="text-center mb-4">
                   <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
                   <p className="text-3xl font-bold text-red-500">{commentMissionData.missions.length}건</p>
@@ -968,10 +968,10 @@ export default function Page3() {
                         const platformLabel = link.platform === 'youtube_shorts' ? '유튜브 숏츠' : link.platform === 'youtube_long' ? '유튜브 영상' : link.platform === 'youtube_lyric' ? '리릭영상' : '플레이리스트'
                         const count = commentMissionData.missions.filter((m: any) => m.video_id === link.video_id).length
                         return (
-                          <div key={link.id} className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+                          <div key={link.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
                             <div>
-                              <p className="text-xs text-gray-500">{platformLabel}</p>
-                              <p className="text-sm font-bold text-red-500">{count}건</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{platformLabel}</p>
+                              <p className="text-sm font-bold text-red-500 dark:text-red-400">{count}건</p>
                             </div>
                             <a href={link.url} target="_blank" className="text-xs text-blue-500 border border-blue-300 rounded px-2 py-1">링크 보기</a>
                           </div>
@@ -984,11 +984,11 @@ export default function Page3() {
 
             {/* 커버 신청 목록 */}
             {coverRequests.length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">🎵 커버 신청</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">🎵 커버 신청</h2>
                 <div className="space-y-2">
                   {coverRequests.map((req: any) => (
-                    <div key={req.id} className="border border-purple-200 rounded-lg p-3 bg-purple-50">
+                    <div key={req.id} className="border border-purple-200 dark:border-purple-700 rounded-lg p-3 bg-purple-50 dark:bg-purple-900">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           {req.participants?.instagram_profile_image || req.participants?.youtube_profile_image || req.participants?.tiktok_profile_image ? (
@@ -999,10 +999,10 @@ export default function Page3() {
                               req.participants?.youtube_profile_image ?? req.participants?.instagram_profile_image ?? req.participants?.tiktok_profile_image
                             } className="w-10 h-10 rounded-full object-cover" />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-purple-600 font-bold text-sm">{req.participants?.name?.[0]}</div>
+                            <div className="w-10 h-10 rounded-full bg-purple-200 dark:bg-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-300 font-bold text-sm">{req.participants?.name?.[0]}</div>
                           )}
                           <div>
-                            <p className="text-sm font-medium">{req.participants?.name}</p>
+                            <p className="text-sm font-medium dark:text-purple-200">{req.participants?.name}</p>
                             <p className="text-xs text-purple-600">이 체험단이 커버를 하고 싶어해요! 🎤</p>
                           </div>
                         </div>
@@ -1016,18 +1016,18 @@ export default function Page3() {
 
             {/* 인스타/틱톡 링크 */}
             {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">📱 관리자 SNS 링크</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">📱 관리자 SNS 링크</h2>
                 <div className="space-y-2">
                   {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).map(link => (
-                    <div key={link.id} className="flex justify-between items-center bg-gray-50 rounded-lg p-3">
+                    <div key={link.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                       <div className="flex items-center gap-2">
                         {link.platform === 'instagram' ? (
                           <PlatformIcon platform="instagram" size={16} />
                         ) : (
                           <PlatformIcon platform="tiktok" size={16} />
                         )}
-                        <p className="text-sm">{link.platform === 'instagram' ? '인스타그램' : '틱톡'}</p>
+                        <p className="text-sm dark:text-white">{link.platform === 'instagram' ? '인스타그램' : '틱톡'}</p>
                       </div>
                       <a href={link.url} target="_blank" className="text-xs text-blue-500 border border-blue-300 rounded px-2 py-1">링크 보기 →</a>
                     </div>
@@ -1038,8 +1038,8 @@ export default function Page3() {
 
             {/* 게시물 목록 */}
             {projectInfo && (
-              <div ref={postsRef} className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">게시물 목록</h2>
+              <div ref={postsRef} className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">게시물 목록</h2>
                 {posts.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
                 ) : (
@@ -1051,7 +1051,7 @@ export default function Page3() {
                         const rank = postPage * PAGE_SIZE + index + 1
                         const isEligible = (post.likes_count ?? 0) >= 1000
                         return (
-                          <div key={post.id} className="border rounded-lg p-3">
+                          <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                             <div className="flex gap-3">
                               <div className="shrink-0">
                                 {(post.platform === 'instagram' ? post.participant?.instagram_profile_image :
@@ -1076,22 +1076,22 @@ export default function Page3() {
                                           {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`}
                                         </span>
                                       ) : null}
-                                      <p className="text-sm font-medium">{post.influencer_name}</p>
+                                      <p className="text-sm font-medium dark:text-white">{post.influencer_name}</p>
                                       {post.platform === 'instagram' && post.participant?.instagram_id && (
-                                        <span className="text-xs text-gray-500">@{post.participant.instagram_id.replace('@','')} ({post.participant.instagram_followers?.toLocaleString() ?? '-'}명)</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">@{post.participant.instagram_id.replace('@','')} ({post.participant.instagram_followers?.toLocaleString() ?? '-'}명)</span>
                                       )}
                                       {post.platform === 'youtube' && post.participant?.youtube_id && (
-                                        <span className="text-xs text-gray-500">@{post.participant.youtube_id.replace('@','')} ({post.participant.youtube_subscribers?.toLocaleString() ?? '-'}명)</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">@{post.participant.youtube_id.replace('@','')} ({post.participant.youtube_subscribers?.toLocaleString() ?? '-'}명)</span>
                                       )}
                                       {post.platform === 'tiktok' && post.participant?.tiktok_id && (
-                                        <span className="text-xs text-gray-500">@{post.participant.tiktok_id.replace('@','')} ({post.participant.tiktok_followers?.toLocaleString() ?? '-'}명)</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">@{post.participant.tiktok_id.replace('@','')} ({post.participant.tiktok_followers?.toLocaleString() ?? '-'}명)</span>
                                       )}
                                     </div>
-                                    <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                                     {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
                                   </div>
                                   <div className="text-right shrink-0 ml-2">
-                                    <p className="text-sm flex items-center justify-end gap-1">
+                                    <p className="text-sm flex items-center justify-end gap-1 dark:text-gray-300">
                                       {post.platform === 'youtube' ? <ThumbsUp size={12} className="text-red-500" /> : <Heart size={12} className="text-red-500" />}
                                       {post.likes_count?.toLocaleString()}
                                     </p>
@@ -1115,13 +1115,13 @@ export default function Page3() {
                       })}
                       {posts.length > PAGE_SIZE && (
                         <div className="flex justify-between items-center mt-3">
-                          <button onClick={() => setPostPage(p => Math.max(0, p - 1))} disabled={postPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                          <button onClick={() => setPostPage(p => Math.max(0, p - 1))} disabled={postPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                           <div className="flex gap-1">
                             {Array.from({length: Math.ceil(posts.length / PAGE_SIZE)}, (_, i) => (
-                              <button key={i} onClick={() => setPostPage(i)} className={`text-xs px-2 py-1 border rounded ${postPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                              <button key={i} onClick={() => setPostPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${postPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
                             ))}
                           </div>
-                          <button onClick={() => setPostPage(p => Math.min(Math.ceil(posts.length / PAGE_SIZE) - 1, p + 1))} disabled={(postPage + 1) * PAGE_SIZE >= posts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                          <button onClick={() => setPostPage(p => Math.min(Math.ceil(posts.length / PAGE_SIZE) - 1, p + 1))} disabled={(postPage + 1) * PAGE_SIZE >= posts.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                         </div>
                       )}
                     </div>
@@ -1132,14 +1132,14 @@ export default function Page3() {
         </div>
         {/* 보고서 탭 */}
         <div id="tutorial-report-tab" className={`${activeTab === 'report' ? 'block' : 'hidden'}`}>
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-4">📊 결과보고서</h2>
             <div className="space-y-3">
               {myProjects?.map((p: any) => (
                 <div key={p.project_code} className="border rounded-xl p-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-sm">{p.artist_name} / {p.song_title}</p>
+                      <p className="font-medium text-sm dark:text-white">{p.artist_name} / {p.song_title}</p>
                       <p className="text-xs text-gray-400 mt-1">{p.start_date} ~ {p.end_date}</p>
                     </div>
                     {p.status === 'COMPLETED' ? (
@@ -1157,7 +1157,7 @@ export default function Page3() {
         </div>
         {/* 프로젝트 신청 탭 */}
         <div className={`${activeTab === 'apply' ? 'block md:hidden' : 'hidden'}`}>
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <button onClick={() => setShowApplyModal(true)} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">+ 프로젝트 신청</button>
           </div>
         </div>
@@ -1165,7 +1165,7 @@ export default function Page3() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
       >
         ↑
       </button>
@@ -1173,7 +1173,7 @@ export default function Page3() {
       {userRole === 'admin' ? (
         <AdminBottomNav active="client" onClientClick={() => setActiveTab('project')} />
       ) : (
-        <div id="tutorial-bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
+        <div id="tutorial-bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
           <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400'}`}>
             <LayoutGrid size={20} className="mb-0.5" />프로젝트
           </button>

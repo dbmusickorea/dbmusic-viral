@@ -175,7 +175,7 @@ export default function Page5() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -194,7 +194,7 @@ export default function Page5() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -205,7 +205,7 @@ export default function Page5() {
             </div>
           )}
           <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
           </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
@@ -214,7 +214,7 @@ export default function Page5() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold">정산 관리</h1>
+              <h1 className="text-xl font-bold dark:text-white">정산 관리</h1>
             </div>
             <div className="flex gap-2">
               <button onClick={async () => {
@@ -246,20 +246,20 @@ export default function Page5() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white rounded-2xl shadow p-4">
-            <p className="text-xs text-gray-500">체험단 총 적립금</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400">체험단 총 적립금</p>
             <p className="text-xl font-bold text-blue-600">{totalBalance.toLocaleString()}P</p>
           </div>
-          <div className="bg-white rounded-2xl shadow p-4">
-            <p className="text-xs text-gray-500">환전 가능 금액</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400">환전 가능 금액</p>
             <p className="text-xl font-bold text-green-600">{totalAvailable.toLocaleString()}P</p>
           </div>
         </div>
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 - 환전 신청 목록 */}
           <div>
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3">환전 신청 목록</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <h2 className="font-bold mb-3 dark:text-white">환전 신청 목록</h2>
               {settlements.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-4">신청 내역이 없습니다.</p>
               ) : (
@@ -273,16 +273,16 @@ export default function Page5() {
                       } else {
                         handleSelect(s)
                       }
-                    }} className={`border rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50' : ''}`}>
+                    }} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-medium text-sm">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
-                          <p className="text-xs text-gray-500">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                           {s.paid_at && <p className="text-xs text-blue-600">정산완료: {new Date(s.paid_at).toLocaleDateString('ko-KR')}</p>}
                           {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium">{s.amount?.toLocaleString()}P</p>
+                          <p className="text-sm font-medium dark:text-white">{s.amount?.toLocaleString()}P</p>
                           {statusLabel(s.status)}
                         </div>
                       </div>
@@ -296,10 +296,10 @@ export default function Page5() {
           {/* 오른쪽 - 상세 정보 */}
           <div>
             {selected && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3">💰 환전 신청 상세</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold mb-3 dark:text-white">💰 환전 신청 상세</h2>
                 <div className="space-y-2 text-sm">
-                  <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                     <p className="font-medium text-base">{selectedParticipant?.name ?? '-'}</p>
                     {selectedParticipant?.referral_code && (
                       <p className="text-xs text-blue-600 mt-1">추천인 코드: {selectedParticipant.referral_code}</p>
@@ -314,7 +314,7 @@ export default function Page5() {
                   <p>상태: {statusLabel(selected.status)}</p>
                 </div>
                 <div className="mt-4">
-                  <label className="text-sm font-medium">📝 관리자 메모 (체험단에게 전달)</label>
+                  <label className="text-sm font-medium dark:text-white">📝 관리자 메모 (체험단에게 전달)</label>
                   <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
                   <button onClick={handleSaveMemo} className="w-full border rounded-lg py-2 text-sm mt-1">메모 저장</button>
                 </div>
@@ -329,18 +329,18 @@ export default function Page5() {
 
             {memberPosts.length > 0 && (
               <div className="bg-white rounded-2xl shadow p-4">
-                <h2 className="font-bold mb-3">📋 체험단 게시물 내역</h2>
+                <h2 className="font-bold mb-3 dark:text-white">📋 체험단 게시물 내역</h2>
                 <div className="space-y-2">
                   {memberPosts.slice(memberPostPage * PAGE_SIZE, (memberPostPage + 1) * PAGE_SIZE).map((post) => (
-                    <div key={post.id} className="border rounded-lg p-3">
+                    <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-sm font-medium">{post.project_code}</p>
-                          <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                          <p className="text-sm font-medium dark:text-white">{post.project_code}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm">❤️ {post.likes_count?.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500">💬 {post.comments_count?.toLocaleString()}</p>
+                          <p className="text-sm dark:text-white">❤️ {post.likes_count?.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">💬 {post.comments_count?.toLocaleString()}</p>
                         </div>
                       </div>
                       <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>
@@ -350,7 +350,7 @@ export default function Page5() {
                 {memberPosts.length > PAGE_SIZE && (
                   <div className="flex justify-between items-center mt-3">
                     <button onClick={() => setMemberPostPage(p => Math.max(0, p - 1))} disabled={memberPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                    <span className="text-xs text-gray-500">{memberPostPage + 1} / {Math.ceil(memberPosts.length / PAGE_SIZE)}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{memberPostPage + 1} / {Math.ceil(memberPosts.length / PAGE_SIZE)}</span>
                     <button onClick={() => setMemberPostPage(p => Math.min(Math.ceil(memberPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(memberPostPage + 1) * PAGE_SIZE >= memberPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
                   </div>
                 )}
@@ -364,7 +364,7 @@ export default function Page5() {
     {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
       >
         ↑
       </button>
