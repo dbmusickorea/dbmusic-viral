@@ -75,6 +75,19 @@ export default function Page1() {
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
   const [showSidebar, setShowSidebar] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+
+  const toggleDarkMode = () => {
+    const html = document.documentElement
+    if (darkMode) {
+      html.classList.remove('dark')
+      localStorage.setItem('darkMode', 'false')
+    } else {
+      html.classList.add('dark')
+      localStorage.setItem('darkMode', 'true')
+    }
+    setDarkMode(!darkMode)
+  }
   const PAGE_SIZE = 5
   const router = useRouter()
   const { showToast } = useToast()
@@ -1014,7 +1027,7 @@ export default function Page1() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />     
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -1032,7 +1045,7 @@ export default function Page1() {
         setIsPulling(false)
       }}
     >
-        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -1043,7 +1056,7 @@ export default function Page1() {
             </div>
           )}
           <div className="w-full flex justify-center mb-2 max-w-7xl mx-auto">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/admin')} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
           </div>
           <div className="flex justify-between items-center mb-2 max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
@@ -1052,7 +1065,10 @@ export default function Page1() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold">프로젝트 관리</h1>
+              <h1 className="text-xl font-bold dark:text-white">프로젝트 관리</h1>
+              <button onClick={toggleDarkMode} className="text-xs border rounded px-2 py-1 ml-2">
+                {darkMode ? '☀️' : '🌙'}
+              </button>
             </div>
             <div className="relative">
               <button onClick={() => { 
@@ -1228,9 +1244,9 @@ export default function Page1() {
 
           {/* 오른쪽 컬럼 */}
           <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
+                <h2 className="font-bold dark:text-white">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
                 <div className="flex gap-2">
                   {selectedProject && (
                     <button onClick={async () => {
@@ -1282,7 +1298,7 @@ export default function Page1() {
             </div>
 
             {selectedProject && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <AdminParticipantList
                   participants={participants}
                   selectedParticipantId={selectedParticipantId}
@@ -1296,7 +1312,7 @@ export default function Page1() {
             )}
 
             {selectedProject && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <AdminPostList
                   posts={posts}
                   selectedParticipantId={selectedParticipantId}

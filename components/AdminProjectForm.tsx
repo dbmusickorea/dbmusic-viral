@@ -22,16 +22,16 @@ type Props = {
   filteredClients: any[]
 }
 
-const inputClass = 'w-full border rounded-lg px-3 py-2 text-base box-border'
+const inputClass = 'w-full border rounded-lg px-3 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600'
 const dateInputStyle = { WebkitAppearance: 'none' as const }
 
 export default function AdminProjectForm({ formData, setFormData, products, clients, artistList, coverImageFile, setCoverImageFile, isSaving, selectedProject, handleInsert, handleUpdate, handlePrefixChange, getTotalCost, getSelectedProductPrice, showToast, clientSearch, setClientSearch, setArtistList, filteredClients }: Props) {
   return (
     <>
                   {(formData.productContent && formData.productContent !== '__direct__') && (
-                    <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-gray-500">💰 프로젝트 총비용</p>
-                      <p className="text-xl font-bold text-blue-600">{getTotalCost().toLocaleString()}원</p>
+                    <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">💰 프로젝트 총비용</p>
+                      <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{getTotalCost().toLocaleString()}원</p>
                       <div className="text-xs text-gray-500 mt-1 space-y-1">
                         <p>상품: {getSelectedProductPrice().toLocaleString()}원</p>
                         {formData.optionPrice && <p>추가 옵션: +{Number(formData.optionPrice).toLocaleString()}원</p>}
@@ -45,22 +45,22 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                   <div className="space-y-3">
                     {!selectedProject ? (
                       <div>
-                        <label className="text-sm font-medium">프로젝트 코드 자동생성</label>
+                        <label className="text-sm font-medium dark:text-gray-200">프로젝트 코드 자동생성</label>
                         <div className="flex gap-2 mt-1">
-                          <input value={formData.projectPrefix} onChange={(e) => handlePrefixChange(e.target.value)} className="w-20 border rounded-lg px-3 py-2 text-base" placeholder="A" maxLength={3} />
-                          <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600">{formData.projectCode || '코드 자동생성'}</div>
+                          <input value={formData.projectPrefix} onChange={(e) => handlePrefixChange(e.target.value)} className="w-20 border rounded-lg px-3 py-2 text-base dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="A" maxLength={3} />
+                          <div className="flex-1 border rounded-lg px-3 py-2 text-base bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">{formData.projectCode || '코드 자동생성'}</div>
                         </div>
                         <p className="text-xs text-gray-400 mt-1">알파벳 입력 시 자동으로 코드가 생성돼요</p>
                       </div>
                     ) : (
                       <div>
-                        <label className="text-sm font-medium">프로젝트 코드</label>
+                        <label className="text-sm font-medium dark:text-gray-200">프로젝트 코드</label>
                         <input value={formData.projectCode} className={`${inputClass} bg-gray-100`} disabled />
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium">앨범 자켓 이미지</label>
-                      <input type="file" accept="image/*" onChange={(e) => setCoverImageFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      <label className="text-sm font-medium dark:text-gray-200">앨범 자켓 이미지</label>
+                      <input type="file" accept="image/*" onChange={(e) => setCoverImageFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600" />
                       {coverImageFile && (
                         <img src={URL.createObjectURL(coverImageFile)} className="w-20 h-20 rounded-lg object-cover mt-2" />
                       )}
@@ -69,7 +69,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-medium">의뢰인 선택</label>
+                      <label className="text-sm font-medium dark:text-gray-200">의뢰인 선택</label>
                       <input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className={inputClass} placeholder="이름/소속사/아티스트 검색" />
                       {clientSearch && filteredClients.length > 0 && (
                         <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
@@ -83,7 +83,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               setArtistList(data ?? [])
                             }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${formData.selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                               <p className="font-medium">{c.name}</p>
-                              <p className="text-xs text-gray-500">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
                             </div>
                           ))}
                         </div>
@@ -92,7 +92,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                     </div>
                     {formData.selectedClientId && artistList.length > 0 && (
                       <div>
-                        <label className="text-sm font-medium">아티스트 선택</label>
+                        <label className="text-sm font-medium dark:text-gray-200">아티스트 선택</label>
                         <select value={formData.artistName} onChange={(e) => setFormData((prev: any) => ({...prev, artistName: e.target.value}))} className={inputClass}>
                           <option value="">아티스트 선택</option>
                           {artistList.map((a) => (
@@ -102,24 +102,24 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium">노래제목</label>
+                      <label className="text-sm font-medium dark:text-gray-200">노래제목</label>
                       <input value={formData.songTitle} onChange={(e) => setFormData((prev: any) => ({...prev, songTitle: e.target.value}))} className={inputClass} placeholder="노래제목 입력" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">인스타그램 음원 URL</label>
+                      <label className="text-sm font-medium dark:text-gray-200">인스타그램 음원 URL</label>
                       <input value={formData.instagramAudioId} onChange={(e) => {
                         const match = e.target.value.match(/reels\/audio\/(\d+)/)
                         setFormData((prev: any) => ({...prev, instagramAudioId: match ? match[1] : e.target.value}))
                       }} className={inputClass} placeholder="https://www.instagram.com/reels/audio/..." />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">틱톡 음원 URL</label>
+                      <label className="text-sm font-medium dark:text-gray-200">틱톡 음원 URL</label>
                       <input value={formData.tiktokAudioId} onChange={(e) => {
                         setFormData((prev: any) => ({...prev, tiktokAudioId: e.target.value}))
                       }} className={inputClass} placeholder="https://www.tiktok.com/music/..." />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">유튜브 음원 URL</label>
+                      <label className="text-sm font-medium dark:text-gray-200">유튜브 음원 URL</label>
                       <input value={formData.youtubeAudioId} onChange={(e) => {
                         const watchMatch = e.target.value.match(/[?&]v=([^&]+)/)
                         const sourceMatch = e.target.value.match(/source\/([^/]+)\/shorts/)
@@ -127,7 +127,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       }} className={inputClass} placeholder="https://youtube.com/source/ID/shorts 또는 watch?v=..." />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">상품내용</label>
+                      <label className="text-sm font-medium dark:text-gray-200">상품내용</label>
                       {products.length > 0 ? (
                         <select value={formData.productContent} onChange={(e) => {
                           setFormData((prev: any) => ({...prev, productContent: e.target.value,
@@ -150,17 +150,17 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-medium">추가 옵션명 (선택)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">추가 옵션명 (선택)</label>
                       <input value={formData.optionName} onChange={(e) => setFormData((prev: any) => ({...prev, optionName: e.target.value}))} className={inputClass} placeholder="예: 숏츠 3개 추가" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">추가 옵션 가격 (선택)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">추가 옵션 가격 (선택)</label>
                       <input type="number" value={formData.optionPrice} onChange={(e) => setFormData((prev: any) => ({...prev, optionPrice: e.target.value}))} className={inputClass} placeholder="옵션 가격 입력" />
                     </div>
                     <div>
                       {/* 유튜브 링크 */}
                       <div className="flex justify-between items-center mb-2">
-                        <label className="text-sm font-medium">댓글 부스팅 유튜브 링크</label>
+                        <label className="text-sm font-medium dark:text-gray-200">댓글 부스팅 유튜브 링크</label>
                         <button onClick={() => setFormData((prev: any) => ({...prev, projectLinks: [...prev.projectLinks, { platform: 'youtube_shorts', url: '', isNew: true }]}))} className="text-xs bg-red-600 text-white px-2 py-1 rounded">+ 추가</button>
                       </div>
                       {formData.projectLinks.filter((l: any) => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform)).map((link: any, i: any) => {
@@ -171,7 +171,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].platform = e.target.value
                               setFormData((prev: any) => ({...prev, projectLinks: newLinks}))
-                            }} className="border rounded-lg px-2 py-2 text-base box-border">
+                            }} className="border rounded-lg px-2 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600">
                               <option value="youtube_shorts">유튜브 숏츠</option>
                               <option value="youtube_long">유튜브 영상</option>
                               <option value="youtube_lyric">리릭영상</option>
@@ -181,7 +181,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].url = e.target.value
                               setFormData((prev: any) => ({...prev, projectLinks: newLinks}))
-                            }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border" placeholder="URL 입력" />
+                            }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="URL 입력" />
                             <button onClick={async () => {
                               if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
                               setFormData((prev: any) => ({...prev, projectLinks: formData.projectLinks.filter((_: any, idx: any) => idx !== realIdx)}))
@@ -192,7 +192,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
 
                       {/* 인스타/틱톡 링크 */}
                       <div className="flex justify-between items-center mb-2 mt-4">
-                        <label className="text-sm font-medium">인스타/틱톡 링크</label>
+                        <label className="text-sm font-medium dark:text-gray-200">인스타/틱톡 링크</label>
                         <button onClick={() => setFormData((prev: any) => ({...prev, projectLinks: [...prev.projectLinks, { platform: 'instagram', url: '', isNew: true }]}))} className="text-xs bg-pink-600 text-white px-2 py-1 rounded">+ 추가</button>
                       </div>
                       {formData.projectLinks.filter((l: any) => ['instagram', 'tiktok'].includes(l.platform)).map((link: any, i: any) => {
@@ -203,7 +203,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].platform = e.target.value
                               setFormData((prev: any) => ({...prev, projectLinks: newLinks}))
-                            }} className="border rounded-lg px-2 py-2 text-base box-border">
+                            }} className="border rounded-lg px-2 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600">
                               <option value="instagram">인스타그램</option>
                               <option value="tiktok">틱톡</option>
                             </select>
@@ -211,7 +211,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               const newLinks = [...formData.projectLinks]
                               newLinks[realIdx].url = e.target.value
                               setFormData((prev: any) => ({...prev, projectLinks: newLinks}))
-                            }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border" placeholder="URL 입력" />
+                            }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="URL 입력" />
                             <button onClick={async () => {
                               if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
                               setFormData((prev: any) => ({...prev, projectLinks: formData.projectLinks.filter((_: any, idx: any) => idx !== realIdx)}))
@@ -221,7 +221,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       })}
                     </div>
                     <div>
-                      <label className="text-sm font-medium">새로고침 주기 (추가 옵션)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">새로고침 주기 (추가 옵션)</label>
                       <select value={formData.refreshInterval} onChange={(e) => setFormData((prev: any) => ({...prev, refreshInterval: e.target.value}))} className={inputClass}>
                         <option value="12">기본 트래픽 - 일 2회 / 12시간 주기</option>
                         <option value="6" disabled={formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')}>실버 트래픽 - 일 4회 / 6시간 주기 (150,000원)</option>
@@ -233,7 +233,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-medium">모니터링 기간 연장 (추가 옵션)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">모니터링 기간 연장 (추가 옵션)</label>
                       <select value={formData.monitoringExtension} onChange={(e) => {
                         const days = Number(e.target.value)
                         setFormData((prev: any) => ({...prev, monitoringExtension: days}))
@@ -250,7 +250,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">커버영상 옵션 (추가 옵션)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">커버영상 옵션 (추가 옵션)</label>
                       <select value={formData.coverVideoCount} onChange={(e) => setFormData((prev: any) => ({...prev, coverVideoCount: Number(e.target.value)}))} className={inputClass}>
                         <option value="0">없음</option>
                         <option value="10">10개 (1,500,000원)</option>
@@ -259,7 +259,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">요청 게시물 수 (추가 옵션)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">요청 게시물 수 (추가 옵션)</label>
                       <select value={formData.requiredPosts} onChange={(e) => setFormData((prev: any) => ({...prev, requiredPosts: e.target.value}))} className={inputClass}
                         disabled={formData.productContent.includes('스탠다드 30') || formData.productContent.includes('스탠다드30')}>
                         <option value="1">1개</option>
@@ -270,11 +270,11 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-medium">모집인원</label>
+                      <label className="text-sm font-medium dark:text-gray-200">모집인원</label>
                       <input type="number" value={formData.maxParticipants} onChange={(e) => setFormData((prev: any) => ({...prev, maxParticipants: e.target.value}))} className={inputClass} placeholder="모집 인원 수 입력" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">모집일</label>
+                      <label className="text-sm font-medium dark:text-gray-200">모집일</label>
                       <div className="flex gap-2">
                         <input type="date" value={formData.missionDate} onChange={(e) => setFormData((prev: any) => ({...prev, missionDate: e.target.value}))} className={inputClass} style={dateInputStyle} />
                         <select value={formData.missionTime} onChange={(e) => setFormData((prev: any) => ({...prev, missionTime: e.target.value}))} className={inputClass}>
@@ -286,11 +286,11 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">요청사항</label>
+                      <label className="text-sm font-medium dark:text-gray-200">요청사항</label>
                       <textarea value={formData.requirements} onChange={(e) => setFormData((prev: any) => ({...prev, requirements: e.target.value}))} className={inputClass} rows={3} />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">프로젝트 상태</label>
+                      <label className="text-sm font-medium dark:text-gray-200">프로젝트 상태</label>
                       <select value={formData.status} onChange={(e) => setFormData((prev: any) => ({...prev, status: e.target.value}))} className={inputClass}>
                         <option value="PENDING">대기중</option>
                         <option value="ONGOING">진행중</option>
@@ -298,7 +298,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">시작일</label>
+                      <label className="text-sm font-medium dark:text-gray-200">시작일</label>
                       <div className="flex gap-2">
                         <input type="date" value={formData.startDate} onChange={(e) => {
                           if (e.target.value) {
@@ -320,7 +320,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">종료일</label>
+                      <label className="text-sm font-medium dark:text-gray-200">종료일</label>
                       <div className="flex gap-2">
                         <input type="date" value={formData.endDate} onChange={(e) => setFormData((prev: any) => ({...prev, endDate: e.target.value}))} className={inputClass} style={dateInputStyle} />
                         <select value={formData.endTime} onChange={(e) => setFormData((prev: any) => ({...prev, endTime: e.target.value}))} className={inputClass}>
@@ -333,7 +333,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                     </div>
                     {Number(formData.requiredPosts) === 2 && (
                       <div>
-                        <label className="text-sm font-medium">2차 게시물 날짜</label>
+                        <label className="text-sm font-medium dark:text-gray-200">2차 게시물 날짜</label>
                         <div className="flex gap-2">
                           <input type="date" value={formData.secondPostDate} onChange={(e) => setFormData((prev: any) => ({...prev, secondPostDate: e.target.value}))} className={inputClass} style={dateInputStyle} />
                           <select value={formData.secondPostTime} onChange={(e) => setFormData((prev: any) => ({...prev, secondPostTime: e.target.value}))} className={inputClass}>
@@ -346,7 +346,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium">게시물당 금액 (체험단 지급)</label>
+                      <label className="text-sm font-medium dark:text-gray-200">게시물당 금액 (체험단 지급)</label>
                       <input type="number" value={formData.rewardPerPost} onChange={(e) => setFormData((prev: any) => ({...prev, rewardPerPost: e.target.value}))} className={inputClass} placeholder="기본값: 2,500원" />
                       <p className="text-xs text-gray-400 mt-1">※ 미입력 시 기본값 2,500원으로 등록됩니다</p>
                     </div>

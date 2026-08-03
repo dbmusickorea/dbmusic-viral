@@ -76,9 +76,9 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow p-4 mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold">📋 문의 내역</h2>
+        <h2 className="font-bold dark:text-white">📋 문의 내역</h2>
         <div className="flex gap-2 text-xs">
           <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
           <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
@@ -90,17 +90,17 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
         <button onClick={() => setRequestFilter('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>체험단</button>
       </div>
       {clientRequests.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">문의 내역이 없습니다.</p>
       ) : (
         <>
           <div className="space-y-2">
             {filtered.slice(requestPage * PAGE_SIZE, (requestPage + 1) * PAGE_SIZE).map((req) => (
-              <div key={req.id} className="border rounded-lg p-3">
+              <div key={req.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium">{req.title}</p>
-                    <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                    <p className="text-xs text-gray-600 mt-1">{req.content}</p>
+                    <p className="text-sm font-medium dark:text-white">{req.title}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{req.client_name} · {req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{req.content}</p>
                     <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${req.user_type === 'participant' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
                       {req.user_type === 'participant' ? '체험단' : '의뢰인'}
                     </span>
@@ -135,7 +135,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
                   <input
                     value={replyText[req.id] ?? ''}
                     onChange={(e) => setReplyText(prev => ({...prev, [req.id]: e.target.value}))}
-                    className="flex-1 text-xs border rounded px-2 py-1"
+                    className="flex-1 text-xs border dark:border-gray-600 rounded px-2 py-1 dark:bg-gray-700 dark:text-white"
                     placeholder="답장 입력..."
                   />
                   <button onClick={() => handleReply(req)} className="text-xs bg-blue-600 text-white rounded px-2 py-1">답장</button>
@@ -144,13 +144,13 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
             ))}
           </div>
           <div className="flex justify-between items-center mt-3">
-            <button onClick={() => setRequestPage(p => Math.max(0, p - 1))} disabled={requestPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+            <button onClick={() => setRequestPage(p => Math.max(0, p - 1))} disabled={requestPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
             <div className="flex gap-1">
               {Array.from({length: Math.ceil(filtered.length / PAGE_SIZE)}, (_, i) => (
                 <button key={i} onClick={() => setRequestPage(i)} className={`text-xs px-2 py-1 border rounded ${requestPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
               ))}
             </div>
-            <button onClick={() => setRequestPage(p => Math.min(Math.ceil(filtered.length / PAGE_SIZE) - 1, p + 1))} disabled={(requestPage + 1) * PAGE_SIZE >= filtered.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+            <button onClick={() => setRequestPage(p => Math.min(Math.ceil(filtered.length / PAGE_SIZE) - 1, p + 1))} disabled={(requestPage + 1) * PAGE_SIZE >= filtered.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
           </div>
         </>
       )}
