@@ -19,6 +19,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
   const [participant, setParticipant] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [pointHistory, setPointHistory] = useState<any[]>([])
+  const [referredUsers, setReferredUsers] = useState<any[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -37,6 +38,12 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       const data = await memberRes.json()
       setParticipant(data?.[0])
       setPointHistory(await phRes.json())
+      const memberData = await memberRes.json()
+      if (memberData?.[0]?.referral_code) {
+        const refRes = await fetch(`/api/participants?referred_by=${memberData[0].referral_code}`)
+        const refData = await refRes.json()
+        setReferredUsers(Array.isArray(refData) ? refData : [])
+      }
       setLoading(false)
     }
     load()
@@ -109,6 +116,15 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                 </span>
               </div>
               <p className="text-sm font-bold text-red-500">-{s.amount?.toLocaleString()}P</p>
+            </div>
+          ))}
+          {referredUsers.map(u => (
+            <div key={`ref-${u.id}`} className="border rounded-lg p-3 flex justify-between items-center">
+              <div>
+                <p className="text-sm font-medium">추천인 보상 ({u.name})</p>
+                <p className="text-xs text-gray-500">{new Date(u.created_at).toLocaleDateString('ko-KR')}</p>
+              </div>
+              <p className="text-sm font-bold text-blue-500">+150P</p>
             </div>
           ))}
           {pointHistory.length > 0 && pointHistory.map(ph => (
