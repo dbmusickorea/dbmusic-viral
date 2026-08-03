@@ -1,7 +1,7 @@
 'use client'
 
 type PlatformIconProps = {
-  platform: string
+  platform: string | null
   size?: number
   className?: string
 }
