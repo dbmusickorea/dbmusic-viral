@@ -12,6 +12,7 @@ import AdminBottomNav from '../../components/AdminBottomNav'
 import AdminParticipantList from '../../components/AdminParticipantList'
 import AdminPostList from '../../components/AdminPostList'
 import AdminProjectApplications from '../../components/AdminProjectApplications'
+import AdminClientRequests from '../../components/AdminClientRequests'
 import PlatformIcon from '../../components/PlatformIcon'
 
 export default function Page1() {
@@ -1255,174 +1256,47 @@ export default function Page1() {
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
           />
+          <AdminClientRequests
+            clientRequests={clientRequests}
+            PAGE_SIZE={PAGE_SIZE}
+            projectCode={projectCode}
+            onConfirm={async (reqId) => {
+              await fetch(`/api/client_requests?id=${reqId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'CONFIRMED' })
+              })
+              fetchClientRequests()
+            }}
+            onCoverApprove={async (req) => {
+              const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
+              if (!participantName) return
+              const pRes = await fetch(`/api/participants?name=${encodeURIComponent(participantName)}`)
+              const pData = await pRes.json()
+              const participant = pData?.[0]
+              if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
+              await fetch('/api/cover_requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  project_code: req.project_code ?? projectCode,
+                  participant_id: participant.id,
+                  status: 'APPROVED',
+                  approved_at: new Date().toISOString()
+                })
+              })
+              await fetch(`/api/client_requests?id=${req.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'APPROVED' })
+              })
+              showToast('커버 승인 완료!')
+              fetchClientRequests()
+            }}
+            onRefresh={fetchClientRequests}
+            showToast={showToast}
+          />
           <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold">📋 문의 내역</h2>
-              <div className="flex gap-2 text-xs">
-                <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
-                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
-              </div>
-            </div>
-            <div className="flex gap-2 mb-3">
-              <button onClick={() => setRequestFilter('all')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'all' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>전체</button>
-              <button onClick={() => setRequestFilter('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500'}`}>의뢰인</button>
-              <button onClick={() => setRequestFilter('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${requestFilter === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>체험단</button>
-            </div>
-              {clientRequests.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    {clientRequests
-                      .filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client'))
-                      .slice(requestPage * PAGE_SIZE, (requestPage + 1) * PAGE_SIZE).map((req) => (
-                      <div key={req.id} className="border rounded-lg p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-sm font-medium">{req.title}</p>
-                            <p className="text-xs text-gray-500">{req.client_name} · {req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                            <p className="text-xs text-gray-600 mt-1">{req.content}</p>
-                            <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${req.user_type === 'participant' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
-                              {req.user_type === 'participant' ? '체험단' : '의뢰인'}
-                            </span>                         
-                          </div>
-                          <div className="flex flex-col gap-1 shrink-0 ml-2">
-                            <span className={`text-xs px-2 py-1 rounded-full text-center ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                              {req.status === 'PENDING' ? '검토중' : req.status === 'CONFIRMED' ? '확인됨' : req.status === 'APPROVED' ? '승인' : '거절'}
-                            </span>                            
-                              {req.status === 'PENDING' && (
-                              <>
-                                <button onClick={async () => { 
-                                  await fetch(`/api/client_requests?id=${req.id}`, {
-                                    method: 'PATCH',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ status: 'CONFIRMED' })
-                                  })
-                                  fetchClientRequests()
-                                }} className="text-xs bg-blue-500 text-white rounded px-2 py-1">확인</button>
-                                {req.title === '커버 체험단 추가 요청' && (
-                                  <button onClick={async () => {
-                                    const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
-                                    if (!participantName) return
-                                    const pRes = await fetch(`/api/participants?name=${encodeURIComponent(participantName)}`)
-                                    const pData = await pRes.json()
-                                    const participant = pData?.[0]
-                                    if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
-                                    await fetch('/api/cover_requests', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({
-                                        project_code: req.project_code ?? projectCode,
-                                        participant_id: participant.id,
-                                        status: 'APPROVED',
-                                        approved_at: new Date().toISOString()
-                                      })
-                                    })
-                                    await fetch(`/api/client_requests?id=${req.id}`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ status: 'APPROVED' })
-                                    })
-                                    showToast('커버 승인 완료!')
-                                    fetchClientRequests()
-                                  }} className="text-xs bg-purple-500 text-white rounded px-2 py-1">커버승인</button>
-                                )}
-                              </>                           
-                            )}
-                          </div>
-                        </div>
-                            {req.reply && (
-                              <div className="mt-1">
-                                <p className="text-xs text-blue-600 bg-blue-50 rounded p-2">
-                                  💬 {expandedReply[req.id] ? req.reply : req.reply.slice(0, 30) + (req.reply.length > 30 ? '...' : '')}
-                                  {req.reply.length > 30 && (
-                                    <button onClick={() => setExpandedReply(prev => ({...prev, [req.id]: !prev[req.id]}))} className="ml-1 text-blue-400 underline">
-                                      {expandedReply[req.id] ? '접기' : '더보기'}
-                                    </button>
-                                  )}
-                                </p>
-                              </div>
-                            )}
-                        <div className="flex gap-1 mt-2">
-                          <input
-                            value={replyText[req.id] ?? ''}
-                            onChange={(e) => setReplyText(prev => ({...prev, [req.id]: e.target.value}))}
-                            className="flex-1 text-xs border rounded px-2 py-1"
-                            placeholder="답장 입력..."
-                          />
-                          <button onClick={async () => {
-                            if (!replyText[req.id]) return
-                            await fetch(`/api/client_requests?id=${req.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ reply: replyText[req.id], replied_at: new Date().toISOString() })
-                            })
-                            const clientRes = await fetch(`/api/users?client_id=${req.client_id}`)
-                            const clientData = await clientRes.json()
-                            const clientUser = clientData?.[0]
-                            if (clientUser) {
-                              const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
-                              const tokens = await tokensRes.json()
-                              if (tokens && tokens.length > 0) {
-                                await fetch('/api/push', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
-                                    body: replyText[req.id],
-                                    tokens: tokens.map((t: any) => t.token),
-                                    userIds: tokens.map((t: any) => t.user_id)
-                                  })
-                                })
-                              }
-                            }
-                            // 체험단 문의인 경우 체험단에게 푸시
-                            if (req.member_id) {
-                              const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(req.member_id)}`)
-                              const memberTokens = await memberTokensRes.json()
-                              if (memberTokens && memberTokens.length > 0) {
-                                await fetch('/api/push', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
-                                    body: replyText[req.id],
-                                    tokens: memberTokens.map((t: any) => t.token),
-                                    userIds: memberTokens.map((t: any) => t.user_id)
-                                  })
-                                })
-                              }
-                              await fetch('/api/notifications', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  user_id: String(req.member_id),
-                                  user_role: 'participant',
-                                  title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
-                                  body: replyText[req.id]
-                                })
-                              })
-                            }
-                            setReplyText(prev => ({...prev, [req.id]: ''}))
-                            fetchClientRequests()
-                          }} className="text-xs bg-blue-600 text-white rounded px-2 py-1">답장</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center mt-3">
-                    <button onClick={() => setRequestPage(p => Math.max(0, p - 1))} disabled={requestPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
-                    <div className="flex gap-1">
-                      {Array.from({length: Math.ceil(clientRequests.filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client')).length / PAGE_SIZE)}, (_, i) => (
-                        <button key={i} onClick={() => setRequestPage(i)} className={`text-xs px-2 py-1 border rounded ${requestPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
-                      ))}
-                    </div>
-                    <button onClick={() => setRequestPage(p => Math.min(Math.ceil(clientRequests.filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client')).length / PAGE_SIZE) - 1, p + 1))} disabled={(requestPage + 1) * PAGE_SIZE >= clientRequests.filter(r => requestFilter === 'all' || r.user_type === requestFilter || (!r.user_type && requestFilter === 'client')).length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="bg-white rounded-2xl shadow p-4 mb-4">
               <h2 className="font-bold mb-3">🔓 락 해제 영상 관리</h2>
               <div className="space-y-3">
                 <div className="flex gap-2">
