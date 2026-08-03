@@ -425,15 +425,32 @@ export default function LoginPage() {
       if (ytSubscribers >= 100) hasEnoughFollowers = true
     }
     if (p_tiktok) {
-      const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p_tiktok.replace('@','')}`, {
-        headers: {
-          'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
-          'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
-        }
-      })
-      const ttData = await ttRes.json()
-      ttFollowers = ttData?.data?.stats?.followerCount ?? 0
-      ttProfileImage = ttData?.data?.user?.avatarLarger ?? ''
+      try {
+        const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p_tiktok.replace('@','')}`, {
+          headers: {
+            'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+            'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
+          }
+        })
+        const ttData = await ttRes.json()
+        ttFollowers = ttData?.data?.stats?.followerCount ?? 0
+        ttProfileImage = ttData?.data?.user?.avatarLarger ?? ''
+      } catch {
+        // fallback to tiktok-api23
+      }
+      if (!ttFollowers) {
+        try {
+          const ttRes2 = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${p_tiktok.replace('@','')}`, {
+            headers: {
+              'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+              'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com'
+            }
+          })
+          const ttData2 = await ttRes2.json()
+          ttFollowers = ttData2?.userInfo?.stats?.followerCount ?? 0
+          ttProfileImage = ttData2?.userInfo?.user?.avatarLarger ?? ''
+        } catch {}
+      }
       if (ttFollowers >= 100) hasEnoughFollowers = true
     }
 

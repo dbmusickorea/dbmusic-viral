@@ -942,7 +942,7 @@ export default function Page4() {
                               {p.instagram_id && <a href={`https://www.instagram.com/${p.instagram_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">
                                 <PlatformIcon platform="instagram" size={12} />{p.instagram_id} ({p.instagram_followers?.toLocaleString() ?? '-'}명)
                               </a>}
-                              {p.youtube_id && <a href={`https://www.youtube.com/${p.youtube_id}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">                              
+                              {p.youtube_id && <a href={`https://www.youtube.com/@${p.youtube_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">                              
                                 <PlatformIcon platform="youtube" size={12} />{p.youtube_id} ({p.youtube_subscribers?.toLocaleString() ?? '-'}명)
                               </a>}
                               {p.tiktok_id && <a href={`https://www.tiktok.com/@${p.tiktok_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">
@@ -1204,7 +1204,7 @@ export default function Page4() {
                               <p className="text-xs text-gray-500">{req.platform} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                               <p className="text-xs">{req.old_id} → <a href={
                                 req.platform === 'instagram' ? `https://www.instagram.com/${req.new_id.replace('@','')}` :
-                                req.platform === 'youtube' ? `https://www.youtube.com/${req.new_id}` :
+                                req.platform === 'youtube' ? `https://www.youtube.com/@${req.new_id.replace('@','')}` :
                                 req.platform === 'tiktok' ? `https://www.tiktok.com/@${req.new_id.replace('@','')}` : '#'
                               } target="_blank" className="font-bold text-blue-600 underline">{req.new_id}</a></p>
                               <div className="flex gap-2 mt-2">
