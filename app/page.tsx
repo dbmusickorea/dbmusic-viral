@@ -473,6 +473,11 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: newBalance, level: newLevel })
       })
+      await fetch('/api/point_history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ member_id: referrer.id, amount: 150, memo: `친구추천 보상 (${p_name})` })
+      })
       
       // 추천인에게 레벨 상승 푸시
       const referrerTokensRes = await fetch(`/api/push_tokens?user_id=${String(referrer.id)}`)
