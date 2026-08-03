@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import StatsChart from '../../components/StatsChart'
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel, ImageRun, WidthType, AlignmentType, BorderStyle } from 'docx'
 
 export default function ReportPage() {
@@ -329,55 +329,13 @@ export default function ReportPage() {
           <div className="mb-8">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
             {posts.some((p: any) => p.platform === 'instagram') && (
-              <div className="mb-6" ref={instaChartRef}>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">인스타그램</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={dailyStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="인스타_좋아요" stroke="#E1306C" name="좋아요" dot={false} />
-                    <Line type="monotone" dataKey="인스타_댓글" stroke="#833AB4" name="댓글" dot={false} />
-                    <Line type="monotone" dataKey="인스타_조회수" stroke="#F77737" name="조회수" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" containerRef={instaChartRef} />
             )}
             {posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) && (
-              <div className="mb-6" ref={youtubeChartRef}>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">유튜브</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={dailyStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="유튜브_좋아요" stroke="#FF0000" name="좋아요" dot={false} />
-                    <Line type="monotone" dataKey="유튜브_댓글" stroke="#FF6B6B" name="댓글" dot={false} />
-                    <Line type="monotone" dataKey="유튜브_조회수" stroke="#CC0000" name="조회수" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" containerRef={youtubeChartRef} />
             )}
             {posts.some((p: any) => p.platform === 'tiktok') && (
-              <div className="mb-6" ref={tiktokChartRef}>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">틱톡</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={dailyStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="틱톡_좋아요" stroke="#000000" name="좋아요" dot={false} />
-                    <Line type="monotone" dataKey="틱톡_댓글" stroke="#666666" name="댓글" dot={false} />
-                    <Line type="monotone" dataKey="틱톡_조회수" stroke="#333333" name="조회수" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" containerRef={tiktokChartRef} />
             )}
           </div>
         )}

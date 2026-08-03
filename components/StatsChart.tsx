@@ -10,6 +10,7 @@ type StatsChartProps = {
   viewsKey: string
   audioKey?: string
   likeLabel?: string
+  containerRef?: React.RefObject<HTMLDivElement | null>
 }
 
 const platformConfig = {
@@ -36,13 +37,13 @@ const platformConfig = {
   },
 }
 
-export default function StatsChart({ data, platform, likesKey, commentsKey, viewsKey, audioKey }: StatsChartProps) {
+export default function StatsChart({ data, platform, likesKey, commentsKey, viewsKey, audioKey, containerRef }: StatsChartProps) {
   const config = platformConfig[platform]
   const likeLabel = config.likeLabel
   const legendItems = audioKey ? [likeLabel, '댓글', '조회수', '음원사용'] : [likeLabel, '댓글', '조회수']
 
   return (
-    <div className="mb-4">
+    <div className="mb-4" ref={containerRef}>
       <div className="flex items-center gap-1 mb-1">
         {config.icon}
         <p className={`text-xs font-medium ${config.textColor}`}>{config.label}</p>
