@@ -218,7 +218,7 @@ export default function WalletPage() {
     memo: s.memo,
   }))
 
-  const adminHistory = pointHistory.map(ph => ({
+  const adminHistory = pointHistory.filter(ph => !ph.memo?.includes('친구추천 보상')).map(ph => ({
     type: ph.amount < 0 ? 'deduct' : 'admin',
     date: ph.created_at,
     label: ph.memo || '관리자 지급',

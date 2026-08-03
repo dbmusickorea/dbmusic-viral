@@ -128,7 +128,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
               <p className="text-sm font-bold text-blue-500">+150P</p>
             </div>
           ))}
-          {pointHistory.length > 0 && pointHistory.map(ph => (
+          {pointHistory.filter((ph: any) => !ph.memo?.includes('친구추천 보상')).length > 0 && pointHistory.filter((ph: any) => !ph.memo?.includes('친구추천 보상')).map(ph => (
             <div key={ph.id} className="border rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium">{ph.memo || '관리자 지급'}</p>
