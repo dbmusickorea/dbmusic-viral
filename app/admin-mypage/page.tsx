@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -78,7 +79,7 @@ export default function AdminMypagePage() {
     const data = await res.json()
     if (data?.[0]) setFoundUser(data[0])
     else {
-      const res2 = await fetch(`/api/participants?email=${searchEmail}`)
+      const res2 = await fetchWithAuth(`/api/participants?email=${searchEmail}`)
       const data2 = await res2.json()
       setFoundUser(data2?.[0] ?? null)
       if (!data2?.[0]) showToast('사용자를 찾을 수 없어요.', 'error')

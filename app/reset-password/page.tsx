@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
@@ -41,7 +42,7 @@ export default function ResetPassword() {
     // participants/users 테이블도 업데이트
     const { data: { user } } = await supabase.auth.getUser()
     if (user?.email) {
-      await fetch(`/api/participants?email=${encodeURIComponent(user.email)}`, {
+      await fetchWithAuth(`/api/participants?email=${encodeURIComponent(user.email)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })

@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -111,7 +112,7 @@ export default function WalletPage() {
     }
     setLoading(false)
     // 추천 내역
-    const refRes = await fetch(`/api/participants?referred_by=${participant?.referral_code}`)
+    const refRes = await fetchWithAuth(`/api/participants?referred_by=${participant?.referral_code}`)
     const refData = await refRes.json()
     setReferredUsers(refData?.filter((u: any) => u.id !== id) ?? [])
   }
@@ -130,7 +131,7 @@ export default function WalletPage() {
     if (amount < 10000) { showToast('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
     if (amount > availableBalance) { showToast('환전 가능 금액을 초과합니다.'); return }
 
-    const participantRes = await fetch(`/api/participants?ids=${userInfo?.id}`)
+    const participantRes = await fetchWithAuth(`/api/participants?ids=${userInfo?.id}`)
     const participants = await participantRes.json()
     const participantData = participants?.[0]
 

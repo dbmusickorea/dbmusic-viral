@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
@@ -194,7 +195,7 @@ export default function Page3() {
     
     if (data && data.length > 0) {
       const memberIds = [...new Set(data.map((p: any) => p.member_id))].join(',')
-      const participantsRes = await fetch(`/api/participants?ids=${memberIds}`)
+      const participantsRes = await fetchWithAuth(`/api/participants?ids=${memberIds}`)
       const participantsData = await participantsRes.json()
       
       const merged = data.map((post: any) => ({
@@ -213,7 +214,7 @@ export default function Page3() {
     const coverReqData = await coverReqRes.json()
     if (Array.isArray(coverReqData) && coverReqData.length > 0) {
       const pIds = coverReqData.map((r: any) => r.participant_id).join(',')
-      const pRes = await fetch(`/api/participants?ids=${pIds}`)
+      const pRes = await fetchWithAuth(`/api/participants?ids=${pIds}`)
       const pData = await pRes.json()
       const now = new Date()
       setCoverRequests(coverReqData.map((r: any) => ({

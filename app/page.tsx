@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from './lib/fetchWithAuth'
 import PlatformIcon from '../components/PlatformIcon'
 
 import { useState, useEffect } from 'react'
@@ -159,7 +160,7 @@ export default function LoginPage() {
     if (!pendingUserInfo || !pendingRole) return
     
     if (pendingRole === 'participant') {
-      await fetch(`/api/participants?id=${pendingUserInfo.id}`, {
+      await fetchWithAuth(`/api/participants?id=${pendingUserInfo.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agreed_terms: true })
@@ -217,7 +218,7 @@ export default function LoginPage() {
       return
     }
 
-    const res = await fetch(`/api/participants?email=${encodeURIComponent(email)}`)
+    const res = await fetchWithAuth(`/api/participants?email=${encodeURIComponent(email)}`)
     const participants = await res.json()
     const participant = participants?.[0]
 
@@ -226,12 +227,12 @@ export default function LoginPage() {
         let referralCode = generateReferralCode()
         let isUnique = false
         while (!isUnique) {
-          const checkRes = await fetch(`/api/participants?referral_code=${referralCode}`)
+          const checkRes = await fetch(`/api/participants/signup-check?referral_code=${referralCode}`)
           const checkData = await checkRes.json()
-          if (!checkData?.[0]) isUnique = true
+          if (!checkData?.exists) isUnique = true
           else referralCode = generateReferralCode()
         }
-        await fetch(`/api/participants?id=${participant.id}`, {
+        await fetchWithAuth(`/api/participants?id=${participant.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ referral_code: referralCode })
@@ -387,13 +388,13 @@ export default function LoginPage() {
     if (!p_instagram && !p_youtube && !p_tiktok) { showToast('SNS 계정을 1개 이상 등록해주세요.'); return }
 
     // 이메일/전화번호 중복 체크
-    const emailRes = await fetch(`/api/participants?email=${encodeURIComponent(p_email)}`)
+    const emailRes = await fetch(`/api/participants/signup-check?email=${encodeURIComponent(p_email)}`)
     const emailData = await emailRes.json()
-    if (emailData && emailData.length > 0) { showToast('이미 사용중인 이메일입니다.'); return }
+    if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); return }
     
-    const mobileRes = await fetch(`/api/participants?mobile=${p_mobile}`)
+    const mobileRes = await fetch(`/api/participants/signup-check?mobile=${p_mobile}`)
     const mobileData = await mobileRes.json()
-    if (mobileData && mobileData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
     
     const mobileURes = await fetch(`/api/users?mobile=${p_mobile}`)
     const mobileUData = await mobileURes.json()
@@ -460,15 +461,17 @@ export default function LoginPage() {
     }
 
     if (p_referral) {
-      const referrerRes = await fetch(`/api/participants?referral_code=${p_referral}`)
-      const referrerData = await referrerRes.json()
+      const referrerRes = await fetch(`/api/participants/signup-check?referral_code=${p_referral}`)
+      const referrerCheck = await referrerRes.json()
+      if (!referrerCheck?.exists) { showToast('유효하지 않은 추천인 코드입니다.'); return }
+      const referrerDataRes = await fetchWithAuth(`/api/participants?referral_code=${p_referral}`)
+      const referrerData = await referrerDataRes.json()
       const referrer = referrerData?.[0]
-      if (!referrer) { showToast('유효하지 않은 추천인 코드입니다.'); return }
       
       // 추천인에게 150원 적립 + 레벨 1 상승
       const newBalance = (referrer.balance ?? 0) + 150
       const newLevel = Math.min(50, (referrer.level ?? 1) + 1)
-      await fetch(`/api/participants?id=${referrer.id}`, {
+      await fetchWithAuth(`/api/participants?id=${referrer.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: newBalance, level: newLevel })
@@ -500,9 +503,9 @@ export default function LoginPage() {
     let referralCode = generateReferralCode()
     let isUnique = false
     while (!isUnique) {
-      const res = await fetch(`/api/participants?referral_code=${referralCode}`)
+      const res = await fetch(`/api/participants/signup-check?referral_code=${referralCode}`)
       const data = await res.json()
-      if (!data || data.length === 0) isUnique = true
+      if (!data?.exists) isUnique = true
       else referralCode = generateReferralCode()
     }
 
@@ -574,9 +577,9 @@ export default function LoginPage() {
     const mobileData = await mobileRes.json()
     if (mobileData && mobileData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
     
-    const mobilePRes = await fetch(`/api/participants?mobile=${c_mobile}`)
+    const mobilePRes = await fetch(`/api/participants/signup-check?mobile=${c_mobile}`)
     const mobilePData = await mobilePRes.json()
-    if (mobilePData && mobilePData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobilePData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
 
     let clientId = generateClientId()
     let isUnique = false

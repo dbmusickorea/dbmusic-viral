@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
@@ -269,7 +270,7 @@ useEffect(() => {
             fetchCommentMissions(userInfo?.id)
             const newCount = (pData.comment_count_for_unlock ?? 0) + 1
             if (newCount >= 10) {
-              await fetch(`/api/participants?id=${userInfo?.id}`, {
+              await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
@@ -293,7 +294,7 @@ useEffect(() => {
                 })
               }
             } else {
-              await fetch(`/api/participants?id=${userInfo?.id}`, {
+              await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ comment_count_for_unlock: newCount })
@@ -321,7 +322,7 @@ useEffect(() => {
             })
           })
           const newBalance = balance + 300
-          await fetch(`/api/participants?id=${userInfo?.id}`, {
+          await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ balance: newBalance })
@@ -488,7 +489,7 @@ useEffect(() => {
   }
 
   const fetchParticipantInfo = async (id: number) => {
-    const res = await fetch(`/api/participants?ids=${id}`)
+    const res = await fetchWithAuth(`/api/participants?ids=${id}`)
     const participants = await res.json()
     const data = participants?.[0]
     setCoverReward(data?.cover_reward ?? 0)
@@ -660,14 +661,14 @@ useEffect(() => {
   const handleDeleteMyPost = async (post: any) => {
     if (!confirm('게시물을 삭제하시겠어요? 적립금도 차감됩니다.')) return
     setIsDeletingPost(true)
-    const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
+    const freshRes = await fetchWithAuth(`/api/participants?id=${userInfo?.id}`)
     const freshData = await freshRes.json()
     const currentBalance = freshData?.[0]?.balance ?? 0
     const baseAmount = projectsMap[post.project_code?.toUpperCase()]?.reward_per_post ?? 0
     const myAmount = getLevelAmount(baseAmount, level)
     const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) + myAmount : myAmount
     if (deductAmount > 0) {
-      await fetch(`/api/participants?id=${userInfo?.id}`, {
+      await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
@@ -746,7 +747,7 @@ useEffect(() => {
     }
     
     // 밴/락 여부 체크
-    const participantRes = await fetch(`/api/participants?ids=${userInfo.id}`)
+    const participantRes = await fetchWithAuth(`/api/participants?ids=${userInfo.id}`)
     const participants = await participantRes.json()
     const participantData = participants?.[0]
     
@@ -859,7 +860,7 @@ useEffect(() => {
       return
     }
     // 최신 팔로워 수 가져오기
-    const freshRes = await fetch(`/api/participants?id=${userInfo?.id}`)
+    const freshRes = await fetchWithAuth(`/api/participants?id=${userInfo?.id}`)
     const freshData = await freshRes.json()
     const freshUser = freshData?.[0]
 
@@ -997,7 +998,7 @@ useEffect(() => {
     if (projectData?.reward_per_post) {
       const earnAmount = getLevelAmount(projectData.reward_per_post, level) * validUrls.length
       const newBalance = balance + earnAmount
-      await fetch(`/api/participants?id=${userInfo?.id}`, {
+      await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: newBalance })
@@ -1030,7 +1031,7 @@ useEffect(() => {
   }
 
   const loadMyInfo = async () => {
-    const res = await fetch(`/api/participants?ids=${userInfo?.id}`)
+    const res = await fetchWithAuth(`/api/participants?ids=${userInfo?.id}`)
     const participants = await res.json()
     const data = participants?.[0]
     setMyName(data?.name ?? ''); setMyMobile(data?.mobile ?? '')
@@ -1067,7 +1068,7 @@ useEffect(() => {
     // 계좌번호 암호화
     const encryptedAccount = myAccountNumber ? await encryptText(myAccountNumber) : ''
 
-    const res = await fetch(`/api/participants?id=${userInfo?.id}`, {
+    const res = await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

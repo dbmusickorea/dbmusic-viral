@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
@@ -82,7 +83,7 @@ export default function CoverPage() {
   }, [])
 
   const loadData = async (user: any, role: string) => {
-    const participantsRes = await fetch('/api/participants?cover_approved=true')
+    const participantsRes = await fetchWithAuth('/api/participants?cover_approved=true')
     const participants = await participantsRes.json()
     setCoverParticipants(participants ?? [])
     // 커버 게시물 불러오기
@@ -93,7 +94,7 @@ export default function CoverPage() {
       const memberIds = [...new Set(coverPostsData.map((p: any) => p.member_id))]
       const projectCodes = [...new Set(coverPostsData.map((p: any) => p.project_code))]
       const [participantsRes, projectsRes] = await Promise.all([
-        fetch(`/api/participants?ids=${memberIds.join(',')}`),
+        fetchWithAuth(`/api/participants?ids=${memberIds.join(',')}`),
         fetch(`/api/projects?codes=${projectCodes.join(',')}`)
       ])
       const participantsData = await participantsRes.json()
@@ -225,11 +226,11 @@ export default function CoverPage() {
         body: JSON.stringify({ status: 'APPROVED' })
       })
     }
-    const participantRes = await fetch(`/api/participants?ids=${post.member_id}`)
+    const participantRes = await fetchWithAuth(`/api/participants?ids=${post.member_id}`)
     const participants = await participantRes.json()
     const participant = participants?.[0]
     if (participant) {
-      await fetch(`/api/participants?id=${post.member_id}`, {
+      await fetchWithAuth(`/api/participants?id=${post.member_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: (participant.balance ?? 0) + reward, cover_reward: reward })
@@ -284,7 +285,7 @@ export default function CoverPage() {
       const memberIds = [...new Set(coverPostsData.map((p: any) => p.member_id))]
       const projectCodes = [...new Set(coverPostsData.map((p: any) => p.project_code))]
       const [participantsRes, projectsRes] = await Promise.all([
-        fetch(`/api/participants?ids=${memberIds.join(',')}`),
+        fetchWithAuth(`/api/participants?ids=${memberIds.join(',')}`),
         fetch(`/api/projects?codes=${projectCodes.join(',')}`)
       ])
       const participantsData = await participantsRes.json()

@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 import PlatformIcon from '../../components/PlatformIcon'
 
 import { useState, useEffect } from 'react'
@@ -28,7 +29,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
         fetch(`/api/project_participants?member_id=${memberId}`),
         fetch(`/api/posts?member_id=${memberId}`),
         fetch(`/api/settlements?member_id=${memberId}`),
-        fetch(`/api/participants?id=${memberId}`),
+        fetchWithAuth(`/api/participants?id=${memberId}`),
         fetch(`/api/point_history?member_id=${memberId}`)
       ])
       const partData = await partRes.json()
@@ -40,7 +41,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       setPointHistory(await phRes.json())
       if (data?.[0]?.referral_code) {
         try {
-          const refRes = await fetch(`/api/participants?referred_by=${data[0].referral_code}`)
+          const refRes = await fetchWithAuth(`/api/participants?referred_by=${data[0].referral_code}`)
           const refData = await refRes.json()
           setReferredUsers(Array.isArray(refData) ? refData : [])
         } catch {}
@@ -151,7 +152,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                 </div>
                 {participant?.is_locked && (
                   <button onClick={async () => {
-                    await fetch(`/api/participants?id=${memberId}`, {
+                    await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
@@ -176,7 +177,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                 </div>
                 <div className="flex flex-col gap-1">
                   <button onClick={async () => {
-                    await fetch(`/api/participants?id=${memberId}`, {
+                    await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ banned_until: null, ban_reason: null })
@@ -190,7 +191,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                         .eq('id', pp.id)
                     }
                     showToast('밴 해제 완료! (프로젝트 재참여)')
-                    const res = await fetch(`/api/participants?id=${memberId}`)
+                    const res = await fetchWithAuth(`/api/participants?id=${memberId}`)
                     const data = await res.json()
                     setParticipant(data?.[0])
                     onUpdate?.()
@@ -201,14 +202,14 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     }
                   }} className="text-xs bg-green-600 text-white rounded px-2 py-1">해제+재참여</button>
                   <button onClick={async () => {
-                    await fetch(`/api/participants?id=${memberId}`, {
+                    await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ banned_until: null, ban_reason: null })
                     })
                     // project_participants BANNED 유지 (재참여 없음)
                     showToast('밴 해제 완료! (프로젝트 제외)')
-                    const res = await fetch(`/api/participants?id=${memberId}`)
+                    const res = await fetchWithAuth(`/api/participants?id=${memberId}`)
                     const data = await res.json()
                     setParticipant(data?.[0])
                     onUpdate?.()
@@ -234,7 +235,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                 </div>
                 <div className="flex gap-1">
                   <button onClick={async () => {
-                    await fetch(`/api/participants?id=${memberId}`, {
+                    await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
@@ -252,7 +253,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     onUpdate?.()
                   }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
                   <button onClick={async () => {
-                    await fetch(`/api/participants?id=${memberId}`, {
+                    await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
@@ -422,7 +423,7 @@ export default function Page4() {
   }, [])
 
   const fetchParticipants = async () => {
-    const res = await fetch('/api/participants')
+    const res = await fetchWithAuth('/api/participants')
     const data = await res.json()
     setParticipants(data ?? [])
     const snsRes = await fetch('/api/sns_change_requests?status=PENDING')
@@ -449,7 +450,7 @@ export default function Page4() {
     setSelected(p)
     setSelectedReferredUsers([])
     if (p?.referral_code) {
-      fetch(`/api/participants?referred_by=${p.referral_code}`)
+      fetchWithAuth(`/api/participants?referred_by=${p.referral_code}`)
         .then(r => r.json())
         .then(d => setSelectedReferredUsers(Array.isArray(d) ? d : []))
         .catch(() => {})
@@ -497,7 +498,7 @@ export default function Page4() {
     let referralCode = 'DB' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
     let isUnique = false
     while (!isUnique) {
-      const res = await fetch(`/api/participants?referral_code=${referralCode}`)
+      const res = await fetchWithAuth(`/api/participants?referral_code=${referralCode}`)
       const data = await res.json()
       if (!data || data.length === 0) isUnique = true
       else referralCode = 'DB' + Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
@@ -515,7 +516,7 @@ export default function Page4() {
     }
 
     // DB에 체험단 정보 저장
-    const res = await fetch('/api/participants', {
+    const res = await fetchWithAuth('/api/participants', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -553,7 +554,7 @@ export default function Page4() {
       cover_reward: coverReward === '' ? null : Number(coverReward)
     }
     if (password) updateData.password = password
-    const res = await fetch(`/api/participants?id=${selected.id}`, {
+    const res = await fetchWithAuth(`/api/participants?id=${selected.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
@@ -566,7 +567,7 @@ export default function Page4() {
       try {
         const igRes = await fetch(`/api/instagram-user?username=${instagram}`)
         const igData = await igRes.json()
-        if (igData.followers > 0) await fetch(`/api/participants?id=${selected.id}`, {
+        if (igData.followers > 0) await fetchWithAuth(`/api/participants?id=${selected.id}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ instagram_followers: igData.followers })
         })
@@ -576,7 +577,7 @@ export default function Page4() {
       try {
         const ytRes = await fetch(`/api/youtube-channel?handle=${youtube}`)
         const ytData = await ytRes.json()
-        if (ytData.subscriberCount > 0) await fetch(`/api/participants?id=${selected.id}`, {
+        if (ytData.subscriberCount > 0) await fetchWithAuth(`/api/participants?id=${selected.id}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ youtube_subscribers: ytData.subscriberCount })
         })
@@ -592,7 +593,7 @@ export default function Page4() {
         })
         const ttData = await ttRes.json()
         const followers = ttData?.data?.stats?.followerCount ?? 0
-        if (followers > 0) await fetch(`/api/participants?id=${selected.id}`, {
+        if (followers > 0) await fetchWithAuth(`/api/participants?id=${selected.id}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ tiktok_followers: followers })
         })
@@ -606,13 +607,13 @@ export default function Page4() {
     
     // 추천인 적립금/레벨 차감
     if (selected.referred_by) {
-      const referrerRes = await fetch(`/api/participants?referral_code=${selected.referred_by}`)
+      const referrerRes = await fetchWithAuth(`/api/participants?referral_code=${selected.referred_by}`)
       const referrerData = await referrerRes.json()
       const referrer = referrerData?.[0]
       if (referrer) {
         const newBalance = Math.max(0, (referrer.balance ?? 0) - 150)
         const newLevel = Math.max(1, (referrer.level ?? 1) - 1)
-        await fetch(`/api/participants?id=${referrer.id}`, {
+        await fetchWithAuth(`/api/participants?id=${referrer.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ balance: newBalance, level: newLevel })
@@ -621,7 +622,7 @@ export default function Page4() {
     }
 
     // 소프트 삭제
-    const res = await fetch(`/api/participants?id=${selected.id}`, {
+    const res = await fetchWithAuth(`/api/participants?id=${selected.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_deleted: true, balance: 0 })
@@ -875,7 +876,7 @@ export default function Page4() {
                         showToast(`${p.name}님의 잔액이 부족해요.`, 'error')
                         continue
                       }
-                      await fetch(`/api/participants?id=${id}`, {
+                      await fetchWithAuth(`/api/participants?id=${id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ balance: (p.balance ?? 0) + amount })
@@ -986,7 +987,7 @@ export default function Page4() {
                                 <button onClick={async (e) => {
                                   e.stopPropagation()
                                   const memo = (document.getElementById(`memo-${p.id}`) as HTMLTextAreaElement)?.value
-                                  await fetch(`/api/participants?id=${p.id}`, {
+                                  await fetchWithAuth(`/api/participants?id=${p.id}`, {
                                     method: 'PATCH',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ admin_memo: memo })
@@ -1111,7 +1112,7 @@ export default function Page4() {
                     <div className="flex items-center gap-2">
                       <input type="checkbox" checked={selected?.is_cover_possible ?? false} onChange={async (e) => {
                         const checked = e.target.checked
-                        await fetch(`/api/participants?id=${selected.id}`, {
+                        await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ is_cover_possible: checked })
@@ -1133,7 +1134,7 @@ export default function Page4() {
                             <input defaultValue={selected?.cover_video_url ?? ''} id="cover_url_input" className="flex-1 border rounded-lg px-2 py-1 text-xs" placeholder="영상 링크 입력" />
                             <button onClick={async () => {
                               const url = (document.getElementById('cover_url_input') as HTMLInputElement)?.value
-                              await fetch(`/api/participants?id=${selected.id}`, {
+                              await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ cover_video_url: url })
@@ -1154,7 +1155,7 @@ export default function Page4() {
                                     const newGenres = e.target.checked 
                                       ? [...(selected?.genres ?? []), genre]
                                       : (selected?.genres ?? []).filter((g: string) => g !== genre)
-                                    await fetch(`/api/participants?id=${selected.id}`, {
+                                    await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                                       method: 'PATCH',
                                       headers: { 'Content-Type': 'application/json' },
                                       body: JSON.stringify({ genres: newGenres })
@@ -1170,7 +1171,7 @@ export default function Page4() {
                         </div>
                         <div className="flex gap-2 mt-3">
                           <button onClick={async () => {
-                            await fetch(`/api/participants?id=${selected.id}`, {
+                            await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ cover_approved: true })
@@ -1194,7 +1195,7 @@ export default function Page4() {
                             fetchParticipants() 
                           }} className="flex-1 bg-purple-600 text-white rounded-lg py-2 text-xs font-medium">승인</button>
                           <button onClick={async () => {
-                            await fetch(`/api/participants?id=${selected.id}`, {
+                            await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ cover_approved: false, is_cover_possible: false })
@@ -1242,7 +1243,7 @@ export default function Page4() {
                                         body: JSON.stringify({ status: 'APPROVED' })
                                       })
                                       // participants 테이블 업데이트
-                                      await fetch(`/api/participants?id=${selected.id}`, {
+                                      await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                                         method: 'PATCH',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ [`${req.platform}_id`]: req.new_id })

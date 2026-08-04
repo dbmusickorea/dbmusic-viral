@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { BookOpen, MessageSquare, FileText, AlertTriangle, CheckCircle } from 'lucide-react'
@@ -96,7 +97,7 @@ export default function MyPage() {
   }, [])
 
   const loadMyInfo = async (id: number) => {
-    const res = await fetch(`/api/participants?id=${id}`)
+    const res = await fetchWithAuth(`/api/participants?id=${id}`)
     const data = await res.json()
     const p = data?.[0]
     if (p) {
@@ -119,7 +120,7 @@ export default function MyPage() {
     const reqData = await reqRes.json()
     setRequests(reqData ?? [])
     // 추천한 사람 목록
-    const refRes = await fetch(`/api/participants?referral_code=${p.referral_code}`)
+    const refRes = await fetchWithAuth(`/api/participants?referral_code=${p.referral_code}`)
     const refData = await refRes.json()
     setReferredUsers(refData?.filter((u: any) => u.id !== id) ?? [])
   }
@@ -134,14 +135,14 @@ export default function MyPage() {
 
   const handleUpdateMyInfo = async () => {
     if (myCurrentPassword && myPassword) {
-      const checkRes = await fetch(`/api/participants?id=${userInfo?.id}`)
+      const checkRes = await fetchWithAuth(`/api/participants?id=${userInfo?.id}`)
       const checkData = await checkRes.json()
       if (checkData?.[0]?.password !== myCurrentPassword) {
         showToast('기존 비밀번호가 올바르지 않아요.')
         return
       }
     }
-    await fetch(`/api/participants?id=${userInfo?.id}`, {
+    await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -634,7 +635,7 @@ export default function MyPage() {
                 <button disabled={deleteConfirmText !== '탈퇴합니다'} onClick={async () => {
                   await fetch(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
                   await fetch(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
-                  await fetch(`/api/participants?id=${userInfo?.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '탈퇴회원', mobile: '', email: '', account_number: '', account_holder: '', bank_name: '', instagram_id: '', youtube_id: '', tiktok_id: '', is_deleted: true }) })
+                  await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '탈퇴회원', mobile: '', email: '', account_number: '', account_holder: '', bank_name: '', instagram_id: '', youtube_id: '', tiktok_id: '', is_deleted: true }) })
                   localStorage.removeItem('userInfo')
                   localStorage.removeItem('userRole')
                   showToast('계정이 삭제됐습니다.')

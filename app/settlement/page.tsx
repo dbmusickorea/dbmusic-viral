@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
@@ -51,7 +52,7 @@ export default function Page5() {
   const handleSelect = async (s: any) => {
     setSelected(s)
     setMemo(s.memo ?? '')
-    const participantRes = await fetch(`/api/participants?ids=${s.member_id}`)
+    const participantRes = await fetchWithAuth(`/api/participants?ids=${s.member_id}`)
     const participants = await participantRes.json()
     const participant = participants?.[0]
     setSelectedParticipant(participant)
@@ -74,7 +75,7 @@ export default function Page5() {
       body: JSON.stringify({ status: 'APPROVED', memo })
     })
     if (selectedParticipant) {
-      await fetch(`/api/participants?id=${selected.member_id}`, {
+      await fetchWithAuth(`/api/participants?id=${selected.member_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

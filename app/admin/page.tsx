@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
@@ -164,11 +165,11 @@ export default function Page1() {
     })
     
     // 적립금 추가
-    const participantRes = await fetch(`/api/participants?ids=${post.member_id}`)
+    const participantRes = await fetchWithAuth(`/api/participants?ids=${post.member_id}`)
     const participants = await participantRes.json()
     const participant = participants?.[0]
     if (participant) {
-      await fetch(`/api/participants?id=${post.member_id}`, {
+      await fetchWithAuth(`/api/participants?id=${post.member_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -250,7 +251,7 @@ export default function Page1() {
       const memberIds = data.map((p: any) => p.member_id).join(',')
       const projectCodes = [...new Set(data.map((p: any) => p.project_code))].join(',')
       const [participantRes, projectsRes] = await Promise.all([
-        fetch(`/api/participants?ids=${memberIds}`),
+        fetchWithAuth(`/api/participants?ids=${memberIds}`),
         fetch(`/api/projects?codes=${projectCodes}`)
       ])
       const participantData = await participantRes.json()
@@ -272,7 +273,7 @@ export default function Page1() {
     
     if (data && data.length > 0) {
       const memberIds = [...new Set(data.map((p: any) => p.member_id))].join(',')
-      const participantsRes = await fetch(`/api/participants?ids=${memberIds}`)
+      const participantsRes = await fetchWithAuth(`/api/participants?ids=${memberIds}`)
       const participantsData = await participantsRes.json()
       
       const merged = data.map((post: any) => ({
@@ -291,7 +292,7 @@ export default function Page1() {
     
     if (data && data.length > 0) {
       const memberIds = data.map((p: any) => p.member_id).join(',')
-      const participantRes = await fetch(`/api/participants?ids=${memberIds}`)
+      const participantRes = await fetchWithAuth(`/api/participants?ids=${memberIds}`)
       const participantData = await participantRes.json()
       
       const merged = data.map((p: any) => ({
@@ -897,7 +898,7 @@ export default function Page1() {
 
   const handleDeletePost = async (post: any) => {
     if (!confirm('게시물을 삭제하시겠어요? 해당 게시물의 적립금도 차감됩니다.')) return
-    const freshRes = await fetch(`/api/participants?id=${post.member_id}`)
+    const freshRes = await fetchWithAuth(`/api/participants?id=${post.member_id}`)
     const freshData = await freshRes.json()
     const currentBalance = freshData?.[0]?.balance ?? 0
     const projectRes = await fetch(`/api/projects?project_code=${post.project_code}`)
@@ -907,7 +908,7 @@ export default function Page1() {
     const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
     const deductAmount = post.is_cover ? (freshData?.[0]?.cover_reward ?? 0) + Math.min(baseAmount, earnAmount) : Math.min(baseAmount, earnAmount)
     if (deductAmount > 0) {
-      await fetch(`/api/participants?id=${post.member_id}`, {
+      await fetchWithAuth(`/api/participants?id=${post.member_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
@@ -1185,7 +1186,7 @@ export default function Page1() {
             onCoverApprove={async (req) => {
               const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
               if (!participantName) return
-              const pRes = await fetch(`/api/participants?name=${encodeURIComponent(participantName)}`)
+              const pRes = await fetchWithAuth(`/api/participants?name=${encodeURIComponent(participantName)}`)
               const pData = await pRes.json()
               const participant = pData?.[0]
               if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
