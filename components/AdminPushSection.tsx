@@ -1,4 +1,5 @@
 'use client'
+import { Bell, Megaphone } from 'lucide-react'
 import { useState } from 'react'
 
 type Props = {
@@ -18,7 +19,7 @@ export default function AdminPushSection({ pushTarget, setPushTarget, pushTitle,
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-        <h2 className="font-bold mb-3 dark:text-white">🔔 푸시 알림 발송</h2>
+        <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Bell size={16} /> 푸시 알림 발송</h2>
         <div className="space-y-3">
           <div>
             <label className="text-sm font-medium dark:text-white">발송 대상</label>
@@ -43,7 +44,7 @@ export default function AdminPushSection({ pushTarget, setPushTarget, pushTitle,
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-        <h2 className="font-bold mb-3 dark:text-white">📣 활동 요청 푸시</h2>
+        <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Megaphone size={16} /> 활동 요청 푸시</h2>
         <div className="space-y-3">
           <button onClick={async () => {
             setIsSendingPush(true)

@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, LayoutGrid, BarChart2, FileText, User } from 'lucide-react'
-import { RefreshCw, ArrowDown } from 'lucide-react'
+import { Bell, LayoutGrid, BarChart2, FileText, User, RefreshCw, ArrowDown, Megaphone, Music, Mic, AlertTriangle, CheckCircle, ListChecks } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
@@ -307,7 +306,7 @@ export default function CoverPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold text-lg dark:text-white">📝 프로젝트 신청</h2>
+              <h2 className="font-bold text-lg dark:text-white flex items-center gap-1"><FileText size={16} /> 프로젝트 신청</h2>
               <button onClick={() => setShowApplyModal(false)} className="text-gray-400 text-xl">✕</button>
             </div>
             <div className="space-y-4">
@@ -410,7 +409,7 @@ export default function CoverPage() {
         ] : [
           { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
           { icon: '📊', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
-          { icon: '📝', label: '프로젝트 신청', onClick: () => { 
+          { icon: '', label: '프로젝트 신청', onClick: () => { 
             if (window.innerWidth >= 768) { setShowApplyModal(true) }
             else { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') }
             setShowSidebar(false) 
@@ -443,7 +442,7 @@ export default function CoverPage() {
         {userRole === 'client' && (
           <>
             <div className="bg-blue-50 dark:bg-blue-900 rounded-2xl p-4 mb-4">
-              <p className="text-sm font-medium text-blue-800 mb-1">📢 커버영상 안내</p>
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-1"><Megaphone size={14} /> 커버영상 안내</p>
               <p className="text-xs text-blue-700">• 커버영상은 음원 발매 15일 이내에 업로드됩니다.</p>
               <p className="text-xs text-blue-700">• 미션 시작 전까지 커버 체험단을 선택할 수 있습니다.</p>
             </div>
@@ -454,7 +453,7 @@ export default function CoverPage() {
           {/* 왼쪽 - 프로젝트 선택 */}
           <div>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-              <h2 className="font-bold mb-3 dark:text-white">프로젝트 선택</h2>
+              <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ListChecks size={16} /> 프로젝트 선택</h2>
               <div className="space-y-2">
                 {projects.map(p => (
                   <div key={p.id} onClick={() => { 
@@ -482,7 +481,7 @@ export default function CoverPage() {
             </div>
             {selectedProject && userRole === 'admin' && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">🎵 커버영상 승인 목록</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Music size={16} /> 커버영상 승인 목록</h2>
                 
                 {coverPosts.filter(p => p.project_code === selectedProject.project_code).length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-2">커버영상 신청이 없습니다.</p>
@@ -523,13 +522,13 @@ export default function CoverPage() {
           <div>
             {selectedProject && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">🎤 커버 가능 체험단</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 가능 체험단</h2>
                 {userRole === 'admin' && selectedProject && (() => {
                   const daysSinceStart = selectedProject.start_date ? Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
                   const coverClosed = daysSinceStart >= 3 && !selectedProject.cover_deadline_extended
                   return coverClosed ? (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 flex justify-between items-center">
-                      <p className="text-xs text-yellow-700">⚠️ 커버 신청 기간이 마감됐어요.</p>
+                      <p className="text-xs text-yellow-700 flex items-center gap-0.5"><AlertTriangle size={10} /> 커버 신청 기간이 마감됐어요.</p>
                       <button onClick={async () => {
                         await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
                           method: 'PATCH',
@@ -542,7 +541,7 @@ export default function CoverPage() {
                     </div>
                   ) : selectedProject.cover_deadline_extended ? (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-green-700">✅ 커버 신청 기간이 연장됐어요.</p>
+                      <p className="text-xs text-green-700 flex items-center gap-0.5"><CheckCircle size={10} /> 커버 신청 기간이 연장됐어요.</p>
                     </div>
                   ) : null
                 })()}
@@ -584,7 +583,7 @@ export default function CoverPage() {
                               {/* 정보 */}
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium dark:text-white">{p.name}</p>
-                                {coverRequestedIds.includes(p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= new Date()) && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 커버 희망</span>}
+                                {coverRequestedIds.includes(p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= new Date()) && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"><Music size={10} /> 커버 희망</span>}
                                 {(() => {
                                   const platform = getCoverPlatform(p.cover_video_url)
                                   if (platform === 'instagram' && p.instagram_id) return <p className="text-xs text-gray-500 dark:text-gray-400">@{p.instagram_id.replace('@','')} {p.instagram_followers > 0 && `(${p.instagram_followers.toLocaleString()}명)`}</p>
@@ -618,15 +617,15 @@ export default function CoverPage() {
                                   })()
                                 ) : request.status === 'PENDING' ? (
                                   coverPost ? (
-                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
+                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full flex items-center gap-0.5"><Music size={10} /> 검토중</span>
                                   ) : (
                                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">대기중</span>
                                   )
                                 ) : request.status === 'APPROVED' ? (
                                   coverPost && coverPost.cover_status === 'PENDING' ? (
-                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">🎵 검토중</span>
+                                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full flex items-center gap-0.5"><Music size={10} /> 검토중</span>
                                   ) : coverPost && coverPost.cover_status === 'APPROVED' ? (
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">✅ 승인됨</span>
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-0.5"><CheckCircle size={10} /> 승인됨</span>
                                   ) : (
                                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">업로드대기</span>
                                   )
@@ -678,7 +677,7 @@ export default function CoverPage() {
             {/* 재선택 2회 후 공개 모집 */}
             {userRole === 'admin' && selectedProject && coverRequests.filter(r => r.rejected_count >= 2).length > 0 && (
               <div className="bg-orange-50 rounded-2xl p-4 mb-4">
-                <p className="text-sm font-medium text-orange-700 mb-2">⚠️ 거절이 2회 발생했어요.</p>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-400 mb-2 flex items-center gap-1"><AlertTriangle size={14} /> 거절이 2회 발생했어요.</p>
                 <button onClick={async () => {
                   const now = new Date()
                   const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= now))
@@ -707,7 +706,7 @@ export default function CoverPage() {
             {/* 커버 대시보드 */}
             {selectedProject && coverRequests.filter(r => r.status === 'APPROVED').length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-1 dark:text-white">📊 커버 대시보드</h2>
+                <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 커버 대시보드</h2>
                 <p className="text-xs text-gray-400 mb-3">
                   {selectedProject.start_date} ~ {selectedProject.end_date ? 
                     new Date(new Date(selectedProject.end_date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 

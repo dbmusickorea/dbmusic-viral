@@ -1,4 +1,5 @@
 'use client'
+import { Package } from 'lucide-react'
 import { useState } from 'react'
 
 type Props = {
@@ -17,7 +18,7 @@ export default function AdminProductManager({ products, newProduct, setNewProduc
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold dark:text-white">📦 상품 사전 등록</h2>
+        <h2 className="font-bold dark:text-white flex items-center gap-1"><Package size={16} /> 상품 사전 등록</h2>
         <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showProductManager ? '닫기' : '관리'}</button>
       </div>
       {showProductManager && (

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
-import { RefreshCw, ArrowDown } from 'lucide-react'
+import { RefreshCw, ArrowDown, Coins, MessageSquare, Music, Smartphone, CheckCircle, Ban, AlertTriangle, Clock, Lock } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 import Sidebar from '../../components/Sidebar'
 import AdminBottomNav from '../../components/AdminBottomNav'
@@ -84,8 +84,8 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' : p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}`}>
                       {p.status === 'CANCELLED' ? '취소' : p.projects?.status === 'COMPLETED' ? '완료' : '진행중'}
                     </span>
-                    {p.status === 'BANNED' && <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">🚫 밴</span>}
-                    {participant?.cover_penalty_until && new Date(participant.cover_penalty_until) > new Date() && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">⚠️ 커버페널티</span>}
+                    {p.status === 'BANNED' && <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full flex items-center gap-0.5"><Ban size={10} /> 밴</span>}
+                    {participant?.cover_penalty_until && new Date(participant.cover_penalty_until) > new Date() && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full flex items-center gap-0.5"><AlertTriangle size={10} /> 커버페널티</span>}
                   </div>
                 </div>
                 {projectPosts.map(post => (
@@ -851,7 +851,7 @@ export default function Page4() {
           <div>
             {tab === 'participant' && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">💰 적립금 지급</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Coins size={16} /> 적립금 지급</h2>
                 <div className="space-y-3">
                   <div className="flex gap-2 mt-3">
                     <button onClick={() => {
@@ -948,13 +948,13 @@ export default function Page4() {
                                 <div className="flex items-center gap-1 flex-wrap">
                                   <p className="font-medium text-sm dark:text-white">{p.name}</p>
                                   <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">Lv.{p.level ?? 1}</span>
-                                  {p.is_cover_possible && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버가능</span>}
-                                  {p.cover_approved && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">✅ 승인</span>}
-                                  {bannedMemberIds.includes(p.id) && <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded">🚫 밴</span>}
-                                  {p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date() && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">⚠️ 커버페널티</span>}
-                                  {p.is_cover_possible && !p.cover_approved && <span className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded">⏳ 커버승인대기</span>}
-                                  {allPendingSnsRequests.some(r => r.member_id === p.id) && <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded">📱 SNS변경대기</span>}
-                                  {p.is_locked && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded">🔒 잠금</span>}
+                                  {p.is_cover_possible && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded flex items-center gap-0.5"><Music size={10} /> 커버가능</span>}
+                                  {p.cover_approved && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded flex items-center gap-0.5"><CheckCircle size={10} /> 승인</span>}
+                                  {bannedMemberIds.includes(p.id) && <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded flex items-center gap-0.5"><Ban size={10} /> 밴</span>}
+                                  {p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date() && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded flex items-center gap-0.5"><AlertTriangle size={10} /> 커버페널티</span>}
+                                  {p.is_cover_possible && !p.cover_approved && <span className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded flex items-center gap-0.5"><Clock size={10} /> 커버승인대기</span>}
+                                  {allPendingSnsRequests.some(r => r.member_id === p.id) && <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded flex items-center gap-0.5"><Smartphone size={10} /> SNS변경대기</span>}
+                                  {p.is_locked && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded flex items-center gap-0.5"><Lock size={10} /> 잠금</span>}
                                 </div>
                               </div>
                               <p className="text-sm font-medium text-blue-600 shrink-0">{p.balance?.toLocaleString() ?? 0}P</p>
@@ -1123,7 +1123,7 @@ export default function Page4() {
                     </div>
                     {selected?.is_cover_possible && (
                       <div className="bg-purple-50 rounded-lg p-3">
-                        <p className="text-xs font-medium text-purple-700 mb-2">🎵 커버영상 신청</p>
+                        <p className="text-xs font-medium text-purple-700 dark:text-purple-400 mb-2 flex items-center gap-1"><Music size={12} /> 커버영상 신청</p>
                         {selected.cover_video_url && (
                           <a href={selected.cover_video_url} target="_blank" className="text-xs text-blue-500 block mb-2">영상 링크 보기 →</a>
                         )}
@@ -1222,7 +1222,7 @@ export default function Page4() {
                     )}
                     {snsRequests.length > 0 && (
                       <div className="bg-blue-50 rounded-lg p-3">
-                        <p className="text-xs font-medium text-blue-700 mb-2">📱 SNS 계정 변경 요청</p>
+                        <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-1"><Smartphone size={12} /> SNS 계정 변경 요청</p>
                         <div className="space-y-2">
                           {snsRequests.map((req) => (
                             <div key={req.id} className="border border-blue-200 dark:border-blue-800 rounded-lg p-2 bg-white dark:bg-gray-700">
@@ -1294,7 +1294,7 @@ export default function Page4() {
             {/* 수익 내역 */}
             {tab === 'participant' && selected && (memberPosts.length > 0 || memberCommentMissions.length > 0) && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h3 className="font-bold mb-3 dark:text-white">💰 수익 내역</h3>
+                <h3 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Coins size={16} /> 수익 내역</h3>
                 
                 {memberPosts.length > 0 && (
                   <div className="mb-3">
@@ -1319,7 +1319,7 @@ export default function Page4() {
 
                 {memberCommentMissions.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 mb-1">💬 댓글 미션 수익</p>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><MessageSquare size={12} /> 댓글 미션 수익</p>
                     <div className="space-y-1">
                       {memberCommentMissions.map((m) => (
                         <div key={m.id} className="flex justify-between text-xs border rounded p-2">
@@ -1337,7 +1337,7 @@ export default function Page4() {
 
                 {selected?.cover_reward && (
                   <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 mb-1">🎵 커버영상 수익</p>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Music size={12} /> 커버영상 수익</p>
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs border rounded p-2">
                         <span>커버영상 별도 지급</span>

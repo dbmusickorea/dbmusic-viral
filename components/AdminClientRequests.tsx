@@ -1,4 +1,5 @@
 'use client'
+import { ClipboardList, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 
 type Props = {
@@ -78,7 +79,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold dark:text-white">📋 문의 내역</h2>
+        <h2 className="font-bold dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 문의 내역</h2>
         <div className="flex gap-2 text-xs">
           <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">검토중 {clientRequests.filter(r => r.status === 'PENDING').length}</span>
           <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">확인됨 {clientRequests.filter(r => r.status === 'CONFIRMED').length}</span>
@@ -122,7 +123,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
                 {req.reply && (
                   <div className="mt-1">
                     <p className="text-xs text-blue-600 bg-blue-50 rounded p-2">
-                      💬 {expandedReply[req.id] ? req.reply : req.reply.slice(0, 30) + (req.reply.length > 30 ? '...' : '')}
+                      <MessageCircle size={12} className="inline mr-1" />{expandedReply[req.id] ? req.reply : req.reply.slice(0, 30) + (req.reply.length > 30 ? '...' : '')}
                       {req.reply.length > 30 && (
                         <button onClick={() => setExpandedReply(prev => ({...prev, [req.id]: !prev[req.id]}))} className="ml-1 text-blue-400 underline">
                           {expandedReply[req.id] ? '접기' : '더보기'}

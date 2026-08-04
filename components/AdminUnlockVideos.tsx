@@ -1,4 +1,5 @@
 'use client'
+import { LockOpen } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 export default function AdminUnlockVideos({ unlockVideos, newUnlockUrl, setNewUnlockUrl, onAdd, onDelete }: Props) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-      <h2 className="font-bold mb-3 dark:text-white">🔓 락 해제 영상 관리</h2>
+      <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><LockOpen size={16} /> 락 해제 영상 관리</h2>
       <div className="space-y-3">
         <div className="flex gap-2">
           <input value={newUnlockUrl} onChange={(e) => setNewUnlockUrl(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="유튜브 URL 입력" />

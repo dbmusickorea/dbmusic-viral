@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, maskResident } from '../lib/crypto'
-import { RefreshCw, ArrowDown } from 'lucide-react'
+import { RefreshCw, ArrowDown, Coins, FileText, ClipboardList, MessageCircle, StickyNote } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import Sidebar from '../../components/Sidebar'
@@ -279,7 +279,7 @@ export default function Page5() {
                           <p className="font-medium text-sm dark:text-white">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                           {s.paid_at && <p className="text-xs text-blue-600">정산완료: {new Date(s.paid_at).toLocaleDateString('ko-KR')}</p>}
-                          {s.memo && <p className="text-xs text-blue-600 mt-1">📝 메모 있음</p>}
+                          {s.memo && <p className="text-xs text-blue-600 mt-1 flex items-center gap-0.5"><StickyNote size={10} /> 메모 있음</p>}
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium dark:text-white">{s.amount?.toLocaleString()}P</p>
@@ -297,7 +297,7 @@ export default function Page5() {
           <div>
             {selected && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">💰 환전 신청 상세</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청 상세</h2>
                 <div className="space-y-2 text-sm">
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                     <p className="font-medium text-base dark:text-white">{selectedParticipant?.name ?? '-'}</p>
@@ -314,7 +314,7 @@ export default function Page5() {
                   <p className="dark:text-gray-300">상태: {statusLabel(selected.status)}</p>
                 </div>
                 <div className="mt-4">
-                  <label className="text-sm font-medium dark:text-white">📝 관리자 메모 (체험단에게 전달)</label>
+                  <label className="text-sm font-medium dark:text-white flex items-center gap-1"><FileText size={14} /> 관리자 메모 (체험단에게 전달)</label>
                   <textarea value={memo} onChange={(e) => setMemo(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={3} placeholder="승인/거절 사유 또는 전달 내용 입력" />
                   <button onClick={handleSaveMemo} className="w-full border dark:border-gray-600 dark:text-gray-300 rounded-lg py-2 text-sm mt-1">메모 저장</button>
                 </div>
@@ -329,7 +329,7 @@ export default function Page5() {
 
             {memberPosts.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                <h2 className="font-bold mb-3 dark:text-white">📋 체험단 게시물 내역</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 체험단 게시물 내역</h2>
                 <div className="space-y-2">
                   {memberPosts.slice(memberPostPage * PAGE_SIZE, (memberPostPage + 1) * PAGE_SIZE).map((post) => (
                     <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
@@ -340,7 +340,7 @@ export default function Page5() {
                         </div>
                         <div className="text-right">
                           <p className="text-sm dark:text-white">❤️ {post.likes_count?.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">💬 {post.comments_count?.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-0.5"><MessageCircle size={10} /> {post.comments_count?.toLocaleString()}</p>
                         </div>
                       </div>
                       <a href={post.post_url} target="_blank" className="text-xs text-blue-500 mt-1 block truncate">링크 보기 →</a>

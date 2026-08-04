@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, LayoutGrid, BarChart2, FileText, User } from 'lucide-react'
+import { Bell, ClipboardList, Package, BarChart2, TrendingUp, Share2, MessageSquare, Music, Link, Trophy, Users, LayoutGrid, FileText, User, Calendar } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
@@ -499,7 +499,7 @@ export default function Page3() {
               </button>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">안녕하세요</p>
-                <h1 className="text-lg font-bold dark:text-white">{userInfo?.name}님 👋</h1>
+                <h1 className="text-lg font-bold dark:text-white">{userInfo?.name}님</h1>
               </div>
             </div>
             <div className="relative">
@@ -584,7 +584,7 @@ export default function Page3() {
                             <p className="text-xs text-gray-500 dark:text-gray-400">DEMO · 2026-07-01</p>
                             <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>
                           </div>
-                          <p className="text-xs text-gray-400 dark:text-gray-500">👥 30/30명 · 커버 3/3</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />30/30명 · 커버 3/3</p>
                         </div>
                         <span className="text-sm text-blue-600 font-medium shrink-0">샘플 보기 →</span>
                       </div>
@@ -607,7 +607,7 @@ export default function Page3() {
                                   <p className="text-xs text-gray-500 dark:text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
                                   {project.cover_video_count > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>}
                                 </div>
-                                <p className="text-xs text-gray-400 dark:text-gray-500">👥 {project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />{project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
                               </div>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
@@ -694,7 +694,7 @@ export default function Page3() {
             {isClient && (
               <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold dark:text-white">📋 프로젝트 문의</h2>
+                  <h2 className="font-bold dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 프로젝트 문의</h2>
                   <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
                     {showRequestForm ? '취소' : '+ 문의하기'}
                   </button>
@@ -761,7 +761,7 @@ export default function Page3() {
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 h-full flex flex-col">
                     <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📅 프로젝트 기간</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Calendar size={12} /> 프로젝트 기간</p>
                     <p className="text-xs dark:text-gray-300">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
                     <p className="text-xs dark:text-gray-300">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
                     <p className="text-xs dark:text-gray-300">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
@@ -819,7 +819,7 @@ export default function Page3() {
                     </div>                  
                   </div>
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📦 프로젝트 정보</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Package size={12} /> 프로젝트 정보</p>
                     <p className="text-xs dark:text-gray-300">의뢰인: {projectInfo.client_name ?? '-'}</p>
                     {projectInfo.artist_name && <p className="text-xs dark:text-gray-300">가수명: {projectInfo.artist_name}</p>}
                     {projectInfo.song_title && <p className="text-xs dark:text-gray-300">노래제목: {projectInfo.song_title}</p>}
@@ -833,7 +833,7 @@ export default function Page3() {
                 </div>
                 {projectInfo.requirements && (
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 mb-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📋 의뢰인 요청사항</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ClipboardList size={12} /> 의뢰인 요청사항</p>
                     <p className="text-xs whitespace-pre-wrap text-gray-700 dark:text-gray-300">{projectInfo.requirements}</p>
                   </div>
                 )}
@@ -843,7 +843,7 @@ export default function Page3() {
             {/* 결과보고서 다운로드 */}
             {projectInfo && projectInfo.status === 'COMPLETED' && (
               <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-2xl p-3 mb-4">
-                <p className="text-sm font-medium text-blue-800 mb-2">📊 프로젝트 결과보고서</p>
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1"><BarChart2 size={16} /> 프로젝트 결과보고서</p>
                 <button onClick={() => window.open(`/report?project_code=${projectInfo.project_code}`, '_blank')} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
                   결과보고서 받기
                 </button>
@@ -853,7 +853,7 @@ export default function Page3() {
             {/* 총 통계 */}
             {posts.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">📊 전체 통계</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 전체 통계</h2>
                 <div className={`grid gap-3 ${topRanker ? 'grid-cols-2' : 'grid-cols-3'}`}>
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center">
                     <p className="text-xs text-gray-500 dark:text-gray-400">총 게시물</p>
@@ -869,7 +869,7 @@ export default function Page3() {
                   </div>
                   {topRanker && (
                     <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3 text-center">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">🏆 1등</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"><Trophy size={12} /> 1등</p>
                       <p className="text-sm font-bold text-yellow-700">{topRanker.influencer_name}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">❤️ {topRanker.likes_count?.toLocaleString()}</p>
                     </div>
@@ -877,7 +877,7 @@ export default function Page3() {
                 </div>
                 {dailyStats.length > 0 && (
                   <div className="mt-4 relative z-10">
-                    <p className="text-sm font-medium mb-2 dark:text-white">📈 일별 변화 추이</p>
+                    <p className="text-sm font-medium mb-2 dark:text-white flex items-center gap-1"><TrendingUp size={16} /> 일별 변화 추이</p>
                     
                     {/* 인스타그램 */}
                     {dailyStats.some(d => d.ig_likes || d.ig_comments || d.ig_views || d.ig_audio) && (
@@ -903,7 +903,7 @@ export default function Page3() {
             {/* SNS별 통계 */}
             {posts.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">📱 SNS별 통계</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Share2 size={16} /> SNS별 통계</h2>
                 <div className="space-y-2">
                   {snsList.map(({ label, posts: snsPosts, links: snsLinks, icon }) => (
                     <div key={label} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
@@ -955,7 +955,7 @@ export default function Page3() {
             {/* 댓글 미션 현황 */}
             {commentMissionData && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">💬 댓글 부스팅 현황</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><MessageSquare size={16} /> 댓글 부스팅 현황</h2>
                 <div className="text-center mb-4">
                   <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
                   <p className="text-3xl font-bold text-red-500">{commentMissionData.missions.length}건</p>
@@ -985,7 +985,7 @@ export default function Page3() {
             {/* 커버 신청 목록 */}
             {coverRequests.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">🎵 커버 신청</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Music size={16} /> 커버 신청</h2>
                 <div className="space-y-2">
                   {coverRequests.map((req: any) => (
                     <div key={req.id} className="border border-purple-200 dark:border-purple-700 rounded-lg p-3 bg-purple-50 dark:bg-purple-900">
@@ -1017,7 +1017,7 @@ export default function Page3() {
             {/* 인스타/틱톡 링크 */}
             {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">📱 관리자 SNS 링크</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Link size={16} /> 관리자 SNS 링크</h2>
                 <div className="space-y-2">
                   {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).map(link => (
                     <div key={link.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
@@ -1133,7 +1133,7 @@ export default function Page3() {
         {/* 보고서 탭 */}
         <div id="tutorial-report-tab" className={`${activeTab === 'report' ? 'block' : 'hidden'}`}>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-4">📊 결과보고서</h2>
+            <h2 className="font-bold mb-4 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 결과보고서</h2>
             <div className="space-y-3">
               {myProjects?.map((p: any) => (
                 <div key={p.project_code} className="border rounded-xl p-4">

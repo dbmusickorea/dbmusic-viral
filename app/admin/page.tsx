@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell } from 'lucide-react'
+import { Bell, LayoutGrid, FolderOpen, Settings, FilePlus, FileEdit } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
@@ -1121,8 +1121,12 @@ export default function Page1() {
 
         {/* 모바일 탭 */}
         <div className="md:hidden flex mb-4 border-b">
-          <button onClick={() => setActiveTab('left')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'left' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📋 프로젝트</button>
-          <button onClick={() => setActiveTab('right')} className={`flex-1 py-2 text-sm font-medium ${activeTab === 'right' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>⚙️ 관리</button>
+          <button onClick={() => setActiveTab('left')} className={`flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1 ${activeTab === 'left' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}>
+            <LayoutGrid size={16} /> 프로젝트
+          </button>
+          <button onClick={() => setActiveTab('right')} className={`flex-1 py-2 text-sm font-medium flex items-center justify-center gap-1 ${activeTab === 'right' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}>
+            <Settings size={16} /> 관리
+          </button>
         </div>
 
         <div className="md:grid md:grid-cols-2 md:gap-4">
@@ -1232,7 +1236,7 @@ export default function Page1() {
           <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold dark:text-white">{selectedProject ? '프로젝트 수정' : '프로젝트 등록'}</h2>
+                <h2 className="font-bold dark:text-white flex items-center gap-1">{selectedProject ? <><FileEdit size={16} /> 프로젝트 수정</> : <><FilePlus size={16} /> 프로젝트 등록</>}</h2>
                 <div className="flex gap-2">
                   {selectedProject && (
                     <button onClick={async () => {

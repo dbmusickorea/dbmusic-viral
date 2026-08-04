@@ -1,4 +1,5 @@
 'use client'
+import { FileText } from 'lucide-react'
 
 type Props = {
   projectApplications: any[]
@@ -10,7 +11,7 @@ export default function AdminProjectApplications({ projectApplications, onApprov
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold dark:text-white">📝 프로젝트 신청 내역</h2>
+        <h2 className="font-bold dark:text-white flex items-center gap-1"><FileText size={16} /> 프로젝트 신청 내역</h2>
         <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">대기 {projectApplications.filter(a => a.status === 'PENDING').length}</span>
       </div>
       {projectApplications.length === 0 ? (

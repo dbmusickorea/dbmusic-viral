@@ -1,4 +1,5 @@
 'use client'
+import { FolderOpen, Users, Music } from 'lucide-react'
 
 type Props = {
   projects: any[]
@@ -13,7 +14,7 @@ export default function AdminProjectList({ projects, selectedProject, projectPag
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold dark:text-white">프로젝트 목록</h2>
+        <h2 className="font-bold dark:text-white flex items-center gap-1"><FolderOpen size={16} /> 프로젝트 목록</h2>
         <div className="flex gap-2 text-xs">
           <span className="bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded-full">대기 {projects.filter(p => p.status === 'PENDING').length}</span>
           <span className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded-full">진행 {projects.filter(p => p.status === 'ONGOING').length}</span>
@@ -35,9 +36,9 @@ export default function AdminProjectList({ projects, selectedProject, projectPag
                     <div className="min-w-0">
                       <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500">프로젝트 코드: {project.project_code}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">👥 참여인원: {project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"><Users size={12} /> 참여인원: {project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}</p>
                       {project.cover_video_count > 0 && (
-                        <p className="text-xs text-purple-500 dark:text-purple-400">🎵 커버: {project.cover_current ?? 0}/{project.cover_video_count}</p>
+                        <p className="text-xs text-purple-500 dark:text-purple-400 flex items-center gap-1"><Music size={12} /> 커버: {project.cover_current ?? 0}/{project.cover_video_count}</p>
                       )}
                     </div>
                   </div>
