@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, BarChart2, Target, Wallet, User } from 'lucide-react'
+import { Bell, CheckCircle, Music, Heart, ThumbsUp, ClipboardList, FileText, AlertTriangle, MessageSquare, BarChart2, Target, Wallet, User, Calendar } from 'lucide-react'
 import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
@@ -1191,7 +1191,7 @@ useEffect(() => {
               </button>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">안녕하세요</p>
-                <h1 className="text-lg font-bold dark:text-white">{influencerName || userInfo?.name}님 👋</h1>
+                <h1 className="text-lg font-bold dark:text-white">{influencerName || userInfo?.name}님</h1>
               </div>
             </div>
             <div className="relative">
@@ -1303,7 +1303,7 @@ useEffect(() => {
                 : myParticipations
               return (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                  <h2 className="font-bold mb-3 dark:text-white">✅ 내 참여 현황</h2>
+                  <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><CheckCircle size={16} /> 내 참여 현황</h2>
                   <div className="flex gap-2 mb-3">
                     <button onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>진행중</button>
                     <button onClick={() => { setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>전체</button>
@@ -1330,7 +1330,7 @@ useEffect(() => {
                               <p className="text-sm font-medium dark:text-white">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
                               <p className="text-xs text-gray-400 dark:text-gray-500">프로젝트 코드: {p.project_code}</p>
                               {myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
-                                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 COVER</span>
+                                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"><Music size={10} /> COVER</span>
                               )}
                               <p className="text-xs text-gray-500 dark:text-gray-400">미션일: {p.projects?.start_date ?? '미정'}</p>
                               {p.projects?.end_date && (
@@ -1344,7 +1344,7 @@ useEffect(() => {
                                   {!myRankMap[p.project_code].isEligible && (
                                     <p className="text-xs text-gray-400 dark:text-gray-500">(좋아요 1,000건 미만 시상 제외)</p>
                                   )}
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-0.5"><Heart size={10} className="text-red-500" /> {myRankMap[p.project_code].likes?.toLocaleString()}</p>
                                 </div>
                               )}
                             </div>
@@ -1358,7 +1358,7 @@ useEffect(() => {
                           </span>
                         </div>
                         {p.cover_requested && !p.is_cover && (
-                          <p className="mt-2 text-xs text-purple-500 text-center">🎵 커버 신청 완료 (의뢰인 검토 중)</p>
+                          <p className="mt-2 text-xs text-purple-500 text-center flex items-center justify-center gap-0.5"><Music size={10} /> 커버 신청 완료 (의뢰인 검토 중)</p>
                         )}
                         {p.status !== 'CANCELLED' && p.projects?.status === 'ONGOING' && p.joined_at && 
                           (new Date().getTime() - new Date(p.joined_at).getTime()) < 3 * 60 * 60 * 1000 && (
@@ -1389,20 +1389,20 @@ useEffect(() => {
                           <div className="space-y-3">
                             {projectInfo && (requirements || projectInfo?.required_posts > 1) && (
                               <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
-                                <p className="text-sm font-medium text-blue-800 dark:text-blue-300">📋 의뢰인 요청사항</p>
+                                <p className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1"><ClipboardList size={14} /> 의뢰인 요청사항</p>
                                 {requirements && <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 whitespace-pre-wrap">{requirements}</p>}
-                                {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
+                                {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1 flex items-center gap-1"><FileText size={14} /> 요청 게시물 수: {projectInfo.required_posts}개</p>}
                               </div>
                             )}
                             {projectInfo && (
                               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                                {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300">📅 미션일: {projectInfo.start_date}</p>}
+                                {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Calendar size={14} /> 미션일: {projectInfo.start_date}</p>}
                                 <div className="flex justify-between items-center mt-2">
                                   <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                                   {bannedUntil ? (
                                     <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
                                   ) : isJoined ? (
-                                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5">참여중 <CheckCircle size={10} /></span>
                                   ) : projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
                                     <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
                                   ) : (
@@ -1434,7 +1434,7 @@ useEffect(() => {
                                   </select>
                                   {platform === 'instagram' && (
                                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
-                                      <p className="text-xs text-orange-700 font-medium">⚠️ 인스타그램은 반드시 <strong>릴스(Reels)</strong>로 올려주세요.</p>
+                                      <p className="text-xs text-orange-700 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> 인스타그램은 반드시 <strong>릴스(Reels)</strong>로 올려주세요.</p>
                                     </div>
                                   )}
                                 </div>
@@ -1443,7 +1443,7 @@ useEffect(() => {
                                   <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="SNS 아이디" />
                                 </div>
                                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
-                                  <p className="text-xs text-orange-700 font-medium">⚠️ 필수 문구 안내</p>
+                                  <p className="text-xs text-orange-700 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> 필수 문구 안내</p>
                                   <p className="text-xs text-orange-600 mt-1">'더블비뮤직 체험단 선정, 협찬으로 올려요' 라는 문구를 반드시 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.</p>
                                 </div>
                                 <div>
@@ -1458,7 +1458,7 @@ useEffect(() => {
                                         <label className="text-sm font-medium dark:text-white">일반 게시물 링크</label>
                                         {normalPosts.length > 0 ? (
                                           <>
-                                            <p className="text-xs text-green-600 mt-1">✅ {normalPosts.length}차 게시물 제출 완료</p>
+                                            <p className="text-xs text-green-600 mt-1 flex items-center gap-0.5"><CheckCircle size={10} /> {normalPosts.length}차 게시물 제출 완료</p>
                                             {/* 2차 게시물 */}
                                             {projectInfo?.required_posts > 1 && normalPosts.length < (normalMax) && (() => {
                                               const secondPostDateTime = projectInfo?.second_post_date && projectInfo?.second_post_time 
@@ -1473,7 +1473,7 @@ useEffect(() => {
                                                   </button>
                                                 </>
                                               ) : (
-                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">📅 2차 게시물: {projectInfo.second_post_date} {projectInfo.second_post_time} 이후 업로드 가능</p>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-0.5"><Calendar size={10} /> 2차 게시물: {projectInfo.second_post_date} {projectInfo.second_post_time} 이후 업로드 가능</p>
                                               )
                                             })()}
                                           </>
@@ -1494,9 +1494,9 @@ useEffect(() => {
                                     const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
                                     return (
                                       <div className="mt-3 pt-3 border-t dark:border-gray-600">
-                                        <label className="text-sm font-medium text-purple-700 dark:text-purple-400">🎵 커버 게시물 링크 (7일 내)</label>
+                                        <label className="text-sm font-medium text-purple-700 dark:text-purple-400 flex items-center gap-1"><Music size={14} /> 커버 게시물 링크 (7일 내)</label>
                                         {coverPost ? (
-                                          <p className="text-xs text-green-600 mt-1">✅ 커버 게시물 제출 완료</p>
+                                          <p className="text-xs text-green-600 mt-1 flex items-center gap-0.5"><CheckCircle size={10} /> 커버 게시물 제출 완료</p>
                                         ) : (
                                           <>
                                             <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className="w-full border border-purple-300 dark:border-purple-700 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="커버영상 링크 입력" />
@@ -1525,7 +1525,7 @@ useEffect(() => {
                             )}
                             {projectLinks.length > 0 && (
                               <button onClick={() => setShowCommentMission(!showCommentMission)} className="w-full mt-2 border border-orange-400 text-orange-500 rounded-lg py-2 text-sm font-medium">
-                                {showCommentMission ? '댓글 미션 닫기 ▲' : '💬 댓글 미션 하러가기 ▼'}
+                                {showCommentMission ? '댓글 미션 닫기 ▲' : '댓글 미션 하러가기 ▼'}
                               </button>
                             )}
                             {showCommentMission && projectLinks.length > 0 && (
@@ -1533,9 +1533,9 @@ useEffect(() => {
                                 {/* 댓글 미션 */}
                                 {projectCode && projectLinks.length > 0 && (
                                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                                    <h2 className="font-bold mb-3 dark:text-white">💬 댓글 미션</h2>
+                                    <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><MessageSquare size={16} /> 댓글 미션</h2>
                                     <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300P를 받으세요!</p>
-                                    <p className="text-xs text-red-400 mb-3">⚠️ 댓글 삭제 시 적립금이 차감됩니다.</p>
+                                    <p className="text-xs text-red-400 mb-3 flex items-center gap-0.5"><AlertTriangle size={10} /> 댓글 삭제 시 적립금이 차감됩니다.</p>
                                     <div className="space-y-3">
                                       {/* 영상 선택 버튼 */}
                                       <div className="space-y-2">
@@ -1583,7 +1583,7 @@ useEffect(() => {
                                       )}
 
                                       {selectedVideoIndex && videoWatched && (
-                                        <p className="text-xs text-green-600 text-center font-medium">✅ 시청 완료! 아래에서 인증해주세요.</p>
+                                        <p className="text-xs text-green-600 text-center font-medium flex items-center justify-center gap-0.5"><CheckCircle size={10} /> 시청 완료! 아래에서 인증해주세요.</p>
                                       )}
 
                                       <div>
@@ -1657,18 +1657,18 @@ useEffect(() => {
                   const canCover = isCoverPossible && isCoverApproved && projectInfo.cover_video_count > 0
                   return (
                     <>
-                      <h2 className="font-bold mb-3 dark:text-white">🎯 프로젝트 참여</h2>
+                      <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Target size={16} /> 프로젝트 참여</h2>
                       <div className="space-y-3">
                         {(requirements || projectInfo?.required_posts > 1) && (
                           <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
-                            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">📋 의뢰인 요청사항</p>
+                            <p className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1"><ClipboardList size={14} /> 의뢰인 요청사항</p>
                             {requirements && <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 whitespace-pre-wrap">{requirements}</p>}
-                            {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
+                            {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1 flex items-center gap-1"><FileText size={14} /> 요청 게시물 수: {projectInfo.required_posts}개</p>}
                           </div>
                         )}
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                           <p className="text-sm font-medium mb-1 dark:text-white">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
-                          {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300">📅 미션일: {projectInfo.start_date}</p>}
+                          {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Calendar size={14} /> 미션일: {projectInfo.start_date}</p>}
                           <div className="flex justify-between items-center mt-2">
                             <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                             {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
@@ -1688,16 +1688,16 @@ useEffect(() => {
                                       {isBanned ? (
                                         <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
                                       ) : alreadyJoined ? (
-                                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">참여중 ✅</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5">참여중 <CheckCircle size={10} /></span>
                                       ) : !alreadyJoined && !alreadyJoinedCover && !isFull ? (
                                         <button onClick={() => { setJoinAsCover(false); handleJoin() }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">일반 참여</button>
                                       ) : null}
                                       {canCover && (
                                         alreadyCover ? (
                                           coverPenaltyUntil && new Date(coverPenaltyUntil) > new Date() ? (
-                                            <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full">⚠️ 커버페널티</span>
+                                            <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5"><AlertTriangle size={10} /> 커버페널티</span>
                                           ) : (
-                                            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">커버참여중 🎵</span>
+                                            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5">커버참여중 <Music size={10} /></span>
                                           )
                                         ) : alreadyCoverRequested ? (
                                           <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>

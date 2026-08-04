@@ -1,4 +1,5 @@
 'use client'
+import { BookOpen, Pin } from 'lucide-react'
 
 import { useState } from 'react'
 
@@ -24,7 +25,7 @@ export default function GuideCard() {
     <div id="tutorial-guide-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow mb-4 overflow-hidden">
       <button onClick={() => setOpen(o => !o)} className="w-full flex justify-between items-center p-4">
         <div>
-          <p className="font-bold text-sm text-left dark:text-white">📖 더블비뮤직 앱 사용 가이드</p>
+          <p className="font-bold text-sm text-left dark:text-white flex items-center gap-1"><BookOpen size={14} /> 더블비뮤직 앱 사용 가이드</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 text-left mt-0.5">의뢰인을 위한 간편한 캠페인 관리 프로세스</p>
         </div>
         <svg viewBox="0 0 24 24" className={`w-5 h-5 text-gray-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2">
@@ -48,7 +49,7 @@ export default function GuideCard() {
             ))}
           </div>
 
-          <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">📌 주요 안내사항</p>
+          <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1"><Pin size={12} /> 주요 안내사항</p>
           <div className="space-y-2">
             {notices.map((n, i) => (
               <div key={i} className="border dark:border-gray-600 rounded-xl overflow-hidden">

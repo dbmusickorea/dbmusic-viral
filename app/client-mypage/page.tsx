@@ -260,7 +260,7 @@ export default function ClientMyPage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold dark:text-white">👤 내 정보</h2>
+            <h2 className="font-bold dark:text-white">내 정보</h2>
             {!isEditing && (
               <button onClick={() => setIsEditing(true)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">정보 수정</button>
             )}

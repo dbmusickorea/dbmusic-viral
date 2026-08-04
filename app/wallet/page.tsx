@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { encryptText } from '../lib/crypto'
 import BottomNav from '../../components/BottomNav'
-import { RefreshCw, ArrowDown, BarChart2, Target, Wallet, User } from 'lucide-react'
+import { RefreshCw, ArrowDown, BarChart2, Target, Wallet, User, AlertTriangle, Coins, FileText } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 
@@ -298,7 +298,7 @@ export default function WalletPage() {
       <div className="max-w-lg mx-auto"> 
         {isLocked && (
           <div className="bg-red-50 dark:bg-red-900 rounded-2xl p-4 mb-4">
-            <h2 className="font-bold mb-2 text-red-600 dark:text-red-400">⚠️ 계정 잠금 상태</h2>
+            <h2 className="font-bold mb-2 text-red-600 dark:text-red-400 flex items-center gap-1"><AlertTriangle size={16} /> 계정 잠금 상태</h2>
             <p className="text-xs text-red-500 mb-3">1개월간 미션 참여가 없어서 계정이 잠겼어요. 환전 신청이 불가합니다.</p>
             <button onClick={() => router.push('/participant')} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium">잠금 해제하러 가기 →</button>
           </div>
@@ -321,9 +321,9 @@ export default function WalletPage() {
           {showLevelGuide && (
             <div className="mt-3 border border-blue-400 rounded-lg overflow-hidden">
               <div className="bg-blue-500 p-3 text-xs text-blue-100 space-y-1">
-                <p>🎯 추천인 1명 가입 시: <span className="font-bold dark:text-white">+150P + 레벨 1 상승</span></p>
-                <p>💰 레벨이 높을수록 게시물당 적립금이 올라가요!</p>
-                <p>⭐ 최대 적립금은 <span className="font-bold dark:text-white">10,000P</span>입니다.</p>
+                <p>추천인 1명 가입 시: <span className="font-bold dark:text-white">+150P + 레벨 1 상승</span></p>
+                <p>레벨이 높을수록 게시물당 적립금이 올라가요!</p>
+                <p>최대 적립금은 <span className="font-bold dark:text-white">10,000P</span>입니다.</p>
               </div>
               <table className="w-full text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                 <thead className="bg-gray-50 dark:bg-gray-600">
@@ -350,7 +350,7 @@ export default function WalletPage() {
         {/* 계정 잠금 상태 */}
         {isLocked && (
           <div className="bg-red-50 dark:bg-red-900 rounded-2xl p-4 mb-4">
-            <h2 className="font-bold mb-2 text-red-600 dark:text-red-400">⚠️ 계정 잠금 상태</h2>
+            <h2 className="font-bold mb-2 text-red-600 dark:text-red-400 flex items-center gap-1"><AlertTriangle size={16} /> 계정 잠금 상태</h2>
             <p className="text-xs text-red-500 dark:text-red-400 mb-1">1개월간 미션 참여가 없어서 계정이 잠겼어요.</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!</p>
           </div>
@@ -359,7 +359,7 @@ export default function WalletPage() {
         {/* 환전 신청 폼 */}
         {showExchange && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-1 dark:text-white">💰 환전 신청</h2>
+            <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청</h2>
             <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
             {coverReward > 0 && (
               <div className="bg-purple-50 dark:bg-purple-900 rounded-lg p-3 mb-3">
@@ -452,7 +452,7 @@ export default function WalletPage() {
                         )}
                         {item.type === 'exchange' && (item as any).memo && (
                           <div className="mt-1 bg-blue-50 dark:bg-blue-900 rounded p-2">
-                            <p className="text-xs text-blue-800 dark:text-blue-300 font-medium">📝 관리자 메모</p>
+                            <p className="text-xs text-blue-800 dark:text-blue-300 font-medium flex items-center gap-0.5"><FileText size={10} /> 관리자 메모</p>
                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">{(item as any).memo}</p>
                           </div>
                         )}

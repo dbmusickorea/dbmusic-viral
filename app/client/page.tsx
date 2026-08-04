@@ -582,7 +582,7 @@ export default function Page3() {
                           <p className="font-medium text-sm">옐로 / 결혼해서 좋겠다</p>
                           <div className="flex items-center gap-1 mt-0.5">
                             <p className="text-xs text-gray-500 dark:text-gray-400">DEMO · 2026-07-01</p>
-                            <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>
+                            <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded inline-flex items-center gap-0.5"><Music size={10} /> 커버</span>
                           </div>
                           <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />30/30명 · 커버 3/3</p>
                         </div>
@@ -605,7 +605,7 @@ export default function Page3() {
                                 <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                                 <div className="flex items-center gap-1 mt-0.5">
                                   <p className="text-xs text-gray-500 dark:text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
-                                  {project.cover_video_count > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded">🎵 커버</span>}
+                                  {project.cover_video_count > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded inline-flex items-center gap-0.5"><Music size={10} /> 커버</span>}
                                 </div>
                                 <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />{project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
                               </div>
@@ -811,10 +811,10 @@ export default function Page3() {
                             showToast('아직 서명이 완료되지 않았어요.')
                           }
                         } finally {
-                          btn.textContent = '📄 계약서 다운로드'
+                          btn.textContent = '계약서 다운로드'
                           btn.disabled = false
                         }
-                      }} className="w-full mt-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">📄 계약서 다운로드</button>
+                      }} className="w-full mt-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors inline-flex items-center justify-center gap-1"><FileText size={14} /> 계약서 다운로드</button>
                     )}
                     </div>                  
                   </div>

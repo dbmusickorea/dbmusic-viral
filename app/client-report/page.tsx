@@ -1,4 +1,5 @@
 'use client'
+import { BarChart2 } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -69,7 +70,7 @@ export default function ClientReportPage() {
             </button>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-4 dark:text-white">📊 결과보고서</h2>
+            <h2 className="font-bold mb-4 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 결과보고서</h2>
             {myProjects.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-8">프로젝트가 없어요</p>
             ) : (

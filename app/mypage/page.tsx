@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { BookOpen, MessageSquare, FileText, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, BarChart2, Target, Wallet, User } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
@@ -322,7 +323,7 @@ export default function MyPage() {
         {/* 내 정보 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold dark:text-white">👤 내 정보</h2>
+            <h2 className="font-bold dark:text-white">내 정보</h2>
             {!isEditing && (
               <button onClick={() => setIsEditing(true)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">정보 수정</button>
             )}
@@ -364,7 +365,7 @@ export default function MyPage() {
                   <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                 </div>
               ))}
-              <p className="text-xs text-orange-500">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
+              <p className="text-xs text-orange-500 flex items-center gap-0.5"><AlertTriangle size={10} /> 본인 명의 계좌만 등록 가능합니다.</p>
               {[
                 { label: '은행명', value: myBankName, setter: setMyBankName },
                 { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
@@ -401,7 +402,7 @@ export default function MyPage() {
                     }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-2">확인</button>
                   </div>
                 )}
-                {mobileVerified && <p className="text-xs text-green-600 mt-1">✅ 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
+                {mobileVerified && <p className="text-xs text-green-600 mt-1 flex items-center gap-0.5"><CheckCircle size={10} /> 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
               </div>               
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
@@ -414,7 +415,7 @@ export default function MyPage() {
                   <label className="text-sm font-medium dark:text-white">커버영상 링크</label>
                   {!coverVideoUrl && (
                     <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-2 mb-1 mt-1">
-                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">⚠️ 커버영상 링크를 등록해야 승인을 받을 수 있어요!</p>
+                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> 커버영상 링크를 등록해야 승인을 받을 수 있어요!</p>
                     </div>
                   )}
                   <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="본인 가창 영상 링크 입력" />
@@ -436,7 +437,7 @@ export default function MyPage() {
                 </div>
               )}
               <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-3 mb-2">
-                <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">⚠️ SNS 계정 변경 안내</p>
+                <p className="text-xs text-orange-700 dark:text-orange-400 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> SNS 계정 변경 안내</p>
                 <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">SNS 계정 변경은 관리자 승인 후 반영됩니다. 반드시 본인 계정을 입력해주세요.</p>
               </div>
               {[
@@ -525,7 +526,7 @@ export default function MyPage() {
         {/* 사용 가이드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <button onClick={() => router.push('/guide')} className="w-full flex justify-between items-center">
-            <span className="font-medium text-sm dark:text-white">📖 크리에이터 사용 가이드</span>
+            <span className="font-medium text-sm dark:text-white flex items-center gap-1"><BookOpen size={14} /> 크리에이터 사용 가이드</span>
             <span className="text-gray-400 dark:text-gray-300">→</span>
           </button>
         </div>
@@ -533,7 +534,7 @@ export default function MyPage() {
         {/* 문의하기 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold dark:text-white">💬 문의하기</h2>
+            <h2 className="font-bold dark:text-white flex items-center gap-1"><MessageSquare size={16} /> 문의하기</h2>
             <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">
               {showRequestForm ? '닫기' : '문의 등록'}
             </button>
@@ -561,7 +562,7 @@ export default function MyPage() {
                   <p className="text-xs text-gray-500 mt-1">{new Date(r.created_at).toLocaleDateString('ko-KR')}</p>
                   {r.reply && (
                     <div className="mt-2 bg-blue-50 rounded p-2">
-                      <p className="text-xs text-blue-800 font-medium">📝 답변</p>
+                      <p className="text-xs text-blue-800 font-medium flex items-center gap-0.5"><FileText size={10} /> 답변</p>
                       <p className="text-xs text-blue-700 mt-0.5">{r.reply}</p>
                     </div>
                   )}
@@ -622,7 +623,7 @@ export default function MyPage() {
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
             <div className="mt-3 border border-red-300 rounded-lg p-4 bg-red-50">
-              <p className="text-sm font-bold text-red-700 mb-2">⚠️ 계정 삭제 확인</p>
+              <p className="text-sm font-bold text-red-700 mb-2 flex items-center gap-1"><AlertTriangle size={14} /> 계정 삭제 확인</p>
               <p className="text-xs text-gray-600 mb-1">• 현재 잔여 적립금: <span className="font-bold text-red-600">{balance.toLocaleString()}P (삭제 시 소멸)</span></p>
               <p className="text-xs text-gray-600 mb-1">• 진행중 프로젝트가 있는 경우 미션 수익을 받을 수 없어요.</p>
               <p className="text-xs text-gray-600 mb-3">• 삭제 후 복구가 불가능합니다.</p>

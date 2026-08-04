@@ -12,7 +12,7 @@ export default function GuidePage() {
         <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex items-center gap-3">
             <BackButton />
-            <h1 className="text-xl font-bold dark:text-white">📖 크리에이터 공식 사용설명서</h1>
+            <h1 className="text-xl font-bold dark:text-white">크리에이터 공식 사용설명서</h1>
           </div>
         </div>
 
@@ -50,9 +50,9 @@ export default function GuidePage() {
               <p className="text-sm font-medium dark:text-white">② 콘텐츠 제작 및 게시</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">더블비뮤직 앱에 연동 등록해 두신 본인의 SNS 계정(인스타그램, 유튜브, 틱톡 등) 1곳 이상에 일상적인 사진이나 영상물과 함께 미션 곡을 배경음악으로 선택하여 업로드 하면 됩니다.</p>
               <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-2 mt-2">
-                <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">⚠️ 게시글 설명에 필히 표기:</p>
-                <p className="text-xs text-orange-600 dark:text-orange-400">"더블비뮤직 체험단 선정, 협찬으로 올려요"</p>
-                <p className="text-xs text-orange-600 mt-1">인스타그램의 경우 사진일지라도 반드시 '릴스'로 업로드 해주세요.</p>
+                <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">게시글 설명에 필히 표기:</p>
+                <p className="text-xs text-orange-600 dark:text-orange-200">"더블비뮤직 체험단 선정, 협찬으로 올려요"</p>
+                <p className="text-xs text-orange-600 dark:text-orange-200 mt-1">인스타그램의 경우 사진일지라도 반드시 '릴스'로 업로드 해주세요.</p>
               </div>
             </div>
             <div>
@@ -86,7 +86,7 @@ export default function GuidePage() {
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">앱 내 적립금 총액이 10,000포인트 이상 누적되는 시점부터 크리에이터가 직접 본인 계좌로 현금 환전 신청을 진행할 수 있습니다.</p>
             </div>
             <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3">
-              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">⚠️ 법적 의무 사항</p>
+              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">법적 의무 사항</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">소득세법 및 원천징수 규정에 의거 현금 정산 처리 시 소득세 3.3%가 원천징수되어 국세청에 일괄 세무 신고됩니다. 최초 환전 신청 시 반드시 본인 명의의 주민등록번호와 계좌번호를 등록해 주셔야 합니다.</p>
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function GuidePage() {
 
         {/* Q&A */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">💬 자주 묻는 질문 (Q&A)</h2>
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">자주 묻는 질문 (Q&A)</h2>
           <div className="space-y-4">
             {[
               {

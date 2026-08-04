@@ -1,4 +1,5 @@
 'use client'
+import { FileText } from 'lucide-react'
 
 import { useState } from 'react'
 import { supabase } from '../app/lib/supabase'
@@ -70,7 +71,7 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-lg dark:text-white">📝 프로젝트 신청</h2>
+          <h2 className="font-bold text-lg dark:text-white flex items-center gap-1"><FileText size={16} /> 프로젝트 신청</h2>
           <button onClick={onClose} className="text-gray-400 dark:text-gray-300 text-xl">✕</button>
         </div>
         <div className="space-y-4">

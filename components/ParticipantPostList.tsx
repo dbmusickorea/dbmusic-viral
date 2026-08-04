@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { BarChart2, Music, Heart, ThumbsUp } from 'lucide-react'
 
 type Props = {
   displayPosts: any[]
@@ -30,7 +31,7 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold dark:text-white">📊 나의 게시물 현황</h2>
+        <h2 className="font-bold dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 나의 게시물 현황</h2>
         <button onClick={() => setShowPosts(!showPosts)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
       </div>
       <div className="flex gap-2 mb-3">
@@ -84,9 +85,9 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
                         <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500">기본 {baseAmount.toLocaleString()}P</p>
                         {post.is_cover && (
-                          <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
+                          <p className="text-xs text-purple-600 font-medium flex items-center gap-0.5"><Music size={10} /> 커버 +{coverReward.toLocaleString()}P</p>
                         )}
-                        <p className="text-xs text-gray-500 dark:text-gray-400">❤️ {post.likes_count?.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-end gap-0.5">{post.platform === 'youtube' ? <ThumbsUp size={10} className="text-red-500" /> : <Heart size={10} className="text-red-500" />} {post.likes_count?.toLocaleString()}</p>
                         <button disabled={isDeletingPost} onClick={() => onDeletePost(post)} className="text-xs text-red-400 mt-1">삭제</button>
                       </div>
                     </div>

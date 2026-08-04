@@ -162,7 +162,7 @@ export default function AdminMypagePage() {
 
           {/* 관리자 정보 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3 dark:text-white">👤 내 정보</h2>
+            <h2 className="font-bold mb-3 dark:text-white">내 정보</h2>
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 mb-2">
               <p className="text-xs text-gray-500 dark:text-gray-400">이름</p>
               <p className="text-sm font-medium dark:text-white">{userInfo?.name ?? '-'}</p>
@@ -175,7 +175,7 @@ export default function AdminMypagePage() {
 
           {/* 비밀번호 변경 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3 dark:text-white">🔒 비밀번호 변경</h2>
+            <h2 className="font-bold mb-3 dark:text-white">비밀번호 변경</h2>
             <div className="space-y-3">
               <div className="relative">
                 <input type={showCurrentPassword ? 'text' : 'password'} value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="기존 비밀번호" />
@@ -204,7 +204,7 @@ export default function AdminMypagePage() {
 
           {/* 관리자 추가 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3 dark:text-white">➕ 관리자 추가</h2>
+            <h2 className="font-bold mb-3 dark:text-white">관리자 추가</h2>
             <div className="flex gap-2 mb-3">
               <input value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일로 검색" />
               <button onClick={handleSearchUser} className="bg-gray-600 text-white rounded-lg px-3 py-2 text-sm">검색</button>

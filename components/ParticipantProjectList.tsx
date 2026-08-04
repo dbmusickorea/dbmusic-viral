@@ -1,4 +1,5 @@
 'use client'
+import { ClipboardList, CheckCircle } from 'lucide-react'
 import React from 'react'
 
 type Props = {
@@ -17,7 +18,7 @@ type Props = {
 export default function ParticipantProjectList({ allProjects, myParticipations, projectCode, projectListPage, setProjectListPage, PAGE_SIZE, isCoverPossible, isCoverApproved, onSelectProject, onDeselectProject }: Props) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-      <h2 className="font-bold mb-3 dark:text-white">📋 전체 프로젝트 목록</h2>
+      <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 전체 프로젝트 목록</h2>
       {allProjects.length === 0 ? (
         <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">진행중인 프로젝트가 없습니다.</p>
       ) : (
@@ -35,7 +36,7 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
                 if (isJoined) {
                   return (
                     <div className="flex flex-col gap-1 items-end">
-                      <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">참여중 ✅</span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 inline-flex items-center gap-0.5">참여중 <CheckCircle size={10} /></span>
                       {canCover && !myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase() && p.is_cover) && (
                         <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">커버 가능</span>
                       )}
