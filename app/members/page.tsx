@@ -26,11 +26,11 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
     const load = async () => {
       setLoading(true)
       const [partRes, postRes, settleRes, memberRes, phRes] = await Promise.all([
-        fetch(`/api/project_participants?member_id=${memberId}`),
+        fetchWithAuth(`/api/project_participants?member_id=${memberId}`),
         fetchWithAuth(`/api/posts?member_id=${memberId}`),
         fetchWithAuth(`/api/settlements?member_id=${memberId}`),
         fetchWithAuth(`/api/participants?id=${memberId}`),
-        fetch(`/api/point_history?member_id=${memberId}`)
+        fetchWithAuth(`/api/point_history?member_id=${memberId}`)
       ])
       const partData = await partRes.json()
       setParticipations(Array.isArray(partData) ? partData : [])
@@ -240,10 +240,10 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
                     })
-                    const crRes = await fetch(`/api/cover_requests?participant_id=${memberId}`)
+                    const crRes = await fetchWithAuth(`/api/cover_requests?participant_id=${memberId}`)
                     const crData = await crRes.json()
                     for (const cr of crData?.filter((r: any) => r.status === 'PENALTY' || r.status === 'REJECTED') ?? []) {
-                      await fetch(`/api/cover_requests?id=${cr.id}`, {
+                      await fetchWithAuth(`/api/cover_requests?id=${cr.id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status: 'PENDING', expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() })
@@ -427,10 +427,10 @@ export default function Page4() {
     const res = await fetchWithAuth('/api/participants')
     const data = await res.json()
     setParticipants(data ?? [])
-    const snsRes = await fetch('/api/sns_change_requests?status=PENDING')
+    const snsRes = await fetchWithAuth('/api/sns_change_requests?status=PENDING')
     const snsData = await snsRes.json()
     setAllPendingSnsRequests(Array.isArray(snsData) ? snsData : [])
-    const bannedRes = await fetch('/api/project_participants?status=BANNED')
+    const bannedRes = await fetchWithAuth('/api/project_participants?status=BANNED')
     const bannedData = await bannedRes.json()
     setBannedMemberIds(Array.isArray(bannedData) ? [...new Set(bannedData.filter((p: any) => !p.is_cover).map((p: any) => p.member_id))] as number[] : [])
   }
@@ -474,7 +474,7 @@ export default function Page4() {
       .then(({ data }) => setMemberCommentMissions(data ?? []))
 
     // SNS 변경 요청 불러오기
-    const snsRes = await fetch(`/api/sns_change_requests?member_id=${p.id}`)
+    const snsRes = await fetchWithAuth(`/api/sns_change_requests?member_id=${p.id}`)
     const snsData = await snsRes.json()
     setSnsRequests(snsData ?? [])
   }
@@ -883,7 +883,7 @@ export default function Page4() {
                         body: JSON.stringify({ balance: (p.balance ?? 0) + amount })
                       })
                       // 포인트 내역 저장
-                      await fetch('/api/point_history', {
+                      await fetchWithAuth('/api/point_history', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ member_id: id, amount, memo: rewardMemo || '관리자 지급' })
@@ -1238,7 +1238,7 @@ export default function Page4() {
                                 {req.status === 'PENDING' ? (
                                   <>
                                     <button onClick={async () => {
-                                      await fetch(`/api/sns_change_requests?id=${req.id}`, {
+                                      await fetchWithAuth(`/api/sns_change_requests?id=${req.id}`, {
                                         method: 'PATCH',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ status: 'APPROVED' })
@@ -1255,7 +1255,7 @@ export default function Page4() {
                                       fetchParticipants() 
                                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
                                     <button onClick={async () => {
-                                      await fetch(`/api/sns_change_requests?id=${req.id}`, {
+                                      await fetchWithAuth(`/api/sns_change_requests?id=${req.id}`, {
                                         method: 'PATCH',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ status: 'REJECTED' })

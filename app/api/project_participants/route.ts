@@ -6,7 +6,28 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function getRole(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return null
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  if (!user) return null
+  const { data: userData } = await supabaseAdmin.from('users').select('role').eq('email', user.email).single()
+  if (userData) return { role: userData.role, email: user.email }
+  const { data: participant } = await supabaseAdmin.from('participants').select('id').eq('email', user.email).single()
+  if (participant) return { role: 'participant', email: user.email, id: participant.id }
+  return null
+}
+
 export async function GET(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
   const memberId = searchParams.get('member_id')
@@ -14,9 +35,14 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin.from('project_participants').select('*, projects(status, start_date, required_posts, artist_name, song_title, client_name, second_post_date, second_post_time)').order('joined_at', { ascending: false })
 
-  if (projectCode) query = query.ilike('project_code', projectCode)
-  if (memberId) query = query.eq('member_id', memberId)
-  if (status) query = query.eq('status', status)
+  // 체험단은 본인 것만
+  if (roleInfo.role === 'participant') {
+    query = query.eq('member_id', roleInfo.id)
+  } else {
+    if (projectCode) query = query.ilike('project_code', projectCode)
+    if (memberId) query = query.eq('member_id', memberId)
+    if (status) query = query.eq('status', status)
+  }
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
@@ -24,11 +50,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await request.json()
   const { error } = await supabaseAdmin.from('project_participants').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
 
-  // current_participants 또는 cover_current 증가
   if (body.is_cover) {
     const { data: project } = await supabaseAdmin.from('projects').select('cover_current').ilike('project_code', body.project_code).maybeSingle()
     await supabaseAdmin.from('projects').update({ cover_current: (project?.cover_current ?? 0) + 1 }).ilike('project_code', body.project_code)
@@ -41,6 +69,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
   const memberId = searchParams.get('member_id')
@@ -54,91 +85,46 @@ export async function PATCH(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
+
 export async function DELETE(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo || roleInfo.role === 'participant') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-  // 1) 참여 정보 조회
-  const { data: participation } = await supabaseAdmin
-    .from('project_participants')
-    .select('project_code, member_id, is_cover')
-    .eq('id', Number(id))
-    .maybeSingle()
-
+  const { data: participation } = await supabaseAdmin.from('project_participants').select('project_code, member_id, is_cover').eq('id', Number(id)).maybeSingle()
   if (!participation) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
   const { project_code, member_id } = participation
 
-  // 2) 해당 프로젝트에서 제출한 게시물 수 조회
-  const { count: postCount } = await supabaseAdmin
-    .from('posts')
-    .select('*', { count: 'exact', head: true })
-    .ilike('project_code', project_code)
-    .eq('member_id', member_id)
-
-  // 3) reward_per_post 조회
-  const { data: project } = await supabaseAdmin
-    .from('projects')
-    .select('reward_per_post, current_participants, cover_current')
-    .ilike('project_code', project_code)
-    .maybeSingle()
+  const { count: postCount } = await supabaseAdmin.from('posts').select('*', { count: 'exact', head: true }).ilike('project_code', project_code).eq('member_id', member_id)
+  const { data: project } = await supabaseAdmin.from('projects').select('reward_per_post, current_participants, cover_current').ilike('project_code', project_code).maybeSingle()
 
   const deductAmount = (postCount ?? 0) * (project?.reward_per_post ?? 0)
 
-  // 4) 포인트 회수 (balance 차감)
   if (deductAmount > 0) {
-    const { data: participant } = await supabaseAdmin
-      .from('participants')
-      .select('balance')
-      .eq('id', member_id)
-      .maybeSingle()
-
+    const { data: participant } = await supabaseAdmin.from('participants').select('balance').eq('id', member_id).maybeSingle()
     const newBalance = Math.max(0, (participant?.balance ?? 0) - deductAmount)
-    await supabaseAdmin
-      .from('participants')
-      .update({ balance: newBalance })
-      .eq('id', member_id)
+    await supabaseAdmin.from('participants').update({ balance: newBalance }).eq('id', member_id)
   }
 
-  // 5) 해당 게시물 삭제
-  await supabaseAdmin
-    .from('posts')
-    .delete()
-    .ilike('project_code', project_code)
-    .eq('member_id', member_id)
-  
-  // 5-1) 댓글 미션 삭제
-  await supabaseAdmin
-    .from('comment_missions')
-    .delete()
-    .ilike('project_code', project_code)
-    .eq('member_id', member_id)
+  await supabaseAdmin.from('posts').delete().ilike('project_code', project_code).eq('member_id', member_id)
+  await supabaseAdmin.from('comment_missions').delete().ilike('project_code', project_code).eq('member_id', member_id)
 
-    // 6) current_participants 또는 cover_current -1
   if (participation?.is_cover) {
     if (project && (project.cover_current ?? 0) > 0) {
-      await supabaseAdmin
-        .from('projects')
-        .update({ cover_current: (project.cover_current ?? 1) - 1 })
-        .ilike('project_code', project_code)
+      await supabaseAdmin.from('projects').update({ cover_current: (project.cover_current ?? 1) - 1 }).ilike('project_code', project_code)
     }
   } else {
     if (project && project.current_participants > 0) {
-      await supabaseAdmin
-        .from('projects')
-        .update({ current_participants: project.current_participants - 1 })
-        .ilike('project_code', project_code)
+      await supabaseAdmin.from('projects').update({ current_participants: project.current_participants - 1 }).ilike('project_code', project_code)
     }
   }
 
-  // 7) 참여 기록 CANCELLED로 변경 (삭제 대신)
-  const { error } = await supabaseAdmin
-    .from('project_participants')
-    .update({ status: 'CANCELLED' })
-    .eq('id', Number(id))
-
+  const { error } = await supabaseAdmin.from('project_participants').update({ status: 'CANCELLED' }).eq('id', Number(id))
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true, deducted: deductAmount, postsDeleted: postCount ?? 0 })
 }

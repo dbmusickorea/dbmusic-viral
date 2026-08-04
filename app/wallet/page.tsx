@@ -79,7 +79,7 @@ export default function WalletPage() {
     setPosts(data.posts ?? [])
     setSettlements(data.settlements ?? [])
     
-    const phRes = await fetch(`/api/point_history?member_id=${id}`)
+    const phRes = await fetchWithAuth(`/api/point_history?member_id=${id}`)
     const phData = await phRes.json()
     setPointHistory(phData ?? [])
 

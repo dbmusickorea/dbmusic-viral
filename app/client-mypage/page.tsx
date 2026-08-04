@@ -98,7 +98,7 @@ export default function ClientMyPage() {
 
     const loadData = async () => {
       if (parsed.client_id) {
-        const reqRes = await fetch(`/api/client_requests?client_id=${parsed.client_id}`)
+        const reqRes = await fetchWithAuth(`/api/client_requests?client_id=${parsed.client_id}`)
         const reqData = await reqRes.json()
         setRequests(reqData ?? [])
         
@@ -115,7 +115,7 @@ export default function ClientMyPage() {
     const info = localStorage.getItem('userInfo')
     if (info) {
       const parsed = JSON.parse(info)
-      const reqRes = await fetch(`/api/client_requests?client_id=${parsed.client_id}`)
+      const reqRes = await fetchWithAuth(`/api/client_requests?client_id=${parsed.client_id}`)
       setRequests(await reqRes.json())
     }
     setIsRefreshing(false)
@@ -152,7 +152,7 @@ export default function ClientMyPage() {
 
   const handleSubmitRequest = async () => {
     if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
-    const res = await fetch('/api/client_requests', {
+    const res = await fetchWithAuth('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -186,7 +186,7 @@ export default function ClientMyPage() {
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
-    const reqRes = await fetch(`/api/client_requests?client_id=${userInfo?.client_id}`)
+    const reqRes = await fetchWithAuth(`/api/client_requests?client_id=${userInfo?.client_id}`)
     setRequests(await reqRes.json())
   }
 

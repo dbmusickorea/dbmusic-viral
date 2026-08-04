@@ -6,15 +6,42 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function getRole(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return null
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  if (!user) return null
+  const { data: userData } = await supabaseAdmin.from('users').select('role').eq('email', user.email).single()
+  if (userData) return { role: userData.role, email: user.email }
+  const { data: participant } = await supabaseAdmin.from('participants').select('id').eq('email', user.email).single()
+  if (participant) return { role: 'participant', email: user.email, id: participant.id }
+  return null
+}
+
 export async function GET(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const projectCode = request.nextUrl.searchParams.get('project_code')
   const clientId = request.nextUrl.searchParams.get('client_id')
   const participantId = request.nextUrl.searchParams.get('participant_id')
 
   let query = supabaseAdmin.from('cover_requests').select('*, projects(artist_name, client_name, song_title)').order('created_at', { ascending: false })
-  if (projectCode) query = query.ilike('project_code', projectCode)
-  if (clientId) query = query.eq('client_id', clientId)
-  if (participantId) query = query.eq('participant_id', Number(participantId))
+
+  // 체험단은 본인 것만
+  if (roleInfo.role === 'participant') {
+    query = query.eq('participant_id', roleInfo.id)
+  } else {
+    if (projectCode) query = query.ilike('project_code', projectCode)
+    if (clientId) query = query.eq('client_id', clientId)
+    if (participantId) query = query.eq('participant_id', Number(participantId))
+  }
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
@@ -22,11 +49,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await request.json()
   const { data, error } = await supabaseAdmin.from('cover_requests').insert(body).select().single()
   if (error) return NextResponse.json({ error }, { status: 500 })
 
-  // 해당 프로젝트 의뢰인에게 푸시
   const { data: project } = await supabaseAdmin.from('projects').select('client_id, artist_name, song_title').ilike('project_code', body.project_code).maybeSingle()
   if (project?.client_id) {
     const { data: clientUser } = await supabaseAdmin.from('users').select('id').eq('client_id', project.client_id).maybeSingle()
@@ -51,6 +80,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const id = request.nextUrl.searchParams.get('id')
   const body = await request.json()
   const { error } = await supabaseAdmin.from('cover_requests').update(body).eq('id', Number(id))
@@ -59,6 +91,9 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const id = request.nextUrl.searchParams.get('id')
   const { error } = await supabaseAdmin.from('cover_requests').delete().eq('id', Number(id))
   if (error) return NextResponse.json({ error }, { status: 500 })

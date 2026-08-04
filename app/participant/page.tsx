@@ -225,7 +225,7 @@ useEffect(() => {
 
       await fetchAvailableBalance(parsed.id, participant?.balance ?? 0)
       // 커버 요청 확인
-      const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
+      const coverRes = await fetchWithAuth(`/api/cover_requests?participant_id=${parsed.id}`)
       const coverData = await coverRes.json()
       setCoverRequests(Array.isArray(coverData) ? coverData : [])
     }
@@ -328,7 +328,7 @@ useEffect(() => {
             body: JSON.stringify({ balance: newBalance })
           })
           setBalance(newBalance)
-          await fetch('/api/point_history', {
+          await fetchWithAuth('/api/point_history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -370,14 +370,14 @@ useEffect(() => {
   }
 
   const fetchNotifications = async (id: string) => {
-    const res = await fetch(`/api/notifications?user_id=${id}`)
+    const res = await fetchWithAuth(`/api/notifications?user_id=${id}`)
     const data = await res.json()
     setNotifications(data ?? [])
     setUnreadCount(data?.filter((n: any) => !n.is_read).length ?? 0)
   }
 
   const markAllRead = async (id: string) => {
-    await fetch(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
+    await fetchWithAuth(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
     setUnreadCount(0)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
     
@@ -391,19 +391,19 @@ useEffect(() => {
   }
 
   const deleteNotification = async (id: number) => {
-    await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/notifications?id=${id}`, { method: 'DELETE' })
     setNotifications(prev => prev.filter(n => n.id !== id))
     setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
   const deleteAllNotifications = async (userId: string) => {
-    await fetch(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
     setNotifications([])
     setUnreadCount(0)
   }
 
   const fetchMyParticipations = async (id: number) => {
-    const res = await fetch(`/api/project_participants?member_id=${id}`)
+    const res = await fetchWithAuth(`/api/project_participants?member_id=${id}`)
     const data = await res.json()
     
     if (data && data.length > 0) {
@@ -481,7 +481,7 @@ useEffect(() => {
 
       await fetchAvailableBalance(parsed.id, participant?.balance ?? 0)
       // 커버 요청 확인
-      const coverRes = await fetch(`/api/cover_requests?participant_id=${parsed.id}`)
+      const coverRes = await fetchWithAuth(`/api/cover_requests?participant_id=${parsed.id}`)
       const coverData = await coverRes.json()
       setCoverRequests(Array.isArray(coverData) ? coverData : [])
     }
@@ -554,7 +554,7 @@ useEffect(() => {
 
   const handleCancelParticipation = async (p: any) => {
     if (!confirm('참여를 취소하시겠어요? 취소 후 재참여가 불가합니다.')) return
-    await fetch(`/api/project_participants?id=${p.id}`, {
+    await fetchWithAuth(`/api/project_participants?id=${p.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'CANCELLED' })
@@ -591,7 +591,7 @@ useEffect(() => {
       `커버영상 미션을 수락하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내에 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
     )
     if (!confirmed) return
-    await fetch(`/api/cover_requests?id=${r.id}`, {
+    await fetchWithAuth(`/api/cover_requests?id=${r.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'APPROVED', approved_at: new Date().toISOString() })
@@ -625,7 +625,7 @@ useEffect(() => {
   }
 
   const handleRejectCoverRequest = async (r: any) => {
-    await fetch(`/api/cover_requests?id=${r.id}`, {
+    await fetchWithAuth(`/api/cover_requests?id=${r.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
@@ -673,7 +673,7 @@ useEffect(() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
       })
-      await fetch('/api/point_history', {
+      await fetchWithAuth('/api/point_history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})`, project_code: post.project_code })
@@ -716,12 +716,12 @@ useEffect(() => {
     const linksRes = await fetch(`/api/project_links?project_code=${code}`)
     const links = await linksRes.json()
     setProjectLinks(links ?? [])
-    const joinRes = await fetch(`/api/project_participants?project_code=${code}&member_id=${userInfo?.id}`)
+    const joinRes = await fetchWithAuth(`/api/project_participants?project_code=${code}&member_id=${userInfo?.id}`)
     const joinData = await joinRes.json()
     const joinItem = joinData?.[0]
     setIsJoined(!!joinItem && joinItem.status === 'ACTIVE')
     
-    const countRes = await fetch(`/api/project_participants?project_code=${code}&status=ACTIVE`)
+    const countRes = await fetchWithAuth(`/api/project_participants?project_code=${code}&status=ACTIVE`)
     const countData = await countRes.json()
     setParticipantCount(countData?.length ?? 0)
     if (userInfo?.id) fetchMyRank(code, userInfo.id)
@@ -770,7 +770,7 @@ useEffect(() => {
       return
     }
 
-    const res = await fetch('/api/project_participants', {
+    const res = await fetchWithAuth('/api/project_participants', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1004,7 +1004,7 @@ useEffect(() => {
         body: JSON.stringify({ balance: newBalance })
       })
       setBalance(newBalance)
-      await fetch('/api/point_history', {
+      await fetchWithAuth('/api/point_history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -1710,7 +1710,7 @@ useEffect(() => {
                                             ) : (
                                               <button onClick={async () => {
                                                 if (!confirm('커버 신청 의사를 밝히시겠어요? 의뢰인이 확인 후 선택할 수 있어요.')) return
-                                                await fetch(`/api/project_participants?project_code=${projectInfo.project_code}&member_id=${userInfo?.id}`, {
+                                                await fetchWithAuth(`/api/project_participants?project_code=${projectInfo.project_code}&member_id=${userInfo?.id}`, {
                                                   method: 'PATCH',
                                                   headers: { 'Content-Type': 'application/json' },
                                                   body: JSON.stringify({ cover_requested: true })

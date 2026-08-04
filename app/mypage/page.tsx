@@ -116,7 +116,7 @@ export default function MyPage() {
       setSelectedGenres(p.genres ?? [])
     }
     // 문의 내역 불러오기
-    const reqRes = await fetch(`/api/client_requests?member_id=${id}`)
+    const reqRes = await fetchWithAuth(`/api/client_requests?member_id=${id}`)
     const reqData = await reqRes.json()
     setRequests(reqData ?? [])
     // 추천한 사람 목록
@@ -190,7 +190,7 @@ export default function MyPage() {
 
   const handleSubmitRequest = async () => {
     if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
-    const res = await fetch('/api/client_requests', {
+    const res = await fetchWithAuth('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -224,7 +224,7 @@ export default function MyPage() {
     setRequestTitle('')
     setRequestContent('')
     setShowRequestForm(false)
-    const reqRes = await fetch(`/api/client_requests?member_id=${userInfo?.id}`)
+    const reqRes = await fetchWithAuth(`/api/client_requests?member_id=${userInfo?.id}`)
     setRequests(await reqRes.json())
   }
 
@@ -461,7 +461,7 @@ export default function MyPage() {
                   <div className="flex gap-2">
                     <button onClick={async () => {
                       const oldId = snsChangeRequest.platform === 'instagram' ? myInstagram : snsChangeRequest.platform === 'youtube' ? myYoutube : myTiktok
-                      await fetch('/api/sns_change_requests', {
+                      await fetchWithAuth('/api/sns_change_requests', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

@@ -121,14 +121,14 @@ export default function Page3() {
   }, [])
 
   const fetchRequests = async (clientId: string) => {
-    const res = await fetch(`/api/client_requests?client_id=${clientId}`)
+    const res = await fetchWithAuth(`/api/client_requests?client_id=${clientId}`)
     const data = await res.json()
     setRequests(data ?? [])
   }
 
   const handleSubmitRequest = async () => {
     if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
-    const res = await fetch('/api/client_requests', {
+    const res = await fetchWithAuth('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -210,7 +210,7 @@ export default function Page3() {
     const linksData = await linksRes.json()
     setProjectLinks(linksData ?? [])
     
-    const coverReqRes = await fetch(`/api/cover_requests?project_code=${code}&status=PENDING`)
+    const coverReqRes = await fetchWithAuth(`/api/cover_requests?project_code=${code}&status=PENDING`)
     const coverReqData = await coverReqRes.json()
     if (Array.isArray(coverReqData) && coverReqData.length > 0) {
       const pIds = coverReqData.map((r: any) => r.participant_id).join(',')
@@ -323,7 +323,7 @@ export default function Page3() {
   }
 
   const fetchNotifications = async (id: string) => {
-    const res = await fetch(`/api/notifications?user_id=${id}`)
+    const res = await fetchWithAuth(`/api/notifications?user_id=${id}`)
     const data = await res.json()
     setNotifications(data ?? [])
     setUnreadCount(data?.filter((n: any) => !n.is_read).length ?? 0)
@@ -385,19 +385,19 @@ export default function Page3() {
   }
 
   const markAllRead = async (id: string) => {
-    await fetch(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
+    await fetchWithAuth(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
     setUnreadCount(0)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
   const deleteNotification = async (id: number) => {
-    await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/notifications?id=${id}`, { method: 'DELETE' })
     setNotifications(prev => prev.filter(n => n.id !== id))
     setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
   const deleteAllNotifications = async (userId: string) => {
-    await fetch(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
     setNotifications([])
     setUnreadCount(0)
   }

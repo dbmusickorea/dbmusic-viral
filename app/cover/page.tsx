@@ -156,7 +156,7 @@ export default function CoverPage() {
     const existing = coverRequests.find(r => r.project_code === selectedProject.project_code && r.participant_id === participant.id)
     if (existing) { showToast('이미 선택된 체험단이에요.'); return }
 
-    const res = await fetch('/api/cover_requests', {
+    const res = await fetchWithAuth('/api/cover_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -190,17 +190,17 @@ export default function CoverPage() {
   }
 
   const loadCoverRequests = async (projectCode: string) => {
-    const res = await fetch(`/api/cover_requests?project_code=${projectCode}`)
+    const res = await fetchWithAuth(`/api/cover_requests?project_code=${projectCode}`)
     const data = await res.json()
     setCoverRequests(Array.isArray(data) ? data : [])
 
     // cover_requested 정보 가져오기
-    const ppRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
+    const ppRes = await fetchWithAuth(`/api/project_participants?project_code=${projectCode}`)
     const ppData = await ppRes.json()
     setCoverRequestedIds(ppData?.filter((p: any) => p.cover_requested).map((p: any) => p.member_id) ?? [])
     
     // 커버 추가 요청 승인 여부 확인
-    const reqRes = await fetch(`/api/client_requests?client_id=${userInfo?.client_id}&project_code=${projectCode}`)
+    const reqRes = await fetchWithAuth(`/api/client_requests?client_id=${userInfo?.client_id}&project_code=${projectCode}`)
     const reqData = await reqRes.json()
     const approved = reqData?.some((r: any) => r.title === '커버 체험단 추가 요청' && r.status === 'APPROVED')
     setCoverAddApproved(approved)
@@ -217,10 +217,10 @@ export default function CoverPage() {
       body: JSON.stringify({ cover_status: 'APPROVED', cover_type: type })
     })
     // cover_requests도 APPROVED로 변경
-    const crRes = await fetch(`/api/cover_requests?project_code=${post.project_code}&participant_id=${post.member_id}`)
+    const crRes = await fetchWithAuth(`/api/cover_requests?project_code=${post.project_code}&participant_id=${post.member_id}`)
     const crData = await crRes.json()
     if (crData?.[0]?.id) {
-      await fetch(`/api/cover_requests?id=${crData[0].id}`, {
+      await fetchWithAuth(`/api/cover_requests?id=${crData[0].id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'APPROVED' })
@@ -239,7 +239,7 @@ export default function CoverPage() {
       const projRes = await fetch(`/api/projects?project_code=${post.project_code}`)
       const projData = await projRes.json()
       const proj = Array.isArray(projData) ? projData[0] : projData
-      await fetch('/api/point_history', {
+      await fetchWithAuth('/api/point_history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

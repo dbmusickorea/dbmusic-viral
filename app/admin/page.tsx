@@ -125,7 +125,7 @@ export default function Page1() {
   }
 
   const fetchClientRequests = async () => {
-    const res = await fetch('/api/client_requests')
+    const res = await fetchWithAuth('/api/client_requests')
     const data = await res.json()
     setClientRequests(data ?? [])
   }
@@ -287,7 +287,7 @@ export default function Page1() {
   }
 
   const fetchParticipants = async (code: string) => {
-    const res = await fetch(`/api/project_participants?project_code=${code}&status=ACTIVE`)
+    const res = await fetchWithAuth(`/api/project_participants?project_code=${code}&status=ACTIVE`)
     const data = await res.json()
     
     if (data && data.length > 0) {
@@ -310,7 +310,7 @@ export default function Page1() {
     if (reason === null) return
     if (!reason.trim()) { showToast('취소 사유를 입력해주세요.'); return }
 
-    const res = await fetch(`/api/project_participants?id=${participantId}`, { method: 'DELETE' })
+    const res = await fetchWithAuth(`/api/project_participants?id=${participantId}`, { method: 'DELETE' })
     if (res.ok) {
       const result = await res.json()
 
@@ -499,7 +499,7 @@ export default function Page1() {
           })
         })
         // 참여중인 체험단 푸시
-        const participantsRes = await fetch(`/api/project_participants?project_code=${projectCode}`)
+        const participantsRes = await fetchWithAuth(`/api/project_participants?project_code=${projectCode}`)
         const participants = await participantsRes.json()
         if (participants && participants.length > 0) {
           const memberIds = participants.map((p: any) => String(p.member_id))
@@ -715,7 +715,7 @@ export default function Page1() {
 
     // 프로젝트 상태 변경 시 푸시
     if (formData.status === 'COMPLETED') {
-      const joinedRes = await fetch(`/api/project_participants?project_code=${formData.projectCode}`)
+      const joinedRes = await fetchWithAuth(`/api/project_participants?project_code=${formData.projectCode}`)
       const joinedTokens = await joinedRes.json()
       if (joinedTokens && joinedTokens.length > 0) {
         const memberIds = joinedTokens.map((j: any) => String(j.member_id))
@@ -913,7 +913,7 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance: Math.max(0, currentBalance - deductAmount) })
       })
-      await fetch('/api/point_history', {
+      await fetchWithAuth('/api/point_history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ member_id: post.member_id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` : `게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` })
@@ -967,26 +967,26 @@ export default function Page1() {
   }
 
   const fetchNotifications = async (id: string) => {
-    const res = await fetch(`/api/notifications?user_id=${id}`)
+    const res = await fetchWithAuth(`/api/notifications?user_id=${id}`)
     const data = await res.json()
     setNotifications(data ?? [])
     setUnreadCount(data?.filter((n: any) => !n.is_read).length ?? 0)
   }
 
   const markAllRead = async (id: string) => {
-    await fetch(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
+    await fetchWithAuth(`/api/notifications?user_id=${id}`, { method: 'PATCH' })
     setUnreadCount(0)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
   const deleteNotification = async (id: number) => {
-    await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/notifications?id=${id}`, { method: 'DELETE' })
     setNotifications(prev => prev.filter(n => n.id !== id))
     setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
   const deleteAllNotifications = async (userId: string) => {
-    await fetch(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/notifications?user_id=${userId}`, { method: 'DELETE' })
     setNotifications([])
     setUnreadCount(0)
   }
@@ -1176,7 +1176,7 @@ export default function Page1() {
             PAGE_SIZE={PAGE_SIZE}
             projectCode={formData.projectCode}
             onConfirm={async (reqId) => {
-              await fetch(`/api/client_requests?id=${reqId}`, {
+              await fetchWithAuth(`/api/client_requests?id=${reqId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: 'CONFIRMED' })
@@ -1190,7 +1190,7 @@ export default function Page1() {
               const pData = await pRes.json()
               const participant = pData?.[0]
               if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
-              await fetch('/api/cover_requests', {
+              await fetchWithAuth('/api/cover_requests', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1200,7 +1200,7 @@ export default function Page1() {
                   approved_at: new Date().toISOString()
                 })
               })
-              await fetch(`/api/client_requests?id=${req.id}`, {
+              await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: 'APPROVED' })
