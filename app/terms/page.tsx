@@ -98,7 +98,18 @@ export default function TermsPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">제10조 (분쟁 해결)</h2>
+          <h2 className="font-bold mb-2 dark:text-white">제10조 (청약철회 및 환불)</h2>
+          <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
+            <li>체험단 회원이 적립한 포인트는 현금으로 환전 신청 후 취소가 불가합니다.</li>
+            <li>의뢰인이 프로젝트를 신청한 경우, 미션 시작 전에는 취소 및 환불이 가능합니다.</li>
+            <li>미션이 시작된 이후에는 진행된 범위에 따라 환불 금액이 산정됩니다.</li>
+            <li>서비스 이용에 중대한 하자가 있는 경우 회사는 관련 법령에 따라 환불 처리합니다.</li>
+            <li>청약철회는 서비스 이용일로부터 7일 이내에 가능하며, 앱 내 문의 또는 이메일(doubleb@doubleb.kr)로 접수하시면 됩니다.</li>
+          </ul>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="font-bold mb-2 dark:text-white">제11조 (분쟁 해결)</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">서비스 이용과 관련하여 분쟁이 발생한 경우 회사와 이용자는 상호 협의하여 해결하며, 협의가 이루어지지 않을 경우 관할 법원은 회사 소재지를 관할하는 법원으로 합니다.</p>
         </section>
 
@@ -106,8 +117,11 @@ export default function TermsPage() {
           <h2 className="font-bold mb-2 dark:text-white">문의</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1">
             <li>회사명: 더블비뮤직</li>
+            <li>대표자명: 최병민</li>
+            <li>사업자등록번호: 280-02-02331</li>
+            <li>주소: 서울특별시 송파구 백제고분로 116, 3층 611호</li>
             <li>이메일: doubleb@doubleb.kr</li>
-            <li>전화: 010-7593-7966</li>
+            <li>유선전화: 010-7593-7966</li>
           </ul>
         </section>
       </div>
