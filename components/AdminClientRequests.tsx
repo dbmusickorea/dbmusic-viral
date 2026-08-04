@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { ClipboardList, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 
@@ -22,19 +23,19 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
 
   const handleReply = async (req: any) => {
     if (!replyText[req.id]) return
-    await fetch(`/api/client_requests?id=${req.id}`, {
+    await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reply: replyText[req.id], replied_at: new Date().toISOString() })
     })
-    const clientRes = await fetch(`/api/users?client_id=${req.client_id}`)
+    const clientRes = await fetchWithAuth(`/api/users?client_id=${req.client_id}`)
     const clientData = await clientRes.json()
     const clientUser = clientData?.[0]
     if (clientUser) {
-      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+      const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
       const tokens = await tokensRes.json()
       if (tokens && tokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -47,10 +48,10 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
       }
     }
     if (req.member_id) {
-      const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(req.member_id)}`)
+      const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(req.member_id)}`)
       const memberTokens = await memberTokensRes.json()
       if (memberTokens && memberTokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
