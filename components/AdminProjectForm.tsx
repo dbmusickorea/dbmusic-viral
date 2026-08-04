@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 
 type Props = {
   formData: any
@@ -78,7 +79,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               setFormData((prev: any) => ({...prev, selectedClientId: c.client_id, clientName: c.name, artistName: c.artist ?? ''}))
                               setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
                               // 아티스트 목록 불러오기
-                              const res = await fetch(`/api/artists?client_id=${c.client_id}`)
+                              const res = await fetchWithAuth(`/api/artists?client_id=${c.client_id}`)
                               const data = await res.json()
                               setArtistList(data ?? [])
                             }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${formData.selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
@@ -183,7 +184,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               setFormData((prev: any) => ({...prev, projectLinks: newLinks}))
                             }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="URL 입력" />
                             <button onClick={async () => {
-                              if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
+                              if (!link.isNew && link.id) await fetchWithAuth(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
                               setFormData((prev: any) => ({...prev, projectLinks: formData.projectLinks.filter((_: any, idx: any) => idx !== realIdx)}))
                             }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
                           </div>
@@ -213,7 +214,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               setFormData((prev: any) => ({...prev, projectLinks: newLinks}))
                             }} className="flex-1 border rounded-lg px-3 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="URL 입력" />
                             <button onClick={async () => {
-                              if (!link.isNew && link.id) await fetch(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
+                              if (!link.isNew && link.id) await fetchWithAuth(`/api/project_links?id=${link.id}`, { method: 'DELETE' })
                               setFormData((prev: any) => ({...prev, projectLinks: formData.projectLinks.filter((_: any, idx: any) => idx !== realIdx)}))
                             }} className="text-red-400 text-xs px-2 py-1 border border-red-300 rounded">삭제</button>
                           </div>
@@ -378,12 +379,12 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                             )
                             if (!confirmed) return
 
-                            const clientRes = await fetch(`/api/users?client_id=${formData.selectedClientId}`)
+                            const clientRes = await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`)
                             const clientData = await clientRes.json()
                             const client = clientData?.[0]
                             if (!client) { showToast('의뢰인 정보를 찾을 수 없어요.'); return }
                             
-                            const res = await fetch('/api/eformsign?action=send', {
+                            const res = await fetchWithAuth('/api/eformsign?action=send', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
@@ -407,16 +408,16 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                             const data = await res.json()
                             console.log('eformsign result:', JSON.stringify(data))
                             if (data.success) {
-                              await fetch(`/api/projects?project_code=${formData.projectCode.toUpperCase()}`, {
+                              await fetchWithAuth(`/api/projects?project_code=${formData.projectCode.toUpperCase()}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ document_id: data.document_id, total_cost: totalCost })
                               })
                               // 의뢰인에게 푸시
-                              const clientTokensRes = await fetch(`/api/push_tokens?user_id=${String(client.id)}`)
+                              const clientTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(client.id)}`)
                               const clientTokens = await clientTokensRes.json()
                               if (clientTokens && clientTokens.length > 0) {
-                                await fetch('/api/push', {
+                                await fetchWithAuth('/api/push', {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({
@@ -449,7 +450,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
 코드: ${selectedProject.project_code}`)
                         if (input !== selectedProject.project_code) { showToast('코드가 일치하지 않아요.'); return }
                         if (!confirm('정말 삭제하시겠어요? 이 작업은 되돌릴 수 없어요.')) return
-                        await fetch(`/api/projects?project_code=${selectedProject.project_code}`, { method: 'DELETE' })
+                        await fetchWithAuth(`/api/projects?project_code=${selectedProject.project_code}`, { method: 'DELETE' })
                         showToast('프로젝트가 삭제됐어요.')
                         window.location.reload()
                       }} className="w-full bg-red-50 text-red-500 border border-red-300 rounded-lg py-2 text-sm font-medium">

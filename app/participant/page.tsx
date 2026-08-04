@@ -140,7 +140,7 @@ useEffect(() => {
     }
 
     const loadData = async () => {
-      const res = await fetch(`/api/participant-data?id=${parsed.id}`)
+      const res = await fetchWithAuth(`/api/participant-data?id=${parsed.id}`)
       const data = await res.json()
       
       const participant = data.participant
@@ -205,7 +205,7 @@ useEffect(() => {
       if (data.posts && data.posts.length > 0) {
         const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
         const codesParam = codes.join(',')
-        const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+        const projectsRes = await fetchWithAuth(`/api/projects?codes=${codesParam}`)
         const projects = await projectsRes.json()
         projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
       }
@@ -237,7 +237,7 @@ useEffect(() => {
     
     setIsVerifying(true)
     try {
-      const response = await fetch(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle.toLowerCase())}`)
+      const response = await fetchWithAuth(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle.toLowerCase())}`)
       const data = await response.json()
       
       if (data.found) {
@@ -254,7 +254,7 @@ useEffect(() => {
             const alreadyUnlock = commentMissions.find(m => m.video_id === videoId)
             if (alreadyUnlock) { showToast('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
             
-            await fetch('/api/comment_missions', {
+            await fetchWithAuth('/api/comment_missions', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -279,10 +279,10 @@ useEffect(() => {
               showToast('🎉 락이 해제됐어요! 이제 다시 미션에 참여할 수 있어요!')
               
               // 관리자에게 푸시
-              const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+              const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
               const adminTokens = await adminTokensRes.json()
               if (adminTokens && adminTokens.length > 0) {
-                await fetch('/api/push', {
+                await fetchWithAuth('/api/push', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -308,7 +308,7 @@ useEffect(() => {
           const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
           if (already) { showToast('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
           
-          await fetch('/api/comment_missions', {
+          await fetchWithAuth('/api/comment_missions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -352,19 +352,19 @@ useEffect(() => {
   }
   
   const fetchCommentMissions = async (id: number) => {
-    const res = await fetch(`/api/comment_missions?member_id=${id}`)
+    const res = await fetchWithAuth(`/api/comment_missions?member_id=${id}`)
     const data = await res.json()
     setCommentMissions(data ?? [])
   }
 
   const fetchAllProjects = async () => {
-    const res = await fetch('/api/projects?status=ONGOING,PENDING')
+    const res = await fetchWithAuth('/api/projects?status=ONGOING,PENDING')
     const data = await res.json()
     setAllProjects(data ?? [])
   }
 
   const fetchUnlockVideos = async () => {
-    const res = await fetch('/api/unlock_videos')
+    const res = await fetchWithAuth('/api/unlock_videos')
     const data = await res.json()
     setUnlockVideos(data ?? [])
   }
@@ -409,7 +409,7 @@ useEffect(() => {
     if (data && data.length > 0) {
       const codes = data.map((p: any) => p.project_code)
       const codesParam = codes.join(',')
-      const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+      const projectsRes = await fetchWithAuth(`/api/projects?codes=${codesParam}`)
       const projectData = await projectsRes.json()
       
       const merged = data.map((p: any) => ({
@@ -432,7 +432,7 @@ useEffect(() => {
     const info = localStorage.getItem('userInfo')
     if (info) {
       const parsed = JSON.parse(info)
-      const res = await fetch(`/api/participant-data?id=${parsed.id}`)
+      const res = await fetchWithAuth(`/api/participant-data?id=${parsed.id}`)
       const data = await res.json()
       
       const participant = data.participant
@@ -454,7 +454,7 @@ useEffect(() => {
       if (data.posts && data.posts.length > 0) {
         const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
         const codesParam = codes.join(',')
-        const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+        const projectsRes = await fetchWithAuth(`/api/projects?codes=${codesParam}`)
         const projects = await projectsRes.json()
         const map: any = {}
         projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
@@ -559,16 +559,16 @@ useEffect(() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'CANCELLED' })
     })
-    await fetch(`/api/projects?project_code=${p.project_code}`, {
+    await fetchWithAuth(`/api/projects?project_code=${p.project_code}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ current_participants: Math.max(0, (p.projects?.current_participants ?? 1) - 1) })
     })
     if (p.projects?.max_participants > 0) {
-      const tokenRes = await fetch('/api/push_tokens?user_role=participant')
+      const tokenRes = await fetchWithAuth('/api/push_tokens?user_role=participant')
       const tokens = await tokenRes.json()
       if (tokens && tokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -597,7 +597,7 @@ useEffect(() => {
       body: JSON.stringify({ status: 'APPROVED', approved_at: new Date().toISOString() })
     })
     setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'APPROVED'} : cr))
-    const projectRes = await fetch(`/api/projects?project_code=${r.project_code}`)
+    const projectRes = await fetchWithAuth(`/api/projects?project_code=${r.project_code}`)
     const projectData = await projectRes.json()
     const proj = Array.isArray(projectData) ? projectData[0] : projectData
     if (proj?.client_id) {
@@ -605,10 +605,10 @@ useEffect(() => {
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
       if (clientUser) {
-        const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+        const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
-          await fetch('/api/push', {
+          await fetchWithAuth('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -631,7 +631,7 @@ useEffect(() => {
       body: JSON.stringify({ status: 'REJECTED', rejected_count: (r.rejected_count ?? 0) + 1 })
     })
     setCoverRequests(prev => prev.map(cr => cr.id === r.id ? {...cr, status: 'REJECTED'} : cr))
-    const projectRes = await fetch(`/api/projects?project_code=${r.project_code}`)
+    const projectRes = await fetchWithAuth(`/api/projects?project_code=${r.project_code}`)
     const projectData = await projectRes.json()
     const proj = Array.isArray(projectData) ? projectData[0] : projectData
     if (proj?.client_id) {
@@ -639,10 +639,10 @@ useEffect(() => {
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
       if (clientUser) {
-        const tokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+        const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
-          await fetch('/api/push', {
+          await fetchWithAuth('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -692,7 +692,7 @@ useEffect(() => {
     if (posts && posts.length > 0) {
       const codes = [...new Set(posts.map((p: any) => p.project_code))]
       const codesParam = codes.join(',')
-      const projectsRes = await fetch(`/api/projects?codes=${codesParam}`)
+      const projectsRes = await fetchWithAuth(`/api/projects?codes=${codesParam}`)
       const projects = await projectsRes.json()
       const map: any = {}
       projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
@@ -701,7 +701,7 @@ useEffect(() => {
   }
 
   const getRequirements = async (code: string) => {
-    const res = await fetch(`/api/projects?project_code=${code}`)
+    const res = await fetchWithAuth(`/api/projects?project_code=${code}`)
     const data = await res.json()
     const project = data?.[0]
     if (project) {
@@ -709,11 +709,11 @@ useEffect(() => {
       setProjectStatus(project.status ?? '')
       setProjectInfo(project)
     }
-    const videosRes = await fetch(`/api/project_videos?project_code=${code}`)
+    const videosRes = await fetchWithAuth(`/api/project_videos?project_code=${code}`)
     const videos = await videosRes.json()
     setProjectVideos(videos)
     
-    const linksRes = await fetch(`/api/project_links?project_code=${code}`)
+    const linksRes = await fetchWithAuth(`/api/project_links?project_code=${code}`)
     const links = await linksRes.json()
     setProjectLinks(links ?? [])
     const joinRes = await fetchWithAuth(`/api/project_participants?project_code=${code}&member_id=${userInfo?.id}`)
@@ -794,7 +794,7 @@ useEffect(() => {
     try {
       const shortcode = url.split('/p/')[1]?.split('/')[0] ?? url.split('/reel/')[1]?.split('/')[0]
       if (!shortcode) return { likes: 0, comments: 0 }
-      const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
+      const response = await fetchWithAuth(`/api/instagram?shortcode=${shortcode}`)
       const data = await response.json()
       return { likes: data.like_count ?? 0, comments: data.comment_count ?? 0 }
     } catch { return { likes: 0, comments: 0 } }
@@ -802,7 +802,7 @@ useEffect(() => {
 
   const getYoutubeStats = async (url: string) => {
     try {
-      const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+      const response = await fetchWithAuth(`/api/youtube?url=${encodeURIComponent(url)}`)
       const data = await response.json()
       return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
     } catch { return { likes: 0, comments: 0 } }
@@ -810,7 +810,7 @@ useEffect(() => {
 
   const getTiktokStats = async (url: string) => {
     try {
-      const response = await fetch(`/api/tiktok?url=${encodeURIComponent(url)}`)
+      const response = await fetchWithAuth(`/api/tiktok?url=${encodeURIComponent(url)}`)
       const data = await response.json()
       return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
     } catch { return { likes: 0, comments: 0 } }
@@ -892,7 +892,7 @@ useEffect(() => {
       for (const url of validUrls) {
         const shortcode = url.split('/p/')[1]?.split('/')[0] || url.split('/reel/')[1]?.split('/')[0]
         if (shortcode) {
-          const igRes = await fetch(`/api/instagram?shortcode=${shortcode}`)
+          const igRes = await fetchWithAuth(`/api/instagram?shortcode=${shortcode}`)
           const igData = await igRes.json()
           const postOwner = igData?.user?.username?.toLowerCase()
           const myAccount = snsAccount.replace('@', '').toLowerCase()
@@ -912,7 +912,7 @@ useEffect(() => {
           const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
           const ytData = await ytRes.json()
           const channelId = ytData?.items?.[0]?.snippet?.channelId
-          const myChannelRes = await fetch(`/api/youtube-channel?handle=${snsAccount.replace('@', '')}`)
+          const myChannelRes = await fetchWithAuth(`/api/youtube-channel?handle=${snsAccount.replace('@', '')}`)
           const myChannelData = await myChannelRes.json()
           if (channelId && myChannelData?.channelId && channelId !== myChannelData.channelId) {
             showToast(`게시물 채널과 등록된 계정이 일치하지 않아요.`)
@@ -972,7 +972,7 @@ useEffect(() => {
     }
 
     // 관리자에게 푸시 알림
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
     const adminUsers = await adminUsersRes.json()
@@ -980,7 +980,7 @@ useEffect(() => {
       ...(adminTokens?.map((t: any) => t.user_id) ?? []),
       ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
     ])]
-    await fetch('/api/push', {
+    await fetchWithAuth('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -991,7 +991,7 @@ useEffect(() => {
       })
     })
 
-    const projectRes = await fetch(`/api/projects?project_code=${activeProjectCode}`)
+    const projectRes = await fetchWithAuth(`/api/projects?project_code=${activeProjectCode}`)
     const projectList = await projectRes.json()
     const projectData = projectList?.[0]
 
@@ -1254,7 +1254,6 @@ useEffect(() => {
             </div>
           )}
         </div>
-
 
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 컬럼 */}

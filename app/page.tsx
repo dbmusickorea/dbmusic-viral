@@ -1,5 +1,6 @@
 'use client'
 import { fetchWithAuth } from './lib/fetchWithAuth'
+
 import PlatformIcon from '../components/PlatformIcon'
 
 import { useState, useEffect } from 'react'
@@ -24,7 +25,7 @@ export default function LoginPage() {
           const { Capacitor } = await import('@capacitor/core')
           const info = await App.getInfo()
           const platform = Capacitor.getPlatform()
-          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const res = await fetchWithAuth(`/api/app_settings?key=min_version_${platform}`)
           const data = await res.json()
           const minVersion = data?.value ?? '1.0'
           if (info.version < minVersion) {
@@ -227,7 +228,7 @@ export default function LoginPage() {
         let referralCode = generateReferralCode()
         let isUnique = false
         while (!isUnique) {
-          const checkRes = await fetch(`/api/participants/signup-check?referral_code=${referralCode}`)
+          const checkRes = await fetchWithAuth(`/api/participants/signup-check?referral_code=${referralCode}`)
           const checkData = await checkRes.json()
           if (!checkData?.exists) isUnique = true
           else referralCode = generateReferralCode()
@@ -311,7 +312,7 @@ export default function LoginPage() {
     setPSentCode(code)
     setPCodeExpiry(Date.now() + 5 * 60 * 1000) // 5분 유효
     
-    const response = await fetch('/api/sms', {
+    const response = await fetchWithAuth('/api/sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -337,7 +338,7 @@ export default function LoginPage() {
     setCSentCode(code)
     setCCodeExpiry(Date.now() + 5 * 60 * 1000) // 5분 유효
     
-    const response = await fetch('/api/sms', {
+    const response = await fetchWithAuth('/api/sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -388,11 +389,11 @@ export default function LoginPage() {
     if (!p_instagram && !p_youtube && !p_tiktok) { showToast('SNS 계정을 1개 이상 등록해주세요.'); return }
 
     // 이메일/전화번호 중복 체크
-    const emailRes = await fetch(`/api/participants/signup-check?email=${encodeURIComponent(p_email)}`)
+    const emailRes = await fetchWithAuth(`/api/participants/signup-check?email=${encodeURIComponent(p_email)}`)
     const emailData = await emailRes.json()
     if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); return }
     
-    const mobileRes = await fetch(`/api/participants/signup-check?mobile=${p_mobile}`)
+    const mobileRes = await fetchWithAuth(`/api/participants/signup-check?mobile=${p_mobile}`)
     const mobileData = await mobileRes.json()
     if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
     
@@ -412,14 +413,14 @@ export default function LoginPage() {
     let ttProfileImage = ''
     
     if (p_instagram) {
-      const igRes = await fetch(`/api/instagram-user?username=${p_instagram}`)
+      const igRes = await fetchWithAuth(`/api/instagram-user?username=${p_instagram}`)
       const igData = await igRes.json()
       igFollowers = igData.followers ?? 0
       igProfileImage = igData.thumbnail ?? ''
       if (igFollowers >= 100) hasEnoughFollowers = true
     }
     if (p_youtube) {
-      const ytRes = await fetch(`/api/youtube-channel?handle=${p_youtube}`)
+      const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${p_youtube}`)
       const ytData = await ytRes.json()
       ytSubscribers = ytData.subscriberCount ?? 0
       ytProfileImage = ytData.thumbnail ?? ''
@@ -461,7 +462,7 @@ export default function LoginPage() {
     }
 
     if (p_referral) {
-      const referrerRes = await fetch(`/api/participants/signup-check?referral_code=${p_referral}`)
+      const referrerRes = await fetchWithAuth(`/api/participants/signup-check?referral_code=${p_referral}`)
       const referrerCheck = await referrerRes.json()
       if (!referrerCheck?.exists) { showToast('유효하지 않은 추천인 코드입니다.'); return }
       const referrerDataRes = await fetchWithAuth(`/api/participants?referral_code=${p_referral}`)
@@ -483,10 +484,10 @@ export default function LoginPage() {
       })
       
       // 추천인에게 레벨 상승 푸시
-      const referrerTokensRes = await fetch(`/api/push_tokens?user_id=${String(referrer.id)}`)
+      const referrerTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(referrer.id)}`)
       const referrerTokens = await referrerTokensRes.json()
       if (referrerTokens && referrerTokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -503,7 +504,7 @@ export default function LoginPage() {
     let referralCode = generateReferralCode()
     let isUnique = false
     while (!isUnique) {
-      const res = await fetch(`/api/participants/signup-check?referral_code=${referralCode}`)
+      const res = await fetchWithAuth(`/api/participants/signup-check?referral_code=${referralCode}`)
       const data = await res.json()
       if (!data?.exists) isUnique = true
       else referralCode = generateReferralCode()
@@ -515,7 +516,7 @@ export default function LoginPage() {
     })
     if (authError) { showToast('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
-    const res = await fetch('/api/participants', {
+    const res = await fetchWithAuth('/api/participants', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -539,7 +540,7 @@ export default function LoginPage() {
     
     // 커버영상 신청 시 관리자에게 푸시
     if (isCoverPossible) {
-      const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+      const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
       const adminTokens = await adminTokensRes.json()
       const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
       const adminUsers = await adminUsersRes.json()
@@ -547,7 +548,7 @@ export default function LoginPage() {
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
       ])]
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -577,7 +578,7 @@ export default function LoginPage() {
     const mobileData = await mobileRes.json()
     if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
     
-    const mobilePRes = await fetch(`/api/participants/signup-check?mobile=${c_mobile}`)
+    const mobilePRes = await fetchWithAuth(`/api/participants/signup-check?mobile=${c_mobile}`)
     const mobilePData = await mobilePRes.json()
     if (mobilePData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
 

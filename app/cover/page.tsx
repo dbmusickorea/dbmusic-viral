@@ -110,11 +110,11 @@ export default function CoverPage() {
     }
 
     if (role === 'admin') {
-      const projectsRes = await fetch('/api/projects?status=ONGOING,PENDING')
+      const projectsRes = await fetchWithAuth('/api/projects?status=ONGOING,PENDING')
       const projects = await projectsRes.json()
       setProjects(projects ?? [])
     } else if (role === 'client') {
-      const projectsRes = await fetch(`/api/projects?client_id=${user.client_id}`)
+      const projectsRes = await fetchWithAuth(`/api/projects?client_id=${user.client_id}`)
       const projects = await projectsRes.json()
       // 커버 옵션 선택한 프로젝트만
       const coverProjects = projects?.filter((p: any) => p.cover_video_count > 0) ?? []
@@ -170,10 +170,10 @@ export default function CoverPage() {
     
     if (res.ok) {
       // 체험단에게 푸시
-      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(participant.id)}`)
+      const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(participant.id)}`)
       const tokens = await tokensRes.json()
       if (tokens && tokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -236,7 +236,7 @@ export default function CoverPage() {
         body: JSON.stringify({ balance: (participant.balance ?? 0) + reward, cover_reward: reward })
       })
       // point_history 저장
-      const projRes = await fetch(`/api/projects?project_code=${post.project_code}`)
+      const projRes = await fetchWithAuth(`/api/projects?project_code=${post.project_code}`)
       const projData = await projRes.json()
       const proj = Array.isArray(projData) ? projData[0] : projData
       await fetchWithAuth('/api/point_history', {
@@ -250,10 +250,10 @@ export default function CoverPage() {
         })
       })
     }
-    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(post.member_id)}`)
+    const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(post.member_id)}`)
     const tokens = await tokensRes.json()
     if (tokens && tokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -341,7 +341,7 @@ export default function CoverPage() {
               </div>
               <button onClick={async () => {
                 if (!applyArtistName || !applySongTitle) { showToast('가수명과 노래 제목을 입력해주세요.', 'error'); return }
-                await fetch('/api/project_applications', {
+                await fetchWithAuth('/api/project_applications', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -531,7 +531,7 @@ export default function CoverPage() {
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 flex justify-between items-center">
                       <p className="text-xs text-yellow-700 flex items-center gap-0.5"><AlertTriangle size={10} /> 커버 신청 기간이 마감됐어요.</p>
                       <button onClick={async () => {
-                        await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
+                        await fetchWithAuth(`/api/projects?project_code=${selectedProject.project_code}`, {
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ cover_deadline_extended: true })
@@ -684,10 +684,10 @@ export default function CoverPage() {
                   const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= now))
                   if (approvedParticipants.length === 0) { showToast('알림 받을 체험단이 없어요.'); return }
                   const ids = approvedParticipants.map(p => String(p.id))
-                  const tokensRes = await fetch(`/api/push_tokens?user_ids=${ids.join(',')}`)
+                  const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${ids.join(',')}`)
                   const tokens = await tokensRes.json()
                   if (tokens && tokens.length > 0) {
-                    await fetch('/api/push', {
+                    await fetchWithAuth('/api/push', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({

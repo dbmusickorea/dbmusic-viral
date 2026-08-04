@@ -59,7 +59,7 @@ export default function AdminMypagePage() {
           setAppVersion(info.version)
           const { Capacitor } = await import('@capacitor/core')
           const platform = Capacitor.getPlatform()
-          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const res = await fetchWithAuth(`/api/app_settings?key=min_version_${platform}`)
           const data = await res.json()
           setMinVersion(data?.value ?? '0')
         })

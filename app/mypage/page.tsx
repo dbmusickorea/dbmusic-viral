@@ -87,7 +87,7 @@ export default function MyPage() {
           setAppVersion(info.version)
           const { Capacitor } = await import('@capacitor/core')
           const platform = Capacitor.getPlatform()
-          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const res = await fetchWithAuth(`/api/app_settings?key=min_version_${platform}`)
           const data = await res.json()
           setMinVersion(data?.value ?? '0')
         })
@@ -157,7 +157,7 @@ export default function MyPage() {
     })
     // 커버 링크 새로 입력 시 관리자 푸시
     if (coverVideoUrl && !userInfo?.cover_video_url) {
-      const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+      const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
       const adminTokens = await adminTokensRes.json()
       const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
       const adminUsers = await adminUsersRes.json()
@@ -165,7 +165,7 @@ export default function MyPage() {
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
       ])]
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -205,10 +205,10 @@ export default function MyPage() {
     if (!res.ok) { showToast('등록 실패!'); return }
     
     // 관리자에게 푸시
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -388,7 +388,7 @@ export default function MyPage() {
                     const code = Math.floor(100000 + Math.random() * 900000).toString()
                     setMobileSentCode(code)
                     setMobileCodeExpiry(Date.now() + 5 * 60 * 1000)
-                    await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: newMobile, name: myName || '고객', code, expiry: '5분' }) })
+                    await fetchWithAuth('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: newMobile, name: myName || '고객', code, expiry: '5분' }) })
                     showToast('인증번호가 발송됐어요!')
                     setMobileSending(false)
                   }} disabled={mobileSending} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-2">인증요청</button>
@@ -473,7 +473,7 @@ export default function MyPage() {
                         })
                       })
                       // 관리자 푸시
-                      const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+                      const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
                       const adminTokens = await adminTokensRes.json()
                       const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
                       const adminUsers = await adminUsersRes.json()
@@ -481,7 +481,7 @@ export default function MyPage() {
                         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
                         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
                       ])]
-                      await fetch('/api/push', {
+                      await fetchWithAuth('/api/push', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -634,7 +634,7 @@ export default function MyPage() {
                 <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }} className="flex-1 bg-gray-200 dark:bg-gray-600 dark:text-white rounded-lg py-2 text-sm font-medium">취소</button>
                 <button disabled={deleteConfirmText !== '탈퇴합니다'} onClick={async () => {
                   await fetchWithAuth(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
-                  await fetch(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                  await fetchWithAuth(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
                   await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '탈퇴회원', mobile: '', email: '', account_number: '', account_holder: '', bank_name: '', instagram_id: '', youtube_id: '', tiktok_id: '', is_deleted: true }) })
                   localStorage.removeItem('userInfo')
                   localStorage.removeItem('userRole')

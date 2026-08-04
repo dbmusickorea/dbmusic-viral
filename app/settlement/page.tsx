@@ -35,7 +35,7 @@ export default function Page5() {
     fetchSettlements()
     
     const loadTotals = async () => {
-      const res = await fetch('/api/settlement-summary')
+      const res = await fetchWithAuth('/api/settlement-summary')
       const data = await res.json()
       setTotalBalance(data.totalBalance ?? 0)
       setTotalAvailable(data.totalAvailable ?? 0)
@@ -84,10 +84,10 @@ export default function Page5() {
       })
     }
     // 체험단에게 푸시 알림 발송
-    const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.member_id)}`)
+    const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.member_id)}`)
     const memberTokens = await memberTokensRes.json()
     if (memberTokens && memberTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -111,10 +111,10 @@ export default function Page5() {
       body: JSON.stringify({ status: 'REJECTED', memo })
     })
     // 체험단에게 푸시 알림 발송
-    const memberTokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.member_id)}`)
+    const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.member_id)}`)
     const memberTokens = await memberTokensRes.json()
     if (memberTokens && memberTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

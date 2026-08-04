@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { FileText } from 'lucide-react'
 
 import { useState } from 'react'
@@ -38,7 +39,7 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
         jacketImageUrl = urlData.publicUrl
       }
     }
-    await fetch('/api/project_applications', {
+    await fetchWithAuth('/api/project_applications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

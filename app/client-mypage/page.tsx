@@ -89,7 +89,7 @@ export default function ClientMyPage() {
           setAppVersion(info.version)
           const { Capacitor } = await import('@capacitor/core')
           const platform = Capacitor.getPlatform()
-          const res = await fetch(`/api/app_settings?key=min_version_${platform}`)
+          const res = await fetchWithAuth(`/api/app_settings?key=min_version_${platform}`)
           const data = await res.json()
           setMinVersion(data?.value ?? '0')
         })
@@ -102,7 +102,7 @@ export default function ClientMyPage() {
         const reqData = await reqRes.json()
         setRequests(reqData ?? [])
         
-        const artistRes = await fetch(`/api/artists?client_id=${parsed.client_id}`)
+        const artistRes = await fetchWithAuth(`/api/artists?client_id=${parsed.client_id}`)
         setArtistList(await artistRes.json())
       }
     }
@@ -167,10 +167,10 @@ export default function ClientMyPage() {
     if (!res.ok) { showToast('등록 실패!'); return }
     
     // 관리자에게 푸시
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -318,7 +318,7 @@ export default function ClientMyPage() {
                     const code = Math.floor(100000 + Math.random() * 900000).toString()
                     setMobileSentCode(code)
                     setMobileCodeExpiry(Date.now() + 5 * 60 * 1000)
-                    await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: newMobile, name: myName || '고객', code, expiry: '5분' }) })
+                    await fetchWithAuth('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: newMobile, name: myName || '고객', code, expiry: '5분' }) })
                     showToast('인증번호가 발송됐어요!')
                     setMobileSending(false)
                   }} disabled={mobileSending} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-2">인증요청</button>
@@ -342,8 +342,8 @@ export default function ClientMyPage() {
                     <div key={a.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                       <span className="text-sm dark:text-white">{a.artist_name}</span>
                       <button onClick={async () => {
-                        await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
-                        const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+                        await fetchWithAuth(`/api/artists?id=${a.id}`, { method: 'DELETE' })
+                        const res = await fetchWithAuth(`/api/artists?client_id=${userInfo.client_id}`)
                         setArtistList(await res.json())
                       }} className="text-xs text-red-400">삭제</button>
                     </div>
@@ -352,9 +352,9 @@ export default function ClientMyPage() {
                     <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
                     <button onClick={async () => {
                       if (!newArtistName) return
-                      await fetch('/api/artists', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName }) })
+                      await fetchWithAuth('/api/artists', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName }) })
                       setNewArtistName('')
-                      const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
+                      const res = await fetchWithAuth(`/api/artists?client_id=${userInfo.client_id}`)
                       setArtistList(await res.json())
                     }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
                   </div>

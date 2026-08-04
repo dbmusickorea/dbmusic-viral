@@ -68,7 +68,7 @@ export default function WalletPage() {
 
   const loadData = async (id: number) => {
     setLoading(true)
-    const res = await fetch(`/api/participant-data?id=${id}`)
+    const res = await fetchWithAuth(`/api/participant-data?id=${id}`)
     const data = await res.json()
     const participant = data.participant
 
@@ -104,7 +104,7 @@ export default function WalletPage() {
 
     if (data.posts && data.posts.length > 0) {
       const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
-      const projectsRes = await fetch(`/api/projects?codes=${codes.join(',')}`)
+      const projectsRes = await fetchWithAuth(`/api/projects?codes=${codes.join(',')}`)
       const projects = await projectsRes.json()
       const map: any = {}
       projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
@@ -165,10 +165,10 @@ export default function WalletPage() {
     })
     if (!settlementRes.ok) { showToast('환전 신청 실패!'); return }
 
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

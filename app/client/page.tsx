@@ -73,7 +73,6 @@ export default function Page3() {
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
 
-
   useEffect(() => {
     if ((window as any).Capacitor?.isNativePlatform?.()) {
       import('@capacitor/app').then(({ App }) => {
@@ -147,12 +146,12 @@ export default function Page3() {
     setRequestContent('')
     setShowRequestForm(false)
     // 관리자에게 푸시 알림 발송
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
     const adminUsers = await adminUsersRes.json()
     const adminUserIds = adminUsers?.map((u: any) => String(u.id)) ?? []
-    await fetch('/api/push', {
+    await fetchWithAuth('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -166,14 +165,14 @@ export default function Page3() {
   }
 
   const fetchAllProjects = async () => {
-    const res = await fetch('/api/projects')
+    const res = await fetchWithAuth('/api/projects')
     const data = await res.json()
     setAllProjects(data ?? [])
   }
 
   const fetchMyProjects = async (clientId: string) => {
     console.log('fetchMyProjects called')
-    const res = await fetch(`/api/projects?client_id=${clientId}`)
+    const res = await fetchWithAuth(`/api/projects?client_id=${clientId}`)
     const data = await res.json()
     setMyProjects(data ?? [])
     const active = data?.filter((p: any) => p.status === 'ONGOING')
@@ -206,7 +205,7 @@ export default function Page3() {
     } else {
       setPosts(data ?? [])
     }
-    const linksRes = await fetch(`/api/project_links?project_code=${code}`)
+    const linksRes = await fetchWithAuth(`/api/project_links?project_code=${code}`)
     const linksData = await linksRes.json()
     setProjectLinks(linksData ?? [])
     
@@ -293,7 +292,6 @@ export default function Page3() {
     setIsRefreshing(false)
   }
 
-
   const handleUpdateMyInfo = async () => {
     // 비밀번호 변경 시 기존 비밀번호 확인
     if (myPassword) {
@@ -330,7 +328,7 @@ export default function Page3() {
   }
 
   const fetchDailyStats = async (projectCode: string, igAudio: number | null = null, ttAudio: number | null = null, ytAudio: number | null = null) => {
-    const res = await fetch(`/api/post_stats_history?project_code=${projectCode}`)
+    const res = await fetchWithAuth(`/api/post_stats_history?project_code=${projectCode}`)
     const data = await res.json()
     
     // 커버영상 데이터
@@ -776,7 +774,7 @@ export default function Page3() {
                         btn.disabled = true
                         try {
                           // 서명 완료 여부 체크
-                          const statusRes = await fetch(`/api/eformsign?action=status&document_id=${projectInfo.document_id}`, {
+                          const statusRes = await fetchWithAuth(`/api/eformsign?action=status&document_id=${projectInfo.document_id}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({})
@@ -787,7 +785,7 @@ export default function Page3() {
                             return
                           }
                           const fileName = `${projectInfo.artist_name || projectInfo.client_name}_${projectInfo.song_title}_계약서`
-                          const res = await fetch(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(fileName)}`, {
+                          const res = await fetchWithAuth(`/api/eformsign?action=download&document_id=${projectInfo.document_id}&file_name=${encodeURIComponent(fileName)}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({})

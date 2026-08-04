@@ -62,7 +62,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
           })
         })
       }
-      await fetch('/api/notifications', {
+      await fetchWithAuth('/api/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

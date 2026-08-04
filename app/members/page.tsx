@@ -195,10 +195,10 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     const data = await res.json()
                     setParticipant(data?.[0])
                     onUpdate?.()
-                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+                    const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(memberId)}`)
                     const tokens = await tokensRes.json()
                     if (tokens?.length > 0) {
-                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
+                      await fetchWithAuth('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
                     }
                   }} className="text-xs bg-green-600 text-white rounded px-2 py-1">해제+재참여</button>
                   <button onClick={async () => {
@@ -213,10 +213,10 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     const data = await res.json()
                     setParticipant(data?.[0])
                     onUpdate?.()
-                    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+                    const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(memberId)}`)
                     const tokens = await tokensRes.json()
                     if (tokens?.length > 0) {
-                      await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
+                      await fetchWithAuth('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
                     }
                   }} className="text-xs bg-red-600 text-white rounded px-2 py-1">해제+제외</button>
                 </div>
@@ -316,7 +316,7 @@ function ClientProjects({ clientId }: { clientId: string }) {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      const res = await fetch(`/api/projects?client_id=${clientId}`)
+      const res = await fetchWithAuth(`/api/projects?client_id=${clientId}`)
       const data = await res.json()
       setProjects(data ?? [])
       setLoading(false)
@@ -436,7 +436,7 @@ export default function Page4() {
   }
 
   const fetchArtists = async (client_id: string) => {
-  const res = await fetch(`/api/artists?client_id=${client_id}`)
+  const res = await fetchWithAuth(`/api/artists?client_id=${client_id}`)
   const data = await res.json()
   setArtistList(data)
   }
@@ -531,7 +531,7 @@ export default function Page4() {
     if (!res.ok) { showToast('등록 실패!'); return }
 
     // 임시 비밀번호 SMS 발송
-    await fetch('/api/sms', {
+    await fetchWithAuth('/api/sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -566,7 +566,7 @@ export default function Page4() {
     // 팔로워 수 업데이트
     if (instagram) {
       try {
-        const igRes = await fetch(`/api/instagram-user?username=${instagram}`)
+        const igRes = await fetchWithAuth(`/api/instagram-user?username=${instagram}`)
         const igData = await igRes.json()
         if (igData.followers > 0) await fetchWithAuth(`/api/participants?id=${selected.id}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -576,7 +576,7 @@ export default function Page4() {
     }
     if (youtube) {
       try {
-        const ytRes = await fetch(`/api/youtube-channel?handle=${youtube}`)
+        const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${youtube}`)
         const ytData = await ytRes.json()
         if (ytData.subscriberCount > 0) await fetchWithAuth(`/api/participants?id=${selected.id}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -695,7 +695,7 @@ export default function Page4() {
     if (!res.ok) { showToast('등록 실패!'); return }
 
     // 임시 비밀번호 SMS 발송
-    await fetch('/api/sms', {
+    await fetchWithAuth('/api/sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -727,7 +727,7 @@ export default function Page4() {
     })
     if (!res.ok) { showToast('수정 실패!'); return }
     if (cProjectCode && selectedClient.client_id) {
-      await fetch(`/api/projects?project_code=${cProjectCode.toUpperCase()}`, {
+      await fetchWithAuth(`/api/projects?project_code=${cProjectCode.toUpperCase()}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client_id: selectedClient.client_id })
@@ -889,10 +889,10 @@ export default function Page4() {
                         body: JSON.stringify({ member_id: id, amount, memo: rewardMemo || '관리자 지급' })
                       })
                       // 푸시 알림
-                      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(id)}`)
+                      const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(id)}`)
                       const tokens = await tokensRes.json()
                       if (tokens?.length > 0) {
-                        await fetch('/api/push', {
+                        await fetchWithAuth('/api/push', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
@@ -1177,10 +1177,10 @@ export default function Page4() {
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ cover_approved: true })
                             })
-                            const tokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.id)}`)
+                            const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.id)}`)
                             const tokens = await tokensRes.json()
                             if (tokens && tokens.length > 0) {
-                              await fetch('/api/push', {
+                              await fetchWithAuth('/api/push', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
@@ -1201,10 +1201,10 @@ export default function Page4() {
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ cover_approved: false, is_cover_possible: false })
                             })
-                            const tokensRes = await fetch(`/api/push_tokens?user_id=${String(selected.id)}`)
+                            const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.id)}`)
                             const tokens = await tokensRes.json()
                             if (tokens && tokens.length > 0) {
-                              await fetch('/api/push', {
+                              await fetchWithAuth('/api/push', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
@@ -1439,7 +1439,7 @@ export default function Page4() {
                         <div key={a.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                           <span className="text-sm dark:text-white">{a.artist_name}</span>
                           <button onClick={async () => {
-                            await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
+                            await fetchWithAuth(`/api/artists?id=${a.id}`, { method: 'DELETE' })
                             fetchArtists(selectedClient.client_id)
                           }} className="text-xs text-red-400">삭제</button>
                         </div>
@@ -1448,7 +1448,7 @@ export default function Page4() {
                         <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
                         <button onClick={async () => {
                           if (!newArtistName) return
-                          await fetch('/api/artists', {
+                          await fetchWithAuth('/api/artists', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ client_id: selectedClient.client_id, artist_name: newArtistName })

@@ -107,13 +107,13 @@ export default function Page1() {
   }, [])
 
   const fetchProjects = async () => {
-    const res = await fetch('/api/projects')
+    const res = await fetchWithAuth('/api/projects')
     const data = await res.json()
     setProjects(data ?? [])
   }
 
   const fetchProducts = async () => {
-    const res = await fetch('/api/products')
+    const res = await fetchWithAuth('/api/products')
     const data = await res.json()
     setProducts(data ?? [])
   }
@@ -131,13 +131,13 @@ export default function Page1() {
   }
 
   const fetchProjectApplications = async () => {
-    const res = await fetch('/api/project_applications')
+    const res = await fetchWithAuth('/api/project_applications')
     const data = await res.json()
     setProjectApplications(data ?? [])
   }
 
   const fetchUnlockVideos = async () => {
-    const res = await fetch('/api/unlock_videos')
+    const res = await fetchWithAuth('/api/unlock_videos')
     const data = await res.json()
     setUnlockVideos(data ?? [])
   }
@@ -180,10 +180,10 @@ export default function Page1() {
     }
 
     // 푸시 알림
-    const tokensRes = await fetch(`/api/push_tokens?user_id=${String(post.member_id)}`)
+    const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(post.member_id)}`)
     const tokens = await tokensRes.json()
     if (tokens && tokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -215,7 +215,7 @@ export default function Page1() {
     const match = newUnlockUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)
     const videoId = match?.[1] ?? ''
     if (!videoId) { showToast('유효한 유튜브 URL을 입력해주세요.'); return }
-    const res = await fetch('/api/unlock_videos', {
+    const res = await fetchWithAuth('/api/unlock_videos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ video_url: newUnlockUrl, video_id: extractVideoId(newUnlockUrl), title: '락 해제용 영상' })
@@ -228,7 +228,7 @@ export default function Page1() {
 
   const handleAddProduct = async () => {
     if (!newProduct) { showToast('상품명을 입력해주세요.'); return }
-    const res = await fetch('/api/products', {
+    const res = await fetchWithAuth('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newProduct, price: Number(newProductPrice) || 0 })
@@ -240,7 +240,7 @@ export default function Page1() {
 
   const handleDeleteProduct = async (id: number) => {
     if (!confirm('삭제하시겠습니까?')) return
-    await fetch(`/api/products?id=${id}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/products?id=${id}`, { method: 'DELETE' })
     fetchProducts()
   }
 
@@ -315,10 +315,10 @@ export default function Page1() {
       const result = await res.json()
 
       // 1) 취소된 체험단에게 푸시
-      const tokensRes = await fetch(`/api/push_tokens?user_id=${String(memberId)}`)
+      const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(memberId)}`)
       const tokens = await tokensRes.json()
       if (tokens && tokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -332,12 +332,12 @@ export default function Page1() {
 
       // 2) 미참여 체험단에게 공석 안내 푸시
       if (selectedProject) {
-        const allTokensRes = await fetch('/api/push_tokens?user_role=participant')
+        const allTokensRes = await fetchWithAuth('/api/push_tokens?user_role=participant')
         const allTokens = await allTokensRes.json()
         const participantMemberIds = participants.map((p: any) => String(p.member_id))
         const nonParticipantTokens = allTokens.filter((t: any) => !participantMemberIds.includes(String(t.user_id)) && String(t.user_id) !== String(memberId))
         if (nonParticipantTokens.length > 0) {
-          await fetch('/api/push', {
+          await fetchWithAuth('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -366,7 +366,7 @@ export default function Page1() {
     setFormData(prev => ({...prev, projectPrefix: upper}))
     if (!upper) { setFormData(prev => ({...prev, projectCode: ''})); return }
 
-    const res = await fetch(`/api/projects?prefix=${upper}`)
+    const res = await fetchWithAuth(`/api/projects?prefix=${upper}`)
     const data = await res.json()
     const nextNum = (data?.length ?? 0) + 1
     setFormData(prev => ({...prev, projectCode: `${upper}_${nextNum}`}))
@@ -455,7 +455,7 @@ export default function Page1() {
   }
 
   const saveProjectVideos = async (projectCode: string) => {
-    const existingRes = await fetch(`/api/project_videos?project_code=${projectCode}`)
+    const existingRes = await fetchWithAuth(`/api/project_videos?project_code=${projectCode}`)
     const existing = await existingRes.json()
     const data = {
       project_code: projectCode,
@@ -467,13 +467,13 @@ export default function Page1() {
       playlist_video_id: formData.playlistUrl ? extractVideoId(formData.playlistUrl) : null,
     }
     if (existing) {
-      await fetch(`/api/project_videos?project_code=${projectCode}`, {
+      await fetchWithAuth(`/api/project_videos?project_code=${projectCode}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
     } else {
-      await fetch('/api/project_videos', {
+      await fetchWithAuth('/api/project_videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -488,7 +488,7 @@ export default function Page1() {
       const videoId = extractVideoId(link.url)
       
       if (link.isNew) {
-        await fetch('/api/project_links', {
+        await fetchWithAuth('/api/project_links', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -503,10 +503,10 @@ export default function Page1() {
         const participants = await participantsRes.json()
         if (participants && participants.length > 0) {
           const memberIds = participants.map((p: any) => String(p.member_id))
-          const tokenRes = await fetch(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
+          const tokenRes = await fetchWithAuth(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
           const tokens = await tokenRes.json()
           if (tokens && tokens.length > 0) {
-            await fetch('/api/push', {
+            await fetchWithAuth('/api/push', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -519,7 +519,7 @@ export default function Page1() {
           }
         }
       } else if (link.id) {
-        await fetch(`/api/project_links?id=${link.id}`, {
+        await fetchWithAuth(`/api/project_links?id=${link.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -531,7 +531,7 @@ export default function Page1() {
       }
     }
     // 저장 후 최신 데이터 다시 불러오기
-    const res = await fetch(`/api/project_links?project_code=${projectCode}`)
+    const res = await fetchWithAuth(`/api/project_links?project_code=${projectCode}`)
     const data = await res.json()
     setFormData(prev => ({...prev, projectLinks: data ?? []}))
   }
@@ -551,7 +551,7 @@ export default function Page1() {
       }
     }
     
-    const res = await fetch('/api/projects', {
+    const res = await fetchWithAuth('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -600,7 +600,7 @@ export default function Page1() {
     // 신청에서 불러온 경우 project_code 저장
     const approvedApp = projectApplications.find(a => a.status === 'APPROVED' && !a.project_code && a.artist_name === formData.artistName && a.song_title === formData.songTitle)
     if (approvedApp) {
-      await fetch(`/api/project_applications?id=${approvedApp.id}`, {
+      await fetchWithAuth(`/api/project_applications?id=${approvedApp.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
@@ -609,10 +609,10 @@ export default function Page1() {
     }
     
     // 체험단 전체에게 푸시
-    const participantTokensRes = await fetch('/api/push_tokens?user_role=participant')
+    const participantTokensRes = await fetchWithAuth('/api/push_tokens?user_role=participant')
     const participantTokens = await participantTokensRes.json()
     if (participantTokens && participantTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -631,10 +631,10 @@ export default function Page1() {
       const clientUserData = await clientUserRes.json()
       const clientUser = clientUserData?.[0]
       if (clientUser) {
-        const clientTokensRes = await fetch(`/api/push_tokens?user_id=${String(clientUser.id)}`)
+        const clientTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const clientTokens = await clientTokensRes.json()
         if (clientTokens && clientTokens.length > 0) {
-          await fetch('/api/push', {
+          await fetchWithAuth('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -669,7 +669,7 @@ export default function Page1() {
       }
     }
 
-    const res = await fetch(`/api/projects?project_code=${selectedProject.project_code}`, {
+    const res = await fetchWithAuth(`/api/projects?project_code=${selectedProject.project_code}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -719,10 +719,10 @@ export default function Page1() {
       const joinedTokens = await joinedRes.json()
       if (joinedTokens && joinedTokens.length > 0) {
         const memberIds = joinedTokens.map((j: any) => String(j.member_id))
-        const tokensRes = await fetch(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
+        const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
-          await fetch('/api/push', {
+          await fetchWithAuth('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -735,10 +735,10 @@ export default function Page1() {
         }
       }
       // 의뢰인에게 종료 알림
-      const clientTokensRes = await fetch('/api/push_tokens?user_role=client')
+      const clientTokensRes = await fetchWithAuth('/api/push_tokens?user_role=client')
       const clientTokens = await clientTokensRes.json()
       if (clientTokens && clientTokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -773,7 +773,7 @@ export default function Page1() {
     const tokens = await res.json()
     if (!tokens || tokens.length === 0) { showToast('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
     
-    const response = await fetch('/api/push', {
+    const response = await fetchWithAuth('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -799,7 +799,7 @@ export default function Page1() {
     try {
       const shortcode = url.split('/p/')[1]?.split('/')[0] || url.split('/reel/')[1]?.split('/')[0]
       if (!shortcode) return null
-      const response = await fetch(`/api/instagram?shortcode=${shortcode}`)
+      const response = await fetchWithAuth(`/api/instagram?shortcode=${shortcode}`)
       const data = await response.json()
       return { likes: data.like_count ?? 0, comments: data.comment_count ?? 0 }
     } catch { return null }
@@ -807,7 +807,7 @@ export default function Page1() {
 
   const getYoutubeStats = async (url: string) => {
     try {
-      const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+      const response = await fetchWithAuth(`/api/youtube?url=${encodeURIComponent(url)}`)
       const data = await response.json()
       return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
     } catch { return null }
@@ -815,7 +815,7 @@ export default function Page1() {
 
   const getTiktokStats = async (url: string) => {
     try {
-      const response = await fetch(`/api/tiktok?url=${encodeURIComponent(url)}`)
+      const response = await fetchWithAuth(`/api/tiktok?url=${encodeURIComponent(url)}`)
       const data = await response.json()
       return { likes: data.likes ?? 0, comments: data.comments ?? 0 }
     } catch { return null }
@@ -901,7 +901,7 @@ export default function Page1() {
     const freshRes = await fetchWithAuth(`/api/participants?id=${post.member_id}`)
     const freshData = await freshRes.json()
     const currentBalance = freshData?.[0]?.balance ?? 0
-    const projectRes = await fetch(`/api/projects?project_code=${post.project_code}`)
+    const projectRes = await fetchWithAuth(`/api/projects?project_code=${post.project_code}`)
     const projectData = await projectRes.json()
     const baseAmount = projectData?.[0]?.reward_per_post ?? 0
     const level = freshData?.[0]?.level ?? 1
@@ -1216,7 +1216,7 @@ export default function Page1() {
             newUnlockUrl={newUnlockUrl}
             setNewUnlockUrl={setNewUnlockUrl}
             onAdd={handleAddUnlockVideo}
-            onDelete={async (id) => { await fetch(`/api/unlock_videos?id=${id}`, { method: 'DELETE' }); fetchUnlockVideos() }}
+            onDelete={async (id) => { await fetchWithAuth(`/api/unlock_videos?id=${id}`, { method: 'DELETE' }); fetchUnlockVideos() }}
           />
 
             <AdminPushSection
