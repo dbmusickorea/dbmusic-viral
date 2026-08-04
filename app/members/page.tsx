@@ -961,16 +961,16 @@ export default function Page4() {
                             </div>
                           </div>
                           {expandedCard === p.id && (
-                            <div className="px-3 pb-3 border-t pt-2 space-y-1">
+                            <div className="px-3 pb-3 border-t dark:border-gray-600 pt-2 space-y-1">
                               <p className="text-xs text-gray-500 dark:text-gray-400">{p.email}</p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">{p.mobile}</p>
-                              {p.instagram_id && <a href={`https://www.instagram.com/${p.instagram_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">
+                              {p.instagram_id && <a href={`https://www.instagram.com/${p.instagram_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                 <PlatformIcon platform="instagram" size={12} />{p.instagram_id} ({p.instagram_followers?.toLocaleString() ?? '-'}명)
                               </a>}
                               {p.youtube_id && <a href={`https://www.youtube.com/@${p.youtube_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">                              
                                 <PlatformIcon platform="youtube" size={12} />{p.youtube_id} ({p.youtube_subscribers?.toLocaleString() ?? '-'}명)
                               </a>}
-                              {p.tiktok_id && <a href={`https://www.tiktok.com/@${p.tiktok_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 flex items-center gap-1">
+                              {p.tiktok_id && <a href={`https://www.tiktok.com/@${p.tiktok_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                 <PlatformIcon platform="tiktok" size={12} />{p.tiktok_id} ({p.tiktok_followers?.toLocaleString() ?? '-'}명)
                               </a>}
                               <p className="text-xs text-gray-400 dark:text-gray-500">가입일: {new Date(p.created_at).toLocaleDateString('ko-KR')}</p>
@@ -992,7 +992,7 @@ export default function Page4() {
                                     body: JSON.stringify({ admin_memo: memo })
                                   })
                                   showToast('메모 저장 완료!')
-                                }} className="w-full mt-1 border border-gray-300 rounded-lg py-1.5 text-xs text-gray-600">메모 저장</button>
+                                }} className="w-full mt-1 border border-gray-300 dark:border-gray-600 rounded-lg py-1.5 text-xs text-gray-600 dark:text-gray-300">메모 저장</button>
                               </div>
                               <button onClick={(e) => { e.stopPropagation(); handleSelect(p) }} className="w-full mt-2 bg-blue-600 text-white rounded-lg py-1.5 text-xs font-medium">정보수정</button>
                             </div>

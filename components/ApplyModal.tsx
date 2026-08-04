@@ -68,47 +68,47 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-lg">📝 프로젝트 신청</h2>
-          <button onClick={onClose} className="text-gray-400 text-xl">✕</button>
+          <h2 className="font-bold text-lg dark:text-white">📝 프로젝트 신청</h2>
+          <button onClick={onClose} className="text-gray-400 dark:text-gray-300 text-xl">✕</button>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium">가수명/아티스트명</label>
-            <input value={applyArtistName} onChange={(e) => setApplyArtistName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="가수명 또는 아티스트명 입력" />
+            <label className="text-sm font-medium dark:text-white">가수명/아티스트명</label>
+            <input value={applyArtistName} onChange={(e) => setApplyArtistName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="가수명 또는 아티스트명 입력" />
           </div>
           <div>
-            <label className="text-sm font-medium">노래 제목</label>
-            <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="노래 제목 입력" />
+            <label className="text-sm font-medium dark:text-white">노래 제목</label>
+            <input value={applySongTitle} onChange={(e) => setApplySongTitle(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="노래 제목 입력" />
           </div>
           <div>
-            <label className="text-sm font-medium">희망 미션 시작일 (음원 발매일)</label>
-            <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+            <label className="text-sm font-medium dark:text-white">희망 미션 시작일 (음원 발매일)</label>
+            <input type="date" value={applyMissionDate} onChange={(e) => setApplyMissionDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
           </div>
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium">
+            <label className="flex items-center gap-2 text-sm font-medium dark:text-white">
               <input type="checkbox" checked={applyHasCover} onChange={(e) => setApplyHasCover(e.target.checked)} />
               커버 옵션 추가
             </label>
             {applyHasCover && (
               <div className="mt-2">
-                <label className="text-sm font-medium">커버 인원</label>
-                <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버 인원 수 입력" min={1} />
+                <label className="text-sm font-medium dark:text-white">커버 인원</label>
+                <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="커버 인원 수 입력" min={1} />
               </div>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium">책정 예산</label>
-            <input type="number" value={applyBudget} onChange={(e) => setApplyBudget(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="예산 입력 (원)" />
+            <label className="text-sm font-medium dark:text-white">책정 예산</label>
+            <input type="number" value={applyBudget} onChange={(e) => setApplyBudget(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="예산 입력 (원)" />
           </div>
           <div>
-            <label className="text-sm font-medium">자켓 이미지</label>
-            <input type="file" accept="image/*" onChange={(e) => setApplyJacketFile(e.target.files?.[0] ?? null)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+            <label className="text-sm font-medium dark:text-white">자켓 이미지</label>
+            <input type="file" accept="image/*" onChange={(e) => setApplyJacketFile(e.target.files?.[0] ?? null)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
           </div>
           <div>
-            <label className="text-sm font-medium">요청사항</label>
-            <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
+            <label className="text-sm font-medium dark:text-white">요청사항</label>
+            <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400" rows={4} placeholder="요청사항 입력" />
           </div>
           <button onClick={handleSubmit} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
         </div>

@@ -1074,9 +1074,9 @@ export default function Page1() {
               </button>
               {showNotifications && (
                 <div className="absolute right-0 top-8 z-50 w-80 max-h-[70vh] overflow-y-auto">
-                  <div className="bg-white rounded-2xl shadow-xl p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4">
                     <div className="flex justify-between items-center mb-3">
-                      <h2 className="font-bold">알림 내역</h2>
+                      <h2 className="font-bold dark:text-white">알림 내역</h2>
                       <div className="flex gap-2">
                         {unreadCount > 0 && (
                           <button onClick={() => markAllRead(String(JSON.parse(localStorage.getItem('userInfo') || '{}').id))} className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1">모두읽음</button>
@@ -1084,7 +1084,7 @@ export default function Page1() {
                         {notifications.length > 0 && (
                           <button onClick={() => deleteAllNotifications(String(JSON.parse(localStorage.getItem('userInfo') || '{}').id))} className="text-xs text-red-400 border border-red-200 rounded px-2 py-1">전체 삭제</button>
                         )}
-                        <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 border rounded px-2 py-1">닫기</button>
+                        <button onClick={() => setShowNotifications(false)} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">닫기</button>
                       </div>
                     </div>
                     {notifications.length === 0 ? (
@@ -1092,11 +1092,11 @@ export default function Page1() {
                     ) : (
                       <div className="space-y-2">
                         {notifications.map((n) => (
-                          <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
+                          <div key={n.id} className={`py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start px-2 -mx-2 ${!n.is_read ? 'bg-blue-50 dark:bg-gray-700' : ''}`}>
                             <div className="flex-1">
-                              <p className="text-sm font-medium">{n.title}</p>
-                              <p className="text-xs text-gray-500 mt-1">{n.body}</p>
-                              <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                              <p className="text-sm font-medium dark:text-white">{n.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{n.body}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{new Date(n.created_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                             <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
                           </div>

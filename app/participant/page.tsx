@@ -1228,7 +1228,7 @@ useEffect(() => {
                     ) : (
                       <div className="space-y-2">
                         {notifications.map((n) => (
-                          <div key={n.id} className={`py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start ${!n.is_read ? 'bg-blue-50 dark:bg-blue-900' : ''}`}>
+                          <div key={n.id} className={`py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start px-2 -mx-2 ${!n.is_read ? 'bg-blue-50 dark:bg-gray-700' : ''}`}>
                             <div className="flex-1">
                               <p className="text-sm font-medium dark:text-white">{n.title}</p>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{n.body}</p>

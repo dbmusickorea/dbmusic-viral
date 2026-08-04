@@ -14,6 +14,29 @@ import { useToast } from '../../components/ToastContext'
 export default function ClientMyPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
+    setTheme(saved ?? 'system')
+  }, [])
+
+  const applyTheme = (t: 'system' | 'light' | 'dark') => {
+    setTheme(t)
+    localStorage.setItem('theme', t)
+    const html = document.documentElement
+    if (t === 'dark') {
+      html.classList.add('dark')
+      localStorage.setItem('darkMode', 'true')
+    } else if (t === 'light') {
+      html.classList.remove('dark')
+      localStorage.setItem('darkMode', 'false')
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      prefersDark ? html.classList.add('dark') : html.classList.remove('dark')
+      localStorage.removeItem('darkMode')
+    }
+  }
   const [myName, setMyName] = useState('')
   const [myCompany, setMyCompany] = useState('')
   const [myArtist, setMyArtist] = useState('')
@@ -192,7 +215,7 @@ export default function ClientMyPage() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -210,7 +233,7 @@ export default function ClientMyPage() {
         setIsPulling(false)
       }}
     >
-      <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         {(isPulling || isRefreshing) && (
           <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
             {isRefreshing ? (
@@ -221,7 +244,7 @@ export default function ClientMyPage() {
           </div>
         )}
         <div className="flex justify-center mb-2">
-          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/client')} />
+          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/client')} />
         </div>
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           
@@ -230,14 +253,14 @@ export default function ClientMyPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold">마이페이지</h1>
+          <h1 className="text-xl font-bold dark:text-white">마이페이지</h1>
         </div>
       </div>
       <div className="max-w-7xl mx-auto">
 
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold">👤 내 정보</h2>
+            <h2 className="font-bold dark:text-white">👤 내 정보</h2>
             {!isEditing && (
               <button onClick={() => setIsEditing(true)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5">정보 수정</button>
             )}
@@ -245,9 +268,9 @@ export default function ClientMyPage() {
 
           {!isEditing ? (
             <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg px-3 py-2">
-                <p className="text-xs text-gray-500">이메일</p>
-                <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400">이메일</p>
+                <p className="text-sm font-medium dark:text-white">{userInfo?.email ?? '-'}</p>
               </div>
               {[
                 { label: '이름', value: myName },
@@ -255,39 +278,39 @@ export default function ClientMyPage() {
                 { label: '휴대전화', value: myMobile },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between items-center border-b border-gray-100 pb-2">
-                  <p className="text-xs text-gray-500">{label}</p>
-                  <p className="text-sm font-medium">{value || '-'}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+                  <p className="text-sm font-medium dark:text-white">{value || '-'}</p>
                 </div>
               ))}
               <div>
                 <p className="text-xs text-gray-500 mb-1">아티스트 목록</p>
                 {artistList.map((a) => (
                   <div key={a.id} className="flex justify-between items-center border-b border-gray-100 pb-2">
-                    <p className="text-sm font-medium">{a.artist_name}</p>
+                    <p className="text-sm font-medium dark:text-white">{a.artist_name}</p>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg px-3 py-2">
-                <p className="text-xs text-gray-500">이메일 (변경 불가)</p>
-                <p className="text-sm font-medium">{userInfo?.email ?? '-'}</p>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400">이메일 (변경 불가)</p>
+                <p className="text-sm font-medium dark:text-white">{userInfo?.email ?? '-'}</p>
               </div>
               {[
                 { label: '이름', value: myName, setter: setMyName },
                 { label: '회사명', value: myCompany, setter: setMyCompany },
               ].map(({ label, value, setter }) => (
                 <div key={label}>
-                  <label className="text-sm font-medium">{label}</label>
-                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                  <label className="text-sm font-medium dark:text-white">{label}</label>
+                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                 </div>
               ))}
               <div>
-                <label className="text-sm font-medium">휴대전화</label>
+                <label className="text-sm font-medium dark:text-white">휴대전화</label>
                 <p className="text-sm text-gray-500 mt-1">{myMobile}</p>
                 <div className="flex gap-2 mt-1">
-                  <input value={newMobile} onChange={(e) => setNewMobile(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="새 번호 입력" />
+                  <input value={newMobile} onChange={(e) => setNewMobile(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="새 번호 입력" />
                   <button onClick={async () => {
                     if (!newMobile) { showToast('번호를 입력해주세요.'); return }
                     setMobileSending(true)
@@ -312,11 +335,11 @@ export default function ClientMyPage() {
                 {mobileVerified && <p className="text-xs text-green-600 mt-1">✅ 인증 완료 - 저장 시 번호가 변경됩니다.</p>}
               </div>
               <div>
-                <label className="text-sm font-medium">아티스트 목록</label>
+                <label className="text-sm font-medium dark:text-white">아티스트 목록</label>
                 <div className="space-y-2 mt-1">
                   {artistList.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                      <span className="text-sm">{a.artist_name}</span>
+                    <div key={a.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                      <span className="text-sm dark:text-white">{a.artist_name}</span>
                       <button onClick={async () => {
                         await fetch(`/api/artists?id=${a.id}`, { method: 'DELETE' })
                         const res = await fetch(`/api/artists?client_id=${userInfo.client_id}`)
@@ -325,7 +348,7 @@ export default function ClientMyPage() {
                     </div>
                   ))}
                   <div className="flex gap-2">
-                    <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="아티스트명 입력" />
+                    <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
                     <button onClick={async () => {
                       if (!newArtistName) return
                       await fetch('/api/artists', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName }) })
@@ -337,18 +360,18 @@ export default function ClientMyPage() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium">기존 비밀번호</label>
+                <label className="text-sm font-medium dark:text-white">기존 비밀번호</label>
                 <div className="relative mt-1">
-                  <input type={showCurrentPassword ? 'text' : 'password'} value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="비밀번호 변경시만" />
+                  <input type={showCurrentPassword ? 'text' : 'password'} value={myCurrentPassword} onChange={(e) => setMyCurrentPassword(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="비밀번호 변경시만" />
                   <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-2.5 text-gray-400">
                     {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium">새 비밀번호</label>
+                <label className="text-sm font-medium dark:text-white">새 비밀번호</label>
                 <div className="relative mt-1">
-                  <input type={showNewPassword ? 'text' : 'password'} value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="새 비밀번호 변경시만" />
+                  <input type={showNewPassword ? 'text' : 'password'} value={myPassword} onChange={(e) => setMyPassword(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="새 비밀번호 변경시만" />
                   <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-2.5 text-gray-400">
                     {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -362,7 +385,7 @@ export default function ClientMyPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-xs text-center text-gray-300 mb-2">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
               ? `앱 버전 ${appVersion}` 
@@ -383,7 +406,31 @@ export default function ClientMyPage() {
             }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
           <hr className="my-3 border-gray-100" />
-          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
+            <div className="flex gap-2">
+              <button onClick={() => applyTheme('system')} className={`flex-1 py-2 text-xs rounded-lg border flex flex-col items-center gap-1 ${theme === 'system' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+                  <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z" fill="currentColor"/>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="currentColor"/>
+                </svg>
+                시스템
+              </button>
+              <button onClick={() => applyTheme('light')} className={`flex-1 py-2 text-xs rounded-lg border flex flex-col items-center gap-1 ${theme === 'light' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+                  <path d="M12 4V2M12 20V22M6.41421 6.41421L5 5M17.728 17.728L19.1422 19.1422M4 12H2M20 12H22M17.7285 6.41421L19.1427 5M6.4147 17.728L5.00049 19.1422M12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                라이트
+              </button>
+              <button onClick={() => applyTheme('dark')} className={`flex-1 py-2 text-xs rounded-lg border flex flex-col items-center gap-1 ${theme === 'dark' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+                  <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                다크
+              </button>
+            </div>
+          </div>
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
             <div className="mt-3 border border-red-300 rounded-lg p-4 bg-red-50">
@@ -410,7 +457,7 @@ export default function ClientMyPage() {
           <p className="text-xs text-gray-500 font-medium mb-2">더블비뮤직 · 대표: 최병민 · 사업자등록번호: 280-02-02331</p>
           <p className="text-xs text-gray-400 mb-1">서울특별시 송파구 백제고분로 116, 3층 611호</p>
           <p className="text-xs text-gray-400 mb-1">고객센터: 010-7593-7966</p>
-          <p className="text-xs text-gray-400 mb-3">제휴 및 광고 문의: db.music.korea@gmail.com</p>
+          <p className="text-xs text-gray-400 mb-3">제휴 및 광고 문의: doubleb@doubleb.kr</p>
           <p className="text-xs text-gray-300">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
         </div>
       </div>

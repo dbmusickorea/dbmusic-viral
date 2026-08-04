@@ -21,11 +21,11 @@ export default function GuideCard() {
   ]
 
   return (
-    <div id="tutorial-guide-card" className="bg-white rounded-2xl shadow mb-4 overflow-hidden">
+    <div id="tutorial-guide-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow mb-4 overflow-hidden">
       <button onClick={() => setOpen(o => !o)} className="w-full flex justify-between items-center p-4">
         <div>
-          <p className="font-bold text-sm text-left">📖 더블비뮤직 앱 사용 가이드</p>
-          <p className="text-xs text-gray-400 text-left mt-0.5">의뢰인을 위한 간편한 캠페인 관리 프로세스</p>
+          <p className="font-bold text-sm text-left dark:text-white">📖 더블비뮤직 앱 사용 가이드</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-left mt-0.5">의뢰인을 위한 간편한 캠페인 관리 프로세스</p>
         </div>
         <svg viewBox="0 0 24 24" className={`w-5 h-5 text-gray-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="6 9 12 15 18 9"/>
@@ -33,32 +33,32 @@ export default function GuideCard() {
       </button>
 
       {open && (
-        <div className="px-4 pb-4 border-t pt-3">
+        <div className="px-4 pb-4 border-t dark:border-gray-700 pt-3">
           <div className="space-y-2 mb-4">
             {guides.map((g, i) => (
-              <div key={i} className="border rounded-xl overflow-hidden">
+              <div key={i} className="border dark:border-gray-600 rounded-xl overflow-hidden">
                 <button onClick={() => setOpenItem(openItem === i ? null : i)} className="w-full flex justify-between items-center p-3">
-                  <p className="text-sm font-medium text-left">{i + 1}. {g.title}</p>
+                  <p className="text-sm font-medium text-left dark:text-white">{i + 1}. {g.title}</p>
                   <svg viewBox="0 0 24 24" className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${openItem === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="6 9 12 15 18 9"/>
                   </svg>
                 </button>
-                {openItem === i && <p className="text-xs text-gray-600 px-3 pb-3">{g.content}</p>}
+                {openItem === i && <p className="text-xs text-gray-600 dark:text-gray-300 px-3 pb-3">{g.content}</p>}
               </div>
             ))}
           </div>
 
-          <p className="text-xs font-bold text-gray-700 mb-2">📌 주요 안내사항</p>
+          <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">📌 주요 안내사항</p>
           <div className="space-y-2">
             {notices.map((n, i) => (
-              <div key={i} className="border rounded-xl overflow-hidden">
+              <div key={i} className="border dark:border-gray-600 rounded-xl overflow-hidden">
                 <button onClick={() => setOpenItem(openItem === i + 10 ? null : i + 10)} className="w-full flex justify-between items-center p-3">
-                  <p className="text-sm font-medium text-left">{n.title}</p>
+                  <p className="text-sm font-medium text-left dark:text-white">{n.title}</p>
                   <svg viewBox="0 0 24 24" className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${openItem === i + 10 ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="6 9 12 15 18 9"/>
                   </svg>
                 </button>
-                {openItem === i + 10 && <p className="text-xs text-gray-600 px-3 pb-3">{n.content}</p>}
+                {openItem === i + 10 && <p className="text-xs text-gray-600 dark:text-gray-300 px-3 pb-3">{n.content}</p>}
               </div>
             ))}
           </div>

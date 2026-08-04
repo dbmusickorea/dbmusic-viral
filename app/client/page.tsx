@@ -536,7 +536,7 @@ export default function Page3() {
                     ) : (
                       <div className="space-y-2">
                         {notifications.map((n) => (
-                          <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
+                          <div key={n.id} className={`py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start px-2 -mx-2 ${!n.is_read ? 'bg-blue-50 dark:bg-gray-700' : ''}`}>
                             <div className="flex-1">
                               <p className="text-sm font-medium dark:text-white">{n.title}</p>
                               <p className="text-xs text-gray-500 mt-1">{n.body}</p>
@@ -700,7 +700,7 @@ export default function Page3() {
                   </button>
                 </div>
                 {showRequestForm && (
-                  <div className="space-y-3 mb-4 border-b pb-4">
+                  <div className="space-y-3 mb-4 border-b dark:border-gray-600 pb-4">
                     <div>
                       <label className="text-sm font-medium dark:text-white">문의 유형</label>
                       <select value={requestCategory} onChange={(e) => { setRequestCategory(e.target.value); if (e.target.value !== '기타 문의') setRequestTitle(e.target.value) }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
