@@ -62,16 +62,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
           })
         })
       }
-      await fetchWithAuth('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: String(req.member_id),
-          user_role: 'participant',
-          title: '📬 문의 답장이 왔어요!',
-          body: replyText[req.id]
-        })
-      })
+
     }
     setReplyText(prev => ({...prev, [req.id]: ''}))
     onRefresh()

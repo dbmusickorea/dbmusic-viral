@@ -35,8 +35,10 @@ export async function POST(request: NextRequest) {
   const androidTokens = tokens.filter((t: string) => !/^[0-9a-f]{64}$/i.test(t))
 
   // APNs (iOS) 발송
+  console.log("iosTokens:", iosTokens.length, "androidTokens:", androidTokens.length)
   if (iosTokens.length > 0) {
     const keyData = process.env.APN_KEY
+    console.log("APN_KEY exists:", !!keyData)
     if (keyData) {
       const provider = new apn.Provider({
         token: {
