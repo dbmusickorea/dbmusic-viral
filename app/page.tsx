@@ -672,7 +672,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1 dark:text-white">이메일</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일 입력" />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, ''))} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일 입력" />
               </div>
               <div className="relative">
                   <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleLogin() }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="비밀번호 입력" />
@@ -712,7 +712,7 @@ export default function LoginPage() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">가입하신 이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드려요.</p>
                 <div>
                   <label className="block text-sm font-medium mb-1 dark:text-white">이메일</label>
-                  <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일 입력" />
+                  <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, ''))} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일 입력" />
                 </div>
                 <button onClick={handleForgotPassword} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">재설정 링크 발송</button>
                 <button onClick={() => setShowForgotPassword(false)} className="w-full border rounded-lg py-2 text-sm text-gray-600">로그인으로 돌아가기</button>
@@ -769,7 +769,7 @@ export default function LoginPage() {
                         </button>
                       </div>
                     ) : (
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(type === 'email' ? e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '') : e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                     )}
                   </div>
                 ))}
@@ -907,12 +907,12 @@ export default function LoginPage() {
                         </button>
                       </div>
                     ) : (
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(type === 'email' ? e.target.value.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '') : e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                     )}
                   </div>
                 ))}
                 <div>
-                  <label className="text-sm font-medium dark:text-white">휴대전화 *</label>
+                  <label className="text-sm font-medium dark:text-white">휴대전화 <span className="text-red-500">*</span></label>
                   <div className="flex gap-2 mt-1">
                     <input value={c_mobile} onChange={(e) => setCMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="01012345678" disabled={c_verified} />
                     <button onClick={handleSendVerifyCodeClient} disabled={c_sending || c_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">

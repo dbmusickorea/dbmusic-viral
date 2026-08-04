@@ -6,13 +6,15 @@ export default function DarkModeInit() {
     const applyTheme = () => {
       const theme = localStorage.getItem('theme')
       const html = document.documentElement
-      if (theme === 'dark') {
-        html.classList.add('dark')
-      } else if (theme === 'light') {
+      if (theme === 'light') {
         html.classList.remove('dark')
-      } else {
+      } else if (theme === 'system') {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
         prefersDark ? html.classList.add('dark') : html.classList.remove('dark')
+      } else {
+        // 기본값: 다크모드
+        html.classList.add('dark')
+        if (!theme) localStorage.setItem('theme', 'dark')
       }
     }
 

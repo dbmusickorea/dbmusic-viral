@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
-import { RefreshCw, ArrowDown, Coins, MessageSquare, Music, Smartphone, CheckCircle, Ban, AlertTriangle, Clock, Lock } from 'lucide-react'
+import { RefreshCw, ArrowDown, Coins, MessageSquare, Music, Smartphone, CheckCircle, Ban, AlertTriangle, Clock, Lock, Users } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 import Sidebar from '../../components/Sidebar'
 import AdminBottomNav from '../../components/AdminBottomNav'
@@ -338,7 +338,8 @@ function ClientProjects({ clientId }: { clientId: string }) {
                 <p className="text-sm font-medium dark:text-white">{p.artist_name || p.client_name} - {p.song_title ?? p.product_content}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">코드: {p.project_code}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">기간: {p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">참여: {p.current_participants}/{p.max_participants}명</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-0.5"><Users size={10} /> 참여: {p.current_participants}/{p.max_participants > 0 ? p.max_participants : '∞'}명</p>
+                {p.cover_video_count > 0 && <p className="text-xs text-purple-500 dark:text-purple-400 flex items-center gap-0.5"><Music size={10} /> 커버: {p.cover_current ?? 0}/{p.cover_video_count}</p>}
               </div>
               <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
                 {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '완료'}

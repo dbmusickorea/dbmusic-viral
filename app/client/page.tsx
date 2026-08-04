@@ -757,7 +757,7 @@ export default function Page3() {
             {projectInfo && (
               <>
                 {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
-                  <button onClick={() => router.push('/cover')} className="w-full text-xs border rounded px-3 py-2 text-gray-600 mb-3">🎵 커버 페이지</button>
+                  <button onClick={() => router.push('/cover')} className="w-full text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 mb-3 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
                 )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 h-full flex flex-col">
