@@ -255,7 +255,7 @@ export default function WalletPage() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
@@ -273,7 +273,7 @@ export default function WalletPage() {
           setIsPulling(false)
         }}
     >
-      <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         {(isPulling || isRefreshing) && (
           <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
             {isRefreshing ? (
@@ -284,7 +284,7 @@ export default function WalletPage() {
           </div>
         )}
         <div className="flex justify-center mb-2">
-          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => router.push('/participant')} />
+          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/participant')} />
         </div>
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
@@ -292,13 +292,13 @@ export default function WalletPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold">적립금</h1>
+          <h1 className="text-xl font-bold dark:text-white">적립금</h1>
         </div>
       </div>
       <div className="max-w-lg mx-auto"> 
         {isLocked && (
-          <div className="bg-red-50 rounded-2xl p-4 mb-4">
-            <h2 className="font-bold mb-2 text-red-600">⚠️ 계정 잠금 상태</h2>
+          <div className="bg-red-50 dark:bg-red-900 rounded-2xl p-4 mb-4">
+            <h2 className="font-bold mb-2 text-red-600 dark:text-red-400">⚠️ 계정 잠금 상태</h2>
             <p className="text-xs text-red-500 mb-3">1개월간 미션 참여가 없어서 계정이 잠겼어요. 환전 신청이 불가합니다.</p>
             <button onClick={() => router.push('/participant')} className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium">잠금 해제하러 가기 →</button>
           </div>
@@ -321,12 +321,12 @@ export default function WalletPage() {
           {showLevelGuide && (
             <div className="mt-3 border border-blue-400 rounded-lg overflow-hidden">
               <div className="bg-blue-500 p-3 text-xs text-blue-100 space-y-1">
-                <p>🎯 추천인 1명 가입 시: <span className="font-bold">+150P + 레벨 1 상승</span></p>
+                <p>🎯 추천인 1명 가입 시: <span className="font-bold dark:text-white">+150P + 레벨 1 상승</span></p>
                 <p>💰 레벨이 높을수록 게시물당 적립금이 올라가요!</p>
-                <p>⭐ 최대 적립금은 <span className="font-bold">10,000P</span>입니다.</p>
+                <p>⭐ 최대 적립금은 <span className="font-bold dark:text-white">10,000P</span>입니다.</p>
               </div>
-              <table className="w-full text-xs bg-white text-gray-800">
-                <thead className="bg-gray-50">
+              <table className="w-full text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-600">
                   <tr>
                     <th className="py-2 px-3 text-left">레벨</th>
                     <th className="py-2 px-3 text-right">게시물당 적립금</th>
@@ -349,31 +349,31 @@ export default function WalletPage() {
 
         {/* 계정 잠금 상태 */}
         {isLocked && (
-          <div className="bg-red-50 rounded-2xl p-4 mb-4">
-            <h2 className="font-bold mb-2 text-red-600">⚠️ 계정 잠금 상태</h2>
-            <p className="text-xs text-red-500 mb-1">1개월간 미션 참여가 없어서 계정이 잠겼어요.</p>
-            <p className="text-xs text-gray-500">유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!</p>
+          <div className="bg-red-50 dark:bg-red-900 rounded-2xl p-4 mb-4">
+            <h2 className="font-bold mb-2 text-red-600 dark:text-red-400">⚠️ 계정 잠금 상태</h2>
+            <p className="text-xs text-red-500 dark:text-red-400 mb-1">1개월간 미션 참여가 없어서 계정이 잠겼어요.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!</p>
           </div>
         )}
 
         {/* 환전 신청 폼 */}
         {showExchange && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-1">💰 환전 신청</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-1 dark:text-white">💰 환전 신청</h2>
             <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
             {coverReward > 0 && (
-              <div className="bg-purple-50 rounded-lg p-3 mb-3">
-                <p className="text-xs text-gray-500">커버영상 수익</p>
+              <div className="bg-purple-50 dark:bg-purple-900 rounded-lg p-3 mb-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">커버영상 수익</p>
                 <p className="text-xl font-bold text-purple-600">{coverReward.toLocaleString()}P</p>
                 <p className="text-xs text-gray-400 mt-1">프로젝트 종료 후 15일 이후 환전 가능</p>
               </div>
             )}
             <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 max-h-40 overflow-y-auto">
-                <p className="font-medium text-gray-800 mb-2">■ 미션 완료 포인트 환전 신청에 따른 간이 용역 계약 및 법적 고지</p>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-300 max-h-40 overflow-y-auto">
+                <p className="font-medium text-gray-800 dark:text-gray-200 mb-2">■ 미션 완료 포인트 환전 신청에 따른 간이 용역 계약 및 법적 고지</p>
                 <p className="mb-2">본 환전 신청은 주식회사 더블비뮤직(이하 '회사')과 회원(이하 '크리에이터') 간의 프리랜서 음원 바이럴 홍보 용역 계약에 의거하여 정산금이 지급되는 절차입니다.</p>
                 <p className="mb-2">대한민국 소득세법 및 국세징수법에 따라, 회사는 크리에이터가 정산 요청한 금액의 총 3.3%(사업소득세 3% + 지방소득세 0.3%)를 원천징수하여 국세청에 일괄 대리 신고 및 납부할 법적 의무가 있습니다.</p>
-                <p className="font-medium text-gray-800 mb-1">[개인정보 처리에 관한 필수 동의]</p>
+                <p className="font-medium text-gray-800 dark:text-gray-200 mb-1">[개인정보 처리에 관한 필수 동의]</p>
                 <p>1. 수집 및 이용 목적: 국세청 사업소득 원천징수 영수증 발행 및 세무 신고 대행</p>
                 <p>2. 수집 항목: 성명, 주민등록번호, 은행명, 계좌번호, 예금주명</p>
                 <p>3. 보유 및 이용 기간: 소득세법 등 관련 법령에 따른 법정 의무 보관 기간(5년) 보존 후 즉시 파기 및 삭제</p>
@@ -381,10 +381,10 @@ export default function WalletPage() {
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={agreedTax} onChange={(e) => setAgreedTax(e.target.checked)} className="w-4 h-4" />
-                <span className="text-sm">개인정보 수집 및 원천징수에 동의합니다 (필수)</span>
+                <span className="text-sm dark:text-white">개인정보 수집 및 원천징수에 동의합니다 (필수)</span>
               </label>
               <div>
-                <label className="text-sm font-medium">주민번호 <span className="text-red-500">*</span></label>
+                <label className="text-sm font-medium dark:text-white">주민번호 <span className="text-red-500">*</span></label>
                 <p className="text-xs text-gray-400 mt-0.5">하이픈(-) 없이 13자리 숫자만 입력해주세요. (예: 9001011234567)</p>
                 <input 
                   value={residentNumber} 
@@ -392,7 +392,7 @@ export default function WalletPage() {
                     const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 13)
                     setResidentNumber(val)
                   }} 
-                  className="w-full border rounded-lg px-3 py-2 text-sm mt-1" 
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" 
                   placeholder="주민번호 13자리 입력" 
                   maxLength={13}
                   inputMode="numeric"
@@ -402,11 +402,11 @@ export default function WalletPage() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium">신청 금액</label>
-                <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="금액 입력 (최소 10,000P)" />
+                <label className="text-sm font-medium dark:text-white">신청 금액</label>
+                <input type="number" value={exchangeAmount} onChange={(e) => setExchangeAmount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="금액 입력 (최소 10,000P)" />
               </div>
               {exchangeAmount && (
-                <div className="bg-gray-50 rounded-lg p-3 text-sm">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-sm dark:text-gray-300">
                   <p>원천징수 (3.3%): {Math.floor(Number(exchangeAmount) * 0.033).toLocaleString()}P</p>
                   <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}P</p>
                 </div>
@@ -417,22 +417,22 @@ export default function WalletPage() {
         )}
 
         {/* 총 적립금 */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-xs text-gray-500">총 적립금</p>
-              <p className="text-2xl font-bold text-gray-800">{balance.toLocaleString()}P</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">총 적립금</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-white">{balance.toLocaleString()}P</p>
             </div>
-            <button onClick={() => setShowHistory(!showHistory)} className="text-xs border rounded-lg px-3 py-2 text-gray-600">
+            <button onClick={() => setShowHistory(!showHistory)} className="text-xs border dark:border-gray-600 rounded-lg px-3 py-2 text-gray-600 dark:text-gray-300">
               {showHistory ? '내역 접기 ▲' : '적립금 내역 ▼'}
             </button>
           </div>
 
           {showHistory && (
-            <div className="mt-4 border-t pt-4">
+            <div className="mt-4 border-t dark:border-gray-600 pt-4">
               <div className="flex gap-2 mb-3">
                 {(['all', 'earn', 'exchange'] as const).map(f => (
-                  <button key={f} onClick={() => setFilter(f)} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === f ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>
+                  <button key={f} onClick={() => setFilter(f)} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === f ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500 dark:text-gray-400'}`}>
                     {f === 'all' ? '전체' : f === 'earn' ? '적립' : '환전신청'}
                   </button>
                 ))}
@@ -442,18 +442,18 @@ export default function WalletPage() {
                   <p className="text-sm text-gray-400 text-center py-4">내역이 없습니다.</p>
                 ) : (
                   filteredHistory.map((item, i) => (
-                    <div key={i} className="flex justify-between items-start border-b border-gray-100 pb-2">
+                    <div key={i} className="flex justify-between items-start border-b border-gray-100 dark:border-gray-700 pb-2">
                       <div>
-                        <p className="text-sm font-medium">{item.label}</p>
-                        <p className="text-xs text-gray-400">{item.sub}</p>
-                        <p className="text-xs text-gray-400">{new Date(item.date).toLocaleDateString('ko-KR')}</p>
+                        <p className="text-sm font-medium dark:text-white">{item.label}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{item.sub}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(item.date).toLocaleDateString('ko-KR')}</p>
                         {item.type === 'exchange' && (item as any).status && (
                           <div className="mt-0.5">{settlementStatusLabel((item as any).status)}</div>
                         )}
                         {item.type === 'exchange' && (item as any).memo && (
-                          <div className="mt-1 bg-blue-50 rounded p-2">
-                            <p className="text-xs text-blue-800 font-medium">📝 관리자 메모</p>
-                            <p className="text-xs text-blue-700 mt-0.5">{(item as any).memo}</p>
+                          <div className="mt-1 bg-blue-50 dark:bg-blue-900 rounded p-2">
+                            <p className="text-xs text-blue-800 dark:text-blue-300 font-medium">📝 관리자 메모</p>
+                            <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">{(item as any).memo}</p>
                           </div>
                         )}
                       </div>

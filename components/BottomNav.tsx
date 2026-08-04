@@ -17,7 +17,7 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
         {tabs.map((tab, i) => (
           <button
             key={i}
@@ -26,7 +26,7 @@ export default function BottomNav({ tabs }: { tabs: Tab[] }) {
               if (tab.onClick) tab.onClick()
               else if (tab.href) router.push(tab.href)
             }}
-            className={`flex-1 flex flex-col items-center py-3 text-xs ${tab.active ? 'text-blue-600' : 'text-gray-400'}`}
+            className={`flex-1 flex flex-col items-center py-3 text-xs ${tab.active ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}
           >
             <div className="relative">
               <div className="mb-0.5">{tab.icon}</div>

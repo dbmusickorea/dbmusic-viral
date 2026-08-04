@@ -16,10 +16,10 @@ type Props = {
 
 export default function ParticipantProjectList({ allProjects, myParticipations, projectCode, projectListPage, setProjectListPage, PAGE_SIZE, isCoverPossible, isCoverApproved, onSelectProject, onDeselectProject }: Props) {
   return (
-    <div className="bg-white rounded-2xl shadow p-4 mb-4">
-      <h2 className="font-bold mb-3">📋 전체 프로젝트 목록</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+      <h2 className="font-bold mb-3 dark:text-white">📋 전체 프로젝트 목록</h2>
       {allProjects.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-2">진행중인 프로젝트가 없습니다.</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">진행중인 프로젝트가 없습니다.</p>
       ) : (
         <>
           <div className="space-y-2">
@@ -52,7 +52,7 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
               }
 
               return (
-                <div key={project.id} className={`border rounded-lg p-3 cursor-pointer ${projectCode === project.project_code ? 'border-blue-500 bg-blue-50' : ''}`} onClick={() => {
+                <div key={project.id} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${projectCode === project.project_code ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`} onClick={() => {
                   if (!isCompleted) {
                     if (projectCode === project.project_code) {
                       onDeselectProject()
@@ -67,12 +67,12 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
                         <img src={project.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                       )}
                       <div className="min-w-0">
-                        <p className="text-sm font-medium">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
-                        <p className="text-xs text-gray-500">모집일: {project.mission_date ?? '미정'}</p>
+                        <p className="text-sm font-medium dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">모집일: {project.mission_date ?? '미정'}</p>
                         {project.start_date && (
-                          <p className="text-xs text-gray-500">미션일: {project.start_date}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">미션일: {project.start_date}</p>
                         )}
-                        <p className="text-xs text-gray-500">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}{project.cover_video_count > 0 ? ` + 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}{project.cover_video_count > 0 ? ` + 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
                       </div>
                     </div>
                     {getStatusButton()}
@@ -83,13 +83,13 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
           </div>
           {allProjects.length > PAGE_SIZE && (
             <div className="flex justify-between items-center mt-3">
-              <button onClick={() => setProjectListPage(p => Math.max(0, p - 1))} disabled={projectListPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+              <button onClick={() => setProjectListPage(p => Math.max(0, p - 1))} disabled={projectListPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
               <div className="flex gap-1">
                 {Array.from({length: Math.ceil(allProjects.length / PAGE_SIZE)}, (_, i) => (
-                  <button key={i} onClick={() => setProjectListPage(i)} className={`text-xs px-2 py-1 border rounded ${projectListPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                  <button key={i} onClick={() => setProjectListPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${projectListPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
                 ))}
               </div>
-              <button onClick={() => setProjectListPage(p => Math.min(Math.ceil(allProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectListPage + 1) * PAGE_SIZE >= allProjects.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+              <button onClick={() => setProjectListPage(p => Math.min(Math.ceil(allProjects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectListPage + 1) * PAGE_SIZE >= allProjects.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
             </div>
           )}
         </>

@@ -28,51 +28,51 @@ type Props = {
 
 export default function ParticipantPostList({ displayPosts, instagramPosts, youtubePosts, tiktokPosts, showPosts, setShowPosts, postFilter, setPostFilter, setParticipationFilter, setSelectedParticipation, setShowParticipation, myPostPage, setMyPostPage, PAGE_SIZE, level, coverReward, projectsMap, isDeletingPost, onDeletePost, onUrlEdit, statusBadge, getLevelAmount }: Props) {
   return (
-    <div className="bg-white rounded-2xl shadow p-4 mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold">📊 나의 게시물 현황</h2>
-        <button onClick={() => setShowPosts(!showPosts)} className="text-xs border rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
+        <h2 className="font-bold dark:text-white">📊 나의 게시물 현황</h2>
+        <button onClick={() => setShowPosts(!showPosts)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
       </div>
       <div className="flex gap-2 mb-3">
-        <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'current' || !showPosts) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행 프로젝트</button>
-        <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'all' || !showPosts) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체 내역</button>
+        <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'current' || !showPosts) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>진행 프로젝트</button>
+        <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'all' || !showPosts) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>전체 내역</button>
       </div>
       <div className="grid grid-cols-3 gap-3 mb-3">
-        <div className="bg-gray-50 rounded-lg p-3 col-span-3">
-          <p className="text-xs text-gray-500">총 게시물</p>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 col-span-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400">총 게시물</p>
           <p className="text-xl font-bold text-blue-600">{displayPosts.length}개</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">인스타그램</p>
-          <p className="text-lg font-bold">{instagramPosts.length}개</p>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400">인스타그램</p>
+          <p className="text-lg font-bold dark:text-white">{instagramPosts.length}개</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">유튜브</p>
-          <p className="text-lg font-bold">{youtubePosts.length}개</p>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400">유튜브</p>
+          <p className="text-lg font-bold dark:text-white">{youtubePosts.length}개</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">틱톡</p>
-          <p className="text-lg font-bold">{tiktokPosts.length}개</p>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400">틱톡</p>
+          <p className="text-lg font-bold dark:text-white">{tiktokPosts.length}개</p>
         </div>
       </div>
       {showPosts && (
         <div className="space-y-2">
           {displayPosts.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-2">게시물이 없습니다.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">게시물이 없습니다.</p>
           ) : (
             <>
               {displayPosts.slice(myPostPage * PAGE_SIZE, (myPostPage + 1) * PAGE_SIZE).map((post) => {
                 const baseAmount = projectsMap[post.project_code?.toUpperCase()]?.reward_per_post ?? 0
                 const myAmount = getLevelAmount(baseAmount, level)
                 return (
-                  <div key={post.id} className="border rounded-lg p-3">
+                  <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                     <div className="flex justify-between items-start">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1 mb-1">
-                          <p className="text-xs text-gray-500">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{post.platform} · {new Date(post.created_at).toLocaleDateString('ko-KR')}</p>
                           {statusBadge(post.project_code)}
                         </div>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-400 dark:text-gray-500">
                           {projectsMap[post.project_code?.toUpperCase()]?.artist_name
                             ? `${projectsMap[post.project_code?.toUpperCase()].artist_name} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''}`
                             : post.project_code}
@@ -82,11 +82,11 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
                       </div>
                       <div className="text-right shrink-0 ml-2">
                         <p className="text-sm font-medium text-blue-600">{myAmount.toLocaleString()}P</p>
-                        <p className="text-xs text-gray-400">기본 {baseAmount.toLocaleString()}P</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">기본 {baseAmount.toLocaleString()}P</p>
                         {post.is_cover && (
                           <p className="text-xs text-purple-600 font-medium">🎵 커버 +{coverReward.toLocaleString()}P</p>
                         )}
-                        <p className="text-xs text-gray-500">❤️ {post.likes_count?.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">❤️ {post.likes_count?.toLocaleString()}</p>
                         <button disabled={isDeletingPost} onClick={() => onDeletePost(post)} className="text-xs text-red-400 mt-1">삭제</button>
                       </div>
                     </div>
@@ -95,13 +95,13 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
               })}
               {displayPosts.length > PAGE_SIZE && (
                 <div className="flex justify-between items-center mt-3">
-                  <button onClick={() => setMyPostPage(p => Math.max(0, p - 1))} disabled={myPostPage === 0} className="text-xs px-3 py-1 border rounded disabled:opacity-30">이전</button>
+                  <button onClick={() => setMyPostPage(p => Math.max(0, p - 1))} disabled={myPostPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
                   <div className="flex gap-1">
                     {Array.from({length: Math.ceil(displayPosts.length / PAGE_SIZE)}, (_, i) => (
-                      <button key={i} onClick={() => setMyPostPage(i)} className={`text-xs px-2 py-1 border rounded ${myPostPage === i ? 'bg-blue-600 text-white border-blue-600' : ''}`}>{i + 1}</button>
+                      <button key={i} onClick={() => setMyPostPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${myPostPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
                     ))}
                   </div>
-                  <button onClick={() => setMyPostPage(p => Math.min(Math.ceil(displayPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(myPostPage + 1) * PAGE_SIZE >= displayPosts.length} className="text-xs px-3 py-1 border rounded disabled:opacity-30">다음</button>
+                  <button onClick={() => setMyPostPage(p => Math.min(Math.ceil(displayPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(myPostPage + 1) * PAGE_SIZE >= displayPosts.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
                 </div>
               )}
             </>

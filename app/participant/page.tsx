@@ -1134,23 +1134,23 @@ useEffect(() => {
       {/* 사이드바 오버레이 */}
         {showSidebar && (
           <div className="fixed inset-0 z-50 flex">
-            <div className="bg-white w-64 h-full shadow-xl p-6 flex flex-col">
+            <div className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl p-6 flex flex-col">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="font-bold text-lg">더블비뮤직</h2>
-                <button onClick={() => setShowSidebar(false)} className="text-gray-400">✕</button>
+                <h2 className="font-bold text-lg dark:text-white">더블비뮤직</h2>
+                <button onClick={() => setShowSidebar(false)} className="text-gray-400 dark:text-gray-300">✕</button>
               </div>
               <div className="space-y-2 flex-1">
-                <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>내 현황</button>
-                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}`}>프로젝트</button>
-                <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">적립금</button>
-                <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600">마이페이지</button>
+                <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>내 현황</button>
+                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>프로젝트</button>
+                <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
+                <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
               </div>
-              <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2">로그아웃</button>
+              <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2">로그아웃</button>
             </div>
             <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
           </div>
         )}
-      <div className="min-h-screen bg-gray-50 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
@@ -1169,7 +1169,7 @@ useEffect(() => {
         }}
       >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -1180,7 +1180,7 @@ useEffect(() => {
             </div>
           )}
           <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer" onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
           </div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-3">
@@ -1190,8 +1190,8 @@ useEffect(() => {
                 </svg>
               </button>
               <div>
-                <p className="text-xs text-gray-500">안녕하세요</p>
-                <h1 className="text-lg font-bold">{influencerName || userInfo?.name}님 👋</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">안녕하세요</p>
+                <h1 className="text-lg font-bold dark:text-white">{influencerName || userInfo?.name}님 👋</h1>
               </div>
             </div>
             <div className="relative">
@@ -1210,9 +1210,9 @@ useEffect(() => {
               </button>
               {showNotifications && (
                 <div className="absolute right-0 top-8 z-50 w-80 max-h-[70vh] overflow-y-auto">
-                  <div className="bg-white rounded-2xl shadow-xl p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4">
                     <div className="flex justify-between items-center mb-3">
-                      <h2 className="font-bold">알림 내역</h2>
+                      <h2 className="font-bold dark:text-white">알림 내역</h2>
                       <div className="flex gap-2">
                         {unreadCount > 0 && (
                           <button onClick={() => markAllRead(String(userInfo?.id))} className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1">모두읽음</button>
@@ -1228,11 +1228,11 @@ useEffect(() => {
                     ) : (
                       <div className="space-y-2">
                         {notifications.map((n) => (
-                          <div key={n.id} className={`py-2 border-b border-gray-100 flex justify-between items-start ${!n.is_read ? 'bg-blue-50' : ''}`}>
+                          <div key={n.id} className={`py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start ${!n.is_read ? 'bg-blue-50 dark:bg-blue-900' : ''}`}>
                             <div className="flex-1">
-                              <p className="text-sm font-medium">{n.title}</p>
-                              <p className="text-xs text-gray-500 mt-1">{n.body}</p>
-                              <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                              <p className="text-sm font-medium dark:text-white">{n.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{n.body}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{new Date(n.created_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                             <button onClick={() => deleteNotification(n.id)} className="text-gray-300 hover:text-red-400 ml-2 text-xs">✕</button>
                           </div>
@@ -1246,10 +1246,10 @@ useEffect(() => {
           </div>
           {userRole === 'admin' && (
             <div className="flex gap-1">
-              <button onClick={() => router.push('/admin')} className="flex-1 text-xs border rounded py-2 text-center">프로젝트</button>
-              <button onClick={() => router.push('/client')} className="flex-1 text-xs border rounded py-2 text-center">의뢰인</button>
-              <button onClick={() => router.push('/members')} className="flex-1 text-xs border rounded py-2 text-center">회원관리</button>
-              <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border rounded py-2 text-center">정산</button>
+              <button onClick={() => router.push('/admin')} className="flex-1 text-xs border dark:border-gray-600 dark:text-gray-300 rounded py-2 text-center">프로젝트</button>
+              <button onClick={() => router.push('/client')} className="flex-1 text-xs border dark:border-gray-600 dark:text-gray-300 rounded py-2 text-center">의뢰인</button>
+              <button onClick={() => router.push('/members')} className="flex-1 text-xs border dark:border-gray-600 dark:text-gray-300 rounded py-2 text-center">회원관리</button>
+              <button onClick={() => router.push('/settlement')} className="flex-1 text-xs border dark:border-gray-600 dark:text-gray-300 rounded py-2 text-center">정산</button>
             </div>
           )}
         </div>
@@ -1302,15 +1302,15 @@ useEffect(() => {
                 ? myParticipations.filter(p => ['ONGOING', 'PENDING'].includes(p.projects?.status))
                 : myParticipations
               return (
-                <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                  <h2 className="font-bold mb-3">✅ 내 참여 현황</h2>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                  <h2 className="font-bold mb-3 dark:text-white">✅ 내 참여 현황</h2>
                   <div className="flex gap-2 mb-3">
-                    <button onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border'}`}>진행중</button>
-                    <button onClick={() => { setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border'}`}>전체</button>
+                    <button onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>진행중</button>
+                    <button onClick={() => { setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>전체</button>
                   </div>
                   <div className="space-y-2">
                     {filteredParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
-                      <div key={p.id} className={`border rounded-lg p-3 cursor-pointer ${selectedParticipation?.project_code === p.project_code ? 'border-blue-500 bg-blue-50' : ''}`} onClick={() => {
+                      <div key={p.id} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedParticipation?.project_code === p.project_code ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`} onClick={() => {
                         if (selectedParticipation?.project_code === p.project_code) {
                           setSelectedParticipation(null)
                           setProjectCode('')
@@ -1327,14 +1327,14 @@ useEffect(() => {
                               <img src={p.projects.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0 mt-0.5" />
                             )}
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
-                              <p className="text-xs text-gray-400">프로젝트 코드: {p.project_code}</p>
+                              <p className="text-sm font-medium dark:text-white">{p.projects?.artist_name || p.projects?.client_name} / {p.projects?.song_title ?? p.projects?.product_content}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">프로젝트 코드: {p.project_code}</p>
                               {myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
                                 <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">🎵 COVER</span>
                               )}
-                              <p className="text-xs text-gray-500">미션일: {p.projects?.start_date ?? '미정'}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">미션일: {p.projects?.start_date ?? '미정'}</p>
                               {p.projects?.end_date && (
-                                <p className="text-xs text-gray-500">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">종료일: {new Date(p.projects.end_date).toLocaleDateString('ko-KR')}</p>
                               )}
                               {myRankMap[p.project_code] && (
                                 <div className="mt-1">
@@ -1342,9 +1342,9 @@ useEffect(() => {
                                     {myRankMap[p.project_code].rank}위 / 전체 {myRankMap[p.project_code].total}명 중
                                   </p>
                                   {!myRankMap[p.project_code].isEligible && (
-                                    <p className="text-xs text-gray-400">(좋아요 1,000건 미만 시상 제외)</p>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500">(좋아요 1,000건 미만 시상 제외)</p>
                                   )}
-                                  <p className="text-xs text-gray-500">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">❤️ {myRankMap[p.project_code].likes?.toLocaleString()}</p>
                                 </div>
                               )}
                             </div>
@@ -1368,13 +1368,13 @@ useEffect(() => {
                     ))}
                     {/* 선택된 참여 프로젝트 정보 + 미션제출 */}
                     {selectedParticipation && (
-                      <div className="mt-3 border-t pt-3">
-                        <div className="bg-gray-50 rounded-lg p-3 mb-3 flex gap-3">
+                      <div className="mt-3 border-t dark:border-gray-600 pt-3">
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-3 flex gap-3">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-bold mb-2">{selectedParticipation.projects?.artist_name || selectedParticipation.projects?.client_name} - {selectedParticipation.projects?.song_title}</p>
-                            <p className="text-xs text-gray-500">시작일: {selectedParticipation.projects?.start_date ?? '미정'}{selectedParticipation.projects?.start_time ? ` ${selectedParticipation.projects.start_time}` : ''}</p>
-                            <p className="text-xs text-gray-500">종료일: {selectedParticipation.projects?.end_date ?? '미정'}</p>
-                            <p className="text-xs text-gray-500">진행일수: {selectedParticipation.projects?.start_date ? Math.floor((new Date().getTime() - new Date(selectedParticipation.projects.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                            <p className="text-sm font-bold mb-2 dark:text-white">{selectedParticipation.projects?.artist_name || selectedParticipation.projects?.client_name} - {selectedParticipation.projects?.song_title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">시작일: {selectedParticipation.projects?.start_date ?? '미정'}{selectedParticipation.projects?.start_time ? ` ${selectedParticipation.projects.start_time}` : ''}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">종료일: {selectedParticipation.projects?.end_date ?? '미정'}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">진행일수: {selectedParticipation.projects?.start_date ? Math.floor((new Date().getTime() - new Date(selectedParticipation.projects.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
                             <span className={`text-xs px-2 py-1 rounded-full ${selectedParticipation.projects?.status === 'ONGOING' ? 'bg-green-100 text-green-700' : selectedParticipation.projects?.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
                               {selectedParticipation.projects?.status === 'ONGOING' ? '진행중' : selectedParticipation.projects?.status === 'PENDING' ? '대기중' : '완료'}
                             </span>
@@ -1388,17 +1388,17 @@ useEffect(() => {
                         <div className="mt-3">
                           <div className="space-y-3">
                             {projectInfo && (requirements || projectInfo?.required_posts > 1) && (
-                              <div className="bg-blue-50 rounded-lg p-3">
-                                <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                                {requirements && <p className="text-sm text-blue-700 mt-1 whitespace-pre-wrap">{requirements}</p>}
-                                {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
+                              <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
+                                <p className="text-sm font-medium text-blue-800 dark:text-blue-300">📋 의뢰인 요청사항</p>
+                                {requirements && <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 whitespace-pre-wrap">{requirements}</p>}
+                                {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
                               </div>
                             )}
                             {projectInfo && (
-                              <div className="bg-gray-50 rounded-lg p-3">
-                                {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
+                              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                                {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300">📅 미션일: {projectInfo.start_date}</p>}
                                 <div className="flex justify-between items-center mt-2">
-                                  <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                                   {bannedUntil ? (
                                     <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
                                   ) : isJoined ? (
@@ -1414,11 +1414,11 @@ useEffect(() => {
                             {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
                               <>
                                 <div>
-                                  <label className="text-sm font-medium">참여자 이름</label>
-                                  <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="이름 입력" />
+                                  <label className="text-sm font-medium dark:text-white">참여자 이름</label>
+                                  <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="이름 입력" />
                                 </div>
                                 <div>
-                                  <label className="text-sm font-medium">플랫폼 선택</label>
+                                  <label className="text-sm font-medium dark:text-white">플랫폼 선택</label>
                                   <select value={platform} onChange={(e) => {
                                     setPlatform(e.target.value)
                                     const accounts = JSON.parse(localStorage.getItem('snsAccounts') || '{}')
@@ -1426,7 +1426,7 @@ useEffect(() => {
                                     else if (e.target.value === 'youtube') setSnsAccount(accounts.youtube ?? '')
                                     else if (e.target.value === 'tiktok') setSnsAccount(accounts.tiktok ?? '')
                                     else setSnsAccount('')
-                                  }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+                                  }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
                                     <option value="">플랫폼을 선택해주세요</option>
                                     <option value="instagram">인스타그램</option>
                                     <option value="youtube">유튜브</option>
@@ -1439,8 +1439,8 @@ useEffect(() => {
                                   )}
                                 </div>
                                 <div>
-                                  <label className="text-sm font-medium">본인 SNS 계정</label>
-                                  <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="SNS 아이디" />
+                                  <label className="text-sm font-medium dark:text-white">본인 SNS 계정</label>
+                                  <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="SNS 아이디" />
                                 </div>
                                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
                                   <p className="text-xs text-orange-700 font-medium">⚠️ 필수 문구 안내</p>
@@ -1455,7 +1455,7 @@ useEffect(() => {
                                     const normalMax = maxNormal
                                     return normalMax > 0 && (
                                       <>
-                                        <label className="text-sm font-medium">일반 게시물 링크</label>
+                                        <label className="text-sm font-medium dark:text-white">일반 게시물 링크</label>
                                         {normalPosts.length > 0 ? (
                                           <>
                                             <p className="text-xs text-green-600 mt-1">✅ {normalPosts.length}차 게시물 제출 완료</p>
@@ -1467,19 +1467,19 @@ useEffect(() => {
                                               const canSubmitSecond = secondPostDateTime && new Date() >= secondPostDateTime
                                               return canSubmitSecond ? (
                                                 <>
-                                                  <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-2" placeholder="2차 게시글 주소 입력" />
+                                                  <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-2 dark:bg-gray-700 dark:text-white" placeholder="2차 게시글 주소 입력" />
                                                   <button onClick={() => { setIsCover(false); handleSubmit() }} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mt-2 disabled:bg-gray-400">
                                                     {isSubmitting ? '제출 중...' : '2차 게시물 제출'}
                                                   </button>
                                                 </>
                                               ) : (
-                                                <p className="text-xs text-gray-400 mt-1">📅 2차 게시물: {projectInfo.second_post_date} {projectInfo.second_post_time} 이후 업로드 가능</p>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">📅 2차 게시물: {projectInfo.second_post_date} {projectInfo.second_post_time} 이후 업로드 가능</p>
                                               )
                                             })()}
                                           </>
                                         ) : (
                                           <>
-                                            <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="게시글 주소 입력" />
+                                            <input value={postUrls[0] ?? ''} onChange={(e) => { const newUrls = [...postUrls]; newUrls[0] = e.target.value; setPostUrls(newUrls) }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="게시글 주소 입력" />
                                             <button onClick={() => { setIsCover(false); handleSubmit() }} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mt-2 disabled:bg-gray-400">
                                               {isSubmitting ? '제출 중...' : '일반 게시물 제출'}
                                             </button>
@@ -1493,13 +1493,13 @@ useEffect(() => {
                                   {selectedParticipation?.is_cover && projectInfo?.cover_video_count > 0 && coverRequests.find(r => r.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())?.status === 'APPROVED' && (() => {
                                     const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
                                     return (
-                                      <div className="mt-3 pt-3 border-t">
-                                        <label className="text-sm font-medium text-purple-700">🎵 커버 게시물 링크 (7일 내)</label>
+                                      <div className="mt-3 pt-3 border-t dark:border-gray-600">
+                                        <label className="text-sm font-medium text-purple-700 dark:text-purple-400">🎵 커버 게시물 링크 (7일 내)</label>
                                         {coverPost ? (
                                           <p className="text-xs text-green-600 mt-1">✅ 커버 게시물 제출 완료</p>
                                         ) : (
                                           <>
-                                            <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className="w-full border border-purple-300 rounded-lg px-3 py-2 text-sm mt-1" placeholder="커버영상 링크 입력" />
+                                            <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} className="w-full border border-purple-300 dark:border-purple-700 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="커버영상 링크 입력" />
                                             <button onClick={async () => {
                                               if (!coverUrl) { showToast('커버영상 링크를 입력해주세요.'); return }
                                               setIsSubmittingCover(true)
@@ -1529,11 +1529,11 @@ useEffect(() => {
                               </button>
                             )}
                             {showCommentMission && projectLinks.length > 0 && (
-                              <div className="mt-3 border-t pt-3">
+                              <div className="mt-3 border-t dark:border-gray-600 pt-3">
                                 {/* 댓글 미션 */}
                                 {projectCode && projectLinks.length > 0 && (
-                                  <div className="bg-white rounded-2xl shadow p-4 mb-4">
-                                    <h2 className="font-bold mb-3">💬 댓글 미션</h2>
+                                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                                    <h2 className="font-bold mb-3 dark:text-white">💬 댓글 미션</h2>
                                     <p className="text-xs text-gray-500 mb-3">영상을 시청하고 댓글을 작성한 후 계정명을 입력해서 300P를 받으세요!</p>
                                     <p className="text-xs text-red-400 mb-3">⚠️ 댓글 삭제 시 적립금이 차감됩니다.</p>
                                     <div className="space-y-3">
@@ -1587,8 +1587,8 @@ useEffect(() => {
                                       )}
 
                                       <div>
-                                        <label className="text-sm font-medium">유튜브 계정명</label>
-                                        <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="@계정명 또는 닉네임" />
+                                        <label className="text-sm font-medium dark:text-white">유튜브 계정명</label>
+                                        <input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="@계정명 또는 닉네임" />
                                       </div>
                                       <button onClick={async () => {
                                         if (!videoWatched) { showToast('먼저 영상을 시청해주세요!'); return }
@@ -1650,27 +1650,27 @@ useEffect(() => {
             />
 
             {projectInfo && (
-              <div className="bg-white rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 {(() => {
                   const isFull = projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants
                   const coverFull = projectInfo.cover_video_count > 0 && (projectInfo.cover_current ?? 0) >= projectInfo.cover_video_count
                   const canCover = isCoverPossible && isCoverApproved && projectInfo.cover_video_count > 0
                   return (
                     <>
-                      <h2 className="font-bold mb-3">🎯 프로젝트 참여</h2>
+                      <h2 className="font-bold mb-3 dark:text-white">🎯 프로젝트 참여</h2>
                       <div className="space-y-3">
                         {(requirements || projectInfo?.required_posts > 1) && (
-                          <div className="bg-blue-50 rounded-lg p-3">
-                            <p className="text-sm font-medium text-blue-800">📋 의뢰인 요청사항</p>
-                            {requirements && <p className="text-sm text-blue-700 mt-1 whitespace-pre-wrap">{requirements}</p>}
-                            {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
+                          <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
+                            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">📋 의뢰인 요청사항</p>
+                            {requirements && <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 whitespace-pre-wrap">{requirements}</p>}
+                            {projectInfo?.required_posts > 1 && <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1">📝 요청 게시물 수: {projectInfo.required_posts}개</p>}
                           </div>
                         )}
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <p className="text-sm font-medium mb-1">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
-                          {projectInfo.start_date && <p className="text-sm text-gray-700">📅 미션일: {projectInfo.start_date}</p>}
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                          <p className="text-sm font-medium mb-1 dark:text-white">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
+                          {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300">📅 미션일: {projectInfo.start_date}</p>}
                           <div className="flex justify-between items-center mt-2">
-                            <p className="text-xs text-gray-500">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                             {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
                               <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
                             ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
@@ -1742,7 +1742,7 @@ useEffect(() => {
    {/* 스크롤 상단 버튼 */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center text-gray-500 z-50"
+        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
       >
         ↑
