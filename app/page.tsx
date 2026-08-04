@@ -612,7 +612,7 @@ export default function LoginPage() {
     <>
       {showUpdateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-xs text-center shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs text-center shadow-xl">
             <p className="text-3xl mb-3">🎵</p>
             <h2 className="text-lg font-bold mb-2">업데이트 안내</h2>
             <p className="text-sm text-gray-500 mb-6">새 버전이 출시됐어요!<br/>더 나은 기능을 위해 업데이트해 주세요.</p>
@@ -630,14 +630,14 @@ export default function LoginPage() {
           </div>
         </div>   
       )}
-    <div className={`min-h-screen flex flex-col items-center bg-gray-50 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+    <div className={`min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       
       {/* 개인정보 동의 모달 */}
       {showTermsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
             <h2 className="font-bold text-lg mb-3">개인정보 수집 및 이용 동의</h2>
-            <div className="bg-gray-50 rounded-lg p-3 mb-4 h-48 overflow-y-auto text-xs text-gray-600">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-4 h-48 overflow-y-auto text-xs text-gray-600 dark:text-gray-300">
               <p className="font-bold mb-2">수집 항목</p>
               <p>이름, 연락처, 이메일, 계좌번호, 주민번호, SNS 계정</p>
               <p className="font-bold mt-3 mb-2">수집 목적</p>
@@ -657,22 +657,22 @@ export default function LoginPage() {
       )}
 
       {(showSignup || showForgotPassword) && (
-        <div className="sticky top-0 z-10 bg-gray-50 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         </div>
       )}
       <div className="w-full max-w-sm">
         {!showSignup && !showForgotPassword ? (
-          <div className="bg-white rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
             <div className="flex justify-center mb-6">
-              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8" />
+              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">이메일</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="이메일 입력" />
+                <label className="block text-sm font-medium mb-1 dark:text-white">이메일</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일 입력" />
               </div>
               <div className="relative">
-                  <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleLogin() }} className="w-full border rounded-lg px-3 py-2 text-sm pr-10" placeholder="비밀번호 입력" />
+                  <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleLogin() }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" placeholder="비밀번호 입력" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-2.5 text-gray-400">
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -696,14 +696,14 @@ export default function LoginPage() {
             </div>
           </div>
         ) : showForgotPassword ? (
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h1 className="text-xl font-bold text-center mb-4">🔑 비밀번호 찾기</h1>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+            <h1 className="text-xl font-bold text-center mb-4 dark:text-white">비밀번호 찾기</h1>
             {!forgotSent ? (
               <div className="space-y-4">
-                <p className="text-sm text-gray-500">가입하신 이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드려요.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">가입하신 이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드려요.</p>
                 <div>
-                  <label className="block text-sm font-medium mb-1">이메일</label>
-                  <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="이메일 입력" />
+                  <label className="block text-sm font-medium mb-1 dark:text-white">이메일</label>
+                  <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="이메일 입력" />
                 </div>
                 <button onClick={handleForgotPassword} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">재설정 링크 발송</button>
                 <button onClick={() => setShowForgotPassword(false)} className="w-full border rounded-lg py-2 text-sm text-gray-600">로그인으로 돌아가기</button>
@@ -712,15 +712,15 @@ export default function LoginPage() {
               <div className="space-y-4 text-center">
                 <p className="text-4xl">📧</p>
                 <p className="font-medium">이메일을 확인해주세요!</p>
-                <p className="text-sm text-gray-500">{forgotEmail}로 비밀번호 재설정 링크를 발송했어요.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{forgotEmail}로 비밀번호 재설정 링크를 발송했어요.</p>
                 <button onClick={() => { setShowForgotPassword(false); setForgotSent(false); setForgotEmail('') }} className="w-full border rounded-lg py-2 text-sm text-gray-600">로그인으로 돌아가기</button>
               </div>
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
             <div className="flex justify-center mb-4">
-              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8" />
+              <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
             </div>
 
             {!signupType && (
@@ -734,7 +734,7 @@ export default function LoginPage() {
 
             {signupType === 'participant' && (
               <div className="space-y-3">
-                <h2 className="font-bold">체험단 회원가입</h2>
+                <h2 className="font-bold dark:text-white">체험단 회원가입</h2>
                 {[
                   { label: '이름 *', value: p_name, setter: setPName },
                   { label: '이메일 *', value: p_email, setter: setPEmail, type: 'email' },
@@ -742,7 +742,7 @@ export default function LoginPage() {
                   { label: '비밀번호 확인 *', value: p_passwordConfirm, setter: setPPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },                  
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
-                    <label className="text-sm font-medium">
+                    <label className="text-sm font-medium dark:text-white">
                       {label.replace(' *', '')}
                       {label.includes('*') && <span className="text-red-500"> *</span>}
                     </label>
@@ -753,30 +753,30 @@ export default function LoginPage() {
                           value={value} 
                           onChange={(e) => setter(e.target.value)} 
                           placeholder={placeholder ?? ''} 
-                          className="w-full border rounded-lg px-3 py-2 text-sm pr-10" 
+                          className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" 
                         />
                         <button type="button" onClick={() => label.includes('확인') ? setShowPPasswordConfirm(!showPPasswordConfirm) : setShowPPassword(!showPPassword)} className="absolute right-3 top-2.5 text-gray-400">
                           {(label.includes('확인') ? showPPasswordConfirm : showPPassword) ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                     ) : (
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                     )}
                   </div>
                 ))}
 
                 {/* SNS 계정 입력 */}
                 <div>
-                  <label className="text-sm font-medium">SNS 계정 <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-medium dark:text-white">SNS 계정 <span className="text-red-500">*</span></label>
                   <p className="text-xs text-gray-500 mt-1 mb-2">팔로워 100명 이상 계정을 등록해주세요. 3개 중 1개 이상 100명이 넘어야 합니다.</p>
                   <div className="flex gap-2 mb-2">
-                    <select value={snsInputPlatform} onChange={(e) => setSnsInputPlatform(e.target.value)} className="border rounded-lg px-2 py-2 text-sm shrink-0 w-20">
+                    <select value={snsInputPlatform} onChange={(e) => setSnsInputPlatform(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-2 text-sm shrink-0 w-20 dark:bg-gray-700 dark:text-white">
                       <option value="">- 선택 -</option>
                       <option value="instagram">인스타</option>
                       <option value="youtube">유튜브</option>
                       <option value="tiktok">틱톡</option>
                     </select>
-                    <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="@아이디" />
+                    <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="@아이디" />
                     <button type="button" onClick={() => {
                       if (!snsInputId) return
                       if (snsInputPlatform === 'instagram') setPInstagram(snsInputId)
@@ -787,19 +787,19 @@ export default function LoginPage() {
                   </div>
                   <div className="space-y-1">
                     {p_instagram && (
-                      <div className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+                      <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                         <span className="text-sm flex items-center gap-1"><PlatformIcon platform="instagram" size={16} /> {p_instagram}</span>
                         <button type="button" onClick={() => setPInstagram('')} className="text-xs text-red-400">삭제</button>
                       </div>
                     )}
                     {p_youtube && (
-                      <div className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+                      <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                         <span className="text-sm flex items-center gap-1"><PlatformIcon platform="youtube" size={16} /> {p_youtube}</span>
                         <button type="button" onClick={() => setPYoutube('')} className="text-xs text-red-400">삭제</button>
                       </div>
                     )}
                     {p_tiktok && (
-                      <div className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+                      <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                         <span className="text-sm flex items-center gap-1"><PlatformIcon platform="tiktok" size={16} /> {p_tiktok}</span>
                         <button type="button" onClick={() => setPTiktok('')} className="text-xs text-red-400">삭제</button>
                       </div>
@@ -807,42 +807,42 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">휴대전화 <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-medium dark:text-white">휴대전화 <span className="text-red-500">*</span></label>
                   <div className="flex gap-2 mt-1">
-                    <input value={p_mobile} onChange={(e) => setPMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="01012345678" disabled={p_verified} />
+                    <input value={p_mobile} onChange={(e) => setPMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="01012345678" disabled={p_verified} />
                     <button onClick={handleSendVerifyCode} disabled={p_sending || p_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
                       {p_verified ? '인증완료' : p_sending ? '발송중' : '인증'}
                     </button>
                   </div>
                   {p_sentCode && !p_verified && (
                     <div className="flex gap-2 mt-2">
-                      <input value={p_verifyCode} onChange={(e) => setPVerifyCode(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="인증번호 6자리" />
+                      <input value={p_verifyCode} onChange={(e) => setPVerifyCode(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="인증번호 6자리" />
                       <button onClick={handleVerifyCode} className="bg-green-600 text-white rounded-lg px-3 py-2 text-sm">확인</button>
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="text-sm font-medium">추천인 코드 (선택)</label>
-                  <input value={p_referral} onChange={(e) => setPReferral(e.target.value.toUpperCase())} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="추천인 코드 입력 (예: DB1234)" />
+                  <label className="text-sm font-medium dark:text-white">추천인 코드 (선택)</label>
+                  <input value={p_referral} onChange={(e) => setPReferral(e.target.value.toUpperCase())} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="추천인 코드 입력 (예: DB1234)" />
                 </div>
-                <div className="border rounded-lg p-3 space-y-2">
+                <div className="border dark:border-gray-600 rounded-lg p-3 space-y-2 dark:bg-gray-700">
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={true} disabled className="w-4 h-4" />
-                    <span className="font-medium">일반 가입</span>
+                    <span className="font-medium dark:text-white">일반 가입</span>
                   </label>
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" checked={isCoverPossible} onChange={(e) => setIsCoverPossible(e.target.checked)} className="w-4 h-4" />
-                    <span className="font-medium">커버영상 촬영 가능</span>
+                    <span className="font-medium dark:text-white">커버영상 촬영 가능</span>
                   </label>
                   {isCoverPossible && (
                     <div className="mt-2">
                       <p className="text-xs text-gray-500 mb-1">본인의 실제 가창한 영상 링크를 필수로 남겨주세요.<br/>관리자 승인 후 커버영상 미션 참여 가능합니다.</p>
-                      <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" placeholder="영상 링크 입력" />
+                      <input value={coverVideoUrl} onChange={(e) => setCoverVideoUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="영상 링크 입력" />
                       <div className="mt-2">
                         <p className="text-xs text-gray-500 mb-2">커버 가능 장르 (중복 선택 가능)</p>
                         <div className="grid grid-cols-2 gap-1">
                           {['발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
-                            <label key={genre} className="flex items-center gap-1 text-sm cursor-pointer">
+                            <label key={genre} className="flex items-center gap-1 text-sm cursor-pointer dark:text-gray-300">
                               <input type="checkbox" checked={selectedGenres.includes(genre)} onChange={(e) => {
                                 if (e.target.checked) setSelectedGenres(prev => [...prev, genre])
                                 else setSelectedGenres(prev => prev.filter(g => g !== genre))
@@ -855,11 +855,11 @@ export default function LoginPage() {
                     </div>
                   )}
                 </div>
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                  <p className="text-xs text-orange-700 font-medium">⚠️ SNS 계정 입력 안내</p>
-                  <p className="text-xs text-orange-600 mt-1">반드시 본인 SNS 계정을 입력해주세요. 타인 계정 사용 시 미션 심사 반려 및 계정 정지될 수 있습니다.</p>
+                <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-3">
+                  <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">⚠️ SNS 계정 입력 안내</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">반드시 본인 SNS 계정을 입력해주세요. 타인 계정 사용 시 미션 심사 반려 및 계정 정지될 수 있습니다.</p>
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
                   <input type="checkbox" checked={agreedAge} onChange={(e) => setAgreedAge(e.target.checked)} className="w-4 h-4" />
                   만 18세 이상임을 확인합니다. (필수)
                 </label>
@@ -870,7 +870,7 @@ export default function LoginPage() {
 
             {signupType === 'client' && (
               <div className="space-y-3">
-                <h2 className="font-bold">의뢰인 회원가입</h2>
+                <h2 className="font-bold dark:text-white">의뢰인 회원가입</h2>
                 {[
                   { label: '대표자명 *', value: c_name, setter: setCName },
                   { label: '소속사명', value: c_company, setter: setCCompany },
@@ -880,7 +880,7 @@ export default function LoginPage() {
                   { label: '비밀번호 확인 *', value: c_passwordConfirm, setter: setCPasswordConfirm, type: 'password', placeholder: '비밀번호를 다시 입력해주세요' },
                 ].map(({ label, value, setter, type, placeholder }) => (
                   <div key={label}>
-                    <label className="text-sm font-medium">
+                    <label className="text-sm font-medium dark:text-white">
                       {label.replace(' *', '')}
                       {label.includes('*') && <span className="text-red-500"> *</span>}
                     </label>
@@ -891,28 +891,28 @@ export default function LoginPage() {
                           value={value} 
                           onChange={(e) => setter(e.target.value)} 
                           placeholder={placeholder ?? ''} 
-                          className="w-full border rounded-lg px-3 py-2 text-sm pr-10" 
+                          className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:text-white" 
                         />
                         <button type="button" onClick={() => label.includes('확인') ? setShowCPasswordConfirm(!showCPasswordConfirm) : setShowCPassword(!showCPassword)} className="absolute right-3 top-2.5 text-gray-400">
                           {(label.includes('확인') ? showCPasswordConfirm : showCPassword) ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                     ) : (
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" />
+                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                     )}
                   </div>
                 ))}
                 <div>
-                  <label className="text-sm font-medium">휴대전화 *</label>
+                  <label className="text-sm font-medium dark:text-white">휴대전화 *</label>
                   <div className="flex gap-2 mt-1">
-                    <input value={c_mobile} onChange={(e) => setCMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="01012345678" disabled={c_verified} />
+                    <input value={c_mobile} onChange={(e) => setCMobile(e.target.value.replace(/-/g, ''))} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="01012345678" disabled={c_verified} />
                     <button onClick={handleSendVerifyCodeClient} disabled={c_sending || c_verified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400">
                       {c_verified ? '인증완료' : c_sending ? '발송중' : '인증'}
                     </button>
                   </div>
                   {c_sentCode && !c_verified && (
                     <div className="flex gap-2 mt-2">
-                      <input value={c_verifyCode} onChange={(e) => setCVerifyCode(e.target.value)} className="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="인증번호 6자리" />
+                      <input value={c_verifyCode} onChange={(e) => setCVerifyCode(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="인증번호 6자리" />
                       <button onClick={handleVerifyCodeClient} className="bg-green-600 text-white rounded-lg px-3 py-2 text-sm">확인</button>
                     </div>
                   )}
