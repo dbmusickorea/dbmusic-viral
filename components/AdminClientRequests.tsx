@@ -68,7 +68,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
         body: JSON.stringify({
           user_id: String(req.member_id),
           user_role: 'participant',
-          title: '📬 문의 답장이 왔어요!', data: { url: '/mypage' },
+          title: '📬 문의 답장이 왔어요!',
           body: replyText[req.id]
         })
       })
