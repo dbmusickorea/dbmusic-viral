@@ -72,3 +72,13 @@ export async function DELETE(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
+
+export async function POST(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const body = await request.json()
+  const { error } = await supabaseAdmin.from('notifications').insert(body)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
