@@ -3,6 +3,15 @@ import { useEffect } from 'react'
 
 export default function DarkModeInit() {
   useEffect(() => {
+    // 다크모드 기본값 버전 체크 (기존 사용자 포함)
+    const darkModeVersion = localStorage.getItem('darkModeVersion')
+    if (darkModeVersion !== '1') {
+      if (!localStorage.getItem('theme')) {
+        localStorage.setItem('theme', 'dark')
+      }
+      localStorage.setItem('darkModeVersion', '1')
+    }
+
     const applyTheme = () => {
       const theme = localStorage.getItem('theme')
       const html = document.documentElement
