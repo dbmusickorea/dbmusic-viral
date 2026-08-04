@@ -282,7 +282,7 @@ useEffect(() => {
               const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
               const adminTokens = await adminTokensRes.json()
               if (adminTokens && adminTokens.length > 0) {
-                await fetchWithAuth('/api/push', {
+                await fetch('/api/push', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -568,7 +568,7 @@ useEffect(() => {
       const tokenRes = await fetchWithAuth('/api/push_tokens?user_role=participant')
       const tokens = await tokenRes.json()
       if (tokens && tokens.length > 0) {
-        await fetchWithAuth('/api/push', {
+        await fetch('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -608,7 +608,7 @@ useEffect(() => {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
-          await fetchWithAuth('/api/push', {
+          await fetch('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -642,7 +642,7 @@ useEffect(() => {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
-          await fetchWithAuth('/api/push', {
+          await fetch('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -980,7 +980,7 @@ useEffect(() => {
       ...(adminTokens?.map((t: any) => t.user_id) ?? []),
       ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
     ])]
-    await fetchWithAuth('/api/push', {
+    await fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

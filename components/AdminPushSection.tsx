@@ -59,7 +59,7 @@ export default function AdminPushSection({ pushTarget, setPushTarget, pushTitle,
             const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${notJoined.map((p: any) => String(p.id)).join(',')}`)
             const tokens = await tokensRes.json()
             if (!tokens || tokens.length === 0) { showToast('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-            await fetchWithAuth('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 아직 프로젝트에 참여하지 않으셨나요?', body: '지금 바로 참여하고 리워드를 받아보세요!', tokens: tokens.map((t: any) => t.token), userIds: notJoined.map((p: any) => String(p.id)) }) })
+            await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '🎵 아직 프로젝트에 참여하지 않으셨나요?', body: '지금 바로 참여하고 리워드를 받아보세요!', tokens: tokens.map((t: any) => t.token), userIds: notJoined.map((p: any) => String(p.id)) }) })
             showToast(`✅ 미참여자 ${notJoined.length}명에게 발송됐어요!`)
             setIsSendingPush(false)
           }} disabled={isSendingPush} className="w-full bg-blue-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">
@@ -84,7 +84,7 @@ export default function AdminPushSection({ pushTarget, setPushTarget, pushTitle,
             const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${inactive.map(id => String(id)).join(',')}`)
             const tokens = await tokensRes.json()
             if (!tokens || tokens.length === 0) { showToast('발송할 토큰이 없어요.'); setIsSendingPush(false); return }
-            await fetchWithAuth('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: inactive.map(id => String(id)) }) })
+            await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '💪 오랫동안 활동이 없었어요!', body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!', tokens: tokens.map((t: any) => t.token), userIds: inactive.map(id => String(id)) }) })
             showToast(`✅ 미활동자 ${inactive.length}명에게 발송됐어요!`)
             setIsSendingPush(false)
           }} disabled={isSendingPush} className="w-full bg-red-500 text-white rounded-lg py-2 font-medium disabled:bg-gray-400 cursor-pointer">

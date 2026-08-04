@@ -183,7 +183,7 @@ export default function Page1() {
     const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(post.member_id)}`)
     const tokens = await tokensRes.json()
     if (tokens && tokens.length > 0) {
-      await fetchWithAuth('/api/push', {
+      await fetch('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -318,7 +318,7 @@ export default function Page1() {
       const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(memberId)}`)
       const tokens = await tokensRes.json()
       if (tokens && tokens.length > 0) {
-        await fetchWithAuth('/api/push', {
+        await fetch('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -337,7 +337,7 @@ export default function Page1() {
         const participantMemberIds = participants.map((p: any) => String(p.member_id))
         const nonParticipantTokens = allTokens.filter((t: any) => !participantMemberIds.includes(String(t.user_id)) && String(t.user_id) !== String(memberId))
         if (nonParticipantTokens.length > 0) {
-          await fetchWithAuth('/api/push', {
+          await fetch('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -506,7 +506,7 @@ export default function Page1() {
           const tokenRes = await fetchWithAuth(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
           const tokens = await tokenRes.json()
           if (tokens && tokens.length > 0) {
-            await fetchWithAuth('/api/push', {
+            await fetch('/api/push', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -612,7 +612,7 @@ export default function Page1() {
     const participantTokensRes = await fetchWithAuth('/api/push_tokens?user_role=participant')
     const participantTokens = await participantTokensRes.json()
     if (participantTokens && participantTokens.length > 0) {
-      await fetchWithAuth('/api/push', {
+      await fetch('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -634,7 +634,7 @@ export default function Page1() {
         const clientTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const clientTokens = await clientTokensRes.json()
         if (clientTokens && clientTokens.length > 0) {
-          await fetchWithAuth('/api/push', {
+          await fetch('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -722,7 +722,7 @@ export default function Page1() {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
-          await fetchWithAuth('/api/push', {
+          await fetch('/api/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -738,7 +738,7 @@ export default function Page1() {
       const clientTokensRes = await fetchWithAuth('/api/push_tokens?user_role=client')
       const clientTokens = await clientTokensRes.json()
       if (clientTokens && clientTokens.length > 0) {
-        await fetchWithAuth('/api/push', {
+        await fetch('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -773,7 +773,7 @@ export default function Page1() {
     const tokens = await res.json()
     if (!tokens || tokens.length === 0) { showToast('등록된 푸시 토큰이 없어요.'); setIsSendingPush(false); return }
     
-    const response = await fetchWithAuth('/api/push', {
+    const response = await fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

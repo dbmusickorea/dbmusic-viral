@@ -151,7 +151,7 @@ export default function Page3() {
     const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
     const adminUsers = await adminUsersRes.json()
     const adminUserIds = adminUsers?.map((u: any) => String(u.id)) ?? []
-    await fetchWithAuth('/api/push', {
+    await fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -487,7 +487,7 @@ export default function LoginPage() {
       const referrerTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(referrer.id)}`)
       const referrerTokens = await referrerTokensRes.json()
       if (referrerTokens && referrerTokens.length > 0) {
-        await fetchWithAuth('/api/push', {
+        await fetch('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -548,7 +548,7 @@ export default function LoginPage() {
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
       ])]
-      await fetchWithAuth('/api/push', {
+      await fetch('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

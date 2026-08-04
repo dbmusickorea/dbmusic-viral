@@ -168,7 +168,7 @@ export default function WalletPage() {
     const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
-      await fetchWithAuth('/api/push', {
+      await fetch('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
