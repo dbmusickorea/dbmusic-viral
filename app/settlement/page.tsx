@@ -44,7 +44,7 @@ export default function Page5() {
   }, [])
 
   const fetchSettlements = async () => {
-    const res = await fetch('/api/settlements')
+    const res = await fetchWithAuth('/api/settlements')
     const data = await res.json()
     setSettlements(data ?? [])
   }
@@ -56,7 +56,7 @@ export default function Page5() {
     const participants = await participantRes.json()
     const participant = participants?.[0]
     setSelectedParticipant(participant)
-    const postsRes = await fetch(`/api/posts?member_id=${s.member_id}`)
+    const postsRes = await fetchWithAuth(`/api/posts?member_id=${s.member_id}`)
     const posts = await postsRes.json()
     setMemberPosts(posts ?? [])
     const account = participant?.account_number ? await decryptText(participant.account_number) : ''
@@ -69,7 +69,7 @@ export default function Page5() {
 
   const handleApprove = async () => {
     if (!selected) return
-    await fetch(`/api/settlements?id=${selected.id}`, {
+    await fetchWithAuth(`/api/settlements?id=${selected.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'APPROVED', memo })
@@ -105,7 +105,7 @@ export default function Page5() {
 
   const handleReject = async () => {
     if (!selected) return
-    await fetch(`/api/settlements?id=${selected.id}`, {
+    await fetchWithAuth(`/api/settlements?id=${selected.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'REJECTED', memo })
@@ -132,7 +132,7 @@ export default function Page5() {
 
   const handleSaveMemo = async () => {
     if (!selected) return
-    await fetch(`/api/settlements?id=${selected.id}`, {
+    await fetchWithAuth(`/api/settlements?id=${selected.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memo })

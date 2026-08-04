@@ -1,6 +1,7 @@
 'use client'
 import { Heart, MessageCircle, PlayCircle, ThumbsUp, RefreshCw } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
+import { ClipboardList } from 'lucide-react'
 
 type Props = {
   posts: any[]
@@ -25,7 +26,7 @@ export default function AdminPostList({ posts, selectedParticipantId, adminPostP
   return (
     <div>
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold dark:text-white">📋 게시물 목록 ({filteredPosts.length}개)</h2>
+        <h2 className="font-bold dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 게시물 목록 ({filteredPosts.length}개)</h2>
         {posts.length > 0 && (
           <button onClick={onUpdateAllLikes} disabled={isUpdatingLikes} className="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg disabled:bg-gray-400 cursor-pointer">
             {isUpdatingLikes ? '갱신 중...' : <><RefreshCw size={14} className="inline mr-1" />좋아요 갱신</>}

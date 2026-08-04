@@ -27,8 +27,8 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
       setLoading(true)
       const [partRes, postRes, settleRes, memberRes, phRes] = await Promise.all([
         fetch(`/api/project_participants?member_id=${memberId}`),
-        fetch(`/api/posts?member_id=${memberId}`),
-        fetch(`/api/settlements?member_id=${memberId}`),
+        fetchWithAuth(`/api/posts?member_id=${memberId}`),
+        fetchWithAuth(`/api/settlements?member_id=${memberId}`),
         fetchWithAuth(`/api/participants?id=${memberId}`),
         fetch(`/api/point_history?member_id=${memberId}`)
       ])
@@ -441,7 +441,7 @@ export default function Page4() {
   }
 
   const fetchClients = async () => {
-    const res = await fetch('/api/users')
+    const res = await fetchWithAuth('/api/users')
     const data = await res.json()
     setClients(data ?? [])
   }
@@ -664,7 +664,7 @@ export default function Page4() {
     let clientId = generateClientId()
     let isUnique = false
     while (!isUnique) {
-      const res = await fetch(`/api/users?client_id=${clientId}`)
+      const res = await fetchWithAuth(`/api/users?client_id=${clientId}`)
       const data = await res.json()
       if (!data || data.length === 0) isUnique = true
       else clientId = generateClientId()
@@ -682,7 +682,7 @@ export default function Page4() {
     }
 
     // DB에 의뢰인 정보 저장
-    const res = await fetch('/api/users', {
+    const res = await fetchWithAuth('/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -719,7 +719,7 @@ export default function Page4() {
       project_code: cProjectCode || null
     }
     if (cPassword) updateData.password = cPassword
-    const res = await fetch(`/api/users?id=${selectedClient.id}`, {
+    const res = await fetchWithAuth(`/api/users?id=${selectedClient.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
@@ -738,7 +738,7 @@ export default function Page4() {
 
   const handleDeleteClient = async () => {
     if (!confirm('정말 삭제하시겠습니까?')) return
-    const res = await fetch(`/api/users?id=${selectedClient.id}`, { method: 'DELETE' })
+    const res = await fetchWithAuth(`/api/users?id=${selectedClient.id}`, { method: 'DELETE' })
     if (!res.ok) { showToast('삭제 실패!'); return }
     showToast('삭제 완료!')
     fetchClients()

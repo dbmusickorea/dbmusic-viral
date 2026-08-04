@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
@@ -134,7 +135,7 @@ export default function ClientMyPage() {
       name: myName, company: myCompany, artist: myArtist,
       mobile: mobileVerified ? newMobile : myMobile
     }
-    const res = await fetch(`/api/users?id=${userInfo?.id}`, {
+    const res = await fetchWithAuth(`/api/users?id=${userInfo?.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
@@ -441,7 +442,7 @@ export default function ClientMyPage() {
               <div className="flex gap-2">
                 <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm font-medium">취소</button>
                 <button disabled={deleteConfirmText !== '탈퇴합니다'} onClick={async () => {
-                  await fetch(`/api/users?id=${userInfo?.id}`, { method: 'DELETE' })
+                  await fetchWithAuth(`/api/users?id=${userInfo?.id}`, { method: 'DELETE' })
                   await supabase.auth.signOut()
                   localStorage.removeItem('userInfo')
                   localStorage.removeItem('userRole')

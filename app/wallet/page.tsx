@@ -152,7 +152,7 @@ export default function WalletPage() {
     const netAmount = amount - taxAmount
     const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
 
-    const settlementRes = await fetch('/api/settlements', {
+    const settlementRes = await fetchWithAuth('/api/settlements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

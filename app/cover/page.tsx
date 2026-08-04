@@ -87,7 +87,7 @@ export default function CoverPage() {
     const participants = await participantsRes.json()
     setCoverParticipants(participants ?? [])
     // 커버 게시물 불러오기
-    const coverPostsRes = await fetch('/api/posts?is_cover=true')
+    const coverPostsRes = await fetchWithAuth('/api/posts?is_cover=true')
     const coverPostsData = await coverPostsRes.json()
     // participant 이름과 project 정보 매핑
     if (Array.isArray(coverPostsData) && coverPostsData.length > 0) {
@@ -211,7 +211,7 @@ export default function CoverPage() {
     const amount = coverRewardAmounts[post.id]
     if (!amount) { showToast('지급할 금액을 입력해주세요.'); return }
     const reward = Number(amount)
-    await fetch(`/api/posts?id=${post.id}`, {
+    await fetchWithAuth(`/api/posts?id=${post.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_status: 'APPROVED', cover_type: type })
@@ -270,7 +270,7 @@ export default function CoverPage() {
   }
 
   const handleRejectCover = async (postId: number) => {
-    await fetch(`/api/posts?id=${postId}`, {
+    await fetchWithAuth(`/api/posts?id=${postId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_status: 'REJECTED' })
@@ -279,7 +279,7 @@ export default function CoverPage() {
     await loadCoverPosts()
   }
   const loadCoverPosts = async () => {
-    const coverPostsRes = await fetch('/api/posts?is_cover=true')
+    const coverPostsRes = await fetchWithAuth('/api/posts?is_cover=true')
     const coverPostsData = await coverPostsRes.json()
     if (Array.isArray(coverPostsData) && coverPostsData.length > 0) {
       const memberIds = [...new Set(coverPostsData.map((p: any) => p.member_id))]

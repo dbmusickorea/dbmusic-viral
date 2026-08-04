@@ -149,7 +149,7 @@ export default function Page3() {
     // 관리자에게 푸시 알림 발송
     const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
-    const adminUsersRes = await fetch('/api/users?role=admin')
+    const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
     const adminUsers = await adminUsersRes.json()
     const adminUserIds = adminUsers?.map((u: any) => String(u.id)) ?? []
     await fetch('/api/push', {
@@ -190,7 +190,7 @@ export default function Page3() {
   }
 
   const fetchPosts = async (code: string) => {
-    const res = await fetch(`/api/posts?project_code=${code}`)
+    const res = await fetchWithAuth(`/api/posts?project_code=${code}`)
     const data = await res.json()
     
     if (data && data.length > 0) {
@@ -308,7 +308,7 @@ export default function Page3() {
       name: myName, company: myCompany, artist: myArtist,
       phone: myPhone, mobile: myMobile
     }
-    const res = await fetch(`/api/users?id=${userInfo?.id}`, {
+    const res = await fetchWithAuth(`/api/users?id=${userInfo?.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData)
@@ -334,7 +334,7 @@ export default function Page3() {
     const data = await res.json()
     
     // 커버영상 데이터
-    const coverRes = await fetch(`/api/posts?project_code=${projectCode}&is_cover=true`)
+    const coverRes = await fetchWithAuth(`/api/posts?project_code=${projectCode}&is_cover=true`)
     const coverData = await coverRes.json()
     
     if (data && data.length > 0) {

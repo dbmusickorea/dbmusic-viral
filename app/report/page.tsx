@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useEffect, useState, useRef } from 'react'
 import StatsChart from '../../components/StatsChart'
@@ -21,7 +22,7 @@ export default function ReportPage() {
     const load = async () => {
       const [projectRes, postsRes, historyRes, cmRes] = await Promise.all([
         fetch(`/api/projects?project_code=${projectCode}`),
-        fetch(`/api/posts?project_code=${projectCode}`),
+        fetchWithAuth(`/api/posts?project_code=${projectCode}`),
         fetch(`/api/post_stats_history?project_code=${projectCode}`),
         fetch(`/api/comment_missions?project_code=${projectCode}`)
       ])

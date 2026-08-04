@@ -159,7 +159,7 @@ export default function MyPage() {
     if (coverVideoUrl && !userInfo?.cover_video_url) {
       const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
       const adminTokens = await adminTokensRes.json()
-      const adminUsersRes = await fetch('/api/users?role=admin')
+      const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
       const adminUsers = await adminUsersRes.json()
       const allAdminIds = [...new Set([
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
@@ -475,7 +475,7 @@ export default function MyPage() {
                       // 관리자 푸시
                       const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
                       const adminTokens = await adminTokensRes.json()
-                      const adminUsersRes = await fetch('/api/users?role=admin')
+                      const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
                       const adminUsers = await adminUsersRes.json()
                       const allAdminIds = [...new Set([
                         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
@@ -633,7 +633,7 @@ export default function MyPage() {
               <div className="flex gap-2">
                 <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }} className="flex-1 bg-gray-200 dark:bg-gray-600 dark:text-white rounded-lg py-2 text-sm font-medium">취소</button>
                 <button disabled={deleteConfirmText !== '탈퇴합니다'} onClick={async () => {
-                  await fetch(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
+                  await fetchWithAuth(`/api/posts?member_id=${userInfo?.id}`, { method: 'DELETE' })
                   await fetch(`/api/comment_missions?member_id=${userInfo?.id}`, { method: 'DELETE' })
                   await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '탈퇴회원', mobile: '', email: '', account_number: '', account_holder: '', bank_name: '', instagram_id: '', youtube_id: '', tiktok_id: '', is_deleted: true }) })
                   localStorage.removeItem('userInfo')

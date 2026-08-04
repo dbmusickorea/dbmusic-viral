@@ -75,7 +75,7 @@ export default function AdminMypagePage() {
 
   const handleSearchUser = async () => {
     if (!searchEmail) return
-    const res = await fetch(`/api/users?email=${searchEmail}`)
+    const res = await fetchWithAuth(`/api/users?email=${searchEmail}`)
     const data = await res.json()
     if (data?.[0]) setFoundUser(data[0])
     else {
@@ -89,7 +89,7 @@ export default function AdminMypagePage() {
   const handleAddAdmin = async () => {
     if (!foundUser) return
     if (!confirm(`${foundUser.name}님을 관리자로 추가하시겠어요?`)) return
-    await fetch(`/api/users?id=${foundUser.id}`, {
+    await fetchWithAuth(`/api/users?id=${foundUser.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role: 'admin' })
@@ -192,7 +192,7 @@ export default function AdminMypagePage() {
               </div>
               <button onClick={async () => {
                 if (!myCurrentPassword || !myPassword) { showToast('비밀번호를 입력해주세요.', 'error'); return }
-                const res = await fetch(`/api/users?id=${userInfo?.id}`, {
+                const res = await fetchWithAuth(`/api/users?id=${userInfo?.id}`, {
                   method: 'PATCH',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ password: myPassword })

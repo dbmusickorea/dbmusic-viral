@@ -167,7 +167,7 @@ export default function LoginPage() {
       })
       router.push('/participant')
     } else {
-      await fetch(`/api/users?id=${pendingUserInfo.id}`, {
+      await fetchWithAuth(`/api/users?id=${pendingUserInfo.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agreed_terms: true })
@@ -254,7 +254,7 @@ export default function LoginPage() {
       return
     }
 
-    const userRes = await fetch(`/api/users?email=${encodeURIComponent(email)}`)
+    const userRes = await fetchWithAuth(`/api/users?email=${encodeURIComponent(email)}`)
     const users = await userRes.json()
     const user = users?.[0]
 
@@ -263,12 +263,12 @@ export default function LoginPage() {
         let clientId = generateClientId()
         let isUnique = false
         while (!isUnique) {
-          const res = await fetch(`/api/users?client_id=${clientId}`)
+          const res = await fetchWithAuth(`/api/users?client_id=${clientId}`)
           const data = await res.json()
           if (!data || data.length === 0) isUnique = true
           else clientId = generateClientId()
         }
-        await fetch(`/api/users?id=${user.id}`, {
+        await fetchWithAuth(`/api/users?id=${user.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ client_id: clientId })
@@ -396,9 +396,9 @@ export default function LoginPage() {
     const mobileData = await mobileRes.json()
     if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
     
-    const mobileURes = await fetch(`/api/users?mobile=${p_mobile}`)
+    const mobileURes = await fetchWithAuth(`/api/users/signup-check?mobile=${p_mobile}`)
     const mobileUData = await mobileURes.json()
-    if (mobileUData && mobileUData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobileUData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
 
     if (!p_verified) { showToast('휴대전화 인증을 완료해주세요.'); return }
 
@@ -541,7 +541,7 @@ export default function LoginPage() {
     if (isCoverPossible) {
       const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
       const adminTokens = await adminTokensRes.json()
-      const adminUsersRes = await fetch('/api/users?role=admin')
+      const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
       const adminUsers = await adminUsersRes.json()
       const allAdminIds = [...new Set([
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
@@ -569,13 +569,13 @@ export default function LoginPage() {
     if (!c_name || !c_email || !c_password) { showToast('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
     if (c_password !== c_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); return }
     // 이메일/전화번호 중복 체크
-    const emailRes = await fetch(`/api/users?email=${encodeURIComponent(c_email)}`)
+    const emailRes = await fetchWithAuth(`/api/users/signup-check?email=${encodeURIComponent(c_email)}`)
     const emailData = await emailRes.json()
     if (emailData && emailData.length > 0) { showToast('이미 사용중인 이메일입니다.'); return }
     
-    const mobileRes = await fetch(`/api/users?mobile=${c_mobile}`)
+    const mobileRes = await fetchWithAuth(`/api/users/signup-check?mobile=${c_mobile}`)
     const mobileData = await mobileRes.json()
-    if (mobileData && mobileData.length > 0) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
     
     const mobilePRes = await fetch(`/api/participants/signup-check?mobile=${c_mobile}`)
     const mobilePData = await mobilePRes.json()
@@ -584,7 +584,7 @@ export default function LoginPage() {
     let clientId = generateClientId()
     let isUnique = false
     while (!isUnique) {
-      const res = await fetch(`/api/users?client_id=${clientId}`)
+      const res = await fetchWithAuth(`/api/users?client_id=${clientId}`)
       const data = await res.json()
       if (!data || data.length === 0) isUnique = true
       else clientId = generateClientId()
@@ -596,7 +596,7 @@ export default function LoginPage() {
     })
     if (authError) { showToast('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
 
-    const res = await fetch('/api/users', {
+    const res = await fetchWithAuth('/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

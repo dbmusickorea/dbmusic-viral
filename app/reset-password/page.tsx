@@ -47,7 +47,7 @@ export default function ResetPassword() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
       })
-      await fetch(`/api/users?email=${encodeURIComponent(user.email)}`, {
+      await fetchWithAuth(`/api/users?email=${encodeURIComponent(user.email)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })

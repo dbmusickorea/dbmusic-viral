@@ -509,7 +509,7 @@ useEffect(() => {
   }
 
   const fetchAvailableBalance = async (id: number, currentBalance?: number) => {
-    const settlementsRes = await fetch(`/api/settlements?member_id=${id}`)
+    const settlementsRes = await fetchWithAuth(`/api/settlements?member_id=${id}`)
     const settlements = await settlementsRes.json()
     const settledAmount = settlements?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
       .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
@@ -519,7 +519,7 @@ useEffect(() => {
 
   const fetchMyRank = async (projectCode: string, memberId: number) => {
     if (!projectCode) return
-    const res = await fetch(`/api/posts?project_code=${projectCode}`)
+    const res = await fetchWithAuth(`/api/posts?project_code=${projectCode}`)
     const posts = await res.json()
     
     const sortedPosts = posts
@@ -547,7 +547,7 @@ useEffect(() => {
   }
 
   const fetchMySettlements = async (id: number) => {
-    const res = await fetch(`/api/settlements?member_id=${id}`)
+    const res = await fetchWithAuth(`/api/settlements?member_id=${id}`)
     const data = await res.json()
     setMySettlements(data ?? [])
   }
@@ -601,7 +601,7 @@ useEffect(() => {
     const projectData = await projectRes.json()
     const proj = Array.isArray(projectData) ? projectData[0] : projectData
     if (proj?.client_id) {
-      const clientRes = await fetch(`/api/users?client_id=${proj.client_id}`)
+      const clientRes = await fetchWithAuth(`/api/users?client_id=${proj.client_id}`)
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
       if (clientUser) {
@@ -635,7 +635,7 @@ useEffect(() => {
     const projectData = await projectRes.json()
     const proj = Array.isArray(projectData) ? projectData[0] : projectData
     if (proj?.client_id) {
-      const clientRes = await fetch(`/api/users?client_id=${proj.client_id}`)
+      const clientRes = await fetchWithAuth(`/api/users?client_id=${proj.client_id}`)
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
       if (clientUser) {
@@ -679,14 +679,14 @@ useEffect(() => {
         body: JSON.stringify({ member_id: userInfo?.id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})` : `게시물 삭제 (${projectsMap[post.project_code?.toUpperCase()]?.artist_name || post.project_code} / ${projectsMap[post.project_code?.toUpperCase()]?.song_title ?? ''})`, project_code: post.project_code })
       })
     }
-    await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/posts?id=${post.id}`, { method: 'DELETE' })
     fetchMyPostsAndProjects(userInfo?.id)
     showToast('게시물이 삭제됐어요.')
     setIsDeletingPost(false)
   }
 
   const fetchMyPostsAndProjects = async (id: number) => {
-    const res = await fetch(`/api/posts?member_id=${id}`)
+    const res = await fetchWithAuth(`/api/posts?member_id=${id}`)
     const posts = await res.json()
     setMyPosts(posts ?? [])
     if (posts && posts.length > 0) {
@@ -828,7 +828,7 @@ useEffect(() => {
     const activeIsCover = overrideIsCover ?? isCover
     if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
     // 게시물 수 제한 체크
-    const postsRes = await fetch(`/api/posts?project_code=${activeProjectCode}&member_id=${userInfo?.id}`)
+    const postsRes = await fetchWithAuth(`/api/posts?project_code=${activeProjectCode}&member_id=${userInfo?.id}`)
     const existingPosts = await postsRes.json()
     const postCount = existingPosts?.length ?? 0
     
@@ -853,7 +853,7 @@ useEffect(() => {
 
     // URL 중복 체크
     const cleanUrl = validUrls[0].split('?')[0]
-    const dupRes = await fetch(`/api/posts?post_url=${encodeURIComponent(cleanUrl)}`)
+    const dupRes = await fetchWithAuth(`/api/posts?post_url=${encodeURIComponent(cleanUrl)}`)
     const dupData = await dupRes.json()
     if (dupData && dupData.length > 0) {
       showToast('이미 다른 체험단이 제출한 링크예요. 본인의 게시물 링크를 입력해주세요.')
@@ -954,7 +954,7 @@ useEffect(() => {
         likesCount = stats.likes; commentsCount = stats.comments
       }
 
-      await fetch('/api/posts', {
+      await fetchWithAuth('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -974,7 +974,7 @@ useEffect(() => {
     // 관리자에게 푸시 알림
     const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
-    const adminUsersRes = await fetch('/api/users?role=admin')
+    const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
     const adminUsers = await adminUsersRes.json()
     const allAdminIds = [...new Set([
       ...(adminTokens?.map((t: any) => t.user_id) ?? []),
@@ -1291,7 +1291,7 @@ useEffect(() => {
               onDeletePost={handleDeleteMyPost}
               onUrlEdit={(post) => {
                 const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
+                if (newUrl) { fetchWithAuth(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchMyPostsAndProjects(userInfo?.id) }) }
               }}
               statusBadge={statusBadge}
               getLevelAmount={getLevelAmount}

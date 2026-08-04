@@ -119,7 +119,7 @@ export default function Page1() {
   }
 
   const fetchClients = async () => {
-    const res = await fetch('/api/users')
+    const res = await fetchWithAuth('/api/users')
     const data = await res.json()
     setClients(data ?? [])
   }
@@ -143,7 +143,7 @@ export default function Page1() {
   }
 
   const fetchTopRanker = async (projectCode: string) => {
-    const res = await fetch(`/api/posts?project_code=${projectCode}`)
+    const res = await fetchWithAuth(`/api/posts?project_code=${projectCode}`)
     const allPosts = await res.json()
     const posts = allPosts
       ?.filter((p: any) => p.likes_count !== null && p.likes_count >= 1000)
@@ -158,7 +158,7 @@ export default function Page1() {
     const reward = Number(formData.coverRewardAmount)
     
     // 커버영상 승인 처리
-    await fetch(`/api/posts?id=${post.id}`, {
+    await fetchWithAuth(`/api/posts?id=${post.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_status: 'APPROVED', cover_type: type })
@@ -201,7 +201,7 @@ export default function Page1() {
   }
 
   const handleRejectCover = async (postId: number) => {
-    await fetch(`/api/posts?id=${postId}`, {
+    await fetchWithAuth(`/api/posts?id=${postId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_status: 'REJECTED' })
@@ -245,7 +245,7 @@ export default function Page1() {
   }
 
   const fetchCoverPosts = async () => {
-    const res = await fetch('/api/posts?is_cover=true')
+    const res = await fetchWithAuth('/api/posts?is_cover=true')
     const data = await res.json()
     if (data && data.length > 0) {
       const memberIds = data.map((p: any) => p.member_id).join(',')
@@ -268,7 +268,7 @@ export default function Page1() {
   }
 
   const fetchPosts = async (code: string) => {
-    const res = await fetch(`/api/posts?project_code=${code}`)
+    const res = await fetchWithAuth(`/api/posts?project_code=${code}`)
     const data = await res.json()
     
     if (data && data.length > 0) {
@@ -588,7 +588,7 @@ export default function Page1() {
     })
     if (!res.ok) { showToast('등록 실패!'); return }
     if (formData.selectedClientId) {
-      await fetch(`/api/users?client_id=${formData.selectedClientId}`, {
+      await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
@@ -627,7 +627,7 @@ export default function Page1() {
 
     // 해당 의뢰인에게만 푸시
     if (formData.selectedClientId) {
-      const clientUserRes = await fetch(`/api/users?client_id=${formData.selectedClientId}`)
+      const clientUserRes = await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`)
       const clientUserData = await clientUserRes.json()
       const clientUser = clientUserData?.[0]
       if (clientUser) {
@@ -705,7 +705,7 @@ export default function Page1() {
     })
     if (!res.ok) { showToast('수정 실패!'); return }
     if (formData.selectedClientId) {
-      await fetch(`/api/users?client_id=${formData.selectedClientId}`, {
+      await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
@@ -824,7 +824,7 @@ export default function Page1() {
   const handleUpdateProjectLikes = async () => {
     if (!selectedProject) return
     setIsUpdatingLikes(true)
-    const res = await fetch(`/api/posts?project_code=${selectedProject.project_code}`)
+    const res = await fetchWithAuth(`/api/posts?project_code=${selectedProject.project_code}`)
     const projectPosts = await res.json()
     if (!projectPosts) { setIsUpdatingLikes(false); return }
 
@@ -840,7 +840,7 @@ export default function Page1() {
           stats = await getTiktokStats(post.post_url)
         }
         if (stats) {
-          await fetch(`/api/posts?id=${post.id}`, {
+          await fetchWithAuth(`/api/posts?id=${post.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -870,7 +870,7 @@ export default function Page1() {
       else if (post.platform === 'tiktok') stats = await getTiktokStats(post.post_url)
 
       if (stats) {
-        await fetch(`/api/posts?id=${post.id}`, {
+        await fetchWithAuth(`/api/posts?id=${post.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -887,7 +887,7 @@ export default function Page1() {
 
   const handleConvertCover = async (postId: number) => {
     if (!confirm('이 게시물을 커버 게시물로 전환하시겠어요?')) return
-    await fetch(`/api/posts?id=${postId}`, {
+    await fetchWithAuth(`/api/posts?id=${postId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_cover: true, cover_status: 'PENDING' })
@@ -919,7 +919,7 @@ export default function Page1() {
         body: JSON.stringify({ member_id: post.member_id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` : `게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` })
       })
     }
-    await fetch(`/api/posts?id=${post.id}`, { method: 'DELETE' })
+    await fetchWithAuth(`/api/posts?id=${post.id}`, { method: 'DELETE' })
     fetchPosts(selectedProject.project_code)
     showToast('게시물이 삭제됐어요.')
   }
@@ -1318,7 +1318,7 @@ export default function Page1() {
                   onDeletePost={handleDeletePost}
                   onUrlEdit={(post) => {
                     const newUrl = prompt('새 URL을 입력해주세요:', post.post_url)
-                    if (newUrl) { fetch(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
+                    if (newUrl) { fetchWithAuth(`/api/posts?id=${post.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ post_url: newUrl }) }).then(() => { showToast('수정 완료!'); fetchPosts(selectedProject.project_code) }) }
                   }}
                 />
               </div>
