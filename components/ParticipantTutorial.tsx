@@ -9,9 +9,12 @@ export default function ParticipantTutorial({ onDone, onOpenSidebar, onCloseSide
 
   const isMd = typeof window !== 'undefined' && window.innerWidth >= 768
 
+  const [sidebarReady, setSidebarReady] = useState(!isMd)
+
   useEffect(() => {
     if (isMd) {
       onOpenSidebar?.()
+      setTimeout(() => setSidebarReady(true), 300)
     }
     return () => {
       if (isMd) onCloseSidebar?.()
