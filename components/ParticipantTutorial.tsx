@@ -76,7 +76,7 @@ setSidebarReady(true)
           background: 'rgba(255,255,255,0.15)',
         }} />
       )}
-      <div className="fixed z-[102] bg-white rounded-2xl shadow-xl p-4" style={getBubblePosition()}>
+      {highlightStyle.top && <div className="fixed z-[102] bg-white rounded-2xl shadow-xl p-4" style={getBubblePosition()}>
         <div className="flex justify-between items-start mb-2">
           <p className="font-bold text-sm text-blue-600">{current.title}</p>
           <button onClick={onDone} className="text-xs text-gray-400">건너뛰기</button>
@@ -102,7 +102,7 @@ setSidebarReady(true)
             )}
           </div>
         </div>
-      </div>
+      </div>}
       <div className="fixed inset-0 z-[99]" onClick={() => {}} />
     </>
   )

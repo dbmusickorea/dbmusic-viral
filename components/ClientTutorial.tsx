@@ -10,10 +10,18 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
   const sidebarNeededSteps = isMd ? [1, 2, 3, 4] : []
 
   useEffect(() => {
+    setHighlightStyle({}) // step 변경시 하이라이트 초기화
     if (isMd) {
       if (sidebarNeededSteps.includes(step)) {
         onOpenSidebar?.()
-        setTimeout(() => setSidebarReady(true), 500)
+        setTimeout(() => {
+          setSidebarReady(true)
+          const el = document.getElementById(steps[step]?.target)
+          if (el) {
+            const rect = el.getBoundingClientRect()
+            setHighlightStyle({ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 })
+          }
+        }, 400)
       } else {
         onCloseSidebar?.()
         setSidebarReady(true)
@@ -30,7 +38,7 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
 
   const steps = [
     { target: 'tutorial-project-card', title: '프로젝트 선택', description: '계약된 가수 및 곡명을 클릭하면 캠페인 진행상황을 실시간으로 모니터링할 수 있어요.', position: 'bottom' },
-    { target: isMd ? 'tutorial-stats-btn-sidebar' : 'tutorial-bottom-nav', title: '탭 네비게이션', description: '프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.', position: 'top' },
+    { target: isMd ? 'tutorial-sidebar-menu' : 'tutorial-bottom-nav', title: '탭 네비게이션', description: '프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.', position: 'top' },
     { target: `tutorial-stats-btn${suffix}`, title: '현황 탭', description: '실시간으로 좋아요, 댓글, 조회수 등 통계를 확인할 수 있어요.', position: 'top' },
     { target: `tutorial-apply-btn${suffix}`, title: '프로젝트 신청', description: '새로운 프로젝트를 신청할 수 있어요. 가수명, 노래제목, 희망 시작일 등을 입력해주세요.', position: 'top' },
     { target: `tutorial-report-btn${suffix}`, title: '보고서 탭', description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.', position: 'top' },
@@ -65,9 +73,9 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
 
   const getBubblePosition = () => {
     if (!highlightStyle.top) return {}
-    // 아이패드에서 사이드바 버튼 하이라이트는 말풍선을 아래로
+    // 아이패드에서 사이드바 하이라이트는 말풍선을 오른쪽에
     if (isMd && sidebarNeededSteps.includes(step)) {
-      return { top: highlightStyle.top + highlightStyle.height + 12, left: highlightStyle.left + highlightStyle.width + 12, right: 16 }
+      return { top: Math.max(16, highlightStyle.top), left: highlightStyle.left + highlightStyle.width + 16, right: 16 }
     }
     if (current.position === 'top') {
       return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
@@ -86,7 +94,7 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
           background: 'rgba(255,255,255,0.15)',
         }} />
       )}
-      <div className="fixed z-[102] bg-white rounded-2xl shadow-xl p-4" style={getBubblePosition()}>
+      {highlightStyle.top && <div className="fixed z-[102] bg-white rounded-2xl shadow-xl p-4" style={getBubblePosition()}>
         <div className="flex justify-between items-start mb-2">
           <p className="font-bold text-sm text-blue-600">{current.title}</p>
           <button onClick={onDone} className="text-xs text-gray-400">건너뛰기</button>
@@ -109,7 +117,7 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
             )}
           </div>
         </div>
-      </div>
+      </div>}
       <div className="fixed inset-0 z-[99]" onClick={() => {}} />
     </>
   )
