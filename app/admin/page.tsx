@@ -413,7 +413,7 @@ export default function Page1() {
       secondPostTime: project.second_post_time ?? '',
     }))
     fetchPosts(project.project_code)
-    fetch(`/api/project_videos?project_code=${project.project_code}`)
+    fetchWithAuth(`/api/project_videos?project_code=${project.project_code}`)
       .then(res => res.json())
       .then(data => {
         if (data) {
@@ -426,7 +426,7 @@ export default function Page1() {
       })
     fetchParticipants(project.project_code)
     fetchTopRanker(project.project_code)
-    fetch(`/api/project_links?project_code=${project.project_code}`)
+    fetchWithAuth(`/api/project_links?project_code=${project.project_code}`)
       .then(res => res.json())
       .then(data => {
         const existing = Array.isArray(data) ? data.map((link: any) => ({ ...link, isNew: false })) : []

@@ -227,9 +227,9 @@ export default function Page3() {
 
   const fetchCommentMissionData = async (code: string) => {
     const [videosRes, missionsRes, linksRes] = await Promise.all([
-      fetch(`/api/project_videos?project_code=${code}`),
+      fetchWithAuth(`/api/project_videos?project_code=${code}`),
       fetchWithAuth(`/api/comment_missions?project_code=${code}&status=APPROVED`),
-      fetch(`/api/project_links?project_code=${code}`)
+      fetchWithAuth(`/api/project_links?project_code=${code}`)
     ])
     const videos = await videosRes.json()
     const missions = await missionsRes.json()

@@ -1,4 +1,5 @@
 'use client'
+import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { BarChart2 } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useEffect, useState } from 'react'
