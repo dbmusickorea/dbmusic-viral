@@ -20,6 +20,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
   const [participant, setParticipant] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [pointHistory, setPointHistory] = useState<any[]>([])
+  const [pointFilter, setPointFilter] = useState<string>('all')
   const [referredUsers, setReferredUsers] = useState<any[]>([])
 
   useEffect(() => {
@@ -107,8 +108,14 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             <p className="text-xs text-gray-500 dark:text-gray-400">현재 잔액</p>
             <p className="text-lg font-bold text-blue-600">{participant?.balance?.toLocaleString()}P</p>
           </div>
-          {settlements.length === 0 ? <p className="text-sm text-gray-400 text-center py-2">환전 내역 없음</p> :
-          settlements.map(s => (
+          <div className="flex gap-1 flex-wrap mb-2">
+            {['all', 'post', 'comment', 'cover', 'referral', 'admin', 'deduct', 'exchange'].map(f => (
+              <button key={f} onClick={() => setPointFilter(f)} className={`text-xs px-2 py-1 rounded-full border ${pointFilter === f ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>
+                {f === 'all' ? '전체' : f === 'post' ? '게시물' : f === 'comment' ? '댓글미션' : f === 'cover' ? '커버' : f === 'referral' ? '추천인' : f === 'admin' ? '관리자지급' : f === 'deduct' ? '차감' : '환전'}
+              </button>
+            ))}
+          </div>
+          {pointFilter !== 'exchange' && (pointFilter === 'all' ? settlements : []).map(s => (
             <div key={s.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">환전 신청</p>
@@ -120,16 +127,18 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
               <p className="text-sm font-bold text-red-500">-{s.amount?.toLocaleString()}P</p>
             </div>
           ))}
-          {referredUsers.map(u => (
-            <div key={`ref-${u.id}`} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium dark:text-white">추천인 보상 ({u.name})</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(u.created_at).toLocaleDateString('ko-KR')}</p>
-              </div>
-              <p className="text-sm font-bold text-blue-500">+150P</p>
-            </div>
-          ))}
-          {pointHistory.length > 0 && pointHistory.map(ph => (
+
+          {pointHistory.filter(ph => {
+            if (pointFilter === 'all') return true
+            if (pointFilter === 'post') return ph.memo?.includes('게시물') || ph.memo?.includes('업로드')
+            if (pointFilter === 'comment') return ph.memo?.includes('댓글')
+            if (pointFilter === 'cover') return ph.memo?.includes('커버')
+            if (pointFilter === 'referral') return ph.memo?.includes('추천인') || ph.memo?.includes('친구추천')
+            if (pointFilter === 'admin') return !ph.memo?.includes('게시물') && !ph.memo?.includes('댓글') && !ph.memo?.includes('커버') && !ph.memo?.includes('차감') && !ph.memo?.includes('취소') && !ph.memo?.includes('추천인') && !ph.memo?.includes('친구추천') && ph.amount > 0
+            if (pointFilter === 'deduct') return ph.amount < 0 || ph.memo?.includes('차감') || ph.memo?.includes('취소')
+            if (pointFilter === 'exchange') return false
+            return true
+          }).map(ph => (
             <div key={ph.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">{ph.memo || '관리자 지급'}</p>
@@ -1293,87 +1302,6 @@ export default function Page4() {
               </div>
             )}
 
-            {/* 수익 내역 */}
-            {tab === 'participant' && selected && (memberPosts.length > 0 || memberCommentMissions.length > 0) && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h3 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Coins size={16} /> 수익 내역</h3>
-                
-                {memberPosts.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Music size={12} /> 게시물 수익</p>
-                    <div className="space-y-1">
-                      {memberPosts.map((post) => {
-                        const levelReward = level === 50 ? 10000 : 2500 + (level - 1) * 150
-                        return (
-                          <div key={post.id} className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
-                            <span className="dark:text-white">{post.platform} · {post.project_code}</span>
-                            <span className="text-blue-600 font-medium">{levelReward.toLocaleString()}P</span>
-                          </div>
-                        )
-                      })}
-                      <div className="flex justify-between text-xs font-bold bg-blue-50 dark:bg-blue-900 rounded p-2">
-                        <span className="dark:text-white">게시물 수익 합계</span>
-                        <span className="text-blue-600">{(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)).toLocaleString()}P</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {memberCommentMissions.length > 0 ? (
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><MessageSquare size={12} /> 댓글 미션 수익</p>
-                    <div className="space-y-1">
-                      {memberCommentMissions.map((m) => (
-                        <div key={m.id} className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
-                          <span className="dark:text-white">{m.project_code} · {m.youtube_handle}</span>
-                          <span className="text-green-600 font-medium">300P</span>
-                        </div>
-                      ))}
-                      <div className="flex justify-between text-xs font-bold bg-green-50 dark:bg-green-900 rounded p-2">
-                        <span className="dark:text-white">댓글 수익 합계</span>
-                        <span className="text-green-600">{(memberCommentMissions.length * 300).toLocaleString()}P</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-                {selected?.cover_reward ? (
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Music size={12} /> 커버영상 수익</p>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
-                        <span className="dark:text-white">커버영상 별도 지급</span>
-                        <span className="text-purple-600 font-medium">{Number(selected.cover_reward).toLocaleString()}P</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-                {selectedReferredUsers.length > 0 ? (
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Users size={12} /> 추천인 수익</p>
-                    <div className="space-y-1">
-                      {selectedReferredUsers.map((u: any) => (
-                        <div key={u.id} className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
-                          <span className="dark:text-white">추천인 보상 ({u.name})</span>
-                          <span className="text-orange-600 font-medium">150P</span>
-                        </div>
-                      ))}
-                      <div className="flex justify-between text-xs font-bold bg-orange-50 dark:bg-orange-900 rounded p-2">
-                        <span className="dark:text-white">추천인 수익 합계</span>
-                        <span className="text-orange-600">{(selectedReferredUsers.length * 150).toLocaleString()}P</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-                <div className="flex justify-between text-sm font-bold bg-gray-100 dark:bg-gray-700 rounded p-2">
-                  <span className="dark:text-white">총 수익</span>
-                  <span className="text-blue-600">
-                    {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0) + selectedReferredUsers.length * 150).toLocaleString()}P
-                  </span>
-                </div>
-              </div>
-            )}
 
             {tab === 'client' && !selectedClient && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
