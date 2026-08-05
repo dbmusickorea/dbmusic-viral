@@ -31,6 +31,7 @@ export default function CoverPage() {
   const [coverPosts, setCoverPosts] = useState<any[]>([])
   const [coverAddApproved, setCoverAddApproved] = useState(false)
   const [coverRequestedIds, setCoverRequestedIds] = useState<number[]>([])
+  const [coverExcludedIds, setCoverExcludedIds] = useState<number[]>([])
   const [showSidebar, setShowSidebar] = useState(false)
   const [coverRewardAmounts, setCoverRewardAmounts] = useState<{[key: number]: string}>({})
   const [showApplyModal, setShowApplyModal] = useState(false)
@@ -198,6 +199,7 @@ export default function CoverPage() {
     const ppRes = await fetchWithAuth(`/api/project_participants?project_code=${projectCode}`)
     const ppData = await ppRes.json()
     setCoverRequestedIds(ppData?.filter((p: any) => p.cover_requested).map((p: any) => p.member_id) ?? [])
+    setCoverExcludedIds(ppData?.filter((p: any) => p.is_cover && !p.cover_requested).map((p: any) => p.member_id) ?? [])
     
     // 커버 추가 요청 승인 여부 확인
     const reqRes = await fetchWithAuth(`/api/client_requests?client_id=${userInfo?.client_id}&project_code=${projectCode}`)
@@ -614,6 +616,7 @@ export default function CoverPage() {
                                       return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">선택 마감</span>
                                     }
                                     if (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date()) return <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
+                                    if (coverExcludedIds.includes(p.id)) return <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded-full">커버제외</span>
                                     return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                   })()
                                 ) : request.status === 'PENDING' ? (
