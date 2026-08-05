@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
 
       for (const token of iosTokens) {
         const result = await provider.send(notification, token)
-        console.log("APNs result:", JSON.stringify(result))
+        console.log("APNs sent:", JSON.stringify(result.sent))
+        console.log("APNs failed:", JSON.stringify(result.failed))
         results.push(result)
       }
       provider.shutdown()
