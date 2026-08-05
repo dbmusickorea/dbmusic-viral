@@ -34,6 +34,10 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
         alert(`${notification.title}\n${notification.body}`)
       })
 
+      // 앱 종료 상태에서 푸시 클릭 시 처리
+      const launchNotification = await PushNotifications.getDeliveredNotifications()
+      alert('delivered: ' + JSON.stringify(launchNotification))
+
       PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
         alert('알림 클릭: ' + JSON.stringify(action.notification.data))
         const data = action.notification.data
