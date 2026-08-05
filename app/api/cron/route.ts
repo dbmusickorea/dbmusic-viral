@@ -675,6 +675,7 @@ export async function GET() {
       .select('member_id, project_code, projects(start_date)')
       .eq('is_cover', true)
       .eq('status', 'ACTIVE')
+      .eq('cover_requested', true)
 
     if (coverParticipants && coverParticipants.length > 0) {
       for (const cp of coverParticipants) {
