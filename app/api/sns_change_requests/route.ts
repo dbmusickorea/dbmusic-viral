@@ -6,40 +6,33 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-async function getRole(request: NextRequest) {
+async function getAuthenticatedClient(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   if (!authHeader) return null
   const token = authHeader.replace('Bearer ', '')
-  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  const { data: { user } } = await createClient(supabaseUrl, supabaseAnonKey).auth.getUser(token)
   if (!user) return null
-  const { data: userData } = await supabaseAdmin.from('users').select('role').eq('email', user.email).single()
-  if (userData) return { role: userData.role, email: user.email }
-  const { data: participant } = await supabaseAdmin.from('participants').select('id').eq('email', user.email).single()
-  if (participant) return { role: 'participant', email: user.email, id: participant.id }
-  return null
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  })
+  return { client, user }
 }
 
 export async function GET(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const memberId = searchParams.get('member_id')
   const status = searchParams.get('status')
 
-  let query = supabaseAdmin.from('sns_change_requests').select('*').order('created_at', { ascending: false })
-
-  if (roleInfo.role === 'participant') {
-    query = query.eq('member_id', roleInfo.id)
-  } else {
-    if (memberId) query = query.eq('member_id', memberId)
-    if (status) query = query.eq('status', status)
-  }
+  let query = auth.client.from('sns_change_requests').select('*').order('created_at', { ascending: false })
+  if (memberId) query = query.eq('member_id', memberId)
+  if (status) query = query.eq('status', status)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
@@ -47,18 +40,18 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { error } = await supabaseAdmin.from('sns_change_requests').insert(body)
+  const { error } = await auth.client.from('sns_change_requests').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
 
 export async function PATCH(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo || roleInfo.role === 'participant') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
@@ -92,7 +85,7 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
-  const { error } = await supabaseAdmin.from('sns_change_requests').update(body).eq('id', Number(id))
+  const { error } = await auth.client.from('sns_change_requests').update(body).eq('id', Number(id))
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }

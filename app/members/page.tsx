@@ -1223,7 +1223,7 @@ export default function Page4() {
                       </div>
                     )}
                     {snsRequests.length > 0 && (
-                      <div className="bg-blue-50 rounded-lg p-3">
+                      <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3">
                         <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-1"><Smartphone size={12} /> SNS 계정 변경 요청</p>
                         <div className="space-y-2">
                           {snsRequests.map((req) => (

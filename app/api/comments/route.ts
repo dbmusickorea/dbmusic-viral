@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+async function getAuthenticatedClient(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return null
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await createClient(supabaseUrl, supabaseAnonKey).auth.getUser(token)
+  if (!user) return null
+  return { user }
+}
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const token = authHeader.replace('Bearer ', '')
-  const { data: { user } } = await supabaseAuth.auth.getUser(token)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const videoId = request.nextUrl.searchParams.get('videoId')
   const handle = request.nextUrl.searchParams.get('handle')

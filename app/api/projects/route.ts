@@ -6,27 +6,25 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-async function getRole(request: NextRequest) {
+async function getAuthenticatedClient(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   if (!authHeader) return null
   const token = authHeader.replace('Bearer ', '')
-  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  const { data: { user } } = await createClient(supabaseUrl, supabaseAnonKey).auth.getUser(token)
   if (!user) return null
-  const { data: userData } = await supabaseAdmin.from('users').select('role, client_id').eq('email', user.email).single()
-  if (userData) return { role: userData.role, email: user.email, clientId: userData.client_id }
-  const { data: participant } = await supabaseAdmin.from('participants').select('id').eq('email', user.email).single()
-  if (participant) return { role: 'participant', email: user.email, id: participant.id }
-  return null
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  })
+  return { client, user }
 }
 
 export async function GET(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get('client_id')
@@ -35,15 +33,9 @@ export async function GET(request: NextRequest) {
   const codes = searchParams.get('codes')
   const prefix = searchParams.get('prefix')
 
-  let query = supabaseAdmin.from('projects').select('*').order('created_at', { ascending: false })
+  let query = auth.client.from('projects').select('*').order('created_at', { ascending: false })
 
-  // 의뢰인은 본인 프로젝트만
-  if (roleInfo.role === 'client') {
-    query = query.eq('client_id', roleInfo.clientId)
-  } else {
-    if (clientId) query = query.eq('client_id', clientId)
-  }
-
+  if (clientId) query = query.eq('client_id', clientId)
   if (status) {
     const statuses = status.split(',')
     if (statuses.length > 1) query = query.in('status', statuses)
@@ -83,35 +75,35 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo || roleInfo.role === 'participant') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
   const body = await request.json()
 
-  const { error } = await supabaseAdmin.from('projects').update(body).eq('project_code', projectCode!)
+  const { error } = await auth.client.from('projects').update(body).eq('project_code', projectCode!)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
 
 export async function POST(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo || roleInfo.role === 'participant') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { error } = await supabaseAdmin.from('projects').insert(body)
+  const { error } = await auth.client.from('projects').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
 
 export async function DELETE(request: NextRequest) {
-  const roleInfo = await getRole(request)
-  if (!roleInfo || roleInfo.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
-  const { error } = await supabaseAdmin.from('projects').delete().eq('project_code', projectCode!)
+  const { error } = await auth.client.from('projects').delete().eq('project_code', projectCode!)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
