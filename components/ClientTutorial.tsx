@@ -10,6 +10,11 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
   const sidebarNeededSteps = isMd ? [1, 2, 3, 4] : []
 
   useEffect(() => {
+    // 마운트 시 사이드바 닫기
+    if (isMd) onCloseSidebar?.()
+  }, [])
+
+  useEffect(() => {
     if (isMd) {
       onOpenSidebar?.()
       setTimeout(() => setSidebarReady(true), 500)
