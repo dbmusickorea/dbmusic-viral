@@ -7,6 +7,7 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
 
   const isMd = typeof window !== 'undefined' && window.innerWidth >= 768
   const [sidebarReady, setSidebarReady] = useState(!isMd)
+  const sidebarNeededSteps = isMd ? [1, 2, 3, 4] : []
 
   useEffect(() => {
     if (isMd) {
