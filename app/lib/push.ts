@@ -35,8 +35,9 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
       })
 
       PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-        console.log('알림 클릭:', action)
+        console.log('알림 클릭 전체:', JSON.stringify(action))
         const data = action.notification.data
+        console.log('data:', JSON.stringify(data))
         if (data?.url) {
           const url = new URL(data.url, window.location.origin)
           const tab = url.searchParams.get('tab')
