@@ -2,15 +2,30 @@
 
 import { useState, useEffect } from 'react'
 
-export default function ClientTutorial({ onDone }: { onDone: () => void }) {
+export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }: { onDone: () => void, onOpenSidebar?: () => void, onCloseSidebar?: () => void }) {
   const [step, setStep] = useState(0)
+
+  const isMd = typeof window !== 'undefined' && window.innerWidth >= 768
+  const [sidebarReady, setSidebarReady] = useState(!isMd)
+
+  useEffect(() => {
+    if (isMd) {
+      onOpenSidebar?.()
+      setTimeout(() => setSidebarReady(true), 500)
+    }
+    return () => {
+      if (isMd) onCloseSidebar?.()
+    }
+  }, [])
+
+  const suffix = isMd ? '-sidebar' : ''
 
   const steps = [
     { target: 'tutorial-project-card', title: '프로젝트 선택', description: '계약된 가수 및 곡명을 클릭하면 캠페인 진행상황을 실시간으로 모니터링할 수 있어요.', position: 'bottom' },
-    { target: 'tutorial-bottom-nav', title: '하단 탭 네비게이션', description: '하단 탭으로 프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.', position: 'top' },
-    { target: 'tutorial-stats-btn', title: '현황 탭', description: '실시간으로 좋아요, 댓글, 조회수 등 통계를 확인할 수 있어요.', position: 'top' },
-    { target: 'tutorial-apply-btn', title: '프로젝트 신청', description: '새로운 프로젝트를 신청할 수 있어요. 가수명, 노래제목, 희망 시작일 등을 입력해주세요.', position: 'top' },
-    { target: 'tutorial-report-btn', title: '보고서 탭', description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.', position: 'top' },
+    { target: isMd ? 'tutorial-stats-btn-sidebar' : 'tutorial-bottom-nav', title: '탭 네비게이션', description: '프로젝트, 현황, 신청, 보고서, 마이페이지 등 각 페이지로 빠르게 이동할 수 있어요.', position: 'top' },
+    { target: `tutorial-stats-btn${suffix}`, title: '현황 탭', description: '실시간으로 좋아요, 댓글, 조회수 등 통계를 확인할 수 있어요.', position: 'top' },
+    { target: `tutorial-apply-btn${suffix}`, title: '프로젝트 신청', description: '새로운 프로젝트를 신청할 수 있어요. 가수명, 노래제목, 희망 시작일 등을 입력해주세요.', position: 'top' },
+    { target: `tutorial-report-btn${suffix}`, title: '보고서 탭', description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.', position: 'top' },
     { target: 'tutorial-inquiry-card', title: '프로젝트 문의', description: '진행 중인 프로젝트에 대해 궁금한 점을 문의할 수 있어요. 더블비뮤직 담당자가 빠르게 답변드려요.', position: 'bottom' },
     { target: 'tutorial-guide-card', title: '앱 사용 가이드', description: '더블비뮤직 앱 사용 방법을 자세히 안내해드려요. 펼쳐서 확인해보세요!', position: 'bottom' },
   ]

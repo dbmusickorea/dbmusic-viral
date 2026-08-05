@@ -451,9 +451,9 @@ export default function Page3() {
           onLogout={handleLogout}
           items={[
             { icon: '', label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project' },
-            { icon: '', label: '현황', onClick: () => setActiveTab('stats'), active: activeTab === 'stats' },
-            { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true) },
-            { icon: '', label: '보고서', onClick: () => router.push('/client-report'), active: activeTab === 'report' },
+            { icon: '', label: '현황', onClick: () => setActiveTab('stats'), active: activeTab === 'stats', id: 'tutorial-stats-btn-sidebar' },
+            { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true), id: 'tutorial-apply-btn-sidebar' },
+            { icon: '', label: '보고서', onClick: () => router.push('/client-report'), active: activeTab === 'report', id: 'tutorial-report-btn-sidebar' },
             { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
           ]}
         />
@@ -1197,10 +1197,15 @@ export default function Page3() {
     </div>
     <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
       {showTutorial && isClient && (
-        <ClientTutorial onDone={() => {
-          setShowTutorial(false)
-          localStorage.setItem('clientTutorialDone', 'true')
-        }} />
+        <ClientTutorial
+          onDone={() => {
+            setShowTutorial(false)
+            setShowSidebar(false)
+            localStorage.setItem('clientTutorialDone', 'true')
+          }}
+          onOpenSidebar={() => setShowSidebar(true)}
+          onCloseSidebar={() => setShowSidebar(false)}
+        />
       )}
     </>
   )
