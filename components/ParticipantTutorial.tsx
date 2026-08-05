@@ -13,8 +13,12 @@ export default function ParticipantTutorial({ onDone, onOpenSidebar, onCloseSide
 
   useEffect(() => {
     if (isMd) {
+      alert('isMd: ' + isMd + ', opening sidebar')
       onOpenSidebar?.()
-      setTimeout(() => setSidebarReady(true), 300)
+      setTimeout(() => {
+        console.log('sidebarReady set to true')
+        setSidebarReady(true)
+      }, 500)
     }
     return () => {
       if (isMd) onCloseSidebar?.()
