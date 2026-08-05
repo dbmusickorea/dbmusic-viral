@@ -26,7 +26,7 @@ export default function ClientReportPage() {
     setUserInfo(parsed)
     const clientId = parsed.client_id
     if (clientId) {
-      fetch(`/api/projects?client_id=${clientId}`)
+      fetchWithAuth(`/api/projects?client_id=${clientId}`)
         .then(res => res.json())
         .then(data => { setMyProjects(data ?? []); setLoading(false) })
     } else {

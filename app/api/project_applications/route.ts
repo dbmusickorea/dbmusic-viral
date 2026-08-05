@@ -6,14 +6,40 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function getRole(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return null
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  if (!user) return null
+  const { data: userData } = await supabaseAdmin.from('users').select('role, client_id').eq('email', user.email).single()
+  if (userData) return { role: userData.role, email: user.email, clientId: userData.client_id }
+  const { data: participant } = await supabaseAdmin.from('participants').select('id').eq('email', user.email).single()
+  if (participant) return { role: 'participant', email: user.email, id: participant.id }
+  return null
+}
+
 export async function GET(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get('client_id')
   const status = searchParams.get('status')
 
   let query = supabaseAdmin.from('project_applications').select('*').order('created_at', { ascending: false })
-  if (clientId) query = query.eq('client_id', clientId)
-  if (status) query = query.eq('status', status)
+
+  if (roleInfo.role === 'client') {
+    query = query.eq('client_id', roleInfo.clientId)
+  } else {
+    if (clientId) query = query.eq('client_id', clientId)
+    if (status) query = query.eq('status', status)
+  }
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
@@ -21,6 +47,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await request.json()
   const { error } = await supabaseAdmin.from('project_applications').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
@@ -28,6 +57,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const roleInfo = await getRole(request)
+  if (!roleInfo || roleInfo.role === 'participant') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   const body = await request.json()

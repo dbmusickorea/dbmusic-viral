@@ -21,10 +21,10 @@ export default function ReportPage() {
     if (!projectCode) return
     const load = async () => {
       const [projectRes, postsRes, historyRes, cmRes] = await Promise.all([
-        fetch(`/api/projects?project_code=${projectCode}`),
+        fetchWithAuth(`/api/projects?project_code=${projectCode}`),
         fetchWithAuth(`/api/posts?project_code=${projectCode}`),
         fetch(`/api/post_stats_history?project_code=${projectCode}`),
-        fetch(`/api/comment_missions?project_code=${projectCode}`)
+        fetchWithAuth(`/api/comment_missions?project_code=${projectCode}`)
       ])
       const projectData = await projectRes.json()
       setProject(Array.isArray(projectData) ? projectData[0] : projectData)

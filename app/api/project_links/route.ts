@@ -6,7 +6,23 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function checkAuth(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return null
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  return user
+}
+
+
 export async function GET(request: NextRequest) {
+  const user = await checkAuth(request)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const projectCode = request.nextUrl.searchParams.get('project_code')
   let query = supabaseAdmin.from('project_links').select('*').order('created_at', { ascending: true })
   if (projectCode) query = query.ilike('project_code', projectCode)
@@ -16,6 +32,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await checkAuth(request)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await request.json()
   const { data, error } = await supabaseAdmin.from('project_links').insert(body).select().single()
   if (error) return NextResponse.json({ error }, { status: 500 })
@@ -31,6 +49,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const user = await checkAuth(request)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const id = request.nextUrl.searchParams.get('id')
   const { error } = await supabaseAdmin.from('project_links').delete().eq('id', Number(id))
   if (error) return NextResponse.json({ error }, { status: 500 })

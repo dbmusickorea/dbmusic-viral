@@ -95,7 +95,7 @@ export default function CoverPage() {
       const projectCodes = [...new Set(coverPostsData.map((p: any) => p.project_code))]
       const [participantsRes, projectsRes] = await Promise.all([
         fetchWithAuth(`/api/participants?ids=${memberIds.join(',')}`),
-        fetch(`/api/projects?codes=${projectCodes.join(',')}`)
+        fetchWithAuth(`/api/projects?codes=${projectCodes.join(',')}`)
       ])
       const participantsData = await participantsRes.json()
       const projectsData = await projectsRes.json()
@@ -286,7 +286,7 @@ export default function CoverPage() {
       const projectCodes = [...new Set(coverPostsData.map((p: any) => p.project_code))]
       const [participantsRes, projectsRes] = await Promise.all([
         fetchWithAuth(`/api/participants?ids=${memberIds.join(',')}`),
-        fetch(`/api/projects?codes=${projectCodes.join(',')}`)
+        fetchWithAuth(`/api/projects?codes=${projectCodes.join(',')}`)
       ])
       const participantsData = await participantsRes.json()
       const projectsData = await projectsRes.json()

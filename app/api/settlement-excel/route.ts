@@ -8,6 +8,21 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function checkAdminAuth(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return false
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  if (!user) return false
+  const { data } = await supabaseAdmin.from('users').select('role').eq('email', user.email).single()
+  return data?.role === 'admin'
+}
+
 const SECRET_KEY = process.env.ENCRYPT_KEY!
 
 function decrypt(text: string): string {

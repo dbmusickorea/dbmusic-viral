@@ -252,7 +252,7 @@ export default function Page1() {
       const projectCodes = [...new Set(data.map((p: any) => p.project_code))].join(',')
       const [participantRes, projectsRes] = await Promise.all([
         fetchWithAuth(`/api/participants?ids=${memberIds}`),
-        fetch(`/api/projects?codes=${projectCodes}`)
+        fetchWithAuth(`/api/projects?codes=${projectCodes}`)
       ])
       const participantData = await participantRes.json()
       const projectsData = await projectsRes.json()
@@ -1156,7 +1156,7 @@ export default function Page1() {
             projectApplications={projectApplications}
             onApprove={(app) => {
               setFormData(prev => ({...prev, artistName: app.artist_name ?? '', songTitle: app.song_title ?? '', missionDate: app.mission_date ?? '', coverVideoCount: app.cover_count ?? 0, requirements: app.requirements ?? '', coverImageUrl: app.jacket_image ?? ''}))
-              fetch(`/api/project_applications?id=${app.id}`, {
+              fetchWithAuth(`/api/project_applications?id=${app.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: 'APPROVED' })

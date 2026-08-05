@@ -6,7 +6,30 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
 export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // 관리자 여부 확인
+  const { data: userData } = await supabaseAdmin.from('users').select('role').eq('email', user.email).single()
+  const isAdmin = userData?.role === 'admin'
+
+  // 체험단이면 본인 데이터만
+  if (!isAdmin) {
+    const { data: participant } = await supabaseAdmin.from('participants').select('id').eq('email', user.email).single()
+    if (!participant) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const requestedId = new URL(request.url).searchParams.get('id')
+    if (String(participant.id) !== requestedId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })

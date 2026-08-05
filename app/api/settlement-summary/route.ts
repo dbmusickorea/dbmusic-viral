@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseAdmin = createClient(
@@ -6,7 +6,24 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function checkAdminAuth(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader) return false
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAuth.auth.getUser(token)
+  if (!user) return false
+  const { data } = await supabaseAdmin.from('users').select('role').eq('email', user.email).single()
+  return data?.role === 'admin'
+}
+
+export async function GET(request: NextRequest) {
+  const isAdmin = await checkAdminAuth(request)
+  if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const [participantsRes, settlementsRes, postsRes, projectsRes] = await Promise.all([
     supabaseAdmin.from('participants').select('id, balance, level, cover_reward').eq('is_deleted', false),
     supabaseAdmin.from('settlements').select('member_id, amount, status').in('status', ['PENDING', 'APPROVED']),
