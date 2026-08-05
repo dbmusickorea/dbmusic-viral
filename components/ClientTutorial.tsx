@@ -57,6 +57,10 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
 
   const getBubblePosition = () => {
     if (!highlightStyle.top) return {}
+    // 아이패드에서 사이드바 버튼 하이라이트는 말풍선을 아래로
+    if (isMd && sidebarNeededSteps.includes(step)) {
+      return { top: highlightStyle.top + highlightStyle.height + 12, left: highlightStyle.left + highlightStyle.width + 12, right: 16 }
+    }
     if (current.position === 'top') {
       return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
     }
