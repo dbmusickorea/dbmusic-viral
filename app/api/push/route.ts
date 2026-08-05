@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       notification.alert = { title, body }
       notification.sound = 'default'
       notification.badge = 1
-      notification.payload = autoData
+      notification.payload = { data: autoData }
       notification.topic = 'com.dbmusic.viral'
 
       for (const token of iosTokens) {
