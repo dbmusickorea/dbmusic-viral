@@ -267,6 +267,16 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
                     })
+                    // 커버 참여 기록 CANCELLED로 변경
+                    const ppRes = await fetchWithAuth(`/api/project_participants?member_id=${memberId}`)
+                    const ppData = await ppRes.json()
+                    for (const pp of ppData?.filter((p: any) => p.is_cover && p.status === 'ACTIVE') ?? []) {
+                      await fetchWithAuth(`/api/project_participants?member_id=${memberId}&project_code=${pp.project_code}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'CANCELLED' })
+                      })
+                    }
                     showToast('커버 페널티 해제 완료!')
                     onUpdate?.()
                   }} className="text-xs bg-gray-500 text-white rounded px-2 py-1">해제+제외</button>
