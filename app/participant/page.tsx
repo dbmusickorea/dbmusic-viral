@@ -1141,10 +1141,10 @@ useEffect(() => {
                 <button onClick={() => setShowSidebar(false)} className="text-gray-400 dark:text-gray-300">✕</button>
               </div>
               <div className="space-y-2 flex-1">
-                <button onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>내 현황</button>
-                <button onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>프로젝트</button>
-                <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
-                <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
+                <button id="tutorial-tab-home-sidebar" onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>내 현황</button>
+                <button id="tutorial-tab-project-sidebar" onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>프로젝트</button>
+                <button id="tutorial-tab-wallet-sidebar" onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
+                <button id="tutorial-tab-mypage-sidebar" onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
               </div>
               <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2">로그아웃</button>
             </div>
@@ -1761,10 +1761,15 @@ useEffect(() => {
       
     </div>
       {showTutorial && (
-        <ParticipantTutorial onDone={() => {
-          setShowTutorial(false)
-          localStorage.setItem('participantTutorialDone', 'true')
-        }} />
+        <ParticipantTutorial
+          onDone={() => {
+            setShowTutorial(false)
+            setShowSidebar(false)
+            localStorage.setItem('participantTutorialDone', 'true')
+          }}
+          onOpenSidebar={() => setShowSidebar(true)}
+          onCloseSidebar={() => setShowSidebar(false)}
+        />
       )}
     </> 
   )

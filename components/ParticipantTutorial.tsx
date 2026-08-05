@@ -3,16 +3,28 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function ParticipantTutorial({ onDone }: { onDone: () => void }) {
+export default function ParticipantTutorial({ onDone, onOpenSidebar, onCloseSidebar }: { onDone: () => void, onOpenSidebar?: () => void, onCloseSidebar?: () => void }) {
   const [step, setStep] = useState(0)
   const router = useRouter()
 
+  const isMd = typeof window !== 'undefined' && window.innerWidth >= 768
+
+  useEffect(() => {
+    if (isMd) {
+      onOpenSidebar?.()
+    }
+    return () => {
+      if (isMd) onCloseSidebar?.()
+    }
+  }, [])
+  const suffix = isMd ? '-sidebar' : ''
+
   const steps = [
-    { target: 'tutorial-tab-home', title: '기본 활동 규칙', description: '내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드하면 미션 성공 시 현금 리워드가 즉시 적립돼요.', position: 'top' },
-    { target: 'tutorial-tab-home', title: '체험단 유형', description: '일반 체험단은 게시물에 신곡 음원(BGM)만 입혀 업로드하고, 커버 체험단은 직접 가창하여 업로드해요. 커버 체험단은 리워드가 추가 지급돼요!', position: 'top' },
-    { target: 'tutorial-tab-project', title: '미션 참여 방법', description: '새 캠페인 알림을 받으면 프로젝트 탭에서 참여 버튼을 클릭하세요. SNS에 음원 매칭 후 업로드한 링크를 앱에 등록하면 완료!', position: 'top' },
-    { target: 'tutorial-tab-wallet', title: '리워드 & 레벨업', description: '게시물 1개당 본인 레벨에 맞는 금액이 적립돼요. 레벨 1~50단계로 2,500원부터 1만원까지 단가가 올라가요!', position: 'top' },
-    { target: 'tutorial-tab-mypage', title: '추천인 코드 & 가이드', description: '내 추천인 코드로 가입 시 1명당 1단계 즉시 상승! 마이페이지에서 추천인 코드를 확인하고 자세한 가이드도 볼 수 있어요.', position: 'top' },
+    { target: `tutorial-tab-home${suffix}`, title: '기본 활동 규칙', description: '내 SNS 게시물에 미션 음원을 배경음악으로 매칭하여 업로드하면 미션 성공 시 현금 리워드가 즉시 적립돼요.', position: isMd ? 'right' : 'top' },
+    { target: `tutorial-tab-home${suffix}`, title: '체험단 유형', description: '일반 체험단은 게시물에 신곡 음원(BGM)만 입혀 업로드하고, 커버 체험단은 직접 가창하여 업로드해요. 커버 체험단은 리워드가 추가 지급돼요!', position: isMd ? 'right' : 'top' },
+    { target: `tutorial-tab-project${suffix}`, title: '미션 참여 방법', description: '새 캠페인 알림을 받으면 프로젝트 탭에서 참여 버튼을 클릭하세요. SNS에 음원 매칭 후 업로드한 링크를 앱에 등록하면 완료!', position: isMd ? 'right' : 'top' },
+    { target: `tutorial-tab-wallet${suffix}`, title: '리워드 & 레벨업', description: '게시물 1개당 본인 레벨에 맞는 금액이 적립돼요. 레벨 1~50단계로 2,500원부터 1만원까지 단가가 올라가요!', position: isMd ? 'right' : 'top' },
+    { target: `tutorial-tab-mypage${suffix}`, title: '추천인 코드 & 가이드', description: '내 추천인 코드로 가입 시 1명당 1단계 즉시 상승! 마이페이지에서 추천인 코드를 확인하고 자세한 가이드도 볼 수 있어요.', position: isMd ? 'right' : 'top' },
   ]
 
   const current = steps[step]
