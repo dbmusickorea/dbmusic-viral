@@ -291,6 +291,22 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ cover_requested: false })
                       })
+                      // 체험단이 이미 승인한 경우 cover_current -1
+                      const crRes = await fetchWithAuth(`/api/cover_requests?participant_id=${memberId}`)
+                      const crData = await crRes.json()
+                      const approved = crData?.find((r: any) => r.project_code?.toLowerCase() === pp.project_code?.toLowerCase() && r.status === 'APPROVED')
+                      if (approved) {
+                        const projRes = await fetchWithAuth(`/api/projects?project_code=${pp.project_code}`)
+                        const projData = await projRes.json()
+                        const proj = Array.isArray(projData) ? projData[0] : projData
+                        if (proj && (proj.cover_current ?? 0) > 0) {
+                          await fetchWithAuth(`/api/projects?project_code=${pp.project_code}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ cover_current: proj.cover_current - 1 })
+                          })
+                        }
+                      }
                     }
                     // 푸시 발송
                     const tokenRes2 = await fetchWithAuth(`/api/push_tokens?user_id=${memberId}`)

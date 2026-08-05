@@ -621,6 +621,12 @@ useEffect(() => {
         }
       }
     }
+    // cover_current +1
+    const projUpdateRes = await fetchWithAuth(`/api/projects?project_code=${r.project_code}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cover_current: (proj?.cover_current ?? 0) + 1 })
+    })
     showToast('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.')
   }
 

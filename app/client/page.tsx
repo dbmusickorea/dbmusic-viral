@@ -1076,6 +1076,7 @@ export default function Page3() {
                                         </span>
                                       ) : null}
                                       <p className="text-sm font-medium dark:text-white">{post.influencer_name}</p>
+                                      {post.is_cover && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded inline-flex items-center gap-0.5"><Music size={10} /> 커버</span>}
                                       {post.platform === 'instagram' && post.participant?.instagram_id && (
                                         <span className="text-xs text-gray-500 dark:text-gray-400">@{post.participant.instagram_id.replace('@','')} ({post.participant.instagram_followers?.toLocaleString() ?? '-'}명)</span>
                                       )}
