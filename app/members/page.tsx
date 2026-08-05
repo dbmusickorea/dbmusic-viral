@@ -1300,74 +1300,74 @@ export default function Page4() {
                 
                 {memberPosts.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 mb-1">📸 게시물 수익</p>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Music size={12} /> 게시물 수익</p>
                     <div className="space-y-1">
                       {memberPosts.map((post) => {
                         const levelReward = level === 50 ? 10000 : 2500 + (level - 1) * 150
                         return (
-                          <div key={post.id} className="flex justify-between text-xs border rounded p-2">
-                            <span>{post.platform} · {post.project_code}</span>
+                          <div key={post.id} className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
+                            <span className="dark:text-white">{post.platform} · {post.project_code}</span>
                             <span className="text-blue-600 font-medium">{levelReward.toLocaleString()}P</span>
                           </div>
                         )
                       })}
-                      <div className="flex justify-between text-xs font-bold bg-blue-50 rounded p-2">
-                        <span>게시물 수익 합계</span>
+                      <div className="flex justify-between text-xs font-bold bg-blue-50 dark:bg-blue-900 rounded p-2">
+                        <span className="dark:text-white">게시물 수익 합계</span>
                         <span className="text-blue-600">{(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150)).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {memberCommentMissions.length > 0 && (
+                {memberCommentMissions.length > 0 ? (
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><MessageSquare size={12} /> 댓글 미션 수익</p>
                     <div className="space-y-1">
                       {memberCommentMissions.map((m) => (
-                        <div key={m.id} className="flex justify-between text-xs border rounded p-2">
-                          <span>{m.project_code} · {m.youtube_handle}</span>
+                        <div key={m.id} className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
+                          <span className="dark:text-white">{m.project_code} · {m.youtube_handle}</span>
                           <span className="text-green-600 font-medium">300P</span>
                         </div>
                       ))}
-                      <div className="flex justify-between text-xs font-bold bg-green-50 rounded p-2">
-                        <span>댓글 수익 합계</span>
+                      <div className="flex justify-between text-xs font-bold bg-green-50 dark:bg-green-900 rounded p-2">
+                        <span className="dark:text-white">댓글 수익 합계</span>
                         <span className="text-green-600">{(memberCommentMissions.length * 300).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
 
-                {selected?.cover_reward && (
+                {selected?.cover_reward ? (
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Music size={12} /> 커버영상 수익</p>
                     <div className="space-y-1">
-                      <div className="flex justify-between text-xs border rounded p-2">
-                        <span>커버영상 별도 지급</span>
+                      <div className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
+                        <span className="dark:text-white">커버영상 별도 지급</span>
                         <span className="text-purple-600 font-medium">{Number(selected.cover_reward).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
 
-                {selectedReferredUsers.length > 0 && (
+                {selectedReferredUsers.length > 0 ? (
                   <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-600 mb-1">🎯 추천인 수익</p>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 flex items-center gap-1"><Users size={12} /> 추천인 수익</p>
                     <div className="space-y-1">
                       {selectedReferredUsers.map((u: any) => (
-                        <div key={u.id} className="flex justify-between text-xs border rounded p-2">
-                          <span>추천인 보상 ({u.name})</span>
+                        <div key={u.id} className="flex justify-between text-xs border dark:border-gray-600 dark:bg-gray-700 rounded p-2">
+                          <span className="dark:text-white">추천인 보상 ({u.name})</span>
                           <span className="text-orange-600 font-medium">150P</span>
                         </div>
                       ))}
-                      <div className="flex justify-between text-xs font-bold bg-orange-50 rounded p-2">
-                        <span>추천인 수익 합계</span>
+                      <div className="flex justify-between text-xs font-bold bg-orange-50 dark:bg-orange-900 rounded p-2">
+                        <span className="dark:text-white">추천인 수익 합계</span>
                         <span className="text-orange-600">{(selectedReferredUsers.length * 150).toLocaleString()}P</span>
                       </div>
                     </div>
                   </div>
-                )}
-                <div className="flex justify-between text-sm font-bold bg-gray-100 rounded p-2">
-                  <span>총 수익</span>
+                ) : null}
+                <div className="flex justify-between text-sm font-bold bg-gray-100 dark:bg-gray-700 rounded p-2">
+                  <span className="dark:text-white">총 수익</span>
                   <span className="text-blue-600">
                     {(memberPosts.length * (level === 50 ? 10000 : 2500 + (level - 1) * 150) + memberCommentMissions.length * 300 + (selected?.cover_reward ? Number(selected.cover_reward) : 0) + selectedReferredUsers.length * 150).toLocaleString()}P
                   </span>
