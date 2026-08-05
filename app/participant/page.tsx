@@ -1679,7 +1679,7 @@ useEffect(() => {
                               <div className="flex gap-2 flex-wrap">
                                 {(() => {
                                   const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && !p.is_cover)
-                                  const alreadyJoinedCover = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover)
+                                  const alreadyJoinedCover = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover && p.status !== 'CANCELLED' && p.cover_requested)
                                   const isBanned = alreadyJoined?.status === 'BANNED' || bannedUntil !== null
                                   const alreadyCover = !!alreadyJoinedCover
                                   const alreadyCoverRequested = alreadyJoinedCover?.cover_requested

@@ -258,6 +258,21 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                         body: JSON.stringify({ status: 'PENDING', expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() })
                       })
                     }
+                    // 푸시 발송
+                    const tokenRes1 = await fetchWithAuth(`/api/push_tokens?user_id=${memberId}`)
+                    const tokens1 = await tokenRes1.json()
+                    if (tokens1?.length > 0) {
+                      await fetch('/api/push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          title: '🎵 커버 페널티가 해제됐어요!',
+                          body: '커버영상 미션에 다시 참여할 수 있어요.',
+                          tokens: tokens1.map((t: any) => t.token),
+                          userIds: tokens1.map((t: any) => t.user_id)
+                        })
+                      })
+                    }
                     showToast('커버 페널티 해제 완료! (재참여 가능)')
                     onUpdate?.()
                   }} className="text-xs bg-orange-600 text-white rounded px-2 py-1">해제+재참여</button>
@@ -267,14 +282,29 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ cover_penalty_until: null, cover_penalty_reason: null })
                     })
-                    // 커버 참여 기록 CANCELLED로 변경
+                    // 커버 참여 기록 cover_requested = false로 변경
                     const ppRes = await fetchWithAuth(`/api/project_participants?member_id=${memberId}`)
                     const ppData = await ppRes.json()
                     for (const pp of ppData?.filter((p: any) => p.is_cover && p.status === 'ACTIVE') ?? []) {
                       await fetchWithAuth(`/api/project_participants?member_id=${memberId}&project_code=${pp.project_code}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'CANCELLED' })
+                        body: JSON.stringify({ cover_requested: false })
+                      })
+                    }
+                    // 푸시 발송
+                    const tokenRes2 = await fetchWithAuth(`/api/push_tokens?user_id=${memberId}`)
+                    const tokens2 = await tokenRes2.json()
+                    if (tokens2?.length > 0) {
+                      await fetch('/api/push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          title: '커버 페널티가 해제됐어요.',
+                          body: '일반 미션은 계속 참여 가능해요.',
+                          tokens: tokens2.map((t: any) => t.token),
+                          userIds: tokens2.map((t: any) => t.user_id)
+                        })
                       })
                     }
                     showToast('커버 페널티 해제 완료!')
