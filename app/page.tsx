@@ -560,6 +560,21 @@ export default function LoginPage() {
       })
     }
     
+    // 관리자에게 신규 가입 알림
+    const adminTokensRes2 = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokens2 = await adminTokensRes2.json()
+    if (adminTokens2?.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '🎉 새 체험단이 가입했어요!',
+          body: `${p_name}님이 가입했어요. (${p_instagram || p_youtube || p_tiktok || ''})`,
+          tokens: adminTokens2.map((t: any) => t.token),
+          userIds: adminTokens2.map((t: any) => t.user_id)
+        })
+      })
+    }
     showToast(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
