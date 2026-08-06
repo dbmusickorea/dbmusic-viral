@@ -622,6 +622,22 @@ export default function LoginPage() {
       })
     })
     if (!res.ok) { showToast('회원가입 실패!'); return }
+
+    // 관리자에게 신규 의뢰인 가입 알림
+    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokens = await adminTokensRes.json()
+    if (adminTokens?.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '🎵 새 의뢰인이 가입했어요!',
+          body: `${c_name}님이 가입했어요. (${c_company || ''})`,
+          tokens: adminTokens.map((t: any) => t.token),
+          userIds: adminTokens.map((t: any) => t.user_id)
+        })
+      })
+    }
     showToast(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
