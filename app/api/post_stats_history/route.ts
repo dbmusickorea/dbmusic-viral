@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
 
-  let query = auth.client.from('post_stats_history').select('*').order('recorded_at', { ascending: true })
+  let query = auth.client.from('post_stats_history').select('*').order('recorded_at', { ascending: true }).limit(10000)
   if (projectCode) query = query.ilike('project_code', projectCode)
 
   const { data, error } = await query
