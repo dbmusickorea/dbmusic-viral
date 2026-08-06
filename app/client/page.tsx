@@ -1,4 +1,5 @@
 'use client'
+import MetaInsightsDashboard from '../../components/MetaInsightsDashboard'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect, useRef } from 'react'
@@ -751,6 +752,7 @@ export default function Page3() {
 
           {/* 오른쪽 컬럼 */}
           <div id="tutorial-stats-tab" className={`${activeTab === 'stats' ? 'block' : 'hidden'} md:block`}>
+            {userInfo?.meta_campaign_id && <MetaInsightsDashboard campaignId={userInfo.meta_campaign_id} />}
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
               <>
