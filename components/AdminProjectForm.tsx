@@ -107,6 +107,10 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       <input value={formData.songTitle} onChange={(e) => setFormData((prev: any) => ({...prev, songTitle: e.target.value}))} className={inputClass} placeholder="노래제목 입력" />
                     </div>
                     <div>
+                      <label className="text-sm font-medium dark:text-gray-200">메타 캠페인 ID</label>
+                      <input value={formData.metaCampaignId ?? ''} onChange={(e) => setFormData((prev: any) => ({...prev, metaCampaignId: e.target.value}))} className={inputClass} placeholder="메타 광고 캠페인 ID 입력" />
+                    </div>
+                    <div>
                       <label className="text-sm font-medium dark:text-gray-200">인스타그램 음원 URL</label>
                       <input value={formData.instagramAudioId} onChange={(e) => {
                         const match = e.target.value.match(/reels\/audio\/(\d+)/)

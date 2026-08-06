@@ -448,7 +448,6 @@ export default function Page4() {
   const [cPhone, setCPhone] = useState('')
   const [cMobile, setCMobile] = useState('')
   const [cEmail, setCEmail] = useState('')
-  const [cMetaCampaignId, setCMetaCampaignId] = useState('')
   const [cPassword, setCPassword] = useState('')
   const [cProjectCode, setCProjectCode] = useState('')
   const [showClientInsert, setShowClientInsert] = useState(false)
@@ -703,7 +702,6 @@ export default function Page4() {
   const handleSelectClient = (c: any) => {
     setSelectedClient(c)
     setCName(c.name ?? ''); setCCompany(c.company ?? ''); setCArtist(c.artist ?? '')
-    setCMetaCampaignId(c.meta_campaign_id ?? '')
     setCPhone(c.phone ?? ''); setCMobile(c.mobile ?? ''); setCEmail(c.email ?? '')
     setCPassword(''); setCProjectCode(c.project_code ?? '')
     fetchArtists(c.client_id)
@@ -712,7 +710,6 @@ export default function Page4() {
   const clearClientForm = () => {
     setSelectedClient(null)
     setCName(''); setCCompany(''); setCArtist(''); setCPhone('')
-    setCMetaCampaignId('')
     setCMobile(''); setCEmail(''); setCPassword(''); setCProjectCode('')
     setArtistList([])
     setNewArtistName('')
@@ -784,7 +781,7 @@ export default function Page4() {
   const handleUpdateClient = async () => {
     const updateData: any = {
       name: cName, company: cCompany, artist: cArtist,
-      phone: cPhone, mobile: cMobile, email: cEmail, meta_campaign_id: cMetaCampaignId,
+      phone: cPhone, mobile: cMobile, email: cEmail,
       project_code: cProjectCode || null
     }
     if (cPassword) updateData.password = cPassword
@@ -1409,7 +1406,6 @@ export default function Page4() {
                       { label: '소속사명', value: cCompany, setter: setCCompany },
                       { label: '휴대전화', value: cMobile, setter: setCMobile },
                       { label: '이메일', value: cEmail, setter: setCEmail, type: 'email' },
-                      { label: '메타 캠페인 ID', value: cMetaCampaignId, setter: setCMetaCampaignId },
                     ].map(({ label, value, setter, type }) => (
                       <div key={label}>
                         <label className="text-sm font-medium dark:text-white">
