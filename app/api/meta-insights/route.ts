@@ -46,10 +46,33 @@ export async function GET(req: NextRequest) {
     if (json.error) return NextResponse.json({ error: json.error.message }, { status: 502 })
 
     const raw = json.data?.[0] ?? {}
+
+    // 캠페인 예산 정보 조회
+    let dailyBudget = '0'
+    let lifetimeBudget = '0'
+    let budgetRemaining = '0'
+
+    if (campaignId) {
+      const budgetParams = new URLSearchParams({
+        fields: 'daily_budget,lifetime_budget,budget_remaining',
+        access_token: token,
+      })
+      const budgetRes = await fetch(`https://graph.facebook.com/v19.0/${campaignId}?${budgetParams}`, { cache: 'no-store' })
+      const budgetJson = await budgetRes.json()
+      if (!budgetJson.error) {
+        dailyBudget = budgetJson.daily_budget ?? '0'
+        lifetimeBudget = budgetJson.lifetime_budget ?? '0'
+        budgetRemaining = budgetJson.budget_remaining ?? '0'
+      }
+    }
+
     const result = {
       spend: raw.spend ?? '0',
       impressions: raw.impressions ?? '0',
       inline_link_clicks: raw.inline_link_clicks ?? '0',
+      daily_budget: dailyBudget,
+      lifetime_budget: lifetimeBudget,
+      budget_remaining: budgetRemaining,
       fetched_at: new Date().toISOString(),
     }
 
