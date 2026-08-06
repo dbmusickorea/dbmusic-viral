@@ -24,7 +24,7 @@ import PlatformIcon from '../../components/PlatformIcon'
 export default function Page1() {
   const [projects, setProjects] = useState<any[]>([])
   const [formData, setFormData] = useState({
-    artistName: '', songTitle: '', clientName: '', projectCode: '', projectPrefix: '',
+    artistName: '', songTitle: '', clientName: '', projectCode: '', projectPrefix: '', metaCampaignId: '',
     productContent: '', requirements: '', status: 'PENDING',
     startDate: '', endDate: '', startTime: '', endTime: '',
     missionDate: '', missionTime: '', maxParticipants: '', rewardPerPost: '2500',
@@ -382,8 +382,8 @@ export default function Page1() {
     setCoverImageFile(null)
     setFormData(prev => ({ ...prev,
       clientName: project.client_name ?? '',
-      artistName: project.artist_name ?? '',
       metaCampaignId: project.meta_campaign_id ?? '',
+      artistName: project.artist_name ?? '',
       projectCode: project.project_code ?? '',
       projectPrefix: project.project_code?.split('_')[0] ?? '',
       productContent: project.product_content ?? '',
@@ -562,7 +562,6 @@ export default function Page1() {
         song_title: formData.songTitle,
         artist_name: formData.artistName || null,
         meta_campaign_id: formData.metaCampaignId || null,
-        meta_campaign_id: formData.metaCampaignId || null,
         cover_image_url: uploadedImageUrl || null,
         instagram_audio_id: formData.instagramAudioId || null,
         tiktok_audio_id: formData.tiktokAudioId || null,
@@ -680,7 +679,6 @@ export default function Page1() {
         product_content: formData.productContent,
         song_title: formData.songTitle,
         artist_name: formData.artistName || null,
-        meta_campaign_id: formData.metaCampaignId || null,
         meta_campaign_id: formData.metaCampaignId || null,
         cover_image_url: uploadedImageUrl || null,
         instagram_audio_id: formData.instagramAudioId || null,
@@ -935,7 +933,7 @@ export default function Page1() {
     setPosts([])
     setArtistList([])
     setFormData({
-      artistName: '', songTitle: '', clientName: '', projectCode: '', projectPrefix: '',
+      artistName: '', songTitle: '', clientName: '', projectCode: '', projectPrefix: '', metaCampaignId: '',
       productContent: '', requirements: '', status: 'PENDING',
       startDate: '', endDate: '', startTime: '', endTime: '',
       missionDate: '', missionTime: '', maxParticipants: '', rewardPerPost: '',
