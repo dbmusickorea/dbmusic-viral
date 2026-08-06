@@ -1,29 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-async function getAuthenticatedClient(request: NextRequest) {
+export async function GET(request: NextRequest) {
+  // 인증 확인
   const authHeader = request.headers.get('authorization')
-  if (!authHeader) return null
+  if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const token = authHeader.replace('Bearer ', '')
   const { data: { user } } = await createClient(supabaseUrl, supabaseAnonKey).auth.getUser(token)
-  if (!user) return null
-  const client = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: { persistSession: false, autoRefreshToken: false }
-  })
-  return { client, user }
-}
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-export async function GET(request: NextRequest) {
-  const auth = await getAuthenticatedClient(request)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { searchParams } = new URL(request.url)
   const projectCode = searchParams.get('project_code')
 
-  let query = auth.client.from('post_stats_history').select('*').order('recorded_at', { ascending: true }).limit(10000)
+  let query = supabaseAdmin.from('post_stats_history').select('*').order('recorded_at', { ascending: true })
   if (projectCode) query = query.ilike('project_code', projectCode)
 
   const { data, error } = await query
