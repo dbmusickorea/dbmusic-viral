@@ -73,11 +73,7 @@ export default function MetaInsightsDashboard({ campaignId }: { campaignId?: str
     </div>
   )
 
-  if (error) return (
-    <div className="p-3 bg-red-50 dark:bg-red-900 rounded-lg text-red-600 dark:text-red-300 text-sm">
-      광고 데이터 없음
-    </div>
-  )
+  if (error) return null
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
