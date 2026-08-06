@@ -697,6 +697,7 @@ export default function LoginPage() {
               <button onClick={() => setShowSignup(true)} className="w-full border rounded-lg py-2 text-sm text-gray-600">회원가입</button>
               <a href="/privacy" className="block text-xs text-gray-400 text-center mt-2" onClick={(e) => { e.preventDefault(); router.push('/privacy') }}>개인정보처리방침</a>
               <a href="/terms" className="block text-xs text-gray-400 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/terms') }}>이용약관</a>
+              <a href="/about" className="block text-xs text-blue-500 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/about') }}>서비스 소개</a>
               <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
                 <p className="text-xs text-gray-400 dark:text-gray-500 text-center">더블비뮤직 · 대표: 최병민 · 사업자등록번호: 280-02-02331</p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 text-center">서울특별시 송파구 백제고분로 116, 3층 611호</p>
