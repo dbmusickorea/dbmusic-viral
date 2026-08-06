@@ -121,7 +121,7 @@ export default function TermsPage() {
             <li>사업자등록번호: 280-02-02331</li>
             <li>주소: 서울특별시 송파구 백제고분로 116, 3층 611호</li>
             <li>이메일: doubleb@doubleb.kr</li>
-            <li>유선전화: 010-7593-7966</li>
+            <li>유선전화: 070-8065-5811</li>
           </ul>
         </section>
       </div>

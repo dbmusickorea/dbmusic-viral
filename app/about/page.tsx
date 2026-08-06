@@ -74,7 +74,8 @@ export default function AboutPage() {
             <p>상호명: 더블비뮤직</p>
             <p>대표자: 최병민</p>
             <p>사업자등록번호: 280-02-02331</p>
-            <p>이메일: db_music@naver.com</p>
+            <p>고객센터: 070-8065-5811</p>
+            <p>이메일: doubleb@doubleb.kr</p>
           </div>
         </div>
 
