@@ -442,6 +442,7 @@ export default function Page3() {
             { icon: '', label: '회원관리', onClick: () => router.push('/members') },
             { icon: '', label: '정산', onClick: () => router.push('/settlement') },
             { icon: '', label: '커버', onClick: () => router.push('/cover') },
+          { icon: '🏢', label: '에이전시', onClick: () => router.push('/agency') },
             { icon: '', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
           ]}
         />
