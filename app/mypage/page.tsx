@@ -305,16 +305,22 @@ export default function MyPage() {
                     company: clientCompany,
                     artist: clientArtist,
                     role: 'client',
-                    client_id: clientId
+                    client_id: clientId,
+                    agreed_terms: true
                   })
                 })
                 if (!res.ok) { alert('의뢰인 계정 생성 실패!'); return }
-                const users = await res.json()
-                const newUser = Array.isArray(users) ? users[0] : users
+                // 생성된 계정 다시 조회
+                const info2 = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
+                const newUserRes = await fetchWithAuth(`/api/users?email=${encodeURIComponent(info2.email)}`)
+                const newUsers = await newUserRes.json()
+                const newUser = newUsers?.[0]
+                if (!newUser) { alert('계정 조회 실패!'); return }
                 setHasClientAccount(true)
                 setShowClientSignup(false)
                 localStorage.setItem('userInfo', JSON.stringify(newUser))
                 localStorage.setItem('userRole', 'client')
+                if ((window as any).Capacitor?.isNativePlatform?.()) await initPushNotifications(String(newUser.id), 'client')
                 router.push('/client')
               }} className="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm font-medium">의뢰인 계정 생성</button>
             </div>
@@ -727,6 +733,7 @@ export default function MyPage() {
               if (user) {
                 localStorage.setItem('userInfo', JSON.stringify(user))
                 localStorage.setItem('userRole', user.role)
+                if ((window as any).Capacitor?.isNativePlatform?.()) await initPushNotifications(String(user.id), user.role)
                 router.push('/client')
               }
             }} className="w-full text-sm text-green-600 border border-green-300 rounded-lg py-2 mb-3">의뢰인 페이지로 전환</button>

@@ -463,6 +463,7 @@ export default function ClientMyPage() {
               if (participant) {
                 localStorage.setItem('userInfo', JSON.stringify(participant))
                 localStorage.setItem('userRole', 'participant')
+                if ((window as any).Capacitor?.isNativePlatform?.()) await initPushNotifications(String(participant.id), 'participant')
                 router.push('/participant')
               }
             }} className="w-full text-sm text-blue-600 border border-blue-300 rounded-lg py-2 mb-3">체험단 페이지로 전환</button>
