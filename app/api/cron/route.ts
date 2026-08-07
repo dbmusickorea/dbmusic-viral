@@ -789,6 +789,48 @@ export async function GET() {
           // 프로젝트 COMPLETED 로 변경
           await supabase.from('projects').update({ status: 'COMPLETED' }).eq('project_code', project.project_code)
 
+          // 에이전시 수수료 계산
+          const { data: projectPointHistory } = await supabase
+            .from('point_history')
+            .select('member_id, amount')
+            .eq('project_code', project.project_code)
+            .gt('amount', 0)
+
+          if (projectPointHistory && projectPointHistory.length > 0) {
+            // 참여 체험단별 리워드 합계
+            const memberRewards: Record<number, number> = {}
+            projectPointHistory.forEach((ph: any) => {
+              memberRewards[ph.member_id] = (memberRewards[ph.member_id] ?? 0) + ph.amount
+            })
+
+            // 에이전시 대표 목록
+            const { data: agencies } = await supabase.from('participants').select('id, referral_code, agency_commission').eq('is_agency', true)
+            if (agencies) {
+              for (const agency of agencies) {
+                // 소속 체험단 조회
+                const { data: agencyMembers } = await supabase.from('participants').select('id').eq('referred_by', agency.referral_code)
+                if (!agencyMembers || agencyMembers.length === 0) continue
+
+                // 소속 체험단의 해당 프로젝트 리워드 합계
+                let totalReward = 0
+                agencyMembers.forEach((m: any) => {
+                  totalReward += memberRewards[m.id] ?? 0
+                })
+                if (totalReward === 0) continue
+
+                // 수수료 계산
+                const commission = Math.floor(totalReward * (agency.agency_commission ?? 0) / 100)
+                if (commission === 0) continue
+
+                // agency_balance 업데이트
+                const { data: agencyData } = await supabase.from('participants').select('agency_balance').eq('id', agency.id).maybeSingle()
+                await supabase.from('participants').update({
+                  agency_balance: (agencyData?.agency_balance ?? 0) + commission
+                }).eq('id', agency.id)
+              }
+            }
+          }
+
           // 참여 체험단에게 푸시
           const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
           if (joinedParticipants && joinedParticipants.length > 0) {
