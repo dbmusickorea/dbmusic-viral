@@ -80,7 +80,12 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
     if (current.position === 'top') {
       return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
     }
-    return { top: highlightStyle.top + highlightStyle.height + 12, left: 16, right: 16 }
+    // bottom 위치인데 화면 밖으로 나가면 위로
+    const bubbleTop = highlightStyle.top + highlightStyle.height + 12
+    if (bubbleTop + 200 > window.innerHeight) {
+      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
+    }
+    return { top: bubbleTop, left: 16, right: 16 }
   }
 
   return (
