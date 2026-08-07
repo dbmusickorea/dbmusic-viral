@@ -75,13 +75,24 @@ export default function Page5() {
       body: JSON.stringify({ status: 'APPROVED', memo })
     })
     if (selectedParticipant) {
-      await fetchWithAuth(`/api/participants?id=${selected.member_id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          balance: (selectedParticipant.balance ?? 0) - (selected.net_amount ?? selected.amount ?? 0)
+      if (selected.type === 'agency') {
+        // 에이전시 수수료 차감
+        await fetchWithAuth(`/api/participants?id=${selected.member_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agency_balance: (selectedParticipant.agency_balance ?? 0) - (selected.net_amount ?? selected.amount ?? 0)
+          })
         })
-      })
+      } else {
+        await fetchWithAuth(`/api/participants?id=${selected.member_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            balance: (selectedParticipant.balance ?? 0) - (selected.net_amount ?? selected.amount ?? 0)
+          })
+        })
+      }
     }
     // 체험단에게 푸시 알림 발송
     const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.member_id)}`)
@@ -92,7 +103,7 @@ export default function Page5() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '💰 환전 신청이 승인됐어요!',
-          body: `${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}P 환전이 승인됐어요.`,
+          body: selected.type === 'agency' ? `에이전시 수수료 ${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}P 환전이 승인됐어요.` : `${(selected.net_amount ?? selected.amount ?? 0).toLocaleString()}P 환전이 승인됐어요.`,
           tokens: memberTokens.map((t: any) => t.token),
           userIds: [String(selected.member_id)]
         })

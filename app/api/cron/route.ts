@@ -827,6 +827,21 @@ export async function GET() {
                 await supabase.from('participants').update({
                   agency_balance: (agencyData?.agency_balance ?? 0) + commission
                 }).eq('id', agency.id)
+
+                // 에이전시 대표에게 푸시
+                const { data: agencyTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(agency.id))
+                if (agencyTokens && agencyTokens.length > 0) {
+                  await fetch('https://app.doubleb.kr/api/push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      title: '💰 수수료가 적립됐어요!',
+                      body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 수수료 ${commission.toLocaleString()}P가 적립됐어요.`,
+                      tokens: agencyTokens.map((t: any) => t.token),
+                      userIds: [String(agency.id)]
+                    })
+                  })
+                }
               }
             }
           }
