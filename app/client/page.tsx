@@ -829,7 +829,7 @@ export default function Page3() {
                     <p className="text-xs dark:text-gray-300">모집인원: {projectInfo.max_participants ?? '-'}명</p>
                     {projectInfo.monitoring_extension > 0 && <p className="text-xs dark:text-gray-300">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
                     {projectInfo.refresh_interval && <p className="text-xs dark:text-gray-300">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
-                    {projectInfo.cover_video_count > 0 && <p className="text-xs dark:text-gray-300">커버영상: {projectInfo.cover_video_count}개 ({projectInfo.cover_type === 'premium' ? '프리미엄' : '일반'})</p>}
+                    {projectInfo.cover_video_count > 0 && <p className="text-xs dark:text-gray-300">{projectInfo.cover_type === 'premium' ? `프리미엄 커버: 3명` : `일반 커버: ${projectInfo.cover_video_count}명`}</p>}
                   </div>
                 </div>
                 {projectInfo.requirements && (

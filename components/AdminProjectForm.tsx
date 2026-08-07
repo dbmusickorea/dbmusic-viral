@@ -39,7 +39,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                         {Number(formData.requiredPosts) === 2 && <p>게시물 2개 (+50%): +{Math.floor(getSelectedProductPrice() * 0.5).toLocaleString()}원</p>}
                         {formData.monitoringExtension > 0 && <p>모니터링 연장 ({formData.monitoringExtension}일): +{(formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
                         {formData.refreshInterval && formData.refreshInterval !== '' && formData.refreshInterval !== '0' && formData.refreshInterval !== '12' && <p>트래픽 부스터: +{(formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
-                        {formData.coverVideoCount > 0 && <p>커버영상 ({formData.coverVideoCount}개): +{(formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
+                        {formData.coverVideoCount > 0 && <p>{formData.coverType === 'premium' ? `프리미엄 커버 (3명)` : `커버영상 (${formData.coverVideoCount}개)`}: +{(formData.coverVideoCount === 3 ? 1500000 : formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
                       </div>
                     </div>
                   )}
@@ -256,25 +256,29 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                     </div>
                     <div>
                       <label className="text-sm font-medium dark:text-gray-200">커버영상 옵션 (추가 옵션)</label>
-                      <select value={formData.coverVideoCount} onChange={(e) => {
-                        const count = Number(e.target.value)
-                        setFormData((prev: any) => ({...prev, coverVideoCount: count, coverType: count > 0 ? (prev.coverType || 'normal') : 'normal'}))
+                      <select value={formData.coverType === 'premium' ? 'premium' : (formData.coverVideoCount > 0 ? 'normal' : '0')} onChange={(e) => {
+                        const val = e.target.value
+                        if (val === '0') {
+                          setFormData((prev: any) => ({...prev, coverType: 'normal', coverVideoCount: 0}))
+                        } else if (val === 'premium') {
+                          setFormData((prev: any) => ({...prev, coverType: 'premium', coverVideoCount: 3}))
+                        } else {
+                          setFormData((prev: any) => ({...prev, coverType: 'normal', coverVideoCount: 0}))
+                        }
                       }} className={inputClass}>
                         <option value="0">없음</option>
-                        <option value="10">10개 (1,500,000원)</option>
-                        <option value="20">20개 (3,000,000원)</option>
-                        <option value="30">30개 (4,500,000원)</option>
+                        <option value="normal">일반 커버</option>
+                        <option value="premium">프리미엄 커버 - 3명 (1,500,000원)</option>
                       </select>
                     </div>
-                    {formData.coverVideoCount > 0 && (
+                    {formData.coverType === 'normal' && (
                     <div>
-                      <label className="text-sm font-medium dark:text-gray-200">커버 타입</label>
-                      <select value={formData.coverType ?? 'normal'} onChange={(e) => {
-                        const type = e.target.value
-                        setFormData((prev: any) => ({...prev, coverType: type, coverVideoCount: type === 'premium' ? 3 : prev.coverVideoCount}))
-                      }} className={inputClass}>
-                        <option value="normal">일반 커버</option>
-                        <option value="premium">프리미엄 커버</option>
+                      <label className="text-sm font-medium dark:text-gray-200">일반 커버 인원</label>
+                      <select value={formData.coverVideoCount} onChange={(e) => setFormData((prev: any) => ({...prev, coverVideoCount: Number(e.target.value)}))} className={inputClass}>
+                        <option value="0">선택</option>
+                        <option value="10">10명 (1,500,000원)</option>
+                        <option value="20">20명 (3,000,000원)</option>
+                        <option value="30">30명 (4,500,000원)</option>
                       </select>
                     </div>
                     )}
@@ -382,7 +386,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                             const optionsText = [
                               formData.refreshInterval ? ({'12':'기본 트래픽','6':'실버 트래픽','3':'골드 트래픽','1':'다이아 VIP'} as any)[String(formData.refreshInterval)] : '',
                               Number(formData.monitoringExtension) > 0 ? `모니터링 ${formData.monitoringExtension}일 연장` : '',
-                              Number(formData.coverVideoCount) > 0 ? `커버영상 ${formData.coverVideoCount}개` : '',
+                              Number(formData.coverVideoCount) > 0 ? (formData.coverType === 'premium' ? `프리미엄 커버 3명` : `커버영상 ${formData.coverVideoCount}개`) : '',
                               Number(formData.requiredPosts) > 1 ? `게시물 ${formData.requiredPosts}개` : '',
                               formData.optionName || ''
                             ].filter(Boolean).join(' / ')

@@ -446,7 +446,7 @@ export default function Page1() {
     const option = Number(formData.optionPrice) || 0
     const monitoring = formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : formData.monitoringExtension === 45 ? 600000 : 0
     const traffic = formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : formData.refreshInterval === '1' ? 800000 : 0
-    const cover = formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : formData.coverVideoCount === 30 ? 4500000 : 0
+    const cover = formData.coverType === 'premium' ? 1500000 : formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : formData.coverVideoCount === 30 ? 4500000 : 0
     const extraPosts = Number(formData.requiredPosts) === 2 ? Math.floor(productPrice * 0.5) : 0
     return productPrice + option + monitoring + traffic + cover + extraPosts
   }
