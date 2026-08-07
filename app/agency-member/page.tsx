@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../../app/lib/fetchWithAuth'
 import BottomNav from '../../components/BottomNav'
-import { Users, ChevronDown, ChevronUp, Wallet, Briefcase, BarChart2, Target, User, Menu } from 'lucide-react'
+import { Users, ChevronDown, ChevronUp, Wallet, Briefcase, BarChart2, Target, User, Menu, RefreshCw, ArrowDown } from 'lucide-react'
 
 export default function AgencyMemberPage() {
   const router = useRouter()
