@@ -1190,7 +1190,31 @@ export default function Page4() {
                     </div>
                     {selected?.is_cover_possible && (
                       <div className="bg-purple-50 rounded-lg p-3">
-                        <p className="text-xs font-medium text-purple-700 dark:text-purple-400 mb-2 flex items-center gap-1"><Music size={12} /> 커버영상 신청</p>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-medium text-purple-700 dark:text-purple-400 flex items-center gap-1"><Music size={12} /> 커버영상 신청</p>
+                          <div className="flex gap-1">
+                            <button onClick={async () => {
+                              await fetchWithAuth(`/api/participants?id=${selected.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ cover_grade: 'normal' })
+                              })
+                              setSelected((prev: any) => ({ ...prev, cover_grade: 'normal' }))
+                              setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, cover_grade: 'normal' } : p))
+                              showToast('일반 커버로 변경됐어요.')
+                            }} className={`text-xs px-2 py-0.5 rounded ${!selected.cover_grade || selected.cover_grade === 'normal' ? 'bg-purple-600 text-white' : 'border border-purple-400 text-purple-600'}`}>일반</button>
+                            <button onClick={async () => {
+                              await fetchWithAuth(`/api/participants?id=${selected.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ cover_grade: 'premium' })
+                              })
+                              setSelected((prev: any) => ({ ...prev, cover_grade: 'premium' }))
+                              setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, cover_grade: 'premium' } : p))
+                              showToast('프리미엄 커버로 변경됐어요.')
+                            }} className={`text-xs px-2 py-0.5 rounded ${selected.cover_grade === 'premium' ? 'bg-yellow-500 text-white' : 'border border-yellow-400 text-yellow-600'}`}>프리미엄</button>
+                          </div>
+                        </div>
                         {selected.cover_video_url && (
                           <a href={selected.cover_video_url} target="_blank" className="text-xs text-blue-500 block mb-2">영상 링크 보기 →</a>
                         )}
