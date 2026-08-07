@@ -443,7 +443,7 @@ export async function GET() {
         const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').in('status', ['ACTIVE', 'BANNED'])
         const joinedIds = new Set(joinedParticipants?.map(j => j.member_id) ?? [])
         const notJoined = allParticipantsInactive?.filter(p => !joinedIds.has(p.id)) ?? []
-        if (notJoined.length > 0) {
+        if (notJoined.length > 0 && currentHour === 10) {
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', notJoined.map(p => String(p.id)))
           if (tokens && tokens.length > 0) {
             await fetch(`https://app.doubleb.kr/api/push`, {
