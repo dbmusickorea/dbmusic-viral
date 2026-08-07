@@ -277,7 +277,10 @@ export default function Page5() {
                     }} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selected?.id === s.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium text-sm dark:text-white">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
+                          <div className="flex items-center gap-1">
+                            <p className="font-medium text-sm dark:text-white">{s.participants?.name ?? `회원 ID: ${s.member_id}`}</p>
+                            {s.type === 'agency' && <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full">에이전시</span>}
+                          </div>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
                           {s.paid_at && <p className="text-xs text-blue-600">정산완료: {new Date(s.paid_at).toLocaleDateString('ko-KR')}</p>}
                           {s.memo && <p className="text-xs text-blue-600 mt-1 flex items-center gap-0.5"><StickyNote size={10} /> 메모 있음</p>}

@@ -152,19 +152,19 @@ export default function AgencyWalletPage() {
               )}
             </div>
             <div>
-              <label className="text-sm font-medium dark:text-white">주민등록번호 (원천징수용)</label>
+              <label className="text-sm font-medium dark:text-white">사업자등록번호 (세금계산서 발행용)</label>
               <input
                 type="text"
                 value={residentNumber}
                 onChange={(e) => setResidentNumber(e.target.value)}
                 className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white"
-                placeholder="000000-0000000"
-                maxLength={14}
+                placeholder="000-00-00000"
+                maxLength={12}
               />
             </div>
             <label className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300 cursor-pointer">
               <input type="checkbox" checked={agreedTax} onChange={(e) => setAgreedTax(e.target.checked)} className="mt-0.5" />
-              개인정보 수집 및 원천징수 세금 공제에 동의합니다. (필수)
+              세금계산서 발행에 동의합니다. (필수)
             </label>
             <button
               onClick={handleExchange}
