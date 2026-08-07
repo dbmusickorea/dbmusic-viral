@@ -104,6 +104,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showRoleSelect, setShowRoleSelect] = useState(false)
+  const [roleSelectData, setRoleSelectData] = useState<{participant: any, user: any} | null>(null)
   const [showSignup, setShowSignup] = useState(false)
   const [signupType, setSignupType] = useState('')
   const [showForgotPassword, setShowForgotPassword] = useState(false)
@@ -242,6 +244,18 @@ export default function LoginPage() {
         })
         participant.referral_code = referralCode
       }
+      // 의뢰인 계정도 있는지 확인
+      const userRes2 = await fetchWithAuth(`/api/users?email=${encodeURIComponent(email)}`)
+      const users2 = await userRes2.json()
+      const user2 = users2?.[0]
+
+      if (user2 && (user2.role === 'client' || user2.role === 'admin')) {
+        // 두 역할 다 있으면 선택 팝업
+        setRoleSelectData({ participant, user: user2 })
+        setShowRoleSelect(true)
+        return
+      }
+
       localStorage.setItem('userInfo', JSON.stringify(participant))
       localStorage.setItem('userRole', 'participant')
       if (Capacitor.isNativePlatform()) {
@@ -647,6 +661,36 @@ export default function LoginPage() {
 
   return (
     <>
+      {/* 역할 선택 팝업 */}
+      {showRoleSelect && roleSelectData && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs text-center shadow-xl">
+            <h2 className="text-lg font-bold mb-2 dark:text-white">어떤 역할로 시작할까요?</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">두 개의 계정이 연결되어 있어요.</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={async () => {
+                const participant = roleSelectData.participant
+                localStorage.setItem('userInfo', JSON.stringify(participant))
+                localStorage.setItem('userRole', 'participant')
+                if (Capacitor.isNativePlatform()) await initPushNotifications(String(participant.id), 'participant')
+                setShowRoleSelect(false)
+                if (!participant.agreed_terms) { setPendingUserInfo(participant); setPendingRole('participant'); setShowTermsModal(true); return }
+                router.push('/participant')
+              }} className="w-full bg-blue-600 text-white rounded-xl py-3 font-medium">체험단으로 시작</button>
+              <button onClick={async () => {
+                const user = roleSelectData.user
+                localStorage.setItem('userInfo', JSON.stringify(user))
+                localStorage.setItem('userRole', user.role)
+                if (Capacitor.isNativePlatform()) await initPushNotifications(String(user.id), user.role)
+                setShowRoleSelect(false)
+                if (!user.agreed_terms) { setPendingUserInfo(user); setPendingRole(user.role); setShowTermsModal(true); return }
+                if (user.role === 'admin') router.push('/admin')
+                else router.push('/client')
+              }} className="w-full bg-green-600 text-white rounded-xl py-3 font-medium">의뢰인으로 시작</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showUpdateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs text-center shadow-xl">

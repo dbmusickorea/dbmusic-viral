@@ -18,6 +18,19 @@ export default function ClientMyPage() {
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 
   useEffect(() => {
+    const checkParticipantAccount = async () => {
+      const info = localStorage.getItem('userInfo')
+      if (!info) return
+      const parsed = JSON.parse(info)
+      if (!parsed?.email) return
+      const res = await fetchWithAuth(`/api/participants?email=${encodeURIComponent(parsed.email)}`)
+      const participants = await res.json()
+      if (participants?.[0]) setHasParticipantAccount(true)
+    }
+    checkParticipantAccount()
+  }, [])
+
+  useEffect(() => {
     const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
     setTheme(saved ?? 'system')
   }, [])
@@ -71,6 +84,14 @@ export default function ClientMyPage() {
   const { showToast } = useToast()
   const [appVersion, setAppVersion] = useState('0')
   const [minVersion, setMinVersion] = useState('0')
+  const [showParticipantSignup, setShowParticipantSignup] = useState(false)
+  const [hasParticipantAccount, setHasParticipantAccount] = useState(false)
+  const [ptInstagram, setPtInstagram] = useState('')
+  const [ptYoutube, setPtYoutube] = useState('')
+  const [ptTiktok, setPtTiktok] = useState('')
+  const [ptSnsInput, setPtSnsInput] = useState('')
+  const [ptSnsPlatform, setPtSnsPlatform] = useState('instagram')
+  const [ptChecking, setPtChecking] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -431,6 +452,23 @@ export default function ClientMyPage() {
               </button>
             </div>
           </div>
+          {hasParticipantAccount ? (
+            <button onClick={async () => {
+              const userInfo = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
+              const email = userInfo?.email
+              if (!email) return
+              const res = await fetchWithAuth(`/api/participants?email=${encodeURIComponent(email)}`)
+              const participants = await res.json()
+              const participant = participants?.[0]
+              if (participant) {
+                localStorage.setItem('userInfo', JSON.stringify(participant))
+                localStorage.setItem('userRole', 'participant')
+                router.push('/participant')
+              }
+            }} className="w-full text-sm text-blue-600 border border-blue-300 rounded-lg py-2 mb-3">체험단 페이지로 전환</button>
+          ) : (
+            <button onClick={() => setShowParticipantSignup(true)} className="w-full text-sm text-blue-600 border border-blue-300 rounded-lg py-2 mb-3">체험단으로도 이용하기</button>
+          )}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
@@ -447,7 +485,7 @@ export default function ClientMyPage() {
                   localStorage.removeItem('userInfo')
                   localStorage.removeItem('userRole')
                   showToast('계정이 삭제됐습니다.')
-                  router.push('/')
+                  router.push('/?signup=participant')
                 }} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">삭제 확인</button>
               </div>
             </div>

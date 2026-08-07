@@ -17,6 +17,20 @@ export default function MyPage() {
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 
   useEffect(() => {
+    // 의뢰인 계정 있는지 확인
+    const checkClientAccount = async () => {
+      const info = localStorage.getItem('userInfo')
+      if (!info) return
+      const parsed = JSON.parse(info)
+      if (!parsed?.email) return
+      const res = await fetchWithAuth(`/api/users?email=${encodeURIComponent(parsed.email)}`)
+      const users = await res.json()
+      if (users?.[0]?.role === 'client') setHasClientAccount(true)
+    }
+    checkClientAccount()
+  }, [])
+
+  useEffect(() => {
     const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
     setTheme(saved ?? 'system')
   }, [])
@@ -76,6 +90,10 @@ export default function MyPage() {
   const [referredUsers, setReferredUsers] = useState<any[]>([])
   const [appVersion, setAppVersion] = useState('0')
   const [minVersion, setMinVersion] = useState('0')
+  const [showClientSignup, setShowClientSignup] = useState(false)
+  const [clientCompany, setClientCompany] = useState('')
+  const [clientArtist, setClientArtist] = useState('')
+  const [hasClientAccount, setHasClientAccount] = useState(false)
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -247,6 +265,62 @@ export default function MyPage() {
 
   return (
     <>
+      {/* 의뢰인 가입 모달 */}
+      {showClientSignup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs shadow-xl">
+            <h2 className="text-lg font-bold mb-1 dark:text-white">의뢰인 계정 추가</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">기존 계정 정보를 그대로 사용하며 의뢰인 기능을 추가로 이용할 수 있어요.</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium dark:text-white">소속사명 (선택)</label>
+                <input value={clientCompany} onChange={(e) => setClientCompany(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="소속사명 입력" />
+              </div>
+              <div>
+                <label className="text-sm font-medium dark:text-white">아티스트명 (선택)</label>
+                <input value={clientArtist} onChange={(e) => setClientArtist(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setShowClientSignup(false)} className="flex-1 border dark:border-gray-600 rounded-lg py-2 text-sm text-gray-500 dark:text-gray-400">취소</button>
+              <button onClick={async () => {
+                const info = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
+                // client_id 생성
+                const generateClientId = () => 'DB' + Math.random().toString(36).substr(2, 6).toUpperCase()
+                let clientId = generateClientId()
+                let isUnique = false
+                while (!isUnique) {
+                  const checkRes = await fetchWithAuth(`/api/users?client_id=${clientId}`)
+                  const checkData = await checkRes.json()
+                  if (!checkData || checkData.length === 0) isUnique = true
+                  else clientId = generateClientId()
+                }
+                const res = await fetchWithAuth('/api/users', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: info.name,
+                    email: info.email,
+                    mobile: info.mobile,
+                    company: clientCompany,
+                    artist: clientArtist,
+                    role: 'client',
+                    client_id: clientId
+                  })
+                })
+                if (!res.ok) { alert('의뢰인 계정 생성 실패!'); return }
+                const users = await res.json()
+                const newUser = Array.isArray(users) ? users[0] : users
+                setHasClientAccount(true)
+                setShowClientSignup(false)
+                localStorage.setItem('userInfo', JSON.stringify(newUser))
+                localStorage.setItem('userRole', 'client')
+                router.push('/client')
+              }} className="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm font-medium">의뢰인 계정 생성</button>
+            </div>
+          </div>
+        </div>
+      )}
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
@@ -642,6 +716,23 @@ export default function MyPage() {
             }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
           <hr className="my-3 border-gray-100" />
+          {hasClientAccount ? (
+            <button onClick={async () => {
+              const userInfo = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
+              const email = userInfo?.email
+              if (!email) return
+              const res = await fetchWithAuth(`/api/users?email=${encodeURIComponent(email)}`)
+              const users = await res.json()
+              const user = users?.[0]
+              if (user) {
+                localStorage.setItem('userInfo', JSON.stringify(user))
+                localStorage.setItem('userRole', user.role)
+                router.push('/client')
+              }
+            }} className="w-full text-sm text-green-600 border border-green-300 rounded-lg py-2 mb-3">의뢰인 페이지로 전환</button>
+          ) : (
+            <button onClick={() => setShowClientSignup(true)} className="w-full text-sm text-green-600 border border-green-300 rounded-lg py-2 mb-3">의뢰인으로도 이용하기</button>
+          )}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
