@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../../app/lib/fetchWithAuth'
-import { Users, ChevronDown, ChevronUp, Wallet } from 'lucide-react'
+import BottomNav from '../../components/BottomNav'
+import { Users, ChevronDown, ChevronUp, Wallet, Briefcase, BarChart2, Target, User, Menu } from 'lucide-react'
 
 export default function AgencyMemberPage() {
   const router = useRouter()
@@ -13,6 +14,7 @@ export default function AgencyMemberPage() {
   const [pointHistory, setPointHistory] = useState<any[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showSidebar, setShowSidebar] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -26,23 +28,18 @@ export default function AgencyMemberPage() {
 
   const fetchData = async (info: any) => {
     setLoading(true)
-    const [membersRes, projectsRes, pointRes] = await Promise.all([
+    const [membersRes, projectsRes] = await Promise.all([
       fetchWithAuth(`/api/participants?referred_by=${info.referral_code}`),
-      fetchWithAuth('/api/projects'),
-      fetchWithAuth(`/api/point_history?member_id=${info.id}`)
+      fetchWithAuth('/api/projects')
     ])
     const membersData = await membersRes.json()
     const projectsData = await projectsRes.json()
-    const pointData = await pointRes.json()
-
-    // 소속 체험단 point_history 가져오기
     const memberIds = Array.isArray(membersData) ? membersData.map((m: any) => m.id) : []
     let allPointHistory: any[] = []
     if (memberIds.length > 0) {
       const phRes = await fetchWithAuth(`/api/point_history?member_ids=${memberIds.join(',')}`)
       allPointHistory = await phRes.json()
     }
-
     setMembers(Array.isArray(membersData) ? membersData : [])
     setProjects(Array.isArray(projectsData) ? projectsData.filter((p: any) => p.status === 'COMPLETED') : [])
     setPointHistory(Array.isArray(allPointHistory) ? allPointHistory : [])
@@ -50,9 +47,7 @@ export default function AgencyMemberPage() {
   }
 
   const getProjectReward = (projectCode: string) => {
-    return pointHistory
-      .filter(ph => ph.project_code === projectCode && members.some(m => m.id === ph.member_id) && ph.amount > 0)
-      .reduce((sum, ph) => sum + ph.amount, 0)
+    return pointHistory.filter(ph => ph.project_code === projectCode && members.some(m => m.id === ph.member_id) && ph.amount > 0).reduce((sum, ph) => sum + ph.amount, 0)
   }
 
   const getProjectCommission = (projectCode: string) => {
@@ -60,23 +55,52 @@ export default function AgencyMemberPage() {
   }
 
   const getProjectMembers = (projectCode: string) => {
-    const memberIds = new Set(
-      pointHistory.filter(ph => ph.project_code === projectCode && ph.amount > 0).map(ph => ph.member_id)
-    )
+    const memberIds = new Set(pointHistory.filter(ph => ph.project_code === projectCode && ph.amount > 0).map(ph => ph.member_id))
     return members.filter(m => memberIds.has(m.id))
   }
 
-  // 실제 참여한 프로젝트만
   const participatedProjects = projects.filter(p => getProjectReward(p.project_code) > 0)
 
   if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+
+      {/* 사이드바 */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl p-6 flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-bold text-lg dark:text-white">더블비뮤직</h2>
+              <button onClick={() => setShowSidebar(false)} className="text-gray-400 dark:text-gray-300">✕</button>
+            </div>
+            <div className="space-y-2 flex-1">
+              <button onClick={() => { router.push('/participant'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">내 현황</button>
+              <button onClick={() => { router.push('/participant'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">프로젝트</button>
+              <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
+              <button onClick={() => { router.push('/agency-member'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium bg-blue-50 text-blue-600">에이전시</button>
+              <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
+            </div>
+          </div>
+          <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
+        </div>
+      )}
+
+      {/* 헤더 */}
+      <div className="max-w-2xl mx-auto px-4">
+        <div className="flex justify-center mb-2">
+          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/participant')} />
+        </div>
+      </div>
+
       <div className="max-w-2xl mx-auto p-4 pb-24">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2 mb-4">
+          <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600 dark:text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <h1 className="text-xl font-bold dark:text-white">에이전시 현황</h1>
-          <button onClick={() => router.back()} className="text-sm text-gray-500">← 뒤로</button>
         </div>
 
         {/* 요약 카드 */}
@@ -96,7 +120,7 @@ export default function AgencyMemberPage() {
               <p className="text-lg font-bold text-green-600">{(userInfo?.agency_balance ?? 0).toLocaleString()}P</p>
             </div>
           </div>
-          {(userInfo?.agency_balance ?? 0) > 0 && (
+          {(userInfo?.agency_balance ?? 0) >= 10000 && (
             <button onClick={() => router.push('/agency-wallet')} className="w-full mt-3 bg-green-600 text-white rounded-xl py-2 text-sm font-medium flex items-center justify-center gap-1">
               <Wallet size={14} /> 수수료 환전 신청
             </button>
@@ -135,7 +159,6 @@ export default function AgencyMemberPage() {
                 const commission = getProjectCommission(p.project_code)
                 const projectMembers = getProjectMembers(p.project_code)
                 const isExpanded = expanded === p.project_code
-
                 return (
                   <div key={p.project_code} className="border dark:border-gray-600 rounded-lg">
                     <div className="p-3 cursor-pointer flex justify-between items-center" onClick={() => setExpanded(isExpanded ? null : p.project_code)}>
@@ -169,6 +192,14 @@ export default function AgencyMemberPage() {
           )}
         </div>
       </div>
+
+      <BottomNav tabs={[
+        { icon: <BarChart2 size={20} />, label: '내 현황', onClick: () => router.push('/participant') },
+        { icon: <Target size={20} />, label: '프로젝트', onClick: () => router.push('/participant') },
+        { icon: <Wallet size={20} />, label: '적립금', href: '/wallet' },
+        { icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member', active: true },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage' },
+      ]} />
     </div>
   )
 }

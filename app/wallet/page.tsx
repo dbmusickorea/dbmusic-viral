@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { encryptText } from '../lib/crypto'
 import BottomNav from '../../components/BottomNav'
-import { RefreshCw, ArrowDown, BarChart2, Target, Wallet, User, AlertTriangle, Coins, FileText } from 'lucide-react'
+import { RefreshCw, ArrowDown, BarChart2, Target, Wallet, User, AlertTriangle, Coins, FileText, Briefcase } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 
@@ -271,6 +271,7 @@ export default function WalletPage() {
           { icon: '📊', label: '내 현황', onClick: () => router.push('/participant') },
           { icon: '🎯', label: '프로젝트', onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
           { icon: '💰', label: '적립금', onClick: () => router.push('/wallet'), active: true },
+          ...(userInfo?.is_agency ? [{ icon: '🏢', label: '에이전시', onClick: () => router.push('/agency-member') }] : []),
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/mypage') },
         ]}
       />
@@ -491,6 +492,7 @@ export default function WalletPage() {
         { icon: <BarChart2 size={20} />, label: '내 현황', href: '/participant' },
         { icon: <Target size={20} />, label: '프로젝트', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
         { icon: <Wallet size={20} />, label: '적립금', href: '/wallet', active: true },
+        ...(userInfo?.is_agency ? [{ icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member' }] : []),
         { icon: <User size={20} />, label: '마이페이지', href: '/mypage' },
       ]} />
     </div>
