@@ -106,7 +106,21 @@ export default function MyPage() {
       setMyName(p.name ?? '')
       setMyMobile(p.mobile ?? '')
       setMyBankName(p.bank_name ?? '')
-      setMyBankCode(p.bank_code ?? '')
+      // bank_code 없으면 bank_name으로 자동 매핑
+      if (p.bank_code) {
+        setMyBankCode(p.bank_code)
+      } else if (p.bank_name) {
+        const { BANK_LIST } = await import('../../components/BankSelect')
+        const found = BANK_LIST.find((b: any) => b.name === p.bank_name)
+        if (found) {
+          setMyBankCode(found.code)
+          await fetchWithAuth(`/api/participants?id=${p.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bank_code: found.code })
+          })
+        }
+      }
       setMyAccountHolder(p.account_holder ?? '')
       setMyAccountNumber(p.account_number ?? '')
       setMyInstagram(p.instagram_id ?? '')
