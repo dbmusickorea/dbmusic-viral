@@ -10,7 +10,8 @@ export async function GET(req: NextRequest) {
   const cacheKey = `meta_${campaignId ?? 'all'}`
   const now = Date.now()
 
-  if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_TTL) {
+  const forceRefresh = searchParams.get('refresh') === '1'
+  if (!forceRefresh && cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_TTL) {
     return NextResponse.json({ ...cache[cacheKey].data, cached: true })
   }
 
@@ -66,8 +67,19 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // 전체기간 소진금액 조회
+    const lifetimeParams = new URLSearchParams({
+      fields: 'spend',
+      date_preset: 'lifetime',
+      access_token: token,
+    })
+    const lifetimeRes = await fetch(`${url}?${lifetimeParams}`, { cache: 'no-store' })
+    const lifetimeJson = await lifetimeRes.json()
+    const lifetimeSpend = lifetimeJson.data?.[0]?.spend ?? '0'
+
     const result = {
       spend: raw.spend ?? '0',
+      lifetime_spend: lifetimeSpend !== '0' ? lifetimeSpend : String(Math.max(0, Number(lifetimeBudget) - Number(budgetRemaining))),
       impressions: raw.impressions ?? '0',
       inline_link_clicks: raw.inline_link_clicks ?? '0',
       daily_budget: dailyBudget,
