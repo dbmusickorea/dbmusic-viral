@@ -1,4 +1,5 @@
 'use client'
+import { initPushNotifications } from '../lib/push'
 import BankSelect from '../../components/BankSelect'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 

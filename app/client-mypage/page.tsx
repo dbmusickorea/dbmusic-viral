@@ -1,4 +1,5 @@
 'use client'
+import { initPushNotifications } from '../lib/push'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
