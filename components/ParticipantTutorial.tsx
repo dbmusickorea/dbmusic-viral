@@ -103,7 +103,7 @@ setSidebarReady(true)
           </div>
         </div>
       </div>}
-      <div className="fixed inset-0 z-[99]" onClick={() => {}} />
+      <div className="fixed inset-0 z-[99] pointer-events-none" />
     </>
   )
 }
