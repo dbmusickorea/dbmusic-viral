@@ -256,13 +256,28 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                     </div>
                     <div>
                       <label className="text-sm font-medium dark:text-gray-200">커버영상 옵션 (추가 옵션)</label>
-                      <select value={formData.coverVideoCount} onChange={(e) => setFormData((prev: any) => ({...prev, coverVideoCount: Number(e.target.value)}))} className={inputClass}>
+                      <select value={formData.coverVideoCount} onChange={(e) => {
+                        const count = Number(e.target.value)
+                        setFormData((prev: any) => ({...prev, coverVideoCount: count, coverType: count > 0 ? (prev.coverType || 'normal') : 'normal'}))
+                      }} className={inputClass}>
                         <option value="0">없음</option>
                         <option value="10">10개 (1,500,000원)</option>
                         <option value="20">20개 (3,000,000원)</option>
                         <option value="30">30개 (4,500,000원)</option>
                       </select>
                     </div>
+                    {formData.coverVideoCount > 0 && (
+                    <div>
+                      <label className="text-sm font-medium dark:text-gray-200">커버 타입</label>
+                      <select value={formData.coverType ?? 'normal'} onChange={(e) => {
+                        const type = e.target.value
+                        setFormData((prev: any) => ({...prev, coverType: type, coverVideoCount: type === 'premium' ? 3 : prev.coverVideoCount}))
+                      }} className={inputClass}>
+                        <option value="normal">일반 커버</option>
+                        <option value="premium">프리미엄 커버</option>
+                      </select>
+                    </div>
+                    )}
                     <div>
                       <label className="text-sm font-medium dark:text-gray-200">요청 게시물 수 (추가 옵션)</label>
                       <select value={formData.requiredPosts} onChange={(e) => setFormData((prev: any) => ({...prev, requiredPosts: e.target.value}))} className={inputClass}

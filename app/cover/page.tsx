@@ -470,7 +470,10 @@ export default function CoverPage() {
                           <img src={p.cover_image_url} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                         )}
                         <div className="min-w-0">
-                          <p className="text-base font-bold dark:text-white">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <p className="text-base font-bold dark:text-white">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
+                            {p.cover_video_count > 0 && <span className={`text-xs px-2 py-0.5 rounded-full ${p.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}>{p.cover_type === 'premium' ? '프리미엄 커버' : '일반 커버'}</span>}
+                          </div>
                           <p className="text-xs text-gray-500 mt-1">{p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
                         </div>
                       </div>

@@ -1703,7 +1703,7 @@ useEffect(() => {
                                           coverPenaltyUntil && new Date(coverPenaltyUntil) > new Date() ? (
                                             <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5"><AlertTriangle size={10} /> 커버페널티</span>
                                           ) : (
-                                            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5">커버참여중 <Music size={10} /></span>
+                                            <span className={`text-xs px-3 py-1 rounded-full inline-flex items-center gap-0.5 ${projectInfo?.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}>{projectInfo?.cover_type === 'premium' ? '프리미엄 커버참여중' : '커버참여중'} <Music size={10} /></span>
                                           )
                                         ) : (() => {
                                           const coverExcluded = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover && !p.cover_requested)

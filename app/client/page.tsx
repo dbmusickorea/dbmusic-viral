@@ -605,7 +605,7 @@ export default function Page3() {
                                 <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                                 <div className="flex items-center gap-1 mt-0.5">
                                   <p className="text-xs text-gray-500 dark:text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
-                                  {project.cover_video_count > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1 py-0.5 rounded inline-flex items-center gap-0.5"><Music size={10} /> 커버</span>}
+                                  {project.cover_video_count > 0 && <span className={`text-xs px-1 py-0.5 rounded inline-flex items-center gap-0.5 ${project.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}><Music size={10} /> {project.cover_type === 'premium' ? '프리미엄 커버' : '일반 커버'}</span>}
                                 </div>
                                 <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />{project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
                               </div>
@@ -829,7 +829,7 @@ export default function Page3() {
                     <p className="text-xs dark:text-gray-300">모집인원: {projectInfo.max_participants ?? '-'}명</p>
                     {projectInfo.monitoring_extension > 0 && <p className="text-xs dark:text-gray-300">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
                     {projectInfo.refresh_interval && <p className="text-xs dark:text-gray-300">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
-                    {projectInfo.cover_video_count > 0 && <p className="text-xs dark:text-gray-300">커버영상: {projectInfo.cover_video_count}개</p>}
+                    {projectInfo.cover_video_count > 0 && <p className="text-xs dark:text-gray-300">커버영상: {projectInfo.cover_video_count}개 ({projectInfo.cover_type === 'premium' ? '프리미엄' : '일반'})</p>}
                   </div>
                 </div>
                 {projectInfo.requirements && (
