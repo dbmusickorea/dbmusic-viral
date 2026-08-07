@@ -827,7 +827,8 @@ export default function Page4() {
 
   const filteredParticipants = participants.filter(p => {
     if (coverFilter === 'cover') return p.is_cover_possible
-    if (coverFilter === 'normal') return !p.is_cover_possible
+    if (coverFilter === 'normal') return !p.is_cover_possible && !p.is_agency
+    if (coverFilter === 'agency') return p.is_agency || participants.find((a: any) => a.is_agency && a.referral_code === p.referred_by)
     if (participantSearch) {
       const s = participantSearch.toLowerCase()
       return p.name?.toLowerCase().includes(s) || 
@@ -986,6 +987,7 @@ export default function Page4() {
                     <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>전체</button>
                     <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : 'dark:text-gray-300'}`}>커버가능</button>
                     <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : 'dark:text-gray-300'}`}>일반회원</button>
+                    <button onClick={() => setCoverFilter('agency')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'agency' ? 'bg-yellow-600 text-white border-yellow-600' : 'dark:text-gray-300'}`}>에이전시</button>
                   </div>
                 </div>
                 <input 
@@ -1022,6 +1024,12 @@ export default function Page4() {
                                   {p.is_cover_possible && !p.cover_approved && <span className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded flex items-center gap-0.5"><Clock size={10} /> 커버승인대기</span>}
                                   {allPendingSnsRequests.some(r => r.member_id === p.id) && <span className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded flex items-center gap-0.5"><Smartphone size={10} /> SNS변경대기</span>}
                                   {p.is_locked && <span className="text-xs bg-orange-100 text-orange-600 px-1 py-0.5 rounded flex items-center gap-0.5"><Lock size={10} /> 잠금</span>}
+                                  {p.is_agency && <span className="text-xs bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded font-medium">에이전시 대표</span>}
+                                  {!p.is_agency && p.referred_by && participants.find(a => a.is_agency && a.referral_code === p.referred_by) && (
+                                    <span className="text-xs bg-yellow-50 text-yellow-600 px-1 py-0.5 rounded">
+                                      {participants.find(a => a.is_agency && a.referral_code === p.referred_by)?.agency_name ?? '에이전시'}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                               <p className="text-sm font-medium text-blue-600 shrink-0">{p.balance?.toLocaleString() ?? 0}P</p>
@@ -1188,6 +1196,44 @@ export default function Page4() {
                       }} />
                       <label className="text-sm font-medium dark:text-white">커버가능 체험단</label>
                     </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <input type="checkbox" checked={selected?.is_agency ?? false} onChange={async (e) => {
+                        const checked = e.target.checked
+                        await fetchWithAuth(`/api/participants?id=${selected.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ is_agency: checked })
+                        })
+                        setSelected((prev: any) => ({ ...prev, is_agency: checked }))
+                        setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, is_agency: checked } : p))
+                      }} />
+                      <label className="text-sm font-medium dark:text-white">에이전시 대표</label>
+                    </div>
+                    {selected?.is_agency && (
+                      <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3 mt-2 space-y-2">
+                        <p className="text-xs font-medium text-yellow-700 dark:text-yellow-400">에이전시 정보</p>
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400">에이전시명</label>
+                          <input defaultValue={selected?.agency_name ?? ''} id="agency_name_input" className="w-full border dark:border-gray-600 rounded-lg px-2 py-1 text-xs mt-1 dark:bg-gray-700 dark:text-white" placeholder="에이전시명 입력" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400">수수료 (%)</label>
+                          <input type="number" defaultValue={selected?.agency_commission ?? 0} id="agency_commission_input" className="w-full border dark:border-gray-600 rounded-lg px-2 py-1 text-xs mt-1 dark:bg-gray-700 dark:text-white" placeholder="0" min="0" max="100" />
+                        </div>
+                        <button onClick={async () => {
+                          const name = (document.getElementById('agency_name_input') as HTMLInputElement)?.value
+                          const commission = (document.getElementById('agency_commission_input') as HTMLInputElement)?.value
+                          await fetchWithAuth(`/api/participants?id=${selected.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ agency_name: name, agency_commission: Number(commission) })
+                          })
+                          setSelected((prev: any) => ({ ...prev, agency_name: name, agency_commission: Number(commission) }))
+                          setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, agency_name: name, agency_commission: Number(commission) } : p))
+                          showToast('에이전시 정보 저장 완료!')
+                        }} className="w-full text-xs bg-yellow-600 text-white rounded px-2 py-1">저장</button>
+                      </div>
+                    )}
                     {selected?.is_cover_possible && (
                       <div className="bg-purple-50 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-2">
