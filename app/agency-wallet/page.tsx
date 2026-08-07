@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../../app/lib/fetchWithAuth'
 import { encryptText } from '../../app/lib/crypto'
 import { useToast } from '../../components/ToastContext'
-import { Wallet } from 'lucide-react'
+import { Wallet, BarChart2, Target, Briefcase, User, RefreshCw, ArrowDown } from 'lucide-react'
+import BottomNav from '../../components/BottomNav'
 
 export default function AgencyWalletPage() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function AgencyWalletPage() {
   const [residentNumber, setResidentNumber] = useState('')
   const [agreedTax, setAgreedTax] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showSidebar, setShowSidebar] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -117,11 +119,38 @@ export default function AgencyWalletPage() {
   if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+    <>
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl p-6 flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-bold text-lg dark:text-white">더블비뮤직</h2>
+              <button onClick={() => setShowSidebar(false)} className="text-gray-400 dark:text-gray-300">✕</button>
+            </div>
+            <div className="space-y-2 flex-1">
+              <button onClick={() => { router.push('/participant'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">내 현황</button>
+              <button onClick={() => { router.push('/participant'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">프로젝트</button>
+              <button onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
+              <button onClick={() => { router.push('/agency-member'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium bg-blue-50 text-blue-600">에이전시</button>
+              <button onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
+            </div>
+          </div>
+          <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
+        </div>
+      )}
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+        <div className="flex justify-center mb-2">
+          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/agency-member')} />
+        </div>
+
       <div className="max-w-2xl mx-auto p-4 pb-24">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold dark:text-white flex items-center gap-2"><Wallet size={20} /> 수수료 환전</h1>
-          <button onClick={() => router.back()} className="text-sm text-gray-500">← 뒤로</button>
+        <div className="flex items-center gap-2 mb-4">
+          <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600 dark:text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 className="text-xl font-bold dark:text-white">수수료 환전</h1>
         </div>
 
         {/* 잔액 카드 */}
@@ -196,6 +225,14 @@ export default function AgencyWalletPage() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+      <BottomNav tabs={[
+        { icon: <BarChart2 size={20} />, label: '내 현황', href: '/participant' },
+        { icon: <Target size={20} />, label: '프로젝트', href: '/participant' },
+        { icon: <Wallet size={20} />, label: '적립금', href: '/wallet' },
+        { icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member', active: true },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage' },
+      ]} />
+    </>
   )
 }
