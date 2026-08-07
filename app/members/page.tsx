@@ -1197,15 +1197,8 @@ export default function Page4() {
                       <label className="text-sm font-medium dark:text-white">커버가능 체험단</label>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
-                      <input type="checkbox" checked={selected?.is_agency ?? false} onChange={async (e) => {
-                        const checked = e.target.checked
-                        await fetchWithAuth(`/api/participants?id=${selected.id}`, {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ is_agency: checked })
-                        })
-                        setSelected((prev: any) => ({ ...prev, is_agency: checked }))
-                        setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, is_agency: checked } : p))
+                      <input type="checkbox" checked={selected?.is_agency ?? false} onChange={(e) => {
+                        setSelected((prev: any) => ({ ...prev, is_agency: e.target.checked }))
                       }} />
                       <label className="text-sm font-medium dark:text-white">에이전시 대표</label>
                     </div>
@@ -1226,7 +1219,7 @@ export default function Page4() {
                           await fetchWithAuth(`/api/participants?id=${selected.id}`, {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ agency_name: name, agency_commission: Number(commission) })
+                            body: JSON.stringify({ is_agency: selected?.is_agency ?? false, agency_name: name, agency_commission: Number(commission) })
                           })
                           setSelected((prev: any) => ({ ...prev, agency_name: name, agency_commission: Number(commission) }))
                           setParticipants((prev: any[]) => prev.map(p => p.id === selected.id ? { ...p, agency_name: name, agency_commission: Number(commission) } : p))
