@@ -14,19 +14,19 @@ popbill.config({
 
 const accountCheckService = popbill.AccountCheckService()
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const authHeader = req.headers.get('authorization')
   if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { bankCode, accountNumber, corpNum } = await req.json()
+  const { bankCode, accountNumber } = await req.json()
 
   if (!bankCode || !accountNumber) {
     return NextResponse.json({ error: '은행코드와 계좌번호는 필수입니다.' }, { status: 400 })
   }
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     accountCheckService.CheckAccountHolder(
-      corpNum || '2800202331', // 사업자번호 (더블비뮤직)
+      '2800202331',
       bankCode,
       accountNumber,
       (result: any) => {

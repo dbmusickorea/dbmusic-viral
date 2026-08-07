@@ -1,4 +1,5 @@
 'use client'
+import BankSelect from '../components/BankSelect'
 import { fetchWithAuth } from './lib/fetchWithAuth'
 
 import PlatformIcon from '../components/PlatformIcon'
@@ -116,6 +117,7 @@ export default function LoginPage() {
   const [p_email, setPEmail] = useState('')
   const [p_password, setPPassword] = useState('')
   const [p_bank, setPBank] = useState('')
+  const [p_bank_code, setPBankCode] = useState('')
   const [p_holder, setPHolder] = useState('')
   const [p_account, setPAccount] = useState('')
   const [p_instagram, setPInstagram] = useState('')
@@ -521,7 +523,7 @@ export default function LoginPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: p_name, mobile: p_mobile, email: p_email,
-        bank_name: p_bank, account_holder: p_holder, account_number: p_account,
+        bank_name: p_bank, bank_code: p_bank_code, account_holder: p_holder, account_number: p_account,
         instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
         instagram_followers: igFollowers || null,
         instagram_profile_image: igProfileImage || null,
@@ -866,6 +868,22 @@ export default function LoginPage() {
                 <div>
                   <label className="text-sm font-medium dark:text-white">추천인 코드 (선택)</label>
                   <input value={p_referral} onChange={(e) => setPReferral(e.target.value.toUpperCase())} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="추천인 코드 입력 (예: DB1234)" />
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 font-medium mb-1">💰 계좌 정보 (선택)</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">지금 입력하지 않아도 마이페이지에서 언제든 등록/수정할 수 있어요. 계좌 미등록 시 적립금 환전 신청이 불가합니다.</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium dark:text-white">예금주 (선택)</label>
+                  <input value={p_holder} onChange={(e) => setPHolder(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="예금주명 입력" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium dark:text-white">은행 (선택)</label>
+                  <BankSelect value={p_bank_code} onChange={(code, name) => { setPBankCode(code); setPBank(name) }} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium dark:text-white">계좌번호 (선택)</label>
+                  <input value={p_account} onChange={(e) => setPAccount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="계좌번호 입력 (- 제외)" />
                 </div>
                 <div className="border dark:border-gray-600 rounded-lg p-3 space-y-2 dark:bg-gray-700">
                   <label className="flex items-center gap-2 text-sm">
