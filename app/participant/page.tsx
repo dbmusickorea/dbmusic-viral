@@ -1150,8 +1150,8 @@ useEffect(() => {
                 <button id="tutorial-tab-home-sidebar" onClick={() => { setActiveTab('home'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>내 현황</button>
                 <button id="tutorial-tab-project-sidebar" onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>프로젝트</button>
                 <button id="tutorial-tab-wallet-sidebar" onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
-                <button id="tutorial-tab-mypage-sidebar" onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
                 {userInfo?.is_agency && <button onClick={() => { router.push('/agency-member'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">에이전시</button>}
+                <button id="tutorial-tab-mypage-sidebar" onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
               </div>
               <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2">로그아웃</button>
             </div>
@@ -1763,8 +1763,8 @@ useEffect(() => {
         { icon: <BarChart2 size={20} />, label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home', id: 'tutorial-tab-home' },
         { icon: <Target size={20} />, label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, id: 'tutorial-tab-project' },
         { icon: <Wallet size={20} />, label: '적립금', href: '/wallet', id: 'tutorial-tab-wallet' },
-        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', id: 'tutorial-tab-mypage' },
         ...(userInfo?.is_agency ? [{ icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member' }] : []),
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', id: 'tutorial-tab-mypage' },
       ]} />
       
     </div>
