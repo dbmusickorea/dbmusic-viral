@@ -1,0 +1,46 @@
+import { NextRequest, NextResponse } from 'next/server'
+
+const popbill = require('popbill')
+
+popbill.config({
+  LinkID: process.env.POPBILL_LINK_ID,
+  SecretKey: process.env.POPBILL_SECRET_KEY,
+  IsTest: false,
+  IPRestrictOnOff: true,
+  UseStaticIP: false,
+  UseLocalTimeYN: true,
+  defaultErrorHandler: (err: any) => console.error('Popbill Error:', err),
+})
+
+const accountCheckService = popbill.AccountCheckService()
+
+export async function POST(req: NextRequest) {
+  const authHeader = req.headers.get('authorization')
+  if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { bankCode, accountNumber, corpNum } = await req.json()
+
+  if (!bankCode || !accountNumber) {
+    return NextResponse.json({ error: '은행코드와 계좌번호는 필수입니다.' }, { status: 400 })
+  }
+
+  return new Promise((resolve) => {
+    accountCheckService.CheckAccountHolder(
+      corpNum || '2800202331', // 사업자번호 (더블비뮤직)
+      bankCode,
+      accountNumber,
+      (result: any) => {
+        resolve(NextResponse.json({
+          accountName: result.accountName,
+          bankCode: result.bankCode,
+          accountNumber: result.accountNumber,
+          resultCode: result.resultCode,
+          resultMessage: result.resultMessage,
+        }))
+      },
+      (err: any) => {
+        resolve(NextResponse.json({ error: err.message ?? '계좌 조회 실패' }, { status: 500 }))
+      }
+    )
+  })
+}

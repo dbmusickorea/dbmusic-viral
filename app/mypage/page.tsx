@@ -45,6 +45,7 @@ export default function MyPage() {
   const [mobileVerified, setMobileVerified] = useState(false)
   const [mobileSending, setMobileSending] = useState(false)
   const [myBankName, setMyBankName] = useState('')
+  const [myBankCode, setMyBankCode] = useState('')
   const [myAccountHolder, setMyAccountHolder] = useState('')
   const [myAccountNumber, setMyAccountNumber] = useState('')
   const [myInstagram, setMyInstagram] = useState('')
@@ -104,6 +105,7 @@ export default function MyPage() {
       setMyName(p.name ?? '')
       setMyMobile(p.mobile ?? '')
       setMyBankName(p.bank_name ?? '')
+      setMyBankCode(p.bank_code ?? '')
       setMyAccountHolder(p.account_holder ?? '')
       setMyAccountNumber(p.account_number ?? '')
       setMyInstagram(p.instagram_id ?? '')
@@ -146,7 +148,7 @@ export default function MyPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: myName, mobile: mobileVerified ? newMobile : myMobile, bank_name: myBankName,
+        name: myName, mobile: mobileVerified ? newMobile : myMobile, bank_name: myBankName, bank_code: myBankCode,
         account_holder: myAccountHolder, account_number: myAccountNumber,
         instagram_id: myInstagram, youtube_id: myYoutube, tiktok_id: myTiktok,
         cover_video_url: coverVideoUrl || null,
@@ -360,21 +362,95 @@ export default function MyPage() {
               </div>
               {[
                 { label: '이름', value: myName, setter: setMyName },
-              ].map(({ label, value, setter }) => (
+              ].map(({ label, value, setter, custom }: any) => (
                 <div key={label}>
                   <label className="text-sm font-medium dark:text-white">{label}</label>
-                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                  {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
                 </div>
               ))}
               <p className="text-xs text-orange-500 flex items-center gap-0.5"><AlertTriangle size={10} /> 본인 명의 계좌만 등록 가능합니다.</p>
               {[
-                { label: '은행명', value: myBankName, setter: setMyBankName },
+                {
+                  label: '은행명',
+                  custom: (
+                    <select value={myBankCode} onChange={(e) => {
+                      const code = e.target.value
+                      setMyBankCode(code)
+                      const bankNames: Record<string, string> = {"002": "산업은행", "003": "기업은행", "004": "국민은행", "007": "수협은행", "011": "농협은행", "020": "우리은행", "023": "SC제일은행", "027": "한국씨티은행", "032": "대구은행", "034": "광주은행", "035": "제주은행", "037": "전북은행", "039": "경남은행", "045": "새마을금고", "048": "신협", "050": "저축은행", "054": "HSBC은행", "055": "도이치은행", "057": "제이피모간체이스은행", "058": "미즈호은행", "059": "엠유에프지은행", "060": "BOA은행", "061": "BNP파리바은행", "062": "중국공상은행", "064": "산림조합", "071": "우체국", "081": "하나은행", "088": "신한은행", "089": "케이뱅크", "090": "카카오뱅크", "092": "토스뱅크", "094": "서울보증보험", "209": "유안타증권", "218": "KB증권", "221": "상상인증권", "222": "한양증권", "223": "리딩투자증권", "224": "BNK투자증권", "225": "IBK투자증권", "227": "다올투자증권", "238": "미래에셋증권", "240": "삼성증권", "243": "한국투자증권", "247": "NH투자증권", "261": "교보증권", "262": "하이투자증권", "263": "현대차증권", "264": "키움증권", "265": "이베스트투자증권", "266": "SK증권", "267": "대신증권", "269": "한화투자증권", "270": "하나증권", "271": "토스증권", "278": "신한투자증권", "279": "DB금융투자", "280": "유진투자증권", "287": "메리츠증권", "290": "부국증권", "291": "신영증권", "292": "케이프투자증권", "294": "한국포스증권"}
+                      setMyBankName(bankNames[code] ?? '')
+                    }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
+                        <option value="">은행 선택</option>
+                        <option value="002">산업은행</option>
+                        <option value="003">기업은행</option>
+                        <option value="004">국민은행</option>
+                        <option value="007">수협은행</option>
+                        <option value="011">농협은행</option>
+                        <option value="020">우리은행</option>
+                        <option value="023">SC제일은행</option>
+                        <option value="027">한국씨티은행</option>
+                        <option value="032">대구은행</option>
+                        <option value="034">광주은행</option>
+                        <option value="035">제주은행</option>
+                        <option value="037">전북은행</option>
+                        <option value="039">경남은행</option>
+                        <option value="045">새마을금고</option>
+                        <option value="048">신협</option>
+                        <option value="050">저축은행</option>
+                        <option value="054">HSBC은행</option>
+                        <option value="055">도이치은행</option>
+                        <option value="057">제이피모간체이스은행</option>
+                        <option value="058">미즈호은행</option>
+                        <option value="059">엠유에프지은행</option>
+                        <option value="060">BOA은행</option>
+                        <option value="061">BNP파리바은행</option>
+                        <option value="062">중국공상은행</option>
+                        <option value="064">산림조합</option>
+                        <option value="071">우체국</option>
+                        <option value="081">하나은행</option>
+                        <option value="088">신한은행</option>
+                        <option value="089">케이뱅크</option>
+                        <option value="090">카카오뱅크</option>
+                        <option value="092">토스뱅크</option>
+                        <option value="094">서울보증보험</option>
+                        <option value="209">유안타증권</option>
+                        <option value="218">KB증권</option>
+                        <option value="221">상상인증권</option>
+                        <option value="222">한양증권</option>
+                        <option value="223">리딩투자증권</option>
+                        <option value="224">BNK투자증권</option>
+                        <option value="225">IBK투자증권</option>
+                        <option value="227">다올투자증권</option>
+                        <option value="238">미래에셋증권</option>
+                        <option value="240">삼성증권</option>
+                        <option value="243">한국투자증권</option>
+                        <option value="247">NH투자증권</option>
+                        <option value="261">교보증권</option>
+                        <option value="262">하이투자증권</option>
+                        <option value="263">현대차증권</option>
+                        <option value="264">키움증권</option>
+                        <option value="265">이베스트투자증권</option>
+                        <option value="266">SK증권</option>
+                        <option value="267">대신증권</option>
+                        <option value="269">한화투자증권</option>
+                        <option value="270">하나증권</option>
+                        <option value="271">토스증권</option>
+                        <option value="278">신한투자증권</option>
+                        <option value="279">DB금융투자</option>
+                        <option value="280">유진투자증권</option>
+                        <option value="287">메리츠증권</option>
+                        <option value="290">부국증권</option>
+                        <option value="291">신영증권</option>
+                        <option value="292">케이프투자증권</option>
+                        <option value="294">한국포스증권</option>
+                      </select>
+                  )
+                },
                 { label: '예금주', value: myAccountHolder, setter: setMyAccountHolder },
                 { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
-              ].map(({ label, value, setter }) => (
+              ].map(({ label, value, setter, custom }: any) => (
                 <div key={label}>
                   <label className="text-sm font-medium dark:text-white">{label}</label>
-                  <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                  {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
                 </div>
               ))}
               <div>

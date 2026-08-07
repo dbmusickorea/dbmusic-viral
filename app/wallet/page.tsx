@@ -148,6 +148,24 @@ export default function WalletPage() {
       }
     }
 
+    // 팝빌 계좌 실명조회
+    if (participantData?.bank_code && participantData?.account_number) {
+      const checkRes = await fetchWithAuth('/api/account-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bankCode: participantData.bank_code, accountNumber: participantData.account_number })
+      })
+      const checkData = await checkRes.json()
+      if (checkData.error) {
+        showToast('계좌 확인에 실패했어요. 잠시 후 다시 시도해주세요.')
+        return
+      }
+      if (checkData.accountName && participantData.name && !checkData.accountName.includes(participantData.name)) {
+        showToast(`계좌 예금주(${checkData.accountName})와 가입자 이름이 일치하지 않아요.`)
+        return
+      }
+    }
+
     const taxAmount = Math.floor(amount * 0.033)
     const netAmount = amount - taxAmount
     const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
