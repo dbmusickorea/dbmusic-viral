@@ -1028,7 +1028,7 @@ export default function Page4() {
                                   {p.is_agency && <span className="text-xs bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded font-medium">에이전시 대표</span>}
                                   {!p.is_agency && p.referred_by && participants.find(a => a.is_agency && a.referral_code === p.referred_by) && (
                                     <span className="text-xs bg-yellow-50 text-yellow-600 px-1 py-0.5 rounded">
-                                      {participants.find(a => a.is_agency && a.referral_code === p.referred_by)?.agency_name ?? '에이전시'}
+                                      {participants.find(a => a.is_agency && a.referral_code === p.referred_by)?.agency_name || '에이전시'}
                                     </span>
                                   )}
                                 </div>
