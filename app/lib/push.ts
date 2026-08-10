@@ -1,9 +1,14 @@
 import { PushNotifications } from '@capacitor/push-notifications'
 
+let currentUserId = ''
+let currentUserRole = ''
 let listenersRegistered = false
 
 export const initPushNotifications = async (userId: string, userRole: string) => {
   try {
+    currentUserId = userId
+    currentUserRole = userRole
+
     const permission = await PushNotifications.requestPermissions()
     
     if (permission.receive !== 'granted') {
@@ -22,8 +27,8 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: userId,
-            user_role: userRole,
+            user_id: currentUserId,
+            user_role: currentUserRole,
             token: token.value
           })
         })
