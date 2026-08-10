@@ -1195,6 +1195,25 @@ export async function GET() {
       }
     }
 
+    // auth에만 있고 users/participants 둘 다 없는 계정 자동 삭제 (24시간 이상된 것만)
+    if (currentHour === 3) {
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      const { data: authUsers } = await supabase.auth.admin.listUsers()
+      if (authUsers?.users) {
+        for (const authUser of authUsers.users) {
+          try {
+            if (new Date(authUser.created_at) > yesterday) continue
+            const { data: u } = await supabase.from('users').select('id').eq('email', authUser.email).maybeSingle()
+            const { data: p } = await supabase.from('participants').select('id').eq('email', authUser.email).maybeSingle()
+            if (!u && !p) {
+              await supabase.auth.admin.deleteUser(authUser.id)
+            }
+          } catch { continue }
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, updated })
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) })
