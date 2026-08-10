@@ -228,6 +228,11 @@ export default function LoginPage() {
     const participant = participants?.[0]
 
     if (participant) {
+      if (participant.is_deleted) {
+        setError('탈퇴한 계정입니다. 고객센터에 문의해주세요.')
+        await supabase.auth.signOut()
+        return
+      }
       if (!participant.referral_code) {
         let referralCode = generateReferralCode()
         let isUnique = false
@@ -276,6 +281,11 @@ export default function LoginPage() {
     const user = users?.[0]
 
     if (user) {
+      if (user.is_deleted) {
+        setError('탈퇴한 계정입니다. 고객센터에 문의해주세요.')
+        await supabase.auth.signOut()
+        return
+      }
       if (user.role === 'client' && !user.client_id) {
         let clientId = generateClientId()
         let isUnique = false
