@@ -629,9 +629,6 @@ export default function LoginPage() {
     const mobileData = await mobileRes.json()
     if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
     
-    const mobilePRes = await fetchWithAuth(`/api/participants/signup-check?mobile=${c_mobile}`)
-    const mobilePData = await mobilePRes.json()
-    if (mobilePData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
 
     let clientId = generateClientId()
     let isUnique = false
