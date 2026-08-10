@@ -12,6 +12,7 @@ interface Insights {
   daily_budget: string
   lifetime_budget: string
   budget_remaining: string
+  ctr: string
   fetched_at: string
   cached?: boolean
 }
@@ -92,35 +93,35 @@ export default function MetaInsightsDashboard({ campaignId }: { campaignId?: str
         </button>
       </div>
 
-      {/* 1행: 총예산 / 전체소진금액 / 오늘소진금액 */}
+      {/* 1행: 총예산 / 소진 / 남은예산 */}
       <div className="grid grid-cols-3 gap-2 mb-2">
         <div className="bg-orange-50 dark:bg-orange-900 rounded-xl p-3 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">총 예산</p>
           <p className="text-sm font-bold text-orange-600 dark:text-orange-400">{data ? formatKRW(budget ?? '0') : '₩0'}</p>
         </div>
         <div className="bg-red-50 dark:bg-red-900 rounded-xl p-3 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">전체 소진</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">소진</p>
           <p className="text-sm font-bold text-red-600 dark:text-red-400">{data ? formatKRW(data.lifetime_spend) : '₩0'}</p>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900 rounded-xl p-3 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">오늘 소진</p>
-          <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{data ? formatKRW(data.spend) : '₩0'}</p>
-        </div>
-      </div>
-
-      {/* 2행: 남은예산 / 노출수 / 클릭수 */}
-      <div className="grid grid-cols-3 gap-2">
         <div className="bg-green-50 dark:bg-green-900 rounded-xl p-3 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">남은 예산</p>
           <p className="text-sm font-bold text-green-600 dark:text-green-400">{data ? formatKRW(data.budget_remaining) : '₩0'}</p>
         </div>
+      </div>
+
+      {/* 2행: 노출수 / 클릭수 / CTR */}
+      <div className="grid grid-cols-3 gap-2">
         <div className="bg-purple-50 dark:bg-purple-900 rounded-xl p-3 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">노출수</p>
           <p className="text-sm font-bold text-purple-600 dark:text-purple-400">{data ? formatNumber(data.impressions) : '0'}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
+        <div className="bg-blue-50 dark:bg-blue-900 rounded-xl p-3 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">클릭수</p>
-          <p className="text-sm font-bold text-gray-600 dark:text-gray-300">{data ? formatNumber(data.inline_link_clicks) : '0'}</p>
+          <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{data ? formatNumber(data.inline_link_clicks) : '0'}</p>
+        </div>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">CTR</p>
+          <p className="text-sm font-bold text-gray-600 dark:text-gray-300">{data ? `${data.ctr}%` : '0%'}</p>
         </div>
       </div>
 

@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     url = `https://graph.facebook.com/v19.0/${campaignId}/insights`
     params = new URLSearchParams({
       fields: 'spend,impressions,inline_link_clicks',
-      date_preset: 'today',
+      date_preset: 'lifetime',
       access_token: token,
     })
   } else {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     url = `https://graph.facebook.com/v19.0/act_${adAccountId}/insights`
     params = new URLSearchParams({
       fields: 'spend,impressions,inline_link_clicks',
-      date_preset: 'today',
+      date_preset: 'lifetime',
       access_token: token,
     })
   }
@@ -82,6 +82,7 @@ export async function GET(req: NextRequest) {
       lifetime_spend: lifetimeSpend !== '0' ? lifetimeSpend : String(Math.max(0, Number(lifetimeBudget) - Number(budgetRemaining))),
       impressions: raw.impressions ?? '0',
       inline_link_clicks: raw.inline_link_clicks ?? '0',
+      ctr: raw.impressions && Number(raw.impressions) > 0 ? (Number(raw.inline_link_clicks ?? 0) / Number(raw.impressions) * 100).toFixed(2) : '0',
       daily_budget: dailyBudget,
       lifetime_budget: lifetimeBudget,
       budget_remaining: budgetRemaining,
