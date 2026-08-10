@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import Sidebar from '../../components/Sidebar'
-import { Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Eye, EyeOff, RefreshCw, Link } from 'lucide-react'
 
 export default function AdminMypagePage() {
   const router = useRouter()
@@ -225,6 +225,12 @@ export default function AdminMypagePage() {
             )}
           </div>
 
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <button onClick={() => router.push('/admin-links')} className="w-full flex justify-between items-center">
+              <span className="font-medium text-sm dark:text-white flex items-center gap-1"><Link size={14} /> 유입 링크 관리</span>
+              <span className="text-gray-400 dark:text-gray-300">→</span>
+            </button>
+          </div>
           {/* 로그아웃 */}
           <p className="text-xs text-center text-gray-300 mb-3">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
