@@ -36,14 +36,33 @@ async function updateProjectLinkStats(links: any[]) {
         views = Number(stats?.viewCount ?? 0)
 
       } else if (link.platform === 'tiktok') {
-        const res = await fetch(
-          `https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(link.url)}&hd=1`,
-          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
-        )
-        const data = await res.json()
-        likes = data.data?.digg_count ?? 0
-        comments = data.data?.comment_count ?? 0
-        views = data.data?.play_count ?? 0
+        // URL에서 video ID 추출
+        const videoIdMatch = link.url.match(/video\/(\d+)/)
+        const videoId = videoIdMatch ? videoIdMatch[1] : null
+        if (videoId) {
+          // tiktok-api23으로 먼저 시도
+          const res = await fetch(
+            `https://tiktok-api23.p.rapidapi.com/api/post/detail?videoId=${videoId}`,
+            { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com' } }
+          )
+          const data = await res.json()
+          const stats = data?.itemInfo?.itemStruct?.stats
+          if (stats) {
+            likes = stats.diggCount ?? 0
+            comments = stats.commentCount ?? 0
+            views = stats.playCount ?? 0
+          } else {
+            // 실패 시 tiktok-scraper7 시도
+            const res2 = await fetch(
+              `https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(link.url)}&hd=1`,
+              { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
+            )
+            const data2 = await res2.json()
+            likes = data2.data?.digg_count ?? 0
+            comments = data2.data?.comment_count ?? 0
+            views = data2.data?.play_count ?? 0
+          }
+        }
       }
 
       await supabase.from('project_links').update({ likes_count: likes, comments_count: comments, views_count: views }).eq('id', link.id)
@@ -82,14 +101,30 @@ async function updatePostStats(posts: any[]) {
         views = Number(stats?.viewCount ?? 0)
 
       } else if (post.platform === 'tiktok') {
-        const res = await fetch(
-          `https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(post.post_url)}&hd=1`,
-          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
-        )
-        const data = await res.json()
-        likes = data.data?.digg_count ?? 0
-        comments = data.data?.comment_count ?? 0
-        views = data.data?.play_count ?? 0
+        const ttVideoIdMatch = post.post_url.match(/video\/(\d+)/)
+        const ttVideoId = ttVideoIdMatch ? ttVideoIdMatch[1] : null
+        if (ttVideoId) {
+          const res = await fetch(
+            `https://tiktok-api23.p.rapidapi.com/api/post/detail?videoId=${ttVideoId}`,
+            { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com' } }
+          )
+          const data = await res.json()
+          const stats = data?.itemInfo?.itemStruct?.stats
+          if (stats) {
+            likes = stats.diggCount ?? 0
+            comments = stats.commentCount ?? 0
+            views = stats.playCount ?? 0
+          } else {
+            const res2 = await fetch(
+              `https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(post.post_url)}&hd=1`,
+              { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
+            )
+            const data2 = await res2.json()
+            likes = data2.data?.digg_count ?? 0
+            comments = data2.data?.comment_count ?? 0
+            views = data2.data?.play_count ?? 0
+          }
+        }
       }
 
       await supabase.from('posts').update({ likes_count: likes, comments_count: comments, views_count: views }).eq('id', post.id)
@@ -916,15 +951,15 @@ export async function GET() {
               }
             }
             if (p.tiktok_id) {
-              const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p.tiktok_id.replace('@','')}`, {
+              const ttRes = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${p.tiktok_id.replace('@','')}`, {
                 headers: {
                   'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
-                  'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
+                  'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com'
                 }
               })
               const ttData = await ttRes.json()
-              if (ttData?.data?.stats?.followerCount !== undefined && ttData.data.stats.followerCount > 0) {
-                await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount, tiktok_profile_image: ttData.data?.user?.avatarMedium ?? undefined }).eq('id', p.id)
+              if (ttData?.userInfo?.stats?.followerCount !== undefined && ttData.userInfo.stats.followerCount > 0) {
+                await supabase.from('participants').update({ tiktok_followers: ttData.userInfo.stats.followerCount, tiktok_profile_image: ttData.userInfo?.user?.avatarMedium ?? undefined }).eq('id', p.id)
               }
             }
           } catch { continue }
