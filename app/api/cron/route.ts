@@ -315,12 +315,14 @@ export async function GET() {
           const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 48 * 60 * 60 * 1000)
           if (now < twentyFourHoursAfter) continue
 
-          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id, is_cover, status, ban_exempt').ilike('project_code', project.project_code)
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id, is_cover, status, ban_exempt, joined_at').ilike('project_code', project.project_code)
           if (!joinedParticipants) continue
 
           for (const jp of joinedParticipants) {
             if (jp.is_cover) continue
-            if (jp.ban_exempt) continue  // 밴 면제 처리된 경우 건너뜀
+            if (jp.ban_exempt) continue
+            if (jp.joined_at && new Date(jp.joined_at).getTime() + 48 * 60 * 60 * 1000 > now.getTime()) continue
+            // 밴 면제 처리된 경우 건너뜀
             const { data: post } = await supabase.from('posts').select('id').ilike('project_code', project.project_code).eq('member_id', jp.member_id).maybeSingle()
             if (!post) {
               const { data: participant } = await supabase.from('participants').select('id, level').eq('id', jp.member_id).maybeSingle()
