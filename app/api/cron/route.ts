@@ -47,7 +47,7 @@ async function updateProjectLinkStats(links: any[]) {
           )
           const data = await res.json()
           const stats = data?.itemInfo?.itemStruct?.stats
-          if (stats) {
+          if (stats && (stats.playCount > 0 || stats.diggCount > 0)) {
             likes = stats.diggCount ?? 0
             comments = stats.commentCount ?? 0
             views = stats.playCount ?? 0
@@ -58,9 +58,14 @@ async function updateProjectLinkStats(links: any[]) {
               { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
             )
             const data2 = await res2.json()
-            likes = data2.data?.digg_count ?? 0
-            comments = data2.data?.comment_count ?? 0
-            views = data2.data?.play_count ?? 0
+            if (data2.data?.play_count > 0 || data2.data?.digg_count > 0) {
+              likes = data2.data?.digg_count ?? 0
+              comments = data2.data?.comment_count ?? 0
+              views = data2.data?.play_count ?? 0
+            } else {
+              // 둘 다 실패하면 기존 값 유지 (업데이트 스킵)
+              continue
+            }
           }
         }
       }
