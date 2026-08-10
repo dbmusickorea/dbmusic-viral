@@ -345,9 +345,11 @@ export async function GET() {
                   })
                 })
                 
+                // 정원이 있을때만 공석 알림
+                if (!project.max_participants || project.max_participants <= 0) continue
                 const { data: allTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
-                // 이미 참여중인 사람 제외
-                const joinedMemberIds = joinedParticipants.map((jp: any) => String(jp.member_id))
+                // 이미 참여중인 사람 제외 (밴된 사람도 제외)
+                const joinedMemberIds = joinedParticipants.filter((jp: any) => jp.status === 'ACTIVE').map((jp: any) => String(jp.member_id))
                 const filteredTokens = allTokens?.filter((t: any) => !joinedMemberIds.includes(String(t.user_id))) ?? []
                 if (filteredTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
