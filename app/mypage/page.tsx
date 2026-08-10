@@ -461,7 +461,7 @@ export default function MyPage() {
               </div>
               {[
                 { label: '이름', value: myName, setter: setMyName },
-              ].map(({ label, value, setter, custom }: any) => (
+              ].map(({ label, value, setter, custom, placeholder }: any) => (
                 <div key={label}>
                   <label className="text-sm font-medium dark:text-white">{label}</label>
                   {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
@@ -477,7 +477,7 @@ export default function MyPage() {
                   )
                 },
                 { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber, placeholder: '하이픈(-) 없이 숫자만 입력' },
-              ].map(({ label, value, setter, custom }: any) => (
+              ].map(({ label, value, setter, custom, placeholder }: any) => (
                 <div key={label}>
                   <label className="text-sm font-medium dark:text-white">{label}</label>
                   {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
