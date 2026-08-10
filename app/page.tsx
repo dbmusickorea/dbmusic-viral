@@ -623,7 +623,7 @@ export default function LoginPage() {
     // 이메일/전화번호 중복 체크
     const emailRes = await fetchWithAuth(`/api/users/signup-check?email=${encodeURIComponent(c_email)}`)
     const emailData = await emailRes.json()
-    if (emailData && emailData.length > 0) { showToast('이미 사용중인 이메일입니다.'); return }
+    if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); return }
     
     const mobileRes = await fetchWithAuth(`/api/users/signup-check?mobile=${c_mobile}`)
     const mobileData = await mobileRes.json()
