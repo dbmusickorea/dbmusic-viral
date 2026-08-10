@@ -642,11 +642,13 @@ export default function LoginPage() {
 
     let clientId = generateClientId()
     let isUnique = false
-    while (!isUnique) {
-      const res = await fetchWithAuth(`/api/users?client_id=${clientId}`)
+    let attempts = 0
+    while (!isUnique && attempts < 10) {
+      const res = await fetch(`/api/users/signup-check?client_id=${clientId}`)
       const data = await res.json()
-      if (!data || data.length === 0) isUnique = true
+      if (!data?.exists) isUnique = true
       else clientId = generateClientId()
+      attempts++
     }
 
     const { error: authError } = await supabase.auth.signUp({

@@ -21,5 +21,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ exists: !!data })
   }
 
+  const clientId = searchParams.get('client_id')
+  if (clientId) {
+    const { data } = await supabaseAdmin.from('users').select('id').eq('client_id', clientId).single()
+    return NextResponse.json({ exists: !!data })
+  }
+
   return NextResponse.json({ error: 'invalid params' }, { status: 400 })
 }
