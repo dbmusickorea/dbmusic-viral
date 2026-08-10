@@ -76,6 +76,15 @@ export async function DELETE(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
+
+  // email 조회 후 auth 삭제
+  const { data: participantData } = await supabaseAdmin.from('participants').select('email').eq('id', id!).single()
+  if (participantData?.email) {
+    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
+    const authUser = authUsers?.users?.find((u: any) => u.email === participantData.email)
+    if (authUser) await supabaseAdmin.auth.admin.deleteUser(authUser.id)
+  }
+
   const { error } = await auth.client.from('participants').delete().eq('id', id!)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
