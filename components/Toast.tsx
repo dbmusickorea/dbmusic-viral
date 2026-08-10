@@ -21,8 +21,10 @@ export default function Toast({ message, type = 'success', onClose }: ToastProps
   }
 
   return (
-    <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg ${colors[type]}`} style={{marginTop: 'env(safe-area-inset-top)'}}>
-      {message}
+    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+      <div className={`px-6 py-4 rounded-2xl text-white text-sm font-medium shadow-xl max-w-xs text-center whitespace-pre-line ${colors[type]}`}>
+        {message}
+      </div>
     </div>
   )
 }
