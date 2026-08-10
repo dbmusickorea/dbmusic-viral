@@ -52,10 +52,12 @@ export async function GET(req: NextRequest) {
     let dailyBudget = '0'
     let lifetimeBudget = '0'
     let budgetRemaining = '0'
+    let startTime = ''
+    let stopTime = ''
 
     if (campaignId) {
       const budgetParams = new URLSearchParams({
-        fields: 'daily_budget,lifetime_budget,budget_remaining',
+        fields: 'daily_budget,lifetime_budget,budget_remaining,start_time,stop_time',
         access_token: token,
       })
       const budgetRes = await fetch(`https://graph.facebook.com/v19.0/${campaignId}?${budgetParams}`, { cache: 'no-store' })
@@ -64,6 +66,8 @@ export async function GET(req: NextRequest) {
         dailyBudget = budgetJson.daily_budget ?? '0'
         lifetimeBudget = budgetJson.lifetime_budget ?? '0'
         budgetRemaining = budgetJson.budget_remaining ?? '0'
+        startTime = budgetJson.start_time ?? ''
+        stopTime = budgetJson.stop_time ?? ''
       }
     }
 
@@ -86,6 +90,8 @@ export async function GET(req: NextRequest) {
       daily_budget: dailyBudget,
       lifetime_budget: lifetimeBudget,
       budget_remaining: budgetRemaining,
+      start_time: startTime,
+      stop_time: stopTime,
       fetched_at: new Date().toISOString(),
     }
 

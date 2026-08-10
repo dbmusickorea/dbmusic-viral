@@ -13,6 +13,8 @@ interface Insights {
   lifetime_budget: string
   budget_remaining: string
   ctr: string
+  start_time: string
+  stop_time: string
   fetched_at: string
   cached?: boolean
 }
@@ -125,11 +127,16 @@ export default function MetaInsightsDashboard({ campaignId }: { campaignId?: str
         </div>
       </div>
 
-      {data?.fetched_at && (
-        <p className="text-xs text-gray-300 dark:text-gray-500 text-right mt-2">
-          {new Date(data.fetched_at).toLocaleTimeString('ko-KR')} 기준
+      <div className="flex justify-between items-center mt-2">
+        <p className="text-xs text-gray-300 dark:text-gray-500">
+          {data?.start_time ? `${new Date(data.start_time).toLocaleDateString('ko-KR')} ~ ${data.stop_time ? new Date(data.stop_time).toLocaleDateString('ko-KR') : '진행중'}` : ''}
         </p>
-      )}
+        {data?.fetched_at && (
+          <p className="text-xs text-gray-300 dark:text-gray-500">
+            {new Date(data.fetched_at).toLocaleTimeString('ko-KR')} 기준
+          </p>
+        )}
+      </div>
     </div>
   )
 }
