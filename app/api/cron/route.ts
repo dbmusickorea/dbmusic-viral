@@ -1169,6 +1169,32 @@ export async function GET() {
           
     
 
+    // 탈퇴 회원 5년 후 완전 삭제 (하루 1회)
+    if (currentHour === 3) {
+      const fiveYearsAgo = new Date()
+      fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5)
+      const { data: deletedParticipants } = await supabase
+        .from('participants')
+        .select('id, email')
+        .eq('is_deleted', true)
+        .lt('deleted_at', fiveYearsAgo.toISOString())
+
+      if (deletedParticipants && deletedParticipants.length > 0) {
+        for (const p of deletedParticipants) {
+          try {
+            // Auth 삭제
+            if (p.email) {
+              const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
+              const authUser = authUsers?.users?.find((u: any) => u.email === p.email)
+              if (authUser) await supabaseAdmin.auth.admin.deleteUser(authUser.id)
+            }
+            // participants 완전 삭제
+            await supabase.from('participants').delete().eq('id', p.id)
+          } catch { continue }
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, updated })
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) })

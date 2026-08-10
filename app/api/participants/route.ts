@@ -77,15 +77,20 @@ export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
-  // email 조회 후 auth 삭제
-  const { data: participantData } = await supabaseAdmin.from('participants').select('email').eq('id', id!).single()
-  if (participantData?.email) {
-    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
-    const authUser = authUsers?.users?.find((u: any) => u.email === participantData.email)
-    if (authUser) await supabaseAdmin.auth.admin.deleteUser(authUser.id)
-  }
-
-  const { error } = await auth.client.from('participants').delete().eq('id', id!)
+  // 완전 삭제 대신 비활성화 처리 (법적 5년 보관 의무)
+  const { error } = await supabaseAdmin.from('participants').update({
+    is_deleted: true,
+    deleted_at: new Date().toISOString(),
+    name: '탈퇴한 사용자',
+    phone: null,
+    mobile: null,
+    account_number: null,
+    account_holder: null,
+    resident_number: null,
+    instagram_id: null,
+    youtube_id: null,
+    tiktok_id: null,
+  }).eq('id', id!)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
