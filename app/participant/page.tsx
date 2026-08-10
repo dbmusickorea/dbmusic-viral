@@ -1692,6 +1692,7 @@ useEffect(() => {
                                 {(() => {
                                   const alreadyJoined = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.status === 'ACTIVE')
                                   const alreadyJoinedCover = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover && p.status !== 'CANCELLED' && p.cover_requested)
+                                  const coverExcludedJoin = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover && p.status !== 'CANCELLED' && !p.cover_requested)
                                   const isBanned = alreadyJoined?.status === 'BANNED' || bannedUntil !== null
                                   const alreadyCover = !!alreadyJoinedCover
                                   const alreadyCoverRequested = alreadyJoinedCover?.cover_requested
@@ -1711,12 +1712,9 @@ useEffect(() => {
                                           ) : (
                                             <span className={`text-xs px-3 py-1 rounded-full inline-flex items-center gap-0.5 ${projectInfo?.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}>{projectInfo?.cover_type === 'premium' ? '프리미엄 커버참여중' : '커버참여중'} <Music size={10} /></span>
                                           )
-                                        ) : (() => {
-                                          const coverExcluded = myParticipations.find(p => p.project_code.toLowerCase() === projectInfo.project_code?.toLowerCase() && p.is_cover && !p.cover_requested)
-                                          if (coverExcluded) return <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-3 py-1 rounded-full">커버제외</span>
-                                          if (alreadyCoverRequested) return <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>
-                                          return null
-                                        })() ? null : alreadyCoverRequested ? (
+                                        ) : coverExcludedJoin ? (
+                                          <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-3 py-1 rounded-full">커버제외</span>
+                                        ) : alreadyCoverRequested ? (
                                           <span className="text-xs bg-purple-50 text-purple-500 px-3 py-1 rounded-full">커버신청 완료</span>
                                         ) : coverFull ? null : (() => {
                                             const daysSinceStart = projectInfo?.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
