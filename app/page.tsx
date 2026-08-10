@@ -530,7 +530,7 @@ export default function LoginPage() {
       email: p_email,
       password: p_password
     })
-    if (authError) { showToast('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
+    if (authError) { showToast('이미 가입된 이메일이에요. 체험단으로 로그인 후 마이페이지에서 의뢰인으로 전환해주세요.'); return }
 
     const res = await fetchWithAuth('/api/participants', {
       method: 'POST',
@@ -643,7 +643,7 @@ export default function LoginPage() {
       email: c_email,
       password: c_password
     })
-    if (authError) { showToast('회원가입 실패! 이미 사용중인 이메일이거나 올바르지 않은 정보입니다.'); return }
+    if (authError) { showToast('이미 가입된 이메일이에요. 체험단으로 로그인 후 마이페이지에서 의뢰인으로 전환해주세요.'); return }
 
     const res = await fetchWithAuth('/api/users', {
       method: 'POST',
