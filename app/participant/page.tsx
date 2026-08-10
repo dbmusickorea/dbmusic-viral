@@ -567,15 +567,20 @@ useEffect(() => {
     if (p.projects?.max_participants > 0) {
       const tokenRes = await fetchWithAuth('/api/push_tokens?user_role=participant')
       const tokens = await tokenRes.json()
-      if (tokens && tokens.length > 0) {
+      // 이미 참여중인 체험단 제외
+      const joinedRes = await fetchWithAuth(`/api/project_participants?project_code=${p.project_code}`)
+      const joinedData = await joinedRes.json()
+      const joinedIds = new Set((joinedData ?? []).filter((j: any) => j.status === 'ACTIVE').map((j: any) => String(j.member_id)))
+      const filteredTokens = tokens?.filter((t: any) => !joinedIds.has(String(t.user_id))) ?? []
+      if (filteredTokens.length > 0) {
         await fetch('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '🎵 참여 공석이 생겼어요!',
             body: `${p.projects?.artist_name || p.projects?.client_name} - ${p.projects?.song_title} 프로젝트에 공석이 생겼어요. 지금 바로 참여하세요!`,
-            tokens: tokens.map((t: any) => t.token),
-            userIds: tokens.map((t: any) => t.user_id),
+            tokens: filteredTokens.map((t: any) => t.token),
+            userIds: filteredTokens.map((t: any) => t.user_id),
             saveToRole: 'participant'
           })
         })
