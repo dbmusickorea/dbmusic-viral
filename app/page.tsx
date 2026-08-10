@@ -134,6 +134,7 @@ export default function LoginPage() {
   const [p_sending, setPSending] = useState(false)
 
   const [c_name, setCName] = useState('')
+  const [clientSignupLoading, setClientSignupLoading] = useState(false)
   const [c_company, setCCompany] = useState('')
   const [c_artist, setCArtist] = useState('')
   const [c_phone, setCPhone] = useState('')
@@ -627,17 +628,19 @@ export default function LoginPage() {
   }
 
   const handleSignupClient = async () => {
-    if (!c_verified) { showToast('휴대전화 인증을 완료해주세요.'); return }
-    if (!c_name || !c_email || !c_password) { showToast('대표자명, 이메일, 비밀번호는 필수입니다.'); return }
-    if (c_password !== c_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); return }
+    if (clientSignupLoading) return
+    setClientSignupLoading(true)
+    if (!c_verified) { showToast('휴대전화 인증을 완료해주세요.'); setClientSignupLoading(false); return }
+    if (!c_name || !c_email || !c_password) { showToast('대표자명, 이메일, 비밀번호는 필수입니다.'); setClientSignupLoading(false); return }
+    if (c_password !== c_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); setClientSignupLoading(false); return }
     // 이메일/전화번호 중복 체크
     const emailRes = await fetchWithAuth(`/api/users/signup-check?email=${encodeURIComponent(c_email)}`)
     const emailData = await emailRes.json()
-    if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); return }
+    if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); setClientSignupLoading(false); return }
     
     const mobileRes = await fetchWithAuth(`/api/users/signup-check?mobile=${c_mobile}`)
     const mobileData = await mobileRes.json()
-    if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); setClientSignupLoading(false); return }
     
 
     let clientId = generateClientId()
@@ -655,7 +658,7 @@ export default function LoginPage() {
       email: c_email,
       password: c_password
     })
-    if (authError) { showToast('이미 가입된 이메일이에요. 체험단으로 로그인 후 마이페이지에서 의뢰인으로 전환해주세요.'); return }
+    if (authError) { showToast('이미 가입된 이메일이에요. 체험단으로 로그인 후 마이페이지에서 의뢰인으로 전환해주세요.'); setClientSignupLoading(false); return }
 
     const res = await fetchWithAuth('/api/users', {
       method: 'POST',
@@ -666,7 +669,7 @@ export default function LoginPage() {
         role: 'client', client_id: clientId
       })
     })
-    if (!res.ok) { showToast('회원가입 실패!'); return }
+    if (!res.ok) { showToast('회원가입 실패!'); setClientSignupLoading(false); return }
 
     // 관리자에게 신규 의뢰인 가입 알림
     const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
@@ -683,6 +686,7 @@ export default function LoginPage() {
         })
       })
     }
+    setClientSignupLoading(false)
     showToast(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
@@ -1050,7 +1054,7 @@ export default function LoginPage() {
                     </div>
                   )}
                 </div>
-                <button onClick={handleSignupClient} className="w-full bg-green-600 text-white rounded-lg py-2 font-medium">회원가입</button>
+                <button onClick={handleSignupClient} disabled={clientSignupLoading} className="w-full bg-green-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-300">{clientSignupLoading ? "처리중..." : "회원가입"}</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
               </div>
             )}
