@@ -561,6 +561,7 @@ export default function LoginPage() {
         cover_video_url: coverVideoUrl || null,
         genres: selectedGenres,
         referred_by: p_referral || null,
+        download_source: localStorage.getItem('downloadSource') || null,
       })
     })
     if (!res.ok) { showToast('회원가입 실패!'); return }
@@ -666,7 +667,8 @@ export default function LoginPage() {
       body: JSON.stringify({
         name: c_name, company: c_company, artist: c_artist,
         phone: c_phone, mobile: c_mobile, email: c_email,
-        role: 'client', client_id: clientId
+        role: 'client', client_id: clientId,
+        download_source: localStorage.getItem('downloadSource') || null
       })
     })
     if (!res.ok) { showToast('회원가입 실패!'); setClientSignupLoading(false); return }

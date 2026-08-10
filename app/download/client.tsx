@@ -33,6 +33,8 @@ export default function DownloadClient() {
     const params = new URLSearchParams(window.location.search)
     const ref = params.get('ref')
     if (ref) localStorage.setItem('referralCode', ref)
+    const src = params.get('src')
+    if (src) localStorage.setItem('downloadSource', src)
     
     const userAgent = navigator.userAgent.toLowerCase()
     const isIOS = /iphone|ipad|ipod/.test(userAgent)
