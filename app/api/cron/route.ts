@@ -1184,9 +1184,9 @@ export async function GET() {
           try {
             // Auth 삭제
             if (p.email) {
-              const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
+              const { data: authUsers } = await supabase.auth.admin.listUsers()
               const authUser = authUsers?.users?.find((u: any) => u.email === p.email)
-              if (authUser) await supabaseAdmin.auth.admin.deleteUser(authUser.id)
+              if (authUser) await supabase.auth.admin.deleteUser(authUser.id)
             }
             // participants 완전 삭제
             await supabase.from('participants').delete().eq('id', p.id)
