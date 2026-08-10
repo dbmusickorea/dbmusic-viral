@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     url = `https://graph.facebook.com/v19.0/${campaignId}/insights`
     params = new URLSearchParams({
       fields: 'spend,impressions,inline_link_clicks',
-      date_preset: 'lifetime',
+      date_preset: 'maximum',
       access_token: token,
     })
   } else {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     url = `https://graph.facebook.com/v19.0/act_${adAccountId}/insights`
     params = new URLSearchParams({
       fields: 'spend,impressions,inline_link_clicks',
-      date_preset: 'lifetime',
+      date_preset: 'maximum',
       access_token: token,
     })
   }
