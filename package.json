@@ -20,6 +20,7 @@
     "@capacitor/share": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capawesome/capacitor-badge": "^8.0.2",
+    "@portone/browser-sdk": "^0.1.9",
     "@supabase/supabase-js": "^2.110.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/crypto-js": "^4.2.2",
