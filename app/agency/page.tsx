@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../../app/lib/fetchWithAuth'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import Sidebar from '../../components/Sidebar'
-import { Users, ChevronDown, ChevronUp, RefreshCw, ArrowDown } from 'lucide-react'
+import { Users, RefreshCw, ArrowDown } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 
 export default function AgencyPage() {
@@ -13,7 +13,7 @@ export default function AgencyPage() {
   const { showToast } = useToast()
   const [agencies, setAgencies] = useState<any[]>([])
   const [members, setMembers] = useState<any[]>([])
-  const [expanded, setExpanded] = useState<number | null>(null)
+  const [selected, setSelected] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
   const [isPulling, setIsPulling] = useState(false)
@@ -56,6 +56,8 @@ export default function AgencyPage() {
 
   if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
+  const selectedMembers = selected ? getAgencyMembers(selected) : []
+
   return (
     <>
       <Sidebar
@@ -86,7 +88,7 @@ export default function AgencyPage() {
           setIsPulling(false)
         }}
       >
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
             {(isPulling || isRefreshing) && (
               <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
@@ -116,55 +118,92 @@ export default function AgencyPage() {
               등록된 에이전시가 없어요.
             </div>
           ) : (
-            <div className="space-y-3">
-              {agencies.map(agency => {
-                const agencyMembers = getAgencyMembers(agency)
-                const isExpanded = expanded === agency.id
-                return (
-                  <div key={agency.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow">
-                    <div className="p-4 cursor-pointer" onClick={() => setExpanded(isExpanded ? null : agency.id)}>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-bold dark:text-white">{agency.agency_name ?? agency.name}</p>
-                            <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">에이전시</span>
-                          </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{agency.name} · {agency.email}</p>
-                          <div className="flex gap-3 mt-2">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-0.5"><Users size={10} /> 소속 {agencyMembers.length}명</span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">수수료 {agency.agency_commission ?? 0}%</span>
-                            <span className="text-xs text-green-600 font-medium">잔액 {(agency.agency_balance ?? 0).toLocaleString()}P</span>
-                          </div>
-                        </div>
-                        {isExpanded ? <ChevronUp size={16} className="text-gray-400 shrink-0" /> : <ChevronDown size={16} className="text-gray-400 shrink-0" />}
+            <div className="flex gap-4">
+              {/* 왼쪽: 에이전시 목록 */}
+              <div className="w-full md:w-1/2 space-y-3">
+                {agencies.map(agency => {
+                  const agencyMembers = getAgencyMembers(agency)
+                  const isSelected = selected?.id === agency.id
+                  return (
+                    <div
+                      key={agency.id}
+                      className={`bg-white dark:bg-gray-800 rounded-2xl shadow p-4 cursor-pointer border-2 ${isSelected ? 'border-blue-500' : 'border-transparent'}`}
+                      onClick={() => setSelected(isSelected ? null : agency)}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold dark:text-white">{agency.agency_name ?? agency.name}</p>
+                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">에이전시</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{agency.name} · {agency.email}</p>
+                      <div className="flex gap-3 mt-2">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-0.5"><Users size={10} /> 소속 {agencyMembers.length}명</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">수수료 {agency.agency_commission ?? 0}%</span>
+                        <span className="text-xs text-green-600 font-medium">잔액 {(agency.agency_balance ?? 0).toLocaleString()}P</span>
                       </div>
                     </div>
-                    {isExpanded && (
-                      <div className="border-t dark:border-gray-700 p-4">
-                        <p className="text-sm font-medium dark:text-white mb-3">소속 체험단 ({agencyMembers.length}명)</p>
-                        {agencyMembers.length === 0 ? (
-                          <p className="text-xs text-gray-400">소속 체험단이 없어요.</p>
-                        ) : (
-                          <div className="space-y-2">
-                            {agencyMembers.map(m => (
-                              <div key={m.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 flex justify-between items-center">
-                                <div>
-                                  <p className="text-sm font-medium dark:text-white">{m.name}</p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">{m.instagram_id || m.youtube_id || m.tiktok_id || '-'}</p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-sm font-medium text-blue-600">{m.balance?.toLocaleString() ?? 0}P</p>
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">Lv.{m.level ?? 1}</span>
-                                </div>
-                              </div>
-                            ))}
+                  )
+                })}
+              </div>
+
+              {/* 오른쪽: 소속 체험단 */}
+              <div className="hidden md:block w-1/2">
+                {selected ? (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 sticky top-24">
+                    <p className="font-bold dark:text-white mb-1">{selected.agency_name ?? selected.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">소속 체험단 ({selectedMembers.length}명)</p>
+                    {selectedMembers.length === 0 ? (
+                      <p className="text-xs text-gray-400">소속 체험단이 없어요.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {selectedMembers.map(m => (
+                          <div key={m.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 flex justify-between items-center">
+                            <div>
+                              <p className="text-sm font-medium dark:text-white">{m.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{m.instagram_id || m.youtube_id || m.tiktok_id || '-'}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium text-blue-600">{m.balance?.toLocaleString() ?? 0}P</p>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">Lv.{m.level ?? 1}</span>
+                            </div>
                           </div>
-                        )}
+                        ))}
                       </div>
                     )}
                   </div>
-                )
-              })}
+                ) : (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 text-center text-gray-400 sticky top-24">
+                    <p className="text-sm">에이전시를 선택하면 소속 체험단을 볼 수 있어요.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 모바일: 선택된 에이전시 소속 체험단 */}
+              {selected && (
+                <div className="md:hidden w-full">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <p className="font-bold dark:text-white mb-1">{selected.agency_name ?? selected.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">소속 체험단 ({selectedMembers.length}명)</p>
+                    {selectedMembers.length === 0 ? (
+                      <p className="text-xs text-gray-400">소속 체험단이 없어요.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {selectedMembers.map(m => (
+                          <div key={m.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 flex justify-between items-center">
+                            <div>
+                              <p className="text-sm font-medium dark:text-white">{m.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{m.instagram_id || m.youtube_id || m.tiktok_id || '-'}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium text-blue-600">{m.balance?.toLocaleString() ?? 0}P</p>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">Lv.{m.level ?? 1}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

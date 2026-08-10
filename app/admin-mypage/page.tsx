@@ -146,7 +146,7 @@ export default function AdminMypagePage() {
             <RefreshCw size={14} className="animate-spin mr-1" /> 새로고침 중...
           </div>
         )}
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
             <div className="flex justify-center mb-2">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
