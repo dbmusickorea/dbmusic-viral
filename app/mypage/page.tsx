@@ -464,7 +464,7 @@ export default function MyPage() {
               ].map(({ label, value, setter, custom }: any) => (
                 <div key={label}>
                   <label className="text-sm font-medium dark:text-white">{label}</label>
-                  {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
+                  {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
                 </div>
               ))}
               <p className="text-xs text-orange-500 flex items-center gap-0.5"><AlertTriangle size={10} /> 본인 명의 계좌만 등록 가능합니다.</p>
@@ -476,11 +476,11 @@ export default function MyPage() {
                     <BankSelect value={myBankCode} onChange={(code, name) => { setMyBankCode(code); setMyBankName(name) }} />
                   )
                 },
-                { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber },
+                { label: '계좌번호', value: myAccountNumber, setter: setMyAccountNumber, placeholder: '하이픈(-) 없이 숫자만 입력' },
               ].map(({ label, value, setter, custom }: any) => (
                 <div key={label}>
                   <label className="text-sm font-medium dark:text-white">{label}</label>
-                  {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
+                  {custom ? custom : <input value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />}
                 </div>
               ))}
               <div>

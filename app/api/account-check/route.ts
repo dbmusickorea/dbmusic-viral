@@ -24,11 +24,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '은행코드와 계좌번호는 필수입니다.' }, { status: 400 })
   }
 
+  const cleanAccountNumber = accountNumber.replace(/[^0-9]/g, '')
+
   return new Promise<NextResponse>((resolve) => {
     accountCheckService.CheckAccountHolder(
       '2800202331',
       bankCode,
-      accountNumber,
+      cleanAccountNumber,
       (result: any) => {
         resolve(NextResponse.json({
           accountName: result.accountName,
