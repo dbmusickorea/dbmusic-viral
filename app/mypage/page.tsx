@@ -371,7 +371,7 @@ export default function MyPage() {
         <div className="flex justify-center mb-2">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/participant')} />
         </div>
-        <div className="max-w-lg mx-auto flex items-center gap-3">
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
           
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -381,8 +381,10 @@ export default function MyPage() {
           <h1 className="text-xl font-bold dark:text-white">마이페이지</h1>
         </div>
       </div>
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-7xl mx-auto">
 
+        <div className="flex flex-col md:flex-row gap-4 items-start">
+          <div className="w-full md:w-1/2 space-y-4">
         {/* 추천인 코드 */}
         {referralCode && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
@@ -628,6 +630,8 @@ export default function MyPage() {
           )}
         </div>
 
+          </div>
+          <div className="w-full md:w-1/2 space-y-4">
         {/* 사용 가이드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <button onClick={() => router.push('/guide')} className="w-full flex justify-between items-center">
@@ -774,6 +778,8 @@ export default function MyPage() {
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">고객센터: 070-8065-5811</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">제휴 및 광고 문의: doubleb@doubleb.kr</p>
           <p className="text-xs text-gray-300 dark:text-gray-600">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
+        </div>
+          </div>
         </div>
       </div>
       <BottomNav tabs={[

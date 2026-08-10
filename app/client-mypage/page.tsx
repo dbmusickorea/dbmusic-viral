@@ -280,7 +280,8 @@ export default function ClientMyPage() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto">
-
+        <div className="flex flex-col md:flex-row gap-4 items-start">
+          <div className="w-full md:w-1/2 space-y-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-bold dark:text-white">내 정보</h2>
@@ -408,6 +409,8 @@ export default function ClientMyPage() {
           )}
         </div>
 
+          </div>
+          <div className="w-full md:w-1/2 space-y-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-xs text-center text-gray-300 mb-2">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
@@ -492,6 +495,8 @@ export default function ClientMyPage() {
               </div>
             </div>
           )}
+        </div>
+          </div>
         </div>
         {/* 사업자 정보 */}
         <div className="text-center py-6 border-t border-gray-200 dark:border-gray-700 mt-2">

@@ -306,7 +306,7 @@ export default function WalletPage() {
         <div className="flex justify-center mb-2">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/participant')} />
         </div>
-        <div className="max-w-lg mx-auto flex items-center gap-3">
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -315,7 +315,9 @@ export default function WalletPage() {
           <h1 className="text-xl font-bold dark:text-white">적립금</h1>
         </div>
       </div>
-      <div className="max-w-lg mx-auto"> 
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-4 items-start">
+        <div className="w-full md:w-1/2">
         {isLocked && (
           <div className="bg-red-50 dark:bg-red-900 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-2 text-red-600 dark:text-red-400 flex items-center gap-1"><AlertTriangle size={16} /> 계정 잠금 상태</h2>
@@ -436,6 +438,8 @@ export default function WalletPage() {
           </div>
         )}
 
+        </div>
+        <div className="w-full md:w-1/2">
         {/* 총 적립금 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex justify-between items-center">
@@ -486,6 +490,8 @@ export default function WalletPage() {
               </div>
             </div>
           )}
+        </div>
+        </div>
         </div>
       </div>
       <BottomNav tabs={[

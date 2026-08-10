@@ -161,6 +161,8 @@ export default function AdminMypagePage() {
             </div>
           </div>
 
+          <div className="flex flex-col md:flex-row gap-4 items-start">
+          <div className="w-full md:w-1/2 space-y-4">
           {/* 관리자 정보 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3 dark:text-white">내 정보</h2>
@@ -203,6 +205,8 @@ export default function AdminMypagePage() {
             </div>
           </div>
 
+          </div>
+          <div className="w-full md:w-1/2 space-y-4">
           {/* 관리자 추가 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-3 dark:text-white">관리자 추가</h2>
@@ -269,6 +273,8 @@ export default function AdminMypagePage() {
           </div>
           {/* 로그아웃 */}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 mb-4">로그아웃</button>
+          </div>
+          </div>
         </div>
         <AdminBottomNav active="mypage" />
       </div>

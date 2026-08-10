@@ -143,7 +143,7 @@ export default function AgencyWalletPage() {
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/agency-member')} />
         </div>
 
-      <div className="max-w-2xl mx-auto p-4 pb-24">
+      <div className="max-w-7xl mx-auto p-4 pb-24">
         <div className="flex items-center gap-2 mb-4">
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600 dark:text-gray-300">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,6 +153,8 @@ export default function AgencyWalletPage() {
           <h1 className="text-xl font-bold dark:text-white">수수료 환전</h1>
         </div>
 
+        <div className="flex flex-col md:flex-row gap-4 items-start">
+          <div className="w-full md:w-1/2 space-y-4">
         {/* 잔액 카드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">수수료 잔액</p>
@@ -205,6 +207,8 @@ export default function AgencyWalletPage() {
           </div>
         </div>
 
+          </div>
+          <div className="w-full md:w-1/2">
         {/* 신청 내역 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
           <h2 className="font-bold dark:text-white mb-3">신청 내역</h2>
@@ -223,6 +227,8 @@ export default function AgencyWalletPage() {
               ))}
             </div>
           )}
+        </div>
+          </div>
         </div>
       </div>
       </div>

@@ -98,13 +98,13 @@ export default function AgencyMemberPage() {
       )}
 
       {/* 헤더 */}
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-center mb-2">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/participant')} />
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto p-4 pb-24"
+      <div className="max-w-7xl mx-auto p-4 pb-24"
         onTouchStart={(e) => { if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY); else setPullStartY(0) }}
         onTouchMove={(e) => { if (pullStartY === 0) return; if (e.touches[0].clientY - pullStartY > 70) setIsPulling(true) }}
         onTouchEnd={() => { if (isPulling) handleRefresh(); setIsPulling(false) }}
@@ -123,6 +123,8 @@ export default function AgencyMemberPage() {
           <h1 className="text-xl font-bold dark:text-white">에이전시 현황</h1>
         </div>
 
+        <div className="flex flex-col md:flex-row gap-4 items-start">
+          <div className="w-full md:w-1/2 space-y-4">
         {/* 요약 카드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-sm font-medium dark:text-white mb-3">{userInfo?.agency_name}</p>
@@ -167,6 +169,8 @@ export default function AgencyMemberPage() {
           )}
         </div>
 
+          </div>
+          <div className="w-full md:w-1/2 space-y-4">
         {/* 프로젝트별 수수료 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <h2 className="font-bold dark:text-white mb-3">프로젝트별 수수료</h2>
@@ -210,6 +214,8 @@ export default function AgencyMemberPage() {
               })}
             </div>
           )}
+        </div>
+          </div>
         </div>
       </div>
 

@@ -118,7 +118,7 @@ export default function AgencyPage() {
               등록된 에이전시가 없어요.
             </div>
           ) : (
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               {/* 왼쪽: 에이전시 목록 */}
               <div className="w-full md:w-1/2 space-y-3">
                 {agencies.map(agency => {
