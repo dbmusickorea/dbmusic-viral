@@ -9,10 +9,12 @@ export default function DownloadClient() {
     if (ref) localStorage.setItem('referralCode', ref)
     
     const userAgent = navigator.userAgent.toLowerCase()
-    if (/iphone|ipad|ipod/.test(userAgent)) {
-      window.location.href = 'https://apps.apple.com/kr/app/id6787446365'
-    } else if (/android/.test(userAgent)) {
-      window.location.href = 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
+    const isIOS = /iphone|ipad|ipod/.test(userAgent)
+    const isAndroid = /android/.test(userAgent)
+    if (isIOS) {
+      window.location.replace('https://apps.apple.com/kr/app/id6787446365')
+    } else if (isAndroid) {
+      window.location.replace('https://play.google.com/store/apps/details?id=com.dbmusic.viral')
     }
   }, [])
 
