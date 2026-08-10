@@ -598,7 +598,13 @@ export async function GET() {
               .eq('recorded_at', snapshotKey)
               .maybeSingle()
 
-            if (!existingLink) {
+            if (existingLink) {
+              await supabase.from('post_stats_history').update({
+                likes_count: link.likes_count ?? 0,
+                comments_count: link.comments_count ?? 0,
+                views_count: link.views_count ?? 0,
+              }).eq('id', existingLink.id)
+            } else {
               await supabase.from('post_stats_history').insert({
                 post_id: 0,
                 link_id: link.id,
