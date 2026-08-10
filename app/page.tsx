@@ -576,6 +576,26 @@ export default function LoginPage() {
       })
     }
     
+    // 8월 이벤트 가입 축하금 자동 지급 (~ 2026-08-31)
+    const eventEnd = new Date('2026-09-01T00:00:00+09:00')
+    if (new Date() < eventEnd) {
+      const newParticipantRes = await fetchWithAuth(`/api/participants?email=${encodeURIComponent(p_email)}`)
+      const newParticipants = await newParticipantRes.json()
+      const newParticipant = newParticipants?.[0]
+      if (newParticipant) {
+        await fetchWithAuth('/api/point_history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ member_id: newParticipant.id, amount: 2500, memo: '8월 가입 축하금' })
+        })
+        await fetchWithAuth(`/api/participants?id=${newParticipant.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ balance: 2500 })
+        })
+      }
+    }
+
     // 관리자에게 신규 가입 알림
     const adminTokensRes2 = await fetch('/api/push_tokens?user_role=admin')
     const adminTokens2 = await adminTokensRes2.json()
