@@ -578,7 +578,7 @@ export default function Page3() {
                     <div className="text-center py-4">
                       <p className="text-sm text-gray-400 mb-3">프로젝트가 없습니다.</p>
                     </div>
-                    <div onClick={() => window.open('/demo', '_blank')} className="border rounded-lg p-3 cursor-pointer border-dashed border-blue-300 bg-blue-50 dark:bg-blue-900 dark:border-blue-700 mt-2">
+                    <div onClick={() => { import('@capacitor/browser').then(({ Browser }) => Browser.open({ url: window.location.origin + '/demo' })).catch(() => window.open('/demo', '_blank')) }} className="border rounded-lg p-3 cursor-pointer border-dashed border-blue-300 bg-blue-50 dark:bg-blue-900 dark:border-blue-700 mt-2">
                       <div className="flex items-center gap-2">
                         <img src="https://tbohdflubypnvlgwjxtp.supabase.co/storage/v1/object/public/covers/A_1_1784796044828" className="w-10 h-10 rounded-lg object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
