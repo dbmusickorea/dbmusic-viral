@@ -41,16 +41,17 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
 
       PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
         const data = action.notification.data
-        if (data?.url) {
-          const url = new URL(data.url, window.location.origin)
+        const urlStr = data?.url || data?.data?.url
+        if (urlStr) {
+          const url = new URL(urlStr, window.location.origin)
           const tab = url.searchParams.get('tab')
           if (tab) {
             if (url.pathname === '/participant') sessionStorage.setItem('participantTab', tab)
             else if (url.pathname === '/client') sessionStorage.setItem('clientTab', tab)
           }
           window.location.href = url.pathname
-        } else if (data?.page) {
-          window.location.href = data.page
+        } else if (data?.page || data?.data?.page) {
+          window.location.href = data?.page || data?.data?.page
         }
       })
     }
