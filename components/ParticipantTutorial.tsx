@@ -49,9 +49,11 @@ setSidebarReady(true)
     }
     const update = () => setHighlightStyle(getHighlightStyle())
     update()
+    const timer = setTimeout(update, 600)
     window.addEventListener('scroll', update)
     window.addEventListener('resize', update)
     return () => {
+      clearTimeout(timer)
       window.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
     }
