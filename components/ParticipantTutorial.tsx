@@ -8,20 +8,9 @@ export default function ParticipantTutorial({ onDone, onOpenSidebar, onCloseSide
   const router = useRouter()
 
   const isMd = typeof window !== 'undefined' && window.innerWidth >= 768
-
   const [sidebarReady, setSidebarReady] = useState(!isMd)
+  const [highlightStyle, setHighlightStyle] = useState<any>({})
 
-  useEffect(() => {
-    if (isMd) {
-      onOpenSidebar?.()
-      setTimeout(() => {
-setSidebarReady(true)
-      }, 500)
-    }
-    return () => {
-      if (isMd) onCloseSidebar?.()
-    }
-  }, [])
   const suffix = isMd ? '-sidebar' : ''
 
   const steps = [
@@ -33,29 +22,45 @@ setSidebarReady(true)
   ]
 
   const current = steps[step]
-  const [highlightStyle, setHighlightStyle] = useState<any>({})
 
   useEffect(() => {
-    if (!sidebarReady) return
-    const el = document.getElementById(current.target)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [step, sidebarReady])
-
-  useEffect(() => {
-    const getHighlightStyle = () => {
-      const el = document.getElementById(current.target)
-      if (!el) return {}
-      const rect = el.getBoundingClientRect()
-      return { top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 }
+    setHighlightStyle({})
+    if (isMd) {
+      onOpenSidebar?.()
+      setTimeout(() => {
+        setSidebarReady(true)
+        const el = document.getElementById(steps[step]?.target)
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          setHighlightStyle({ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 })
+        }
+      }, 400)
+    } else {
+      setSidebarReady(true)
+      const el = document.getElementById(steps[step]?.target)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setTimeout(() => {
+          const rect = el.getBoundingClientRect()
+          setHighlightStyle({ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 })
+        }, 300)
+      }
     }
-    if (!sidebarReady) return
-    const update = () => setHighlightStyle(getHighlightStyle())
-    update()
-    const timer = setTimeout(update, 600)
+    return () => {
+      if (isMd) onCloseSidebar?.()
+    }
+  }, [step])
+
+  useEffect(() => {
+    const update = () => {
+      const el = document.getElementById(current.target)
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      setHighlightStyle({ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 })
+    }
     window.addEventListener('scroll', update)
     window.addEventListener('resize', update)
     return () => {
-      clearTimeout(timer)
       window.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
     }
@@ -63,6 +68,9 @@ setSidebarReady(true)
 
   const getBubblePosition = () => {
     if (!highlightStyle.top) return {}
+    if (isMd) {
+      return { top: Math.max(16, highlightStyle.top), left: highlightStyle.left + highlightStyle.width + 16, right: 16 }
+    }
     if (current.position === 'top') {
       return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
     }
