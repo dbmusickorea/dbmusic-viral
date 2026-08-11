@@ -251,7 +251,7 @@ export async function GET() {
               tokens: participantTokens.map((t: any) => t.token),
               userIds: participantTokens.map((t: any) => t.user_id),
               data: { url: '/participant?tab=project' },
-              saveToRole: 'participant', data: { url: '/participant' }
+              saveToRole: 'participant'
             })
           })
           await supabase.from('projects').update({ recruit_push_sent: true }).eq('project_code', project.project_code)
