@@ -354,6 +354,12 @@ export default function Page3() {
           return Array.from(map.values())
         }
         const igData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'instagram'))
+        const audioData = dayData.filter((h: any) => h.platform === 'audio')
+        const latestAudio = audioData.sort((a: any, b: any) => {
+          const aHour = parseInt(a.recorded_at.split('_')[1] ?? '0')
+          const bHour = parseInt(b.recorded_at.split('_')[1] ?? '0')
+          return bHour - aHour
+        })[0]
         const ytData = getLatestPerPost(dayData.filter((h: any) => ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(h.platform)))
         const ttData = getLatestPerPost(dayData.filter((h: any) => h.platform === 'tiktok'))
         const coverCount = coverData?.filter((p: any) => p.created_at?.startsWith(date))?.length ?? 0
@@ -369,16 +375,12 @@ export default function Page3() {
           tt_comments: ttData.reduce((sum: number, h: any) => sum + (h.comments_count ?? 0), 0),
           tt_views: ttData.reduce((sum: number, h: any) => sum + (h.views_count ?? 0), 0),
           cover_count: coverCount > 0 ? coverCount : null,
+          ig_audio: latestAudio?.ig_audio_count ?? null,
+          tt_audio: latestAudio?.tt_audio_count ?? null,
+          yt_audio: latestAudio?.yt_audio_count ?? null,
         }
       })
-      if (stats.length > 0) {
-        stats[stats.length - 1] = {
-          ...stats[stats.length - 1],
-          ig_audio: igAudio,
-          tt_audio: ttAudio,
-          yt_audio: ytAudio
-        }
-      }
+
       setDailyStats(stats)
     }
   }

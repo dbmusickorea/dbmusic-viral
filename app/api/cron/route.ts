@@ -1164,6 +1164,39 @@ export async function GET() {
             }
 
             const { error: updateError } = await supabase.from('projects').update(updates).eq('project_code', project.project_code)
+
+            // 음원사용량 스냅샷 저장
+            if (Object.keys(updates).length > 0) {
+              const snapshotKey = `${today}_${currentHour}`
+              const { data: existingAudio } = await supabase
+                .from('post_stats_history')
+                .select('id')
+                .eq('project_code', project.project_code)
+                .eq('recorded_at', snapshotKey)
+                .eq('platform', 'audio')
+                .maybeSingle()
+
+              if (existingAudio) {
+                await supabase.from('post_stats_history').update({
+                  ig_audio_count: updates.instagram_audio_count ?? null,
+                  tt_audio_count: updates.tiktok_audio_count ?? null,
+                  yt_audio_count: updates.youtube_audio_count ?? null,
+                }).eq('id', existingAudio.id)
+              } else {
+                await supabase.from('post_stats_history').insert({
+                  post_id: 0,
+                  project_code: project.project_code,
+                  platform: 'audio',
+                  recorded_at: snapshotKey,
+                  ig_audio_count: updates.instagram_audio_count ?? null,
+                  tt_audio_count: updates.tiktok_audio_count ?? null,
+                  yt_audio_count: updates.youtube_audio_count ?? null,
+                  likes_count: 0,
+                  comments_count: 0,
+                  views_count: 0,
+                })
+              }
+            }
           }
         }
           
