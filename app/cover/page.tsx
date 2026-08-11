@@ -179,6 +179,7 @@ export default function CoverPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '🎵 커버영상 미션 선택됐어요!',
+            data: { url: '/participant' },
             body: `[${selectedProject.project_code}] 커버영상 미션에 선택됐어요. 승인/거절을 선택해주세요.`,
             tokens: tokens.map((t: any) => t.token),
             userIds: tokens.map((t: any) => t.user_id)
@@ -260,6 +261,7 @@ export default function CoverPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 커버영상 승인됐어요!',
+                        data: { url: '/participant' },
           body: `커버영상(${type === 'long' ? '롱폼' : '숏츠'})이 승인됐어요. ${reward.toLocaleString()}P이 추가 지급됐어요.`,
           tokens: tokens.map((t: any) => t.token),
           userIds: [String(post.member_id)]
@@ -702,6 +704,7 @@ export default function CoverPage() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         title: '🎵 커버영상 미션 모집!',
+                        data: { url: '/participant' },
                         body: `[${selectedProject.project_code}] 커버영상 미션 참여자를 모집합니다!`,
                         tokens: tokens.map((t: any) => t.token),
                         userIds: tokens.map((t: any) => t.user_id)

@@ -206,6 +206,7 @@ export default function MyPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 커버영상 신청이 왔어요!',
+          data: { url: '/members' },
           body: `${myName}님이 커버영상 링크를 등록했어요. 확인하고 승인해주세요.`,
           tokens: adminTokens?.map((t: any) => t.token) ?? [],
           userIds: allAdminIds
@@ -592,6 +593,7 @@ export default function MyPage() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                           title: '📱 SNS 계정 변경 요청이 왔어요!',
+                          data: { url: '/members' },
                           body: `${myName}님이 ${snsChangeRequest.platform} 계정 변경을 요청했어요.`,
                           tokens: adminTokens?.map((t: any) => t.token) ?? [],
                           userIds: allAdminIds

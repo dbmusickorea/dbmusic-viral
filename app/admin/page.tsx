@@ -643,6 +643,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 프로젝트가 등록됐어요!',
+              data: { url: '/participant?tab=project' },
               body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
               tokens: clientTokens.map((t: any) => t.token),
               userIds: [String(clientUser.id)]
@@ -733,6 +734,7 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '📢 프로젝트가 종료됐어요!',
+              data: { url: '/participant' },
               body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 종료됐어요. 환전 신청을 확인해보세요!`,
               tokens: tokens.map((t: any) => t.token),
               userIds: tokens.map((t: any) => t.user_id)
@@ -749,6 +751,7 @@ export default function Page1() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '📢 프로젝트가 종료됐어요!',
+              data: { url: '/participant' },
             body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
             tokens: clientTokens.map((t: any) => t.token),
             userIds: clientTokens.map((t: any) => t.user_id)

@@ -191,6 +191,7 @@ export default function WalletPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '💰 환전 신청이 들어왔어요!',
+          data: { url: '/settlement' },
           body: `${userInfo?.name}님이 ${amount.toLocaleString()}P 환전을 신청했어요.`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)

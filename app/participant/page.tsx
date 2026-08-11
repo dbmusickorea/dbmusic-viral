@@ -619,6 +619,7 @@ useEffect(() => {
             body: JSON.stringify({
               title: '🎵 커버영상 미션 승인됐어요!',
               body: `[${proj.artist_name || proj.client_name} - ${proj.song_title}] 커버 체험단이 미션을 수락했어요!`,
+              data: { url: '/cover' },
               tokens: tokens.map((t: any) => t.token),
               userIds: [String(clientUser.id)]
             })
@@ -659,6 +660,7 @@ useEffect(() => {
             body: JSON.stringify({
               title: '⚠️ 커버영상 미션 거절됐어요',
               body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
+              data: { url: '/cover' },
               tokens: tokens.map((t: any) => t.token),
               userIds: [String(clientUser.id)]
             })
@@ -997,6 +999,7 @@ useEffect(() => {
       body: JSON.stringify({
         title: activeIsCover ? '🎵 커버영상 신청이 왔어요!' : '📸 새 게시물이 등록됐어요!',
         body: `${influencerName}님이 ${projectsMap[activeProjectCode?.toUpperCase()]?.artist_name || activeProjectCode} / ${projectsMap[activeProjectCode?.toUpperCase()]?.song_title ?? ''} 프로젝트에 ${activeIsCover ? '커버영상을' : '게시물을'} 등록했어요.`,
+        data: { url: activeIsCover ? '/cover' : '/client' },
         tokens: adminTokens?.map((t: any) => t.token) ?? [],
         userIds: allAdminIds
       })

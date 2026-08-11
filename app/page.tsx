@@ -64,12 +64,34 @@ export default function LoginPage() {
     // 딥링크 처리
     if ((window as any).Capacitor) {
       import('@capacitor/app').then(({ App }) => {
+        // 앱 종료 상태에서 딥링크로 열릴 때
+        App.getLaunchUrl().then((launchUrl) => {
+          if (launchUrl?.url) {
+            const url = new URL(launchUrl.url)
+            const ref = url.searchParams.get('ref')
+            const tab = url.searchParams.get('tab')
+            if (ref) {
+              setPReferral(ref)
+              setShowSignup(true)
+            }
+            if (tab) {
+              sessionStorage.setItem('participantTab', tab)
+            }
+          }
+          // getLaunchUrl 완료 후 자동 로그인 체크
+          checkSession()
+        })
+        // 앱 실행 중 딥링크로 열릴 때
         App.addListener('appUrlOpen', (event) => {
           const url = new URL(event.url)
           const ref = url.searchParams.get('ref')
+          const tab = url.searchParams.get('tab')
           if (ref) {
             setPReferral(ref)
             setShowSignup(true)
+          }
+          if (tab) {
+            sessionStorage.setItem('participantTab', tab)
           }
         })
         App.addListener('appStateChange', async (state) => {
@@ -99,7 +121,10 @@ export default function LoginPage() {
       else if (userRole === 'client') router.push('/client')
       else router.push('/participant')
     }
-    checkSession()
+    // 네이티브 앱이 아닐 때만 바로 체크
+    if (!(window as any).Capacitor?.isNativePlatform?.()) {
+      checkSession()
+    }
   }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -617,6 +642,7 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎉 새 체험단이 가입했어요!',
+          data: { url: '/members' },
           body: `${p_name}님이 가입했어요. (${p_instagram || p_youtube || p_tiktok || ''})`,
           tokens: adminTokens2.map((t: any) => t.token),
           userIds: adminTokens2.map((t: any) => t.user_id)
@@ -682,6 +708,7 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 새 의뢰인이 가입했어요!',
+          data: { url: '/members' },
           body: `${c_name}님이 가입했어요. (${c_company || ''})`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)

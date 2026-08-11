@@ -44,7 +44,10 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
         if (data?.url) {
           const url = new URL(data.url, window.location.origin)
           const tab = url.searchParams.get('tab')
-          if (tab) sessionStorage.setItem('activeTab', tab)
+          if (tab) {
+            if (url.pathname === '/participant') sessionStorage.setItem('participantTab', tab)
+            else if (url.pathname === '/client') sessionStorage.setItem('clientTab', tab)
+          }
           window.location.href = url.pathname
         } else if (data?.page) {
           window.location.href = data.page

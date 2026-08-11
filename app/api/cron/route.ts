@@ -250,6 +250,7 @@ export async function GET() {
               body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
               tokens: participantTokens.map((t: any) => t.token),
               userIds: participantTokens.map((t: any) => t.user_id),
+              data: { url: '/participant?tab=project' },
               saveToRole: 'participant', data: { url: '/participant' }
             })
           })
@@ -292,7 +293,8 @@ export async function GET() {
                     title: '📅 미션이 시작됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                     tokens: normalTokens.map((t: any) => t.token),
-                    userIds: normalIds.map(String)
+                    userIds: normalIds.map(String),
+                    data: { url: '/participant?tab=project' }
                   })
                 })
               }
@@ -381,7 +383,8 @@ export async function GET() {
                     title: '⚠️ 미션 불이행으로 활동이 제한됐어요!',
                     body: `미션을 완료하지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
                     tokens: memberTokens?.map((t: any) => t.token) ?? [],
-                    userIds: [String(participant.id)]
+                    userIds: [String(participant.id)],
+                    data: { url: '/participant' }
                   })
                 })
                 
@@ -472,7 +475,8 @@ export async function GET() {
                   title: '⚠️ 활동 잠금 알림',
                   body: '1개월간 미션 참여가 없어서 계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!',
                   tokens: tokens.map((t: any) => t.token),
-                  userIds: [String(p.id)]
+                  userIds: [String(p.id)],
+                  data: { url: '/participant' }
                 })
               })
             }
@@ -497,7 +501,8 @@ export async function GET() {
                 title: '🎵 새 프로젝트가 기다리고 있어요!',
                 body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!',
                 tokens: tokens.map((t: any) => t.token),
-                userIds: notJoined.map(p => String(p.id))
+                userIds: notJoined.map(p => String(p.id)),
+                data: { url: '/participant?tab=project' }
               })
             })
           }
@@ -525,7 +530,8 @@ export async function GET() {
               title: '💪 오랫동안 활동이 없었어요!',
               body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!',
               tokens: tokens.map((t: any) => t.token),
-              userIds: inactive.map(id => String(id))
+              userIds: inactive.map(id => String(id)),
+              data: { url: '/participant?tab=project' }
             })
           })
         }
@@ -888,7 +894,8 @@ export async function GET() {
                       title: '💰 수수료가 적립됐어요!',
                       body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 수수료 ${commission.toLocaleString()}P가 적립됐어요.`,
                       tokens: agencyTokens.map((t: any) => t.token),
-                      userIds: [String(agency.id)]
+                      userIds: [String(agency.id)],
+                      data: { url: '/agency-member' }
                     })
                   })
                 }
@@ -909,7 +916,8 @@ export async function GET() {
                   title: '📅 미션이 종료됐어요!',
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 종료됐어요. 수고하셨어요!`,
                   tokens: tokens.map((t: any) => t.token),
-                  userIds: memberIds
+                  userIds: memberIds,
+                  data: { url: '/participant' }
                 })
               })
             }
@@ -928,7 +936,8 @@ export async function GET() {
                     title: '📅 프로젝트가 종료됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,
                     tokens: clientTokens.map((t: any) => t.token),
-                    userIds: [String(clientUser.id)]
+                    userIds: [String(clientUser.id)],
+                    data: { url: '/client' }
                   })
                 })
               }
@@ -1015,7 +1024,8 @@ export async function GET() {
                     title: '⚠️ 댓글 삭제로 적립금이 차감됐어요',
                     body: `댓글이 삭제되어 ${(mission.reward_amount ?? 300).toLocaleString()}P가 차감됐어요.`,
                     tokens: tokens.map((t: any) => t.token),
-                    userIds: [String(mission.member_id)]
+                    userIds: [String(mission.member_id)],
+                    data: { url: '/wallet' }
                   })
                 })
               }
