@@ -36,9 +36,10 @@ setSidebarReady(true)
   const [highlightStyle, setHighlightStyle] = useState<any>({})
 
   useEffect(() => {
+    if (!sidebarReady) return
     const el = document.getElementById(current.target)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [step])
+  }, [step, sidebarReady])
 
   useEffect(() => {
     const getHighlightStyle = () => {
@@ -47,6 +48,7 @@ setSidebarReady(true)
       const rect = el.getBoundingClientRect()
       return { top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 }
     }
+    if (!sidebarReady) return
     const update = () => setHighlightStyle(getHighlightStyle())
     update()
     const timer = setTimeout(update, 600)
