@@ -1426,13 +1426,9 @@ useEffect(() => {
                                 </div>
                               </div>
                             )}
-                            {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (() => {
-                              const normalPosts = myPosts.filter(p => p.project_code?.toLowerCase() === projectInfo?.project_code?.toLowerCase() && !p.is_cover)
-                              const maxNormal = projectInfo?.required_posts ?? 1
-                              const allSubmitted = normalPosts.length >= maxNormal
-                              return !allSubmitted
-                            })() && (
+                            {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
                               <>
+                                {myPosts.filter(p => p.project_code?.toLowerCase() === projectInfo?.project_code?.toLowerCase() && !p.is_cover).length < (projectInfo?.required_posts ?? 1) && <>
                                 <div>
                                   <label className="text-sm font-medium dark:text-white">참여자 이름</label>
                                   <input value={influencerName} onChange={(e) => setInfluencerName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="이름 입력" />
@@ -1462,6 +1458,7 @@ useEffect(() => {
                                   <label className="text-sm font-medium dark:text-white">본인 SNS 계정</label>
                                   <input value={snsAccount} onChange={(e) => setSnsAccount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="SNS 아이디" />
                                 </div>
+                                </>}
                                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
                                   <p className="text-xs text-orange-700 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> 필수 문구 안내</p>
                                   <p className="text-xs text-orange-600 mt-1">'더블비뮤직 체험단 선정, 협찬으로 올려요' 라는 문구를 반드시 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.</p>
