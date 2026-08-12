@@ -1039,9 +1039,9 @@ useEffect(() => {
     setIsCover(false)
 
     setIsSubmitting(false)
-    fetchMyPostsAndProjects(userInfo?.id)
     setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrls([''])
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null); setIsJoined(false)
+    fetchMyPostsAndProjects(userInfo?.id)
   }
 
   const loadMyInfo = async () => {
