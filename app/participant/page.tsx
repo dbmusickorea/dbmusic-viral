@@ -1426,7 +1426,12 @@ useEffect(() => {
                                 </div>
                               </div>
                             )}
-                            {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (
+                            {projectInfo && isJoined && (!projectInfo.mission_date || new Date().toISOString().split('T')[0] >= projectInfo.mission_date) && (() => {
+                              const normalPosts = myPosts.filter(p => p.project_code?.toLowerCase() === projectInfo?.project_code?.toLowerCase() && !p.is_cover)
+                              const maxNormal = projectInfo?.required_posts ?? 1
+                              const allSubmitted = normalPosts.length >= maxNormal
+                              return !allSubmitted
+                            })() && (
                               <>
                                 <div>
                                   <label className="text-sm font-medium dark:text-white">참여자 이름</label>
