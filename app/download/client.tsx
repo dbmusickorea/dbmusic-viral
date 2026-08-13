@@ -54,10 +54,10 @@ export default function DownloadClient() {
       <h1 className="text-2xl font-bold mb-2">더블비뮤직</h1>
       <p className="text-gray-500 mb-8 text-sm">앱을 다운로드해주세요</p>
       <div className="flex flex-col gap-4 w-full max-w-xs">
-        <a href="https://apps.apple.com/kr/app/id6787446365" target="_blank" rel="noopener noreferrer" className="bg-black text-white rounded-xl py-4 text-center font-medium flex items-center justify-center gap-2">
+        <a href="https://apps.apple.com/kr/app/id6787446365" target="_blank" rel="noopener noreferrer" onClick={() => { const src = new URLSearchParams(window.location.search).get('src'); if (src) fetch('/api/download-links/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source_name: src, platform: 'ios' }) }) }} className="bg-black text-white rounded-xl py-4 text-center font-medium flex items-center justify-center gap-2">
           <AppStoreIcon /> App Store (iOS)
         </a>
-        <a href="https://play.google.com/store/apps/details?id=com.dbmusic.viral" className="bg-green-600 text-white rounded-xl py-4 text-center font-medium flex items-center justify-center gap-2">
+        <a href="https://play.google.com/store/apps/details?id=com.dbmusic.viral" onClick={() => { const src = new URLSearchParams(window.location.search).get('src'); if (src) fetch('/api/download-links/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source_name: src, platform: 'android' }) }) }} className="bg-green-600 text-white rounded-xl py-4 text-center font-medium flex items-center justify-center gap-2">
           <PlayStoreIcon /> Google Play (Android)
         </a>
       </div>

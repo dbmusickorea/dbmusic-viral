@@ -7,9 +7,9 @@ const supabaseAdmin = createClient(
 )
 
 export async function POST(request: NextRequest) {
-  const { source_name } = await request.json()
+  const { source_name, platform } = await request.json()
   if (!source_name) return NextResponse.json({ error: 'source_name 없음' }, { status: 400 })
 
-  await supabaseAdmin.rpc('increment_click_count', { src: source_name })
+  await supabaseAdmin.rpc('increment_click_count', { src: source_name, platform: platform ?? null })
   return NextResponse.json({ success: true })
 }
