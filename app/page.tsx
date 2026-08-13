@@ -442,8 +442,11 @@ export default function LoginPage() {
       showToast('❌ 인증번호가 틀렸어요.')
     }
   }
+  const [participantSignupLoading, setParticipantSignupLoading] = useState(false)
   const handleSignupParticipant = async () => {
-    if (!p_name || !p_email || !p_password) { showToast('이름, 이메일, 비밀번호는 필수입니다.'); return }
+    if (participantSignupLoading) return
+    setParticipantSignupLoading(true)
+    if (!p_name || !p_email || !p_password) { showToast('이름, 이메일, 비밀번호는 필수입니다.'); setParticipantSignupLoading(false); return }
     if (isCoverPossible && !coverVideoUrl) { showToast('커버영상 촬영 가능 선택 시 영상 링크를 입력해주세요.'); return }
     if (p_password !== p_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); return }
     if (!p_instagram && !p_youtube && !p_tiktok) { showToast('SNS 계정을 1개 이상 등록해주세요.'); return }
@@ -1037,7 +1040,7 @@ export default function LoginPage() {
                   <input type="checkbox" checked={agreedAge} onChange={(e) => setAgreedAge(e.target.checked)} className="w-4 h-4" />
                   만 18세 이상임을 확인합니다. (필수)
                 </label>
-                <button onClick={handleSignupParticipant} disabled={!agreedAge} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-300">회원가입</button>
+                <button onClick={handleSignupParticipant} disabled={!agreedAge || participantSignupLoading} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-300">{participantSignupLoading ? '처리중...' : '회원가입'}</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>
               </div>
             )}
