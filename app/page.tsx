@@ -663,6 +663,7 @@ export default function LoginPage() {
     showToast(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
+    setParticipantSignupLoading(false)
   }
 
   const handleSignupClient = async () => {
