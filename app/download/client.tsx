@@ -43,8 +43,10 @@ export default function DownloadClient() {
     const isIOS = /iphone|ipad|ipod/.test(userAgent)
     const isAndroid = /android/.test(userAgent)
     if (isIOS) {
+      if (src) fetch('/api/download-links/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source_name: src, platform: 'ios' }) })
       window.location.replace('https://apps.apple.com/kr/app/id6787446365')
     } else if (isAndroid) {
+      if (src) fetch('/api/download-links/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source_name: src, platform: 'android' }) })
       window.location.replace('https://play.google.com/store/apps/details?id=com.dbmusic.viral')
     }
   }, [])
