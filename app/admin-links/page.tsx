@@ -156,12 +156,16 @@ export default function AdminLinksPage() {
                   {Object.entries(stats).sort((a, b) => b[1].count - a[1].count).map(([src, v]) => {
                     const link = links.find(l => l.source_name === src)
                     return (
-                      <div key={src} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
-                        <div>
+                      <div key={src} className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                        <div className="flex justify-between items-center">
                           <p className="text-sm font-medium dark:text-white">{link?.label || src}</p>
-                          <p className="text-xs text-gray-400">{src} · {new Date(v.latest).toLocaleDateString('ko-KR')} 최근 가입</p>
+                          <span className="text-sm font-bold text-blue-600">{v.count}명 가입</span>
                         </div>
-                        <span className="text-sm font-bold text-blue-600">{v.count}명</span>
+                        <div className="flex gap-3 mt-1">
+                          <p className="text-xs text-gray-400">전체 클릭: {link?.click_count ?? 0}</p>
+                          <p className="text-xs text-blue-400">iOS: {link?.ios_click_count ?? 0}</p>
+                          <p className="text-xs text-green-500">Android: {link?.android_click_count ?? 0}</p>
+                        </div>
                       </div>
                     )
                   })}
