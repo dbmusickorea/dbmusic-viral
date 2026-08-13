@@ -225,8 +225,11 @@ export default function MyPage() {
     router.push('/')
   }
 
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false)
   const handleSubmitRequest = async () => {
+    if (isSubmittingRequest) return
     if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
+    setIsSubmittingRequest(true)
     const res = await fetchWithAuth('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -263,6 +266,7 @@ export default function MyPage() {
     setShowRequestForm(false)
     const reqRes = await fetchWithAuth(`/api/client_requests?member_id=${userInfo?.id}`)
     setRequests(await reqRes.json())
+    setIsSubmittingRequest(false)
   }
 
   return (
@@ -660,7 +664,7 @@ export default function MyPage() {
                 <label className="text-sm font-medium dark:text-white">내용</label>
                 <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 h-24 dark:bg-gray-700 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500" placeholder="문의 내용" />
               </div>
-              <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록하기</button>
+              <button onClick={handleSubmitRequest} disabled={isSubmittingRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">{isSubmittingRequest ? '등록 중...' : '문의 등록하기'}</button>
             </div>
           )}
           {requests.length === 0 ? (
