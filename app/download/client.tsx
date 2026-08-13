@@ -34,7 +34,10 @@ export default function DownloadClient() {
     const ref = params.get('ref')
     if (ref) localStorage.setItem('referralCode', ref)
     const src = params.get('src')
-    if (src) localStorage.setItem('downloadSource', src)
+    if (src) {
+      localStorage.setItem('downloadSource', src)
+      fetch('/api/download-links/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source_name: src }) })
+    }
     
     const userAgent = navigator.userAgent.toLowerCase()
     const isIOS = /iphone|ipad|ipod/.test(userAgent)
