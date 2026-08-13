@@ -137,6 +137,7 @@ export default function AdminLinksPage() {
                         </div>
                       </div>
                       <p className="text-xs text-gray-400 break-all">{`https://app.doubleb.kr/download?src=${link.source_name}`}</p>
+                      <p className="text-xs text-blue-500 mt-1">클릭 수: {link.click_count ?? 0}</p>
                     </div>
                   ))}
                 </div>
