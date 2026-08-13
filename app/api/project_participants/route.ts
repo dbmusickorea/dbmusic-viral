@@ -114,7 +114,7 @@ export async function DELETE(request: NextRequest) {
     }
   }
 
-  const { error } = await supabaseAdmin.from('project_participants').update({ status: 'CANCELLED' }).eq('id', Number(id))
+  const { error } = await supabaseAdmin.from('project_participants').update({ status: 'CANCELLED', ban_exempt: false }).eq('id', Number(id))
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true, deducted: deductAmount, postsDeleted: postCount ?? 0 })
 }

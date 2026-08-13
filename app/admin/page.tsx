@@ -325,7 +325,8 @@ export default function Page1() {
             title: '⚠️ 프로젝트 참여가 취소되었습니다',
             body: `[${selectedProject?.artist_name || selectedProject?.client_name} - ${selectedProject?.song_title}] 참여취소 사유: ${reason}`,
             tokens: tokens.map((t: any) => t.token),
-            userIds: [String(memberId)]
+            userIds: [String(memberId)],
+            data: { url: '/participant' }
           })
         })
       }
