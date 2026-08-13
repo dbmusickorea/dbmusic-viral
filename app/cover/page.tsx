@@ -626,6 +626,8 @@ export default function CoverPage() {
                                     }
                                     if (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date()) return <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
                                     if (coverExcludedIds.includes(p.id)) return <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded-full">커버제외</span>
+                                    if (selectedProject?.cover_type === 'premium' && p.cover_grade !== 'premium') return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">일반만 가능</span>
+                                    if (selectedProject?.cover_type !== 'premium' && p.cover_grade === 'premium') return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">프리미엄만 가능</span>
                                     return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                   })()
                                 ) : request.status === 'PENDING' ? (
