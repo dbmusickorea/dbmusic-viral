@@ -70,12 +70,16 @@ export default function LoginPage() {
             const url = new URL(launchUrl.url)
             const ref = url.searchParams.get('ref')
             const tab = url.searchParams.get('tab')
+            const src = url.searchParams.get('src')
             if (ref) {
               setPReferral(ref)
               setShowSignup(true)
             }
             if (tab) {
               sessionStorage.setItem('participantTab', tab)
+            }
+            if (src) {
+              localStorage.setItem('downloadSource', src)
             }
           }
           // getLaunchUrl 완료 후 자동 로그인 체크
@@ -86,12 +90,16 @@ export default function LoginPage() {
           const url = new URL(event.url)
           const ref = url.searchParams.get('ref')
           const tab = url.searchParams.get('tab')
+          const src = url.searchParams.get('src')
           if (ref) {
             setPReferral(ref)
             setShowSignup(true)
           }
           if (tab) {
             sessionStorage.setItem('participantTab', tab)
+          }
+          if (src) {
+            localStorage.setItem('downloadSource', src)
           }
         })
         App.addListener('appStateChange', async (state) => {
