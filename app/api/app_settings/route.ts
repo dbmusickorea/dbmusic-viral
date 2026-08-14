@@ -14,3 +14,10 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json(data ?? {})
 }
+
+export async function POST(request: NextRequest) {
+  const { key, value } = await request.json()
+  if (!key || !value) return NextResponse.json({ error: 'key, value 필요' }, { status: 400 })
+  await supabaseAdmin.from('app_settings').upsert({ key, value })
+  return NextResponse.json({ success: true })
+}

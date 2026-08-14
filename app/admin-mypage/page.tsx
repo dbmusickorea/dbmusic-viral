@@ -231,6 +231,32 @@ export default function AdminMypagePage() {
               <span className="text-gray-400 dark:text-gray-300">→</span>
             </button>
           </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <p className="font-medium text-sm dark:text-white mb-3">앱 최소 버전 관리</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 w-20">iOS 최소버전</span>
+                <input id="ios-min-version" defaultValue="" placeholder="예: 1.3" className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm dark:bg-gray-700 dark:text-white" />
+                <button onClick={async () => {
+                  const val = (document.getElementById('ios-min-version') as HTMLInputElement)?.value
+                  if (!val) return
+                  await fetchWithAuth('/api/app_settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'min_version_ios', value: val }) })
+                  showToast('iOS 최소 버전 저장됐어요!')
+                }} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg">저장</button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 w-20">Android 최소버전</span>
+                <input id="android-min-version" defaultValue="" placeholder="예: 1.3" className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm dark:bg-gray-700 dark:text-white" />
+                <button onClick={async () => {
+                  const val = (document.getElementById('android-min-version') as HTMLInputElement)?.value
+                  if (!val) return
+                  await fetchWithAuth('/api/app_settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'min_version_android', value: val }) })
+                  showToast('Android 최소 버전 저장됐어요!')
+                }} className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg">저장</button>
+              </div>
+            </div>
+          </div>
           {/* 로그아웃 */}
           <p className="text-xs text-center text-gray-300 mb-3">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
