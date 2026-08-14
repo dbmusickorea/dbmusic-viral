@@ -12,6 +12,8 @@ export default function AdminLinksPage() {
   const [copied, setCopied] = useState<number | null>(null)
   const [links, setLinks] = useState<any[]>([])
   const [stats, setStats] = useState<Record<string, { count: number, latest: string }>>({})
+  const [metaAndroidInstalls, setMetaAndroidInstalls] = useState<string>('0')
+  const [metaIosInstalls, setMetaIosInstalls] = useState<string>('0')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -47,6 +49,9 @@ export default function AdminLinksPage() {
     }
     setStats(grouped)
     setLoading(false)
+    // Meta 앱 설치 수
+    fetch('/api/meta-insights?campaign_id=120255973470720715').then(r => r.json()).then(d => { if (d.mobile_app_installs) setMetaAndroidInstalls(d.mobile_app_installs) })
+    fetch('/api/meta-insights?campaign_id=120256259817260715').then(r => r.json()).then(d => { if (d.mobile_app_installs) setMetaIosInstalls(d.mobile_app_installs) })
   }
 
   const handleGenerate = async () => {
@@ -149,6 +154,17 @@ export default function AdminLinksPage() {
           <div className="w-full md:w-1/2">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
               <h2 className="font-bold dark:text-white mb-3">유입 경로 통계</h2>
+              <div className="bg-blue-50 dark:bg-blue-900 rounded-xl px-3 py-2 mb-3">
+                <p className="text-xs font-bold text-blue-700 dark:text-blue-300 mb-1">Meta 광고 앱 설치</p>
+                <div className="flex justify-between">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Android</p>
+                  <span className="text-xs font-bold text-green-600">{metaAndroidInstalls}건</span>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">iOS</p>
+                  <span className="text-xs font-bold text-blue-600">{metaIosInstalls}건</span>
+                </div>
+              </div>
               {Object.keys(stats).length === 0 ? (
                 <p className="text-xs text-gray-400">아직 데이터가 없어요.</p>
               ) : (
