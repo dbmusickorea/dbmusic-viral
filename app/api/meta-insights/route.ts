@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     // 캠페인별 성과
     url = `https://graph.facebook.com/v19.0/${campaignId}/insights`
     params = new URLSearchParams({
-      fields: 'spend,impressions,inline_link_clicks,mobile_app_installs',
+      fields: 'spend,impressions,inline_link_clicks,actions',
       date_preset: 'maximum',
       access_token: token,
     })
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     // 전체 광고 계정 성과
     url = `https://graph.facebook.com/v19.0/act_${adAccountId}/insights`
     params = new URLSearchParams({
-      fields: 'spend,impressions,inline_link_clicks,mobile_app_installs',
+      fields: 'spend,impressions,inline_link_clicks,actions',
       date_preset: 'maximum',
       access_token: token,
     })
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
       lifetime_spend: lifetimeSpend !== '0' ? lifetimeSpend : String(Math.max(0, Number(lifetimeBudget) - Number(budgetRemaining))),
       impressions: raw.impressions ?? '0',
       inline_link_clicks: raw.inline_link_clicks ?? '0',
-      mobile_app_installs: raw.mobile_app_installs ?? '0',
+      mobile_app_installs: raw.actions?.find((a: any) => a.action_type === 'mobile_app_install')?.value ?? '0',
       ctr: raw.impressions && Number(raw.impressions) > 0 ? (Number(raw.inline_link_clicks ?? 0) / Number(raw.impressions) * 100).toFixed(2) : '0',
       daily_budget: dailyBudget,
       lifetime_budget: lifetimeBudget,
