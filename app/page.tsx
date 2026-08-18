@@ -931,21 +931,23 @@ export default function LoginPage() {
                 <div>
                   <label className="text-sm font-medium dark:text-white">SNS 계정 <span className="text-red-500">*</span></label>
                   <p className="text-xs text-gray-500 mt-1 mb-2">팔로워 100명 이상 계정을 등록해주세요. 3개 중 1개 이상 100명이 넘어야 합니다.</p>
-                  <div className="flex gap-2 mb-2">
-                    <select value={snsInputPlatform} onChange={(e) => setSnsInputPlatform(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-2 text-sm shrink-0 w-20 dark:bg-gray-700 dark:text-white">
-                      <option value="">- 선택 -</option>
-                      <option value="instagram">인스타</option>
-                      <option value="youtube">유튜브</option>
-                      <option value="tiktok">틱톡</option>
-                    </select>
-                    <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="@아이디" />
+                  <div className="flex flex-col gap-2 mb-2">
+                    <div className="flex gap-2">
+                      <select value={snsInputPlatform} onChange={(e) => setSnsInputPlatform(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-2 text-sm shrink-0 w-20 dark:bg-gray-700 dark:text-white">
+                        <option value="">- 선택 -</option>
+                        <option value="instagram">인스타</option>
+                        <option value="youtube">유튜브</option>
+                        <option value="tiktok">틱톡</option>
+                      </select>
+                      <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="@아이디" />
+                    </div>
                     <button type="button" onClick={() => {
                       if (!snsInputId) return
                       if (snsInputPlatform === 'instagram') setPInstagram(snsInputId)
                       else if (snsInputPlatform === 'youtube') setPYoutube(snsInputId)
                       else if (snsInputPlatform === 'tiktok') setPTiktok(snsInputId)
                       setSnsInputId('')
-                    }} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-2 shrink-0">추가</button>
+                    }} className="w-full text-sm bg-blue-600 text-white rounded-lg px-3 py-2">추가</button>
                   </div>
                   <div className="space-y-1">
                     {p_instagram && (
