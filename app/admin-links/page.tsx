@@ -165,22 +165,22 @@ export default function AdminLinksPage() {
                   <span className="text-xs font-bold text-blue-600">{metaIosInstalls}건</span>
                 </div>
               </div>
-              {Object.keys(stats).length === 0 ? (
+              {links.length === 0 ? (
                 <p className="text-xs text-gray-400">아직 데이터가 없어요.</p>
               ) : (
                 <div className="space-y-2">
-                  {Object.entries(stats).sort((a, b) => b[1].count - a[1].count).map(([src, v]) => {
-                    const link = links.find(l => l.source_name === src)
+                  {links.sort((a: any, b: any) => (b.click_count ?? 0) - (a.click_count ?? 0)).map((link: any) => {
+                    const v = stats[link.source_name]
                     return (
-                      <div key={src} className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                      <div key={link.source_name} className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
                         <div className="flex justify-between items-center">
-                          <p className="text-sm font-medium dark:text-white">{link?.label || src}</p>
-                          <span className="text-sm font-bold text-blue-600">{v.count}명 가입</span>
+                          <p className="text-sm font-medium dark:text-white">{link.label || link.source_name}</p>
+                          <span className="text-sm font-bold text-blue-600">{v?.count ?? 0}명 가입</span>
                         </div>
                         <div className="flex gap-3 mt-1">
-                          <p className="text-xs text-gray-400">전체 클릭: {link?.click_count ?? 0}</p>
-                          <p className="text-xs text-blue-400">iOS: {link?.ios_click_count ?? 0}</p>
-                          <p className="text-xs text-green-500">Android: {link?.android_click_count ?? 0}</p>
+                          <p className="text-xs text-gray-400">전체 클릭: {link.click_count ?? 0}</p>
+                          <p className="text-xs text-blue-400">iOS: {link.ios_click_count ?? 0}</p>
+                          <p className="text-xs text-green-500">Android: {link.android_click_count ?? 0}</p>
                         </div>
                       </div>
                     )
