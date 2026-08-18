@@ -464,6 +464,9 @@ export async function GET() {
           // 가입한 지 1개월 미만인 사람은 제외
           if (new Date(p.created_at) > oneMonthAgo) continue
           
+          // 현재 ACTIVE 참여자는 제외
+          const { data: activeParticipation } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
+          if (activeParticipation) continue
           const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
           if (!recentPost) {
             await supabase.from('participants').update({ is_locked: true }).eq('id', p.id)
