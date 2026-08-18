@@ -454,17 +454,17 @@ export default function LoginPage() {
     // 이메일/전화번호 중복 체크
     const emailRes = await fetchWithAuth(`/api/participants/signup-check?email=${encodeURIComponent(p_email)}`)
     const emailData = await emailRes.json()
-    if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); return }
+    if (emailData?.exists) { showToast('이미 사용중인 이메일입니다.'); setParticipantSignupLoading(false); return }
     
     const mobileRes = await fetchWithAuth(`/api/participants/signup-check?mobile=${p_mobile}`)
     const mobileData = await mobileRes.json()
-    if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobileData?.exists) { showToast('이미 사용중인 전화번호입니다.'); setParticipantSignupLoading(false); return }
     
     const mobileURes = await fetchWithAuth(`/api/users/signup-check?mobile=${p_mobile}`)
     const mobileUData = await mobileURes.json()
-    if (mobileUData?.exists) { showToast('이미 사용중인 전화번호입니다.'); return }
+    if (mobileUData?.exists) { showToast('이미 사용중인 전화번호입니다.'); setParticipantSignupLoading(false); return }
 
-    if (!p_verified) { showToast('휴대전화 인증을 완료해주세요.'); return }
+    if (!p_verified) { showToast('휴대전화 인증을 완료해주세요.'); setParticipantSignupLoading(false); return }
 
     // SNS 팔로워 100명 이상 확인 (셋 중 하나라도 100명 이상이면 통과)
     let hasEnoughFollowers = false
@@ -527,7 +527,7 @@ export default function LoginPage() {
     if (p_referral) {
       const referrerRes = await fetchWithAuth(`/api/participants/signup-check?referral_code=${p_referral}`)
       const referrerCheck = await referrerRes.json()
-      if (!referrerCheck?.exists) { showToast('유효하지 않은 추천인 코드입니다.'); return }
+      if (!referrerCheck?.exists) { showToast('유효하지 않은 추천인 코드입니다.'); setParticipantSignupLoading(false); return }
       const referrerDataRes = await fetchWithAuth(`/api/participants?referral_code=${p_referral}`)
       const referrerData = await referrerDataRes.json()
       const referrer = referrerData?.[0]
@@ -577,7 +577,7 @@ export default function LoginPage() {
       email: p_email,
       password: p_password
     })
-    if (authError) { showToast('이미 가입된 이메일이에요. 체험단으로 로그인 후 마이페이지에서 의뢰인으로 전환해주세요.'); return }
+    if (authError) { showToast('이미 가입된 이메일이에요. 체험단으로 로그인 후 마이페이지에서 의뢰인으로 전환해주세요.'); setParticipantSignupLoading(false); return }
 
     const res = await fetchWithAuth('/api/participants', {
       method: 'POST',
@@ -600,7 +600,7 @@ export default function LoginPage() {
         download_source: localStorage.getItem('downloadSource') || null,
       })
     })
-    if (!res.ok) { showToast('회원가입 실패!'); return }
+    if (!res.ok) { showToast('회원가입 실패!'); setParticipantSignupLoading(false); return }
     
     // 커버영상 신청 시 관리자에게 푸시
     if (isCoverPossible) {
