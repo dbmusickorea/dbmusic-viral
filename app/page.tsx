@@ -970,6 +970,10 @@ export default function LoginPage() {
                     )}
                   </div>
                 </div>
+                <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-3">
+                  <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">⚠️ SNS 계정 입력 안내</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">반드시 본인 SNS 계정을 입력해주세요. 타인 계정 사용 시 미션 심사 반려 및 계정 정지될 수 있습니다.</p>
+                </div>
                 <div>
                   <label className="text-sm font-medium dark:text-white">휴대전화 <span className="text-red-500">*</span></label>
                   <div className="flex gap-2 mt-1">
@@ -1019,10 +1023,6 @@ export default function LoginPage() {
                       </div>
                     </div>
                   )}
-                </div>
-                <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-3">
-                  <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">⚠️ SNS 계정 입력 안내</p>
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">반드시 본인 SNS 계정을 입력해주세요. 타인 계정 사용 시 미션 심사 반려 및 계정 정지될 수 있습니다.</p>
                 </div>
                 <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
                   <input type="checkbox" checked={agreedAge} onChange={(e) => setAgreedAge(e.target.checked)} className="w-4 h-4" />
