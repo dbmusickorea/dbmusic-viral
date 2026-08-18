@@ -166,6 +166,21 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
                     })
+                    const tokenRes = await fetchWithAuth(`/api/push_tokens?user_id=${memberId}`)
+                    const tokens = await tokenRes.json()
+                    if (tokens && tokens.length > 0) {
+                      await fetch('/api/push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          title: '🔓 계정 잠금이 해제됐어요!',
+                          body: '다시 미션에 참여할 수 있어요.',
+                          tokens: tokens.map((t: any) => t.token),
+                          userIds: [String(memberId)],
+                          data: { url: '/participant' }
+                        })
+                      })
+                    }
                     showToast('잠금 해제 완료!')
                   }} className="text-xs bg-green-600 text-white rounded px-2 py-1">잠금 해제</button>
                 )}
