@@ -947,7 +947,7 @@ export default function LoginPage() {
                       else if (snsInputPlatform === 'youtube') setPYoutube(snsInputId)
                       else if (snsInputPlatform === 'tiktok') setPTiktok(snsInputId)
                       setSnsInputId('')
-                    }} className="w-full text-sm bg-blue-600 text-white rounded-lg px-3 py-2">추가</button>
+                    }} className="w-full text-sm bg-blue-600 text-white rounded-lg px-3 py-2">{(!p_instagram && !p_youtube && !p_tiktok) ? '등록' : '추가'}</button>
                   </div>
                   <div className="space-y-1">
                     {p_instagram && (
