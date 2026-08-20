@@ -3,7 +3,18 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ArrowLeft, Trash2, Pencil, X } from 'lucide-react'
+import PlatformIcon from '../../components/PlatformIcon'
+
+const OPTIONS = [
+  { key: 'lyric_video_youtube', type: 'lyric_video', platform: 'youtube', label: '리릭비디오' },
+  { key: 'shorts_youtube', type: 'shorts', platform: 'youtube', label: '유튜브 숏츠' },
+  { key: 'shorts_instagram', type: 'shorts', platform: 'instagram', label: '인스타그램 릴스' },
+  { key: 'shorts_tiktok', type: 'shorts', platform: 'tiktok', label: '틱톡' },
+]
+
+const getOptionKey = (type: string, platform: string) => OPTIONS.find(o => o.type === type && o.platform === platform)?.key ?? OPTIONS[0].key
+const getPlatformIconKey = (type: string, platform: string) => type === 'shorts' && platform === 'youtube' ? 'youtube_shorts' : platform
 
 export default function DistributionAdminPage() {
   const router = useRouter()
@@ -12,11 +23,11 @@ export default function DistributionAdminPage() {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  const [itemType, setItemType] = useState('lyric_video')
-  const [itemPlatform, setItemPlatform] = useState('youtube')
+  const [optionKey, setOptionKey] = useState(OPTIONS[0].key)
   const [itemUrl, setItemUrl] = useState('')
   const [songTitle, setSongTitle] = useState('')
   const [artistName, setArtistName] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
@@ -43,32 +54,60 @@ export default function DistributionAdminPage() {
 
   const openClient = async (client: any) => {
     setSelectedClient(client)
+    resetForm()
     const res = await fetchWithAuth(`/api/distribution-items?client_id=${client.id}`)
     const data = await res.json()
     setItems(Array.isArray(data) ? data : [])
   }
 
-  const handleAddItem = async () => {
-    if (!itemUrl.trim() || !selectedClient) return
-    await fetchWithAuth('/api/distribution-items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: selectedClient.id,
-        type: itemType,
-        platform: itemPlatform,
-        url: itemUrl.trim(),
-        song_title: songTitle.trim() || null,
-        artist_name: artistName.trim() || null,
-      })
-    })
+  const resetForm = () => {
+    setEditingId(null)
+    setOptionKey(OPTIONS[0].key)
     setItemUrl('')
+    setSongTitle('')
+    setArtistName('')
+  }
+
+  const startEdit = (item: any) => {
+    setEditingId(item.id)
+    setOptionKey(getOptionKey(item.type, item.platform))
+    setItemUrl(item.url ?? '')
+    setSongTitle(item.song_title ?? '')
+    setArtistName(item.artist_name ?? '')
+  }
+
+  const handleSubmit = async () => {
+    if (!itemUrl.trim() || !selectedClient) return
+    const option = OPTIONS.find(o => o.key === optionKey) ?? OPTIONS[0]
+    const body = {
+      client_id: selectedClient.id,
+      type: option.type,
+      platform: option.platform,
+      url: itemUrl.trim(),
+      song_title: songTitle.trim() || null,
+      artist_name: artistName.trim() || null,
+    }
+    if (editingId) {
+      await fetchWithAuth(`/api/distribution-items?id=${editingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+    } else {
+      await fetchWithAuth('/api/distribution-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+    }
+    resetForm()
     openClient(selectedClient)
   }
 
   const handleDeleteItem = async (id: number) => {
     if (!confirm('삭제하시겠어요?')) return
     await fetchWithAuth(`/api/distribution-items?id=${id}`, { method: 'DELETE' })
+    if (editingId === id) resetForm()
     if (selectedClient) openClient(selectedClient)
   }
 
@@ -121,23 +160,22 @@ export default function DistributionAdminPage() {
             ) : (
               <>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                  <h2 className="font-bold dark:text-white mb-3">{selectedClient.name} - 링크 등록</h2>
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className="font-bold dark:text-white">{selectedClient.name} - {editingId ? '링크 수정' : '링크 등록'}</h2>
+                    {editingId && (
+                      <button onClick={resetForm} className="text-xs text-gray-400 flex items-center gap-0.5"><X size={14} /> 취소</button>
+                    )}
+                  </div>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <select value={itemType} onChange={(e) => setItemType(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                        <option value="lyric_video">리릭비디오</option>
-                        <option value="shorts">숏츠</option>
-                      </select>
-                      <select value={itemPlatform} onChange={(e) => setItemPlatform(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                        <option value="youtube">유튜브</option>
-                        <option value="instagram">인스타그램</option>
-                        <option value="tiktok">틱톡</option>
-                      </select>
-                    </div>
+                    <select value={optionKey} onChange={(e) => setOptionKey(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                      {OPTIONS.map(o => (
+                        <option key={o.key} value={o.key}>{o.label}</option>
+                      ))}
+                    </select>
                     <input value={itemUrl} onChange={(e) => setItemUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="링크 URL" />
                     <input value={artistName} onChange={(e) => setArtistName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 (선택)" />
                     <input value={songTitle} onChange={(e) => setSongTitle(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="곡명 (선택)" />
-                    <button onClick={handleAddItem} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">등록</button>
+                    <button onClick={handleSubmit} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">{editingId ? '수정 완료' : '등록'}</button>
                   </div>
                 </div>
 
@@ -148,18 +186,26 @@ export default function DistributionAdminPage() {
                   ) : (
                     <div className="space-y-2">
                       {items.map(item => (
-                        <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <div key={item.id} className={`rounded-lg p-3 ${editingId === item.id ? 'bg-blue-50 dark:bg-blue-900' : 'bg-gray-50 dark:bg-gray-700'}`}>
                           <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-sm font-medium dark:text-white">
-                                {item.type === 'lyric_video' ? '리릭비디오' : '숏츠'} · {item.platform === 'youtube' ? '유튜브' : item.platform === 'instagram' ? '인스타' : '틱톡'}
-                              </p>
-                              {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400">{item.artist_name} - {item.song_title}</p>}
-                              <p className="text-xs text-blue-500 break-all mt-1">{item.url}</p>
+                            <div className="flex gap-2">
+                              <PlatformIcon platform={getPlatformIconKey(item.type, item.platform)} size={18} />
+                              <div>
+                                <p className="text-sm font-medium dark:text-white">
+                                  {item.type === 'lyric_video' ? '리릭비디오' : '숏츠'} · {item.platform === 'youtube' ? '유튜브' : item.platform === 'instagram' ? '인스타' : '틱톡'}
+                                </p>
+                                {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400">{item.artist_name} - {item.song_title}</p>}
+                                <p className="text-xs text-blue-500 break-all mt-1">{item.url}</p>
+                              </div>
                             </div>
-                            <button onClick={() => handleDeleteItem(item.id)} className="text-red-400">
-                              <Trash2 size={16} />
-                            </button>
+                            <div className="flex gap-2 shrink-0 ml-2">
+                              <button onClick={() => startEdit(item)} className="text-gray-400">
+                                <Pencil size={16} />
+                              </button>
+                              <button onClick={() => handleDeleteItem(item.id)} className="text-red-400">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}

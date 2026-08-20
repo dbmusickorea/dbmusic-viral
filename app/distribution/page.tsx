@@ -61,7 +61,8 @@ export default function DistributionPage() {
   const lyricVideos = items.filter(i => i.type === 'lyric_video')
   const shorts = items.filter(i => i.type === 'shorts')
 
-  const platformLabel = (p: string) => p === 'youtube' ? '유튜브' : p === 'instagram' ? '인스타그램' : '틱톡'
+  const platformLabel = (p: string) => p === 'youtube' ? '유튜브' : p === 'instagram' ? '인스타그램 릴스' : '틱톡'
+  const platformIconKey = (type: string, p: string) => type === 'shorts' && p === 'youtube' ? 'youtube_shorts' : p
 
   return (
     <>
@@ -109,10 +110,13 @@ export default function DistributionPage() {
                 ) : (
                   <div className="space-y-2">
                     {lyricVideos.map(item => (
-                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                        <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
-                        {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                        <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} />
+                        <div>
+                          <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
+                          {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
+                          <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                        </div>
                       </a>
                     ))}
                   </div>
@@ -126,10 +130,13 @@ export default function DistributionPage() {
                 ) : (
                   <div className="space-y-2">
                     {shorts.map(item => (
-                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                        <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
-                        {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                        <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} />
+                        <div>
+                          <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
+                          {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
+                          <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                        </div>
                       </a>
                     ))}
                   </div>
