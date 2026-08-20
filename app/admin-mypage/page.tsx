@@ -233,6 +233,13 @@ export default function AdminMypagePage() {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <button onClick={() => router.push('/distribution-admin')} className="w-full flex justify-between items-center">
+              <span className="font-medium text-sm dark:text-white flex items-center gap-1">유통 서비스 관리</span>
+              <span className="text-gray-400 dark:text-gray-300">→</span>
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <p className="font-medium text-sm dark:text-white mb-3">앱 최소 버전 관리</p>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
