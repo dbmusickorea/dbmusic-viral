@@ -25,6 +25,14 @@ export default function ClientReportPage() {
     }
     const parsed = JSON.parse(userInfo)
     setUserInfo(parsed)
+    if (parsed?.id) {
+      fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
+        const latest = Array.isArray(data) ? data[0] : data
+        const updatedUser = { ...parsed, has_distribution: !!latest?.has_distribution }
+        setUserInfo(updatedUser)
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser))
+      }).catch(() => {})
+    }
     const clientId = parsed.client_id
     if (clientId) {
       fetchWithAuth(`/api/projects?client_id=${clientId}`)

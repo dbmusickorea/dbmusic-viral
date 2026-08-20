@@ -100,11 +100,9 @@ export default function Page3() {
     if (parsed?.id) {
       fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
         const latest = Array.isArray(data) ? data[0] : data
-        if (latest?.has_distribution) {
-          const updatedUser = { ...parsed, has_distribution: true }
-          setUserInfo(updatedUser)
-          localStorage.setItem('userInfo', JSON.stringify(updatedUser))
-        }
+        const updatedUser = { ...parsed, has_distribution: !!latest?.has_distribution }
+        setUserInfo(updatedUser)
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser))
       }).catch(() => {})
     }
 

@@ -105,6 +105,14 @@ export default function ClientMyPage() {
         setHasProjects(Array.isArray(data) && data.length > 0)
       }).catch(() => {})
     }
+    if (parsed?.id) {
+      fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
+        const latest = Array.isArray(data) ? data[0] : data
+        const updatedUser = { ...parsed, has_distribution: !!latest?.has_distribution }
+        setUserInfo(updatedUser)
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser))
+      }).catch(() => {})
+    }
     setMyName(parsed.name ?? '')
     setMyCompany(parsed.company ?? '')
     setMyArtist(parsed.artist ?? '')
