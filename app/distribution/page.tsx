@@ -21,13 +21,13 @@ export default function DistributionPage() {
     const parsed = JSON.parse(stored)
     if (!parsed.has_distribution) { router.push('/client'); return }
     setUserInfo(parsed)
-    fetchData(parsed.id)
+    fetchData(parsed.id, parsed.client_id)
   }, [])
 
-  const fetchData = async (clientId: number) => {
+  const fetchData = async (userId: number, clientId: string) => {
     setLoading(true)
     const [itemsRes, projectsRes] = await Promise.all([
-      fetchWithAuth(`/api/distribution-items?client_id=${clientId}`),
+      fetchWithAuth(`/api/distribution-items?client_id=${userId}`),
       fetchWithAuth(`/api/projects?client_id=${clientId}`)
     ])
     const itemsData = await itemsRes.json()

@@ -100,8 +100,8 @@ export default function ClientMyPage() {
     if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
-    if (parsed?.id) {
-      fetchWithAuth(`/api/projects?client_id=${parsed.id}`).then(res => res.json()).then(data => {
+    if (parsed?.client_id) {
+      fetchWithAuth(`/api/projects?client_id=${parsed.client_id}`).then(res => res.json()).then(data => {
         setHasProjects(Array.isArray(data) && data.length > 0)
       }).catch(() => {})
     }
