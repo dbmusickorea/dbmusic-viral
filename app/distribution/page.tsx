@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { PlayCircle, LayoutGrid, BarChart2, FileText, User, Disc3 } from 'lucide-react'
+import { LayoutGrid, BarChart2, FileText, User, Disc3 } from 'lucide-react'
 import PlatformIcon from '../../components/PlatformIcon'
 import BottomNav from '../../components/BottomNav'
 import Sidebar from '../../components/Sidebar'
@@ -30,6 +30,17 @@ export default function DistributionPage() {
     const parsed = JSON.parse(stored)
     if (!parsed.has_distribution) { router.push('/client'); return }
     setUserInfo(parsed)
+
+    // 최신 유통 서비스 상태 재확인 (관리자가 껐을 수 있으므로)
+    fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
+      const latest = Array.isArray(data) ? data[0] : data
+      if (!latest?.has_distribution) {
+        const updated = { ...parsed, has_distribution: false }
+        localStorage.setItem('userInfo', JSON.stringify(updated))
+        router.push('/client')
+      }
+    }).catch(() => {})
+
     fetchData(parsed.id, parsed.client_id)
   }, [])
 
@@ -85,12 +96,6 @@ export default function DistributionPage() {
               <h1 className="text-xl font-bold dark:text-white">{userInfo?.name}님의 유통 서비스</h1>
             </div>
           </div>
-
-          {hasProjects && (
-            <button onClick={() => router.push('/client')} className="w-full bg-blue-600 text-white rounded-xl py-3 font-medium mb-4 flex items-center justify-center gap-2">
-              <PlayCircle size={18} /> 바이럴 캠페인 현황 보기
-            </button>
-          )}
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube" size={18} /> 리릭비디오</h2>
