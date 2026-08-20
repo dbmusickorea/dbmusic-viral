@@ -54,8 +54,6 @@ export default function AgencyPage() {
     return members.filter(m => m.referred_by === agency.referral_code && !m.is_agency)
   }
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
-
   const selectedMembers = selected ? getAgencyMembers(selected) : []
 
   return (
@@ -113,7 +111,11 @@ export default function AgencyPage() {
             </div>
           </div>
 
-          {agencies.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            </div>
+          ) : agencies.length === 0 ? (
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 text-center text-gray-400">
               등록된 에이전시가 없어요.
             </div>

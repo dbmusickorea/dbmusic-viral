@@ -208,8 +208,6 @@ export default function CoverPage() {
     const approved = reqData?.some((r: any) => r.title === '커버 체험단 추가 요청' && r.status === 'APPROVED')
     setCoverAddApproved(approved)
   }
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900"><p className="text-gray-500 dark:text-gray-400">로딩 중...</p></div>
-
   const handleApproveCover = async (post: any, type: string = 'long') => {
     const amount = coverRewardAmounts[post.id]
     if (!amount) { showToast('지급할 금액을 입력해주세요.'); return }
@@ -444,6 +442,12 @@ export default function CoverPage() {
           </div>
         </div>
 
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+          </div>
+        ) : (
+        <>
         {/* 의뢰인 안내 */}
         {userRole === 'client' && (
           <>
@@ -765,6 +769,8 @@ export default function CoverPage() {
             )}
           </div>
         </div>
+        </>
+        )}
       </div>
     {/* 스크롤 상단 버튼 */}
       <button
