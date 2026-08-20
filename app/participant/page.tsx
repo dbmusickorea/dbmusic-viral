@@ -592,8 +592,9 @@ useEffect(() => {
   }
 
   const handleAcceptCoverRequest = async (r: any) => {
+    const coverDeadline = r.projects?.start_date ? new Date(new Date(r.projects.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR') : ''
     const confirmed = confirm(
-      `커버영상 미션을 수락하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내에 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
+      `커버영상 미션을 수락하시겠어요?\n\n⚠️ ${coverDeadline}까지 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
     )
     if (!confirmed) return
     await fetchWithAuth(`/api/cover_requests?id=${r.id}`, {
@@ -633,7 +634,8 @@ useEffect(() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cover_current: (proj?.cover_current ?? 0) + 1 })
     })
-    showToast('커버영상 미션을 승인했어요! 미션 시작일로부터 7일 이내에 업로드해주세요.')
+    const finalDeadline = proj?.start_date ? new Date(new Date(proj.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR') : ''
+    showToast(`커버영상 미션을 승인했어요! ${finalDeadline}까지 업로드해주세요.`)
   }
 
   const handleRejectCoverRequest = async (r: any) => {
@@ -743,12 +745,12 @@ useEffect(() => {
   const handleJoin = async () => {
     if (!projectCode || !userInfo) return
     
-    const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
+    const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     const deadline48 = new Date(new Date(projectInfo?.start_date).getTime() + 48 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     
     const joinConfirmed = confirm(
       joinAsCover
-        ? `커버 참여로 신청하시겠어요?\n\n⚠️ 미션 시작일로부터 7일 이내(${deadline15}까지) 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
+        ? `커버 참여로 신청하시겠어요?\n\n⚠️ ${deadline15}까지 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
         : `프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내(${deadline48}까지) 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
     )
     if (!joinConfirmed) return
@@ -1511,7 +1513,7 @@ useEffect(() => {
                                     const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
                                     return (
                                       <div className="mt-3 pt-3 border-t dark:border-gray-600">
-                                        <label className="text-sm font-medium text-purple-700 dark:text-purple-400 flex items-center gap-1"><Music size={14} /> 커버 게시물 링크 (7일 내)</label>
+                                        <label className="text-sm font-medium text-purple-700 dark:text-purple-400 flex items-center gap-1"><Music size={14} /> 커버 게시물 링크 ({projectInfo?.start_date ? new Date(new Date(projectInfo.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR') : ''}까지)</label>
                                         {coverPost ? (
                                           <p className="text-xs text-green-600 mt-1 flex items-center gap-0.5"><CheckCircle size={10} /> 커버 게시물 제출 완료</p>
                                         ) : (

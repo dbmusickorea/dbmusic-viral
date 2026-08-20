@@ -50,7 +50,7 @@ export default function TermsPage() {
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>체험단은 미션 시작일로부터 48시간 이내에 게시물을 업로드해야 합니다.</li>
             <li>미션 미수행 시 레벨 하락 및 7일간 활동이 제한될 수 있습니다.</li>
-            <li>커버영상 미션은 미션 시작일로부터 7일 이내에 업로드해야 합니다.</li>
+            <li>커버영상 미션은 미션 시작일로부터 15일 이내에 업로드해야 합니다.</li>
             <li>커버영상 미션 미수행 시 3개월간 커버영상 미션 참여가 제한됩니다.</li>
             <li>게시물 삭제 또는 비공개 처리 시 포인트가 회수될 수 있습니다.</li>
           </ul>

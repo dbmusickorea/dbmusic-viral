@@ -309,7 +309,7 @@ export async function GET() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '🎵 커버영상 미션이 시작됐어요!', data: { url: '/participant' },
-                    body: `${project.artist_name || project.client_name} - ${project.song_title} 커버영상 미션이 시작됐어요! 7일 이내에 업로드해주세요.`,
+                    body: `${project.artist_name || project.client_name} - ${project.song_title} 커버영상 미션이 시작됐어요! ${new Date(new Date(project.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')}까지 업로드해주세요.`,
                     tokens: coverTokens.map((t: any) => t.token),
                     userIds: coverIds.map(String)
                   })
@@ -719,7 +719,7 @@ export async function GET() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: '⚠️ 커버영상 미업로드 패널티', data: { url: '/participant' },
-                body: '7일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
+                body: '15일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
                 tokens: tokens.map((t: any) => t.token),
                 userIds: [String(r.participant_id)]
               })

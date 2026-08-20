@@ -188,7 +188,7 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '🎵 커버영상 승인됐어요!', data: { url: '/participant' },
-          body: `커버영상(${type === 'long' ? '롱폼' : '숏츠'})이 승인됐어요. 미션 시작일로부터 7일 이내에 업로드해주세요. ${reward.toLocaleString()}P이 추가 지급됐어요.`,
+          body: `커버영상(${type === 'long' ? '롱폼' : '숏츠'})이 승인됐어요. ${reward.toLocaleString()}P이 추가 지급됐어요.`,
           tokens: tokens.map((t: any) => t.token),
           userIds: [String(post.member_id)]
         })
