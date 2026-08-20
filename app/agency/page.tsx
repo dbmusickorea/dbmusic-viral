@@ -54,7 +54,7 @@ export default function AgencyPage() {
     return members.filter(m => m.referred_by === agency.referral_code && !m.is_agency)
   }
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
+  if (loading) return <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   const selectedMembers = selected ? getAgencyMembers(selected) : []
 

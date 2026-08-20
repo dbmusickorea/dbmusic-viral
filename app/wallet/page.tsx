@@ -257,8 +257,8 @@ export default function WalletPage() {
     : allHistory
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400">로딩 중...</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <p className="text-gray-400 dark:text-gray-500">로딩 중...</p>
     </div>
   )
 

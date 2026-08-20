@@ -208,7 +208,7 @@ export default function CoverPage() {
     const approved = reqData?.some((r: any) => r.title === '커버 체험단 추가 요청' && r.status === 'APPROVED')
     setCoverAddApproved(approved)
   }
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><p>로딩 중...</p></div>
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900"><p className="text-gray-500 dark:text-gray-400">로딩 중...</p></div>
 
   const handleApproveCover = async (post: any, type: string = 'long') => {
     const amount = coverRewardAmounts[post.id]

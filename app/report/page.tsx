@@ -231,7 +231,7 @@ export default function ReportPage() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return <div className="flex items-center justify-center h-screen">로딩중...</div>
+  if (loading) return <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">로딩중...</div>
   if (!project) return <div className="flex items-center justify-center h-screen">프로젝트를 찾을 수 없어요</div>
 
   const dailyStats = getDailyStats()
