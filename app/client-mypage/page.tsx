@@ -5,7 +5,7 @@ import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, LayoutGrid, BarChart2, User, FileText } from 'lucide-react'
+import { Eye, EyeOff, LayoutGrid, BarChart2, User, FileText, Disc3 } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
@@ -16,6 +16,7 @@ import { useToast } from '../../components/ToastContext'
 export default function ClientMyPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [hasProjects, setHasProjects] = useState(true)
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 
   useEffect(() => {
@@ -99,6 +100,11 @@ export default function ClientMyPage() {
     if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
+    if (parsed?.id) {
+      fetchWithAuth(`/api/projects?client_id=${parsed.id}`).then(res => res.json()).then(data => {
+        setHasProjects(Array.isArray(data) && data.length > 0)
+      }).catch(() => {})
+    }
     setMyName(parsed.name ?? '')
     setMyCompany(parsed.company ?? '')
     setMyArtist(parsed.artist ?? '')
@@ -508,10 +514,13 @@ export default function ClientMyPage() {
         </div>
       </div>
       <BottomNav tabs={[
-        { icon: <LayoutGrid size={20} />, label: '프로젝트', href: '/client' },
-        { icon: <BarChart2 size={20} />, label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
-        { icon: <FileText size={20} />, label: '신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
-        { icon: <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>, label: '보고서', onClick: () => { router.push('/client-report') } },
+        ...(hasProjects ? [
+          { icon: <LayoutGrid size={20} />, label: '프로젝트', href: '/client' },
+          { icon: <BarChart2 size={20} />, label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
+          { icon: <FileText size={20} />, label: '신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
+          { icon: <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>, label: '보고서', onClick: () => { router.push('/client-report') } },
+        ] : []),
+        ...(userInfo?.has_distribution ? [{ icon: <Disc3 size={20} />, label: '유통', href: '/distribution' }] : []),
         { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage', active: true },
       ]} />
       <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />
