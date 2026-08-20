@@ -1,6 +1,6 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { BarChart2, LayoutGrid, FileText, User, Disc3 } from 'lucide-react'
+import { BarChart2, LayoutGrid, FileText, User, Disc3, RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -15,6 +15,9 @@ export default function ClientReportPage() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     const userInfo = localStorage.getItem('userInfo')
@@ -43,6 +46,22 @@ export default function ClientReportPage() {
     }
   }, [])
 
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    const stored = localStorage.getItem('userInfo')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (parsed?.client_id) {
+        const res = await fetchWithAuth(`/api/projects?client_id=${parsed.client_id}`)
+        const data = await res.json()
+        setMyProjects(data ?? [])
+      }
+    }
+    setIsRefreshing(false)
+    setIsPulling(false)
+  }
+
   const handleLogout = () => {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
@@ -65,8 +84,30 @@ export default function ClientReportPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: "calc(env(safe-area-inset-top) + 1rem)"}}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+        onTouchStart={(e) => {
+          if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
+          else setPullStartY(0)
+        }}
+        onTouchMove={(e) => {
+          if (pullStartY === 0) return
+          if (e.touches[0].clientY - pullStartY > 70) setIsPulling(true)
+        }}
+        onTouchEnd={() => {
+          if (isPulling) handleRefresh()
+          setIsPulling(false)
+        }}
+        style={{paddingTop: "calc(env(safe-area-inset-top) + 1rem)"}}>
         <div className="max-w-7xl mx-auto">
+          {(isPulling || isRefreshing) && (
+            <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+              {isRefreshing ? (
+                <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+              ) : (
+                <><ArrowDown size={14} /> 놓으면 새로고침</>
+              )}
+            </div>
+          )}
           <div className="flex justify-center mb-2 max-w-7xl mx-auto">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/client')} />
           </div>

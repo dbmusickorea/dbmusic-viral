@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { LayoutGrid, BarChart2, FileText, User, Disc3 } from 'lucide-react'
+import { LayoutGrid, BarChart2, FileText, User, Disc3, RefreshCw, ArrowDown } from 'lucide-react'
 import PlatformIcon from '../../components/PlatformIcon'
 import BottomNav from '../../components/BottomNav'
 import Sidebar from '../../components/Sidebar'
@@ -15,6 +15,21 @@ export default function DistributionPage() {
   const [hasProjects, setHasProjects] = useState(true)
   const [dataLoading, setDataLoading] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [isPulling, setIsPulling] = useState(false)
+  const [pullStartY, setPullStartY] = useState(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    const stored = localStorage.getItem('userInfo')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      await fetchAllData(parsed.id, parsed.client_id)
+    }
+    setIsRefreshing(false)
+    setIsPulling(false)
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo')
@@ -58,9 +73,6 @@ export default function DistributionPage() {
     setDataLoading(false)
   }
 
-  const lyricVideos = items.filter(i => i.type === 'lyric_video')
-  const shorts = items.filter(i => i.type === 'shorts')
-
   const platformLabel = (p: string) => p === 'youtube' ? '유튜브' : p === 'instagram' ? '인스타그램 릴스' : '틱톡'
   const platformIconKey = (type: string, p: string) => type === 'shorts' && p === 'youtube' ? 'youtube_shorts' : p
 
@@ -81,8 +93,30 @@ export default function DistributionPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: "calc(env(safe-area-inset-top) + 1rem)"}}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+        onTouchStart={(e) => {
+          if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
+          else setPullStartY(0)
+        }}
+        onTouchMove={(e) => {
+          if (pullStartY === 0) return
+          if (e.touches[0].clientY - pullStartY > 70) setIsPulling(true)
+        }}
+        onTouchEnd={() => {
+          if (isPulling) handleRefresh()
+          setIsPulling(false)
+        }}
+        style={{paddingTop: "calc(env(safe-area-inset-top) + 1rem)"}}>
         <div className="max-w-7xl mx-auto">
+          {(isPulling || isRefreshing) && (
+            <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
+              {isRefreshing ? (
+                <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</>
+              ) : (
+                <><ArrowDown size={14} /> 놓으면 새로고침</>
+              )}
+            </div>
+          )}
           <div className="flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
           </div>
@@ -102,47 +136,25 @@ export default function DistributionPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
             </div>
           ) : (
-            <>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube" size={18} /> 리릭비디오</h2>
-                {lyricVideos.length === 0 ? (
-                  <p className="text-xs text-gray-400">등록된 리릭비디오가 없어요.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {lyricVideos.map(item => (
-                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                        <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} />
-                        <div>
-                          <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
-                          {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                          <p className="text-xs text-blue-500 break-all">{item.url}</p>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube_shorts" size={18} /> 숏츠</h2>
-                {shorts.length === 0 ? (
-                  <p className="text-xs text-gray-400">등록된 숏츠가 없어요.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {shorts.map(item => (
-                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                        <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} />
-                        <div>
-                          <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
-                          {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                          <p className="text-xs text-blue-500 break-all">{item.url}</p>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+              <h2 className="font-bold dark:text-white mb-3">등록된 콘텐츠</h2>
+              {items.length === 0 ? (
+                <p className="text-xs text-gray-400">등록된 콘텐츠가 없어요.</p>
+              ) : (
+                <div className="space-y-2">
+                  {items.map(item => (
+                    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} />
+                      <div>
+                        <p className="text-sm font-medium dark:text-white">{item.type === 'lyric_video' ? '리릭비디오' : platformLabel(item.platform)}</p>
+                        {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
+                        <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

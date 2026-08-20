@@ -192,7 +192,7 @@ export default function DistributionAdminPage() {
                               <PlatformIcon platform={getPlatformIconKey(item.type, item.platform)} size={18} />
                               <div>
                                 <p className="text-sm font-medium dark:text-white">
-                                  {item.type === 'lyric_video' ? '리릭비디오' : '숏츠'} · {item.platform === 'youtube' ? '유튜브' : item.platform === 'instagram' ? '인스타' : '틱톡'}
+                                  {OPTIONS.find(o => o.key === getOptionKey(item.type, item.platform))?.label}
                                 </p>
                                 {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400">{item.artist_name} - {item.song_title}</p>}
                                 <p className="text-xs text-blue-500 break-all mt-1">{item.url}</p>
