@@ -138,17 +138,16 @@ export default function CoverPage() {
 
   const handleSelectParticipant = async (participant: any) => {
     if (!selectedProject) { showToast('먼저 프로젝트를 선택해주세요.'); return }
-    
-    // 미션 시작일 체크 (연장된 경우 제외)
-    if (!selectedProject.cover_deadline_extended) {
-      if (selectedProject.start_date && selectedProject.start_time) {
-        const startDateTime = new Date(`${selectedProject.start_date}T${selectedProject.start_time}:00`)
-        if (new Date() >= startDateTime) {
-          showToast('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
-          return
-        }
-      } else if (selectedProject.start_date && new Date() >= new Date(selectedProject.start_date)) {
-        showToast('미션이 이미 시작됐어요. 미션 시작 전에만 커버 체험단을 선택할 수 있어요.')
+
+    // 선택 가능 기간 체크: 미션 시작 전 ~ 시작 후 15일
+    if (selectedProject.start_date) {
+      const daysSinceStart = Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24))
+      if (daysSinceStart >= 15) {
+        showToast('커버 체험단 선택 기간(미션 시작 후 15일)이 지났어요.')
+        return
+      }
+      if (daysSinceStart >= 3 && userRole !== 'admin') {
+        showToast('의뢰인 선택 기간(미션 시작 후 3일)이 지났어요. 관리자에게 문의해주세요.')
         return
       }
     }
@@ -538,23 +537,14 @@ export default function CoverPage() {
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 가능 체험단</h2>
                 {userRole === 'admin' && selectedProject && (() => {
                   const daysSinceStart = selectedProject.start_date ? Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
-                  const coverClosed = daysSinceStart >= 3 && !selectedProject.cover_deadline_extended
+                  const coverClosed = daysSinceStart >= 15
                   return coverClosed ? (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 flex justify-between items-center">
-                      <p className="text-xs text-yellow-700 flex items-center gap-0.5"><AlertTriangle size={10} /> 커버 신청 기간이 마감됐어요.</p>
-                      <button onClick={async () => {
-                        await fetchWithAuth(`/api/projects?project_code=${selectedProject.project_code}`, {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ cover_deadline_extended: true })
-                        })
-                        showToast('커버 신청 기간이 연장됐어요!')
-                        setSelectedProject({ ...selectedProject, cover_deadline_extended: true })
-                      }} className="text-xs bg-yellow-500 text-white rounded px-2 py-1">연장하기</button>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-yellow-700 flex items-center gap-0.5"><AlertTriangle size={10} /> 커버 신청 기간(미션 시작 후 15일)이 마감됐어요.</p>
                     </div>
-                  ) : selectedProject.cover_deadline_extended ? (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-green-700 flex items-center gap-0.5"><CheckCircle size={10} /> 커버 신청 기간이 연장됐어요.</p>
+                  ) : daysSinceStart >= 3 ? (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-blue-700 flex items-center gap-0.5"><CheckCircle size={10} /> 의뢰인 선택 기간은 지났지만, 관리자는 미션 시작 후 15일까지 선택할 수 있어요.</p>
                     </div>
                   ) : null
                 })()}
@@ -625,7 +615,7 @@ export default function CoverPage() {
                                 {!request ? (
                                   (() => {
                                     const daysSinceStart = Math.floor((new Date().getTime() - new Date(selectedProject?.start_date).getTime()) / (1000 * 60 * 60 * 24))
-                                    if (selectedProject?.status === 'ONGOING' && !coverAddApproved && daysSinceStart >= 3 && !selectedProject?.cover_deadline_extended) {
+                                    if (selectedProject?.status === 'ONGOING' && daysSinceStart >= 3) {
                                       return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">선택 마감</span>
                                     }
                                     if (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date()) return <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
@@ -662,7 +652,12 @@ export default function CoverPage() {
                             {userRole === 'admin' && (
                               <div>
                                 {!request ? (
-                                  p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date() ? <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span> : <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                                  (() => {
+                                    const adminDaysSinceStart = selectedProject?.start_date ? Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
+                                    if (adminDaysSinceStart >= 15) return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">선택 마감</span>
+                                    if (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date()) return <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
+                                    return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
+                                  })()
                                 ) : (
                                   <span className={`text-xs px-2 py-1 rounded-full ${
                                     request.status === 'PENDING' && coverPost ? 'bg-yellow-100 text-yellow-700' :
