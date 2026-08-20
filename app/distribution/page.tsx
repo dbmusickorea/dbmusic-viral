@@ -144,7 +144,7 @@ export default function DistributionPage() {
                 <div className="space-y-2">
                   {items.map(item => (
                     <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                      <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} />
+                      <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} className="shrink-0" />
                       <div>
                         <p className="text-sm font-medium dark:text-white">{item.type === 'lyric_video' ? '리릭비디오' : platformLabel(item.platform)}</p>
                         {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}

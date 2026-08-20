@@ -189,7 +189,7 @@ export default function DistributionAdminPage() {
                         <div key={item.id} className={`rounded-lg p-3 ${editingId === item.id ? 'bg-blue-50 dark:bg-blue-900' : 'bg-gray-50 dark:bg-gray-700'}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex gap-2">
-                              <PlatformIcon platform={getPlatformIconKey(item.type, item.platform)} size={18} />
+                              <PlatformIcon platform={getPlatformIconKey(item.type, item.platform)} size={18} className="shrink-0" />
                               <div>
                                 <p className="text-sm font-medium dark:text-white">
                                   {OPTIONS.find(o => o.key === getOptionKey(item.type, item.platform))?.label}
