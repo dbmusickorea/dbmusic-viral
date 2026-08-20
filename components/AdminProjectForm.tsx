@@ -38,7 +38,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                         {formData.optionPrice && <p>추가 옵션: +{Number(formData.optionPrice).toLocaleString()}원</p>}
                         {Number(formData.requiredPosts) === 2 && <p>게시물 2개 (+50%): +{Math.floor(getSelectedProductPrice() * 0.5).toLocaleString()}원</p>}
                         {formData.monitoringExtension > 0 && <p>모니터링 연장 ({formData.monitoringExtension}일): +{(formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
-                        {formData.refreshInterval && formData.refreshInterval !== '' && formData.refreshInterval !== '0' && formData.refreshInterval !== '12' && <p>트래픽 부스터: +{(formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
+                        {formData.refreshInterval && formData.refreshInterval !== '' && formData.refreshInterval !== '0' && formData.refreshInterval !== '12' && !(formData.refreshInterval === '6' && (formData.productContent.includes('프리미엄') || formData.productContent.includes('메가'))) && <p>트래픽 부스터: +{(formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
                         {formData.coverVideoCount > 0 && <p>{formData.coverType === 'premium' ? `프리미엄 커버 (3명)` : `커버영상 (${formData.coverVideoCount}개)`}: +{(formData.coverVideoCount === 3 ? 1500000 : formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
                       </div>
                     </div>
