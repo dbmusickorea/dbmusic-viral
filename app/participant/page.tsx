@@ -593,8 +593,9 @@ useEffect(() => {
 
   const handleAcceptCoverRequest = async (r: any) => {
     const coverDeadline = r.projects?.start_date ? new Date(new Date(r.projects.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR') : ''
+    const songInfo = `${r.projects?.artist_name || r.projects?.client_name || ''} - ${r.projects?.song_title || ''}`
     const confirmed = confirm(
-      `커버영상 미션을 수락하시겠어요?\n\n⚠️ ${coverDeadline}까지 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
+      `[${songInfo}]\n커버영상 미션을 수락하시겠어요?\n\n⚠️ ${coverDeadline}까지 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 미션 참여가 제한됩니다.`
     )
     if (!confirmed) return
     await fetchWithAuth(`/api/cover_requests?id=${r.id}`, {
@@ -747,11 +748,12 @@ useEffect(() => {
     
     const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     const deadline48 = new Date(new Date(projectInfo?.start_date).getTime() + 48 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
+    const joinSongInfo = `${projectInfo?.artist_name || projectInfo?.client_name || ''} - ${projectInfo?.song_title || ''}`
     
     const joinConfirmed = confirm(
       joinAsCover
-        ? `커버 참여로 신청하시겠어요?\n\n⚠️ ${deadline15}까지 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
-        : `프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내(${deadline48}까지) 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
+        ? `[${joinSongInfo}]\n커버 참여로 신청하시겠어요?\n\n⚠️ ${deadline15}까지 커버영상을 업로드해야 해요.\n미업로드 시 3개월간 커버영상 참여가 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
+        : `[${joinSongInfo}]\n프로젝트에 참여하시겠어요?\n\n⚠️ 미션 시작일로부터 48시간 이내(${deadline48}까지) 게시물을 업로드해야 해요.\n미업로드 시 레벨 하락 및 7일간 활동이 제한됩니다.\n\n📌 참여 후 3시간 이내에만 취소 가능합니다.`
     )
     if (!joinConfirmed) return
     
