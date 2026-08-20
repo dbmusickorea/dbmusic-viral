@@ -29,19 +29,22 @@ export default function DistributionPage() {
     if (role !== 'client' || !stored) { router.push('/'); return }
     const parsed = JSON.parse(stored)
     if (!parsed.has_distribution) { router.push('/client'); return }
-    setUserInfo(parsed)
 
-    // 최신 유통 서비스 상태 재확인 (관리자가 껐을 수 있으므로)
+    // 최신 유통 서비스 상태 먼저 확인 (관리자가 껐을 수 있으므로) - 확인 전까지 화면 노출 안 함
     fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
       const latest = Array.isArray(data) ? data[0] : data
       if (!latest?.has_distribution) {
         const updated = { ...parsed, has_distribution: false }
         localStorage.setItem('userInfo', JSON.stringify(updated))
         router.push('/client')
+        return
       }
-    }).catch(() => {})
-
-    fetchData(parsed.id, parsed.client_id)
+      setUserInfo(parsed)
+      fetchData(parsed.id, parsed.client_id)
+    }).catch(() => {
+      setUserInfo(parsed)
+      fetchData(parsed.id, parsed.client_id)
+    })
   }, [])
 
   const fetchData = async (userId: number, clientId: string) => {
