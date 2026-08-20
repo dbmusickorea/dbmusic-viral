@@ -5,7 +5,7 @@ import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, ClipboardList, Package, BarChart2, TrendingUp, Share2, MessageSquare, Music, Link, Trophy, Users, LayoutGrid, FileText, User, Calendar } from 'lucide-react'
+import { Bell, ClipboardList, Package, BarChart2, TrendingUp, Share2, MessageSquare, Music, Link, Trophy, Users, LayoutGrid, FileText, User, Calendar, Disc3 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
@@ -95,6 +95,18 @@ export default function Page3() {
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
     setUserRole(role ?? '')
+
+    // 유통 서비스 여부 최신값으로 갱신 (재로그인 없이 반영)
+    if (parsed?.id) {
+      fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
+        const latest = Array.isArray(data) ? data[0] : data
+        if (latest?.has_distribution) {
+          const updatedUser = { ...parsed, has_distribution: true }
+          setUserInfo(updatedUser)
+          localStorage.setItem('userInfo', JSON.stringify(updatedUser))
+        }
+      }).catch(() => {})
+    }
 
     const loadData = async () => {
       await Promise.all([
@@ -458,6 +470,7 @@ export default function Page3() {
             { icon: '', label: '현황', onClick: () => setActiveTab('stats'), active: activeTab === 'stats', id: 'tutorial-stats-btn-sidebar' },
             { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true), id: 'tutorial-apply-btn-sidebar' },
             { icon: '', label: '보고서', onClick: () => router.push('/client-report'), active: activeTab === 'report', id: 'tutorial-report-btn-sidebar' },
+            ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => router.push('/distribution') }] : []),
             { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
           ]}
         />
@@ -1195,6 +1208,11 @@ export default function Page3() {
               <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>보고서
           </button>
+          {userInfo?.has_distribution && (
+            <button onClick={() => router.push('/distribution')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
+              <Disc3 size={20} className="mb-0.5" />유통
+            </button>
+          )}
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400">
             <User size={20} className="mb-0.5" />마이페이지
           </button>
