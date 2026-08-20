@@ -1,6 +1,6 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { BarChart2 } from 'lucide-react'
+import { BarChart2, LayoutGrid, FileText, User, Disc3 } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,7 +11,7 @@ export default function ClientReportPage() {
   const router = useRouter()
   const { showToast } = useToast()
   const [myProjects, setMyProjects] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [dataLoading, setDataLoading] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [userInfo, setUserInfo] = useState<any>(null)
@@ -37,9 +37,9 @@ export default function ClientReportPage() {
     if (clientId) {
       fetchWithAuth(`/api/projects?client_id=${clientId}`)
         .then(res => res.json())
-        .then(data => { setMyProjects(data ?? []); setLoading(false) })
+        .then(data => { setMyProjects(data ?? []); setDataLoading(false) })
     } else {
-      setLoading(false)
+      setDataLoading(false)
     }
   }, [])
 
@@ -48,8 +48,6 @@ export default function ClientReportPage() {
     localStorage.removeItem('userRole')
     router.push('/')
   }
-
-  if (loading) return <div className="flex items-center justify-center h-screen">로딩중...</div>
 
   return (
     <>
@@ -81,7 +79,11 @@ export default function ClientReportPage() {
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <h2 className="font-bold mb-4 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 결과보고서</h2>
-            {myProjects.length === 0 ? (
+            {dataLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+              </div>
+            ) : myProjects.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-8">프로젝트가 없어요</p>
             ) : (
               <div className="space-y-3">
@@ -121,24 +123,24 @@ export default function ClientReportPage() {
         {/* 하단탭 */}
         <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
           <button onClick={() => router.push('/client')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>프로젝트
+            <LayoutGrid size={20} className="mb-0.5" />프로젝트
           </button>
           <button onClick={() => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') }} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>현황
+            <BarChart2 size={20} className="mb-0.5" />현황
           </button>
           <button onClick={() => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') }} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>신청
+            <FileText size={20} className="mb-0.5" />신청
           </button>
           <button className="flex-1 flex flex-col items-center py-3 text-xs text-blue-600">
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>보고서
           </button>
           {userInfo?.has_distribution && (
             <button onClick={() => router.push('/distribution')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>유통
+              <Disc3 size={20} className="mb-0.5" />유통
             </button>
           )}
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>마이페이지
+            <User size={20} className="mb-0.5" />마이페이지
           </button>
         </div>
         <div className="h-16 md:hidden" style={{paddingBottom: 'env(safe-area-inset-bottom)'}} />

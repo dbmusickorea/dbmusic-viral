@@ -12,8 +12,8 @@ export default function DistributionPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
   const [items, setItems] = useState<any[]>([])
-  const [hasProjects, setHasProjects] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [hasProjects, setHasProjects] = useState(true)
+  const [dataLoading, setDataLoading] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
 
   const handleLogout = () => {
@@ -30,37 +30,33 @@ export default function DistributionPage() {
     const parsed = JSON.parse(stored)
     if (!parsed.has_distribution) { router.push('/client'); return }
 
-    // 최신 유통 서비스 상태 먼저 확인 (관리자가 껐을 수 있으므로) - 확인 전까지 화면 노출 안 함
-    fetchWithAuth(`/api/users?id=${parsed.id}`).then(res => res.json()).then(data => {
-      const latest = Array.isArray(data) ? data[0] : data
-      if (!latest?.has_distribution) {
-        const updated = { ...parsed, has_distribution: false }
-        localStorage.setItem('userInfo', JSON.stringify(updated))
-        router.push('/client')
-        return
-      }
-      setUserInfo(parsed)
-      fetchData(parsed.id, parsed.client_id)
-    }).catch(() => {
-      setUserInfo(parsed)
-      fetchData(parsed.id, parsed.client_id)
-    })
+    setUserInfo(parsed)
+    fetchAllData(parsed.id, parsed.client_id)
   }, [])
 
-  const fetchData = async (userId: number, clientId: string) => {
-    setLoading(true)
-    const [itemsRes, projectsRes] = await Promise.all([
+  const fetchAllData = async (userId: number, clientId: string) => {
+    const [userRes, itemsRes, projectsRes] = await Promise.all([
+      fetchWithAuth(`/api/users?id=${userId}`),
       fetchWithAuth(`/api/distribution-items?client_id=${userId}`),
       fetchWithAuth(`/api/projects?client_id=${clientId}`)
     ])
+
+    const userData = await userRes.json()
+    const latestUser = Array.isArray(userData) ? userData[0] : userData
+    if (!latestUser?.has_distribution) {
+      const stored = localStorage.getItem('userInfo')
+      const parsed = stored ? JSON.parse(stored) : {}
+      const updated = { ...parsed, has_distribution: false }
+      localStorage.setItem('userInfo', JSON.stringify(updated))
+      router.push('/client')
+      return
+    }
     const itemsData = await itemsRes.json()
     const projectsData = await projectsRes.json()
     setItems(Array.isArray(itemsData) ? itemsData : [])
     setHasProjects(Array.isArray(projectsData) && projectsData.length > 0)
-    setLoading(false)
+    setDataLoading(false)
   }
-
-  if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   const lyricVideos = items.filter(i => i.type === 'lyric_video')
   const shorts = items.filter(i => i.type === 'shorts')
@@ -84,7 +80,7 @@ export default function DistributionPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: "calc(env(safe-area-inset-top) + 1rem)"}}>
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
@@ -100,39 +96,47 @@ export default function DistributionPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube" size={18} /> 리릭비디오</h2>
-            {lyricVideos.length === 0 ? (
-              <p className="text-xs text-gray-400">등록된 리릭비디오가 없어요.</p>
-            ) : (
-              <div className="space-y-2">
-                {lyricVideos.map(item => (
-                  <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                    <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
-                    {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                    <p className="text-xs text-blue-500 break-all">{item.url}</p>
-                  </a>
-                ))}
+          {dataLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            </div>
+          ) : (
+            <>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube" size={18} /> 리릭비디오</h2>
+                {lyricVideos.length === 0 ? (
+                  <p className="text-xs text-gray-400">등록된 리릭비디오가 없어요.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {lyricVideos.map(item => (
+                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
+                        {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
+                        <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-            <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube_shorts" size={18} /> 숏츠</h2>
-            {shorts.length === 0 ? (
-              <p className="text-xs text-gray-400">등록된 숏츠가 없어요.</p>
-            ) : (
-              <div className="space-y-2">
-                {shorts.map(item => (
-                  <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                    <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
-                    {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                    <p className="text-xs text-blue-500 break-all">{item.url}</p>
-                  </a>
-                ))}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                <h2 className="font-bold dark:text-white mb-3 flex items-center gap-1.5"><PlatformIcon platform="youtube_shorts" size={18} /> 숏츠</h2>
+                {shorts.length === 0 ? (
+                  <p className="text-xs text-gray-400">등록된 숏츠가 없어요.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {shorts.map(item => (
+                      <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-sm font-medium dark:text-white">{platformLabel(item.platform)}</p>
+                        {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
+                        <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
       <BottomNav tabs={[
