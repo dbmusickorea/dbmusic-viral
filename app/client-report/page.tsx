@@ -55,6 +55,7 @@ export default function ClientReportPage() {
           { icon: '', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
           { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true) },
           { icon: '', label: '보고서', onClick: () => {}, active: true },
+          ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => router.push('/distribution') }] : []),
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
@@ -123,6 +124,11 @@ export default function ClientReportPage() {
           <button className="flex-1 flex flex-col items-center py-3 text-xs text-blue-600">
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>보고서
           </button>
+          {userInfo?.has_distribution && (
+            <button onClick={() => router.push('/distribution')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>유통
+            </button>
+          )}
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>마이페이지
           </button>

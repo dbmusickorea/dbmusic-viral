@@ -6,6 +6,7 @@ import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { PlayCircle, LayoutGrid, BarChart2, FileText, User, Disc3 } from 'lucide-react'
 import PlatformIcon from '../../components/PlatformIcon'
 import BottomNav from '../../components/BottomNav'
+import Sidebar from '../../components/Sidebar'
 
 export default function DistributionPage() {
   const router = useRouter()
@@ -13,6 +14,14 @@ export default function DistributionPage() {
   const [items, setItems] = useState<any[]>([])
   const [hasProjects, setHasProjects] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showSidebar, setShowSidebar] = useState(false)
+
+  const handleLogout = () => {
+    localStorage.removeItem('userInfo')
+    localStorage.removeItem('userRole')
+    localStorage.removeItem('autoLogin')
+    router.push('/')
+  }
 
   useEffect(() => {
     const role = localStorage.getItem('userRole')
@@ -46,13 +55,35 @@ export default function DistributionPage() {
 
   return (
     <>
+      <Sidebar
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onLogout={handleLogout}
+        items={[
+          ...(hasProjects ? [
+            { icon: '', label: '프로젝트', onClick: () => router.push('/client') },
+            { icon: '', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
+            { icon: '', label: '프로젝트 신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
+            { icon: '', label: '보고서', onClick: () => router.push('/client-report') },
+          ] : []),
+          { icon: '', label: '유통 서비스', onClick: () => router.push('/distribution'), active: true },
+          { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
+        ]}
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
-        <div className="max-w-3xl mx-auto">
-          <div className="flex justify-center mb-4">
-            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 dark:invert" />
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-center mb-2">
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
           </div>
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-xl font-bold dark:text-white">{userInfo?.name}님의 유통 서비스</h1>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold dark:text-white">{userInfo?.name}님의 유통 서비스</h1>
+            </div>
           </div>
 
           {hasProjects && (
@@ -101,6 +132,7 @@ export default function DistributionPage() {
           { icon: <LayoutGrid size={20} />, label: '프로젝트', href: '/client' },
           { icon: <BarChart2 size={20} />, label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
           { icon: <FileText size={20} />, label: '신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
+          { icon: <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>, label: '보고서', onClick: () => { router.push('/client-report') } },
         ] : []),
         { icon: <Disc3 size={20} />, label: '유통', href: '/distribution', active: true },
         { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage' },

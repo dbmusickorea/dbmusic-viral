@@ -232,15 +232,16 @@ export default function ClientMyPage() {
         onClose={() => setShowSidebar(false)}
         onLogout={handleLogout}
         items={[
-          { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
-          { icon: '📊', label: '현황', onClick: () => { 
-            console.log('현황 버튼 클릭')
-            sessionStorage.setItem('clientTab', 'stats')
-            console.log('sessionStorage set:', sessionStorage.getItem('clientTab'))
-            router.push('/client') 
-          }},
-          { icon: '📝', label: '신청', onClick: () => { setShowApplyModal(true); setShowSidebar(false) }},
-          { icon: '📥', label: '보고서', onClick: () => { setShowSidebar(false); router.push('/client-report') }},
+          ...(hasProjects ? [
+            { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
+            { icon: '📊', label: '현황', onClick: () => { 
+              sessionStorage.setItem('clientTab', 'stats')
+              router.push('/client') 
+            }},
+            { icon: '📝', label: '신청', onClick: () => { setShowApplyModal(true); setShowSidebar(false) }},
+            { icon: '📥', label: '보고서', onClick: () => { setShowSidebar(false); router.push('/client-report') }},
+          ] : []),
+          ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => router.push('/distribution') }] : []),
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
         ]}
       />
@@ -273,7 +274,7 @@ export default function ClientMyPage() {
           </div>
         )}
         <div className="flex justify-center mb-2">
-          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/client')} />
+          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (hasProjects) router.push('/client'); else if (userInfo?.has_distribution) router.push('/distribution') }} />
         </div>
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           
