@@ -139,26 +139,16 @@ export default function GuidePage() {
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">크리에이터의 레벨은 1단계부터 최고 50단계까지 구성되어 있습니다. 본인의 고유 추천인 코드를 통해 신규 가입자가 발생할 때마다 가입자 1명당 크리에이터의 레벨이 정확히 1단계씩 즉시 상승합니다.</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-2">레벨별 정산 단가 (게시물 1개당)</p>
-              <div className="overflow-hidden rounded-lg border border-purple-200 dark:border-purple-700">
-                <table className="w-full text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                  <thead className="bg-purple-50 dark:bg-purple-900">
-                    <tr>
-                      <th className="py-2 px-3 text-left">레벨</th>
-                      <th className="py-2 px-3 text-right">적립금</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((lv) => (
-                      <tr key={lv} className="border-t border-gray-100 dark:border-gray-600">
-                        <td className="py-2 px-3">Lv.{lv}</td>
-                        <td className="py-2 px-3 text-right text-purple-600 dark:text-purple-400 font-medium">
-                          {lv === 50 ? '10,000P' : `${(2500 + (lv - 1) * 150).toLocaleString()}P`}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <p className="text-sm font-medium dark:text-white mb-2">레벨별 정산 단가 (게시물 1개당)</p>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((lv) => (
+                  <div key={lv} className={`rounded-lg p-2 text-center ${lv === 50 ? 'bg-blue-50 dark:bg-blue-900' : 'bg-gray-50 dark:bg-gray-700'}`}>
+                    <p className={`text-xs font-normal mb-0.5 ${lv === 50 ? 'text-blue-500 dark:text-blue-300' : 'text-gray-400 dark:text-gray-500'}`}>{lv === 50 ? 'Lv.50 최고' : `Lv.${lv}`}</p>
+                    <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                      {lv === 50 ? '10,000P' : `${(2500 + (lv - 1) * 150).toLocaleString()}P`}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
