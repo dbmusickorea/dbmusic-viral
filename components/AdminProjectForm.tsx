@@ -9,6 +9,10 @@ type Props = {
   artistList: any[]
   coverImageFile: File | null
   setCoverImageFile: (f: File | null) => void
+  coverAudioFile: File | null
+  setCoverAudioFile: (f: File | null) => void
+  coverMrFile: File | null
+  setCoverMrFile: (f: File | null) => void
   isSaving: boolean
   selectedProject: any
   handleInsert: () => void
@@ -26,7 +30,7 @@ type Props = {
 const inputClass = 'w-full border rounded-lg px-3 py-2 text-base box-border dark:bg-gray-700 dark:text-white dark:border-gray-600'
 const dateInputStyle = { WebkitAppearance: 'none' as const }
 
-export default function AdminProjectForm({ formData, setFormData, products, clients, artistList, coverImageFile, setCoverImageFile, isSaving, selectedProject, handleInsert, handleUpdate, handlePrefixChange, getTotalCost, getSelectedProductPrice, showToast, clientSearch, setClientSearch, setArtistList, filteredClients }: Props) {
+export default function AdminProjectForm({ formData, setFormData, products, clients, artistList, coverImageFile, setCoverImageFile, coverAudioFile, setCoverAudioFile, coverMrFile, setCoverMrFile, isSaving, selectedProject, handleInsert, handleUpdate, handlePrefixChange, getTotalCost, getSelectedProductPrice, showToast, clientSearch, setClientSearch, setArtistList, filteredClients }: Props) {
   return (
     <>
                   {(formData.productContent && formData.productContent !== '__direct__') && (
@@ -281,6 +285,20 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                         <option value="30">30명 (4,500,000원)</option>
                       </select>
                     </div>
+                    )}
+                    {(formData.coverType === 'premium' || Number(formData.coverVideoCount) > 0) && (
+                    <>
+                      <div>
+                        <label className="text-sm font-medium dark:text-gray-200">원곡 음원 (미리듣기용, wav/mp3)</label>
+                        <input type="file" accept="audio/wav,audio/mpeg" onChange={(e) => setCoverAudioFile(e.target.files?.[0] ?? null)} className={inputClass} />
+                        {coverAudioFile && <p className="text-xs text-green-600 mt-1">{coverAudioFile.name}</p>}
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium dark:text-gray-200">MR 파일 (커버 체험단 다운로드용, wav/mp3)</label>
+                        <input type="file" accept="audio/wav,audio/mpeg" onChange={(e) => setCoverMrFile(e.target.files?.[0] ?? null)} className={inputClass} />
+                        {coverMrFile && <p className="text-xs text-green-600 mt-1">{coverMrFile.name}</p>}
+                      </div>
+                    </>
                     )}
                     <div>
                       <label className="text-sm font-medium dark:text-gray-200">요청 게시물 수 (추가 옵션)</label>

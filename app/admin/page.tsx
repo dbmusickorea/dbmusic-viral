@@ -74,6 +74,8 @@ export default function Page1() {
   const [replyText, setReplyText] = useState<{[key: number]: string}>({})
   const [expandedReply, setExpandedReply] = useState<{[key: number]: boolean}>({})
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [coverAudioFile, setCoverAudioFile] = useState<File | null>(null)
+  const [coverMrFile, setCoverMrFile] = useState<File | null>(null)
   const [requestFilter, setRequestFilter] = useState<'all' | 'client' | 'participant'>('all')
   const [showSidebar, setShowSidebar] = useState(false)
 
@@ -593,6 +595,23 @@ export default function Page1() {
       })
     })
     if (!res.ok) { showToast('등록 실패!'); return }
+
+    // 커버 음원/MR 업로드
+    if (coverAudioFile) {
+      const audioFormData = new FormData()
+      audioFormData.append('file', coverAudioFile)
+      audioFormData.append('project_code', formData.projectCode.toUpperCase())
+      audioFormData.append('type', 'audio')
+      await fetchWithAuth('/api/cover-audio-upload', { method: 'POST', body: audioFormData })
+    }
+    if (coverMrFile) {
+      const mrFormData = new FormData()
+      mrFormData.append('file', coverMrFile)
+      mrFormData.append('project_code', formData.projectCode.toUpperCase())
+      mrFormData.append('type', 'mr')
+      await fetchWithAuth('/api/cover-audio-upload', { method: 'POST', body: mrFormData })
+    }
+
     if (formData.selectedClientId) {
       await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`, {
         method: 'PATCH',
@@ -1284,6 +1303,10 @@ export default function Page1() {
                   artistList={artistList}
                   coverImageFile={coverImageFile}
                   setCoverImageFile={setCoverImageFile}
+                  coverAudioFile={coverAudioFile}
+                  setCoverAudioFile={setCoverAudioFile}
+                  coverMrFile={coverMrFile}
+                  setCoverMrFile={setCoverMrFile}
                   isSaving={isSaving}
                   selectedProject={selectedProject}
                   handleInsert={handleInsert}
