@@ -43,6 +43,7 @@ export default function CoverPage() {
   const [applyCoverCount, setApplyCoverCount] = useState(0)
   const [applyRequirements, setApplyRequirements] = useState('')
   const [genreFilter, setGenreFilter] = useState<string>('전체')
+  const [gradeFilter, setGradeFilter] = useState<string>('전체')
   const { showToast } = useToast()
 
   const getEmbedUrl = (url: string) => {
@@ -554,6 +555,14 @@ export default function CoverPage() {
                     </div>
                   ) : null
                 })()}
+                {/* 등급 필터 */}
+                <div className="flex gap-1 flex-wrap mb-2">
+                  {['전체', '일반', '프리미엄'].map(grade => (
+                    <button key={grade} onClick={() => setGradeFilter(grade)} className={`text-xs px-2 py-1 rounded-full border ${gradeFilter === grade ? 'bg-yellow-500 text-white border-yellow-500' : 'text-gray-500'}`}>
+                      {grade}
+                    </button>
+                  ))}
+                </div>
                 {/* 장르 필터 */}
                 <div className="flex gap-1 flex-wrap mb-3">
                   {['전체', '발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
@@ -566,7 +575,7 @@ export default function CoverPage() {
                   <p className="text-sm text-gray-400 text-center py-4">승인된 커버가능 체험단이 없습니다.</p>
                 ) : (
                   <div className="space-y-2">
-                    {coverParticipants.filter(p => genreFilter === '전체' || (p.genres && p.genres.includes(genreFilter))).map(p => {
+                    {coverParticipants.filter(p => (genreFilter === '전체' || (p.genres && p.genres.includes(genreFilter))) && (gradeFilter === '전체' || (gradeFilter === '프리미엄' ? p.cover_grade === 'premium' : p.cover_grade !== 'premium'))).map(p => {
                       const request = coverRequests.find(r => r.participant_id === p.id)
                       const coverPost = coverPosts.find(post => post.member_id === p.id && request?.project_code === post.project_code)
                       return (
