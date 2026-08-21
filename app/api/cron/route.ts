@@ -268,7 +268,13 @@ export async function GET() {
             const startHour = parseInt(project.start_time.split(':')[0])
             if (currentHour !== startHour) continue
           }
-          
+
+          // 미션 시작 시 커버 원곡(미리듣기) 파일 삭제 (더 이상 필요 없음)
+          if (project.cover_audio_path) {
+            await supabase.storage.from('cover-audio').remove([project.cover_audio_path])
+            await supabase.from('projects').update({ cover_audio_path: null }).eq('project_code', project.project_code)
+          }
+
           const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
           if (joinedParticipants && joinedParticipants.length > 0) {
             const memberIds = joinedParticipants.map((j: any) => j.member_id)
@@ -677,6 +683,22 @@ export async function GET() {
             })
           }
         }
+      }
+    }
+
+    // 미션 시작 15일 경과 시 MR 파일 삭제
+    const { data: mrProjects } = await supabase
+      .from('projects')
+      .select('project_code, cover_mr_path, start_date')
+      .not('cover_mr_path', 'is', null)
+      .not('start_date', 'is', null)
+
+    if (mrProjects && mrProjects.length > 0) {
+      for (const mp of mrProjects) {
+        const mrDeadline = new Date(new Date(mp.start_date).getTime() + 15 * 24 * 60 * 60 * 1000)
+        if (now < mrDeadline) continue
+        await supabase.storage.from('cover-audio').remove([mp.cover_mr_path])
+        await supabase.from('projects').update({ cover_mr_path: null }).eq('project_code', mp.project_code)
       }
     }
 
