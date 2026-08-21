@@ -86,6 +86,7 @@ export default function GuidePage() {
               <div className="bg-white dark:bg-gray-800 rounded-lg p-2 flex flex-col items-center gap-1">
                 <div className="flex gap-1.5">
                   <PlatformIcon platform="instagram" size={14} />
+                  <PlatformIcon platform="youtube" size={14} />
                   <PlatformIcon platform="youtube_shorts" size={14} />
                   <PlatformIcon platform="tiktok" size={14} />
                 </div>
