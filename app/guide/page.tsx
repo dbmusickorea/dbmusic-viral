@@ -184,7 +184,7 @@ export default function GuidePage() {
             </div>
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
               <p className="text-sm font-medium dark:text-white">1개월 이상 미활동 시 계정 잠금</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 후 1개월이 지났음에도 최근 1개월간 활동 내역이 없으면 계정이 잠깁니다. 유튜브 댓글 미션을 10회 작성하여 인증하면 잠금이 자동으로 해제됩니다. 인증이 어려우신 경우 고객센터로 문의해주시면 확인 후 해제해드립니다.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 후 1개월이 지났음에도, 참여 가능한 프로젝트가 있었음에도 최근 1개월간 활동 내역이 없으면 계정이 잠깁니다. (참여 가능한 프로젝트 자체가 없었던 경우에는 잠기지 않습니다) 유튜브 댓글 미션을 10회 작성하여 인증하면 잠금이 자동으로 해제됩니다. 인증이 어려우신 경우 고객센터로 문의해주시면 확인 후 해제해드립니다.</p>
             </div>
           </div>
         </div>
@@ -196,6 +196,11 @@ export default function GuidePage() {
             <div>
               <p className="text-sm font-medium dark:text-white">신청 기준</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">앱 내 적립금 총액이 10,000포인트 이상 누적되는 시점부터 크리에이터가 직접 본인 계좌로 현금 환전 신청을 진행할 수 있습니다.</p>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">환전 가능 시점</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">참여하신 프로젝트가 완료(종료) 처리된 이후부터 해당 리워드를 환전 신청할 수 있습니다.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">커버영상으로 참여하신 리워드는 프로젝트 종료일로부터 15일이 더 지난 시점부터 환전 신청이 가능합니다.</p>
             </div>
             <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3">
               <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">법적 의무 사항</p>
