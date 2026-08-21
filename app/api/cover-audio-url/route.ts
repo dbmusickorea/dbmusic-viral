@@ -78,12 +78,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '커버 참여 승인된 체험단만 다운로드 가능해요' }, { status: 403 })
     }
 
-    if (project.start_date) {
-      const deadline = new Date(new Date(project.start_date).getTime() + 15 * 24 * 60 * 60 * 1000)
-      if (new Date() > deadline) {
-        return NextResponse.json({ error: 'MR 다운로드 기한이 지났어요' }, { status: 403 })
-      }
-    }
+    // TEMP: 테스트를 위해 날짜 체크 임시 비활성화
+    // if (project.start_date) {
+    //   const deadline = new Date(new Date(project.start_date).getTime() + 15 * 24 * 60 * 60 * 1000)
+    //   if (new Date() > deadline) {
+    //     return NextResponse.json({ error: 'MR 다운로드 기한이 지났어요' }, { status: 403 })
+    //   }
+    // }
 
     if (!project.cover_mr_path) return NextResponse.json({ error: 'MR 파일이 없어요' }, { status: 404 })
 
