@@ -269,12 +269,6 @@ export async function GET() {
             if (currentHour !== startHour) continue
           }
 
-          // 미션 시작 시 커버 원곡(미리듣기) 파일 삭제 (더 이상 필요 없음)
-          if (project.cover_audio_path) {
-            await supabase.storage.from('cover-audio').remove([project.cover_audio_path])
-            await supabase.from('projects').update({ cover_audio_path: null }).eq('project_code', project.project_code)
-          }
-
           const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
           if (joinedParticipants && joinedParticipants.length > 0) {
             const memberIds = joinedParticipants.map((j: any) => j.member_id)
@@ -683,6 +677,21 @@ export async function GET() {
             })
           }
         }
+      }
+    }
+
+    // 미션 시작(당일 포함) 후 원곡(미리듣기) 파일 삭제 - 더 이상 필요 없음
+    const { data: audioCleanupProjects } = await supabase
+      .from('projects')
+      .select('project_code, cover_audio_path, start_date')
+      .not('cover_audio_path', 'is', null)
+      .not('start_date', 'is', null)
+
+    if (audioCleanupProjects && audioCleanupProjects.length > 0) {
+      for (const ap of audioCleanupProjects) {
+        if (new Date(ap.start_date) > now) continue // 아직 미션 시작 전이면 유지
+        await supabase.storage.from('cover-audio').remove([ap.cover_audio_path])
+        await supabase.from('projects').update({ cover_audio_path: null }).eq('project_code', ap.project_code)
       }
     }
 
