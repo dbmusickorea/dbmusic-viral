@@ -23,7 +23,8 @@ const platformConfig = {
 export default function StatsChart({ data, platform, likesKey, commentsKey, viewsKey, audioKey, containerRef }: StatsChartProps) {
   const config = platformConfig[platform]
   const likeLabel = config.likeLabel
-  const legendItems = audioKey ? [likeLabel, '댓글', '조회수', '음원사용'] : [likeLabel, '댓글', '조회수']
+  const showAudio = audioKey && platform !== 'youtube'
+  const legendItems = showAudio ? [likeLabel, '댓글', '조회수', '음원사용'] : [likeLabel, '댓글', '조회수']
 
   return (
     <div className="mb-4" ref={containerRef}>
@@ -59,7 +60,7 @@ export default function StatsChart({ data, platform, likesKey, commentsKey, view
           <Line type="monotone" dataKey={likesKey} stroke="#FF4B6E" name={likeLabel} dot={false} />
           <Line type="monotone" dataKey={commentsKey} stroke="#4CAF50" name="댓글" dot={false} strokeDasharray="5 5" />
           <Line type="monotone" dataKey={viewsKey} stroke="#4B9EFF" name="조회수" dot={false} strokeDasharray="3 3" />
-          {audioKey && <Line type="monotone" dataKey={audioKey} stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />}
+          {showAudio && <Line type="monotone" dataKey={audioKey} stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />}
         </LineChart>
       </ResponsiveContainer>
     </div>
