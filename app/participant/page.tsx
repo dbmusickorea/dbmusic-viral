@@ -16,6 +16,7 @@ import ParticipantPostList from '../../components/ParticipantPostList'
 import ParticipantProjectList from '../../components/ParticipantProjectList'
 import ParticipantStatusCards from '../../components/ParticipantStatusCards'
 import ParticipantCoverRequests from '../../components/ParticipantCoverRequests'
+import CoverAudioPlayer from '../../components/CoverAudioPlayer'
 
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
@@ -1515,6 +1516,11 @@ useEffect(() => {
                                     const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
                                     return (
                                       <div className="mt-3 pt-3 border-t dark:border-gray-600">
+                                        {projectInfo?.cover_mr_path && (
+                                          <div className="mb-3">
+                                            <CoverAudioPlayer projectCode={projectInfo.project_code} memberId={userInfo?.id} role="participant" showMr={true} />
+                                          </div>
+                                        )}
                                         <label className="text-sm font-medium text-purple-700 dark:text-purple-400 flex items-center gap-1"><Music size={14} /> 커버 게시물 링크 ({projectInfo?.start_date ? new Date(new Date(projectInfo.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR') : ''}까지)</label>
                                         {coverPost ? (
                                           <p className="text-xs text-green-600 mt-1 flex items-center gap-0.5"><CheckCircle size={10} /> 커버 게시물 제출 완료</p>
@@ -1690,6 +1696,11 @@ useEffect(() => {
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                           <p className="text-sm font-medium mb-1 dark:text-white">{projectInfo.artist_name || projectInfo.client_name} / {projectInfo.song_title ?? projectInfo.product_content}</p>
                           {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Calendar size={14} /> 미션일: {projectInfo.start_date}</p>}
+                          {canCover && projectInfo.cover_audio_path && (
+                            <div className="mt-2">
+                              <CoverAudioPlayer projectCode={projectInfo.project_code} memberId={userInfo?.id} role="participant" showMr={false} />
+                            </div>
+                          )}
                           <div className="flex justify-between items-center mt-2">
                             <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                             {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
