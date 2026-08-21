@@ -21,6 +21,8 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
   const [applyRequirements, setApplyRequirements] = useState('')
   const [applyBudget, setApplyBudget] = useState('')
   const [applyJacketFile, setApplyJacketFile] = useState<File | null>(null)
+  const [applyAudioFile, setApplyAudioFile] = useState<File | null>(null)
+  const [applyMrFile, setApplyMrFile] = useState<File | null>(null)
 
   if (!show) return null
 
@@ -39,7 +41,7 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
         jacketImageUrl = urlData.publicUrl
       }
     }
-    await fetchWithAuth('/api/project_applications', {
+    const appRes = await fetchWithAuth('/api/project_applications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -56,6 +58,25 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
         status: 'PENDING'
       })
     })
+    const appData = await appRes.json()
+
+    if (appData?.id && applyHasCover) {
+      if (applyAudioFile) {
+        const audioFormData = new FormData()
+        audioFormData.append('file', applyAudioFile)
+        audioFormData.append('application_id', String(appData.id))
+        audioFormData.append('type', 'audio')
+        await fetchWithAuth('/api/cover-audio-upload', { method: 'POST', body: audioFormData })
+      }
+      if (applyMrFile) {
+        const mrFormData = new FormData()
+        mrFormData.append('file', applyMrFile)
+        mrFormData.append('application_id', String(appData.id))
+        mrFormData.append('type', 'mr')
+        await fetchWithAuth('/api/cover-audio-upload', { method: 'POST', body: mrFormData })
+      }
+    }
+
     showToast ? showToast('프로젝트 신청이 완료됐어요!') : alert('프로젝트 신청이 완료됐어요!')
     onClose()
     setApplyArtistName('')
@@ -66,6 +87,8 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
     setApplyRequirements('')
     setApplyBudget('')
     setApplyJacketFile(null)
+    setApplyAudioFile(null)
+    setApplyMrFile(null)
   }
 
   return (
@@ -94,9 +117,19 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
               커버 옵션 추가
             </label>
             {applyHasCover && (
-              <div className="mt-2">
+              <div className="mt-2 space-y-2">
                 <label className="text-sm font-medium dark:text-white">커버 인원</label>
                 <input type="number" value={applyCoverCount} onChange={(e) => setApplyCoverCount(Number(e.target.value))} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="커버 인원 수 입력" min={1} />
+                <div>
+                  <label className="text-sm font-medium dark:text-white">원곡 음원 (미리듣기용, wav/mp3)</label>
+                  <input type="file" accept="audio/wav,audio/mpeg" onChange={(e) => setApplyAudioFile(e.target.files?.[0] ?? null)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                  {applyAudioFile && <p className="text-xs text-green-600 mt-1">{applyAudioFile.name}</p>}
+                </div>
+                <div>
+                  <label className="text-sm font-medium dark:text-white">MR 파일 (커버 체험단 다운로드용, wav/mp3)</label>
+                  <input type="file" accept="audio/wav,audio/mpeg" onChange={(e) => setApplyMrFile(e.target.files?.[0] ?? null)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                  {applyMrFile && <p className="text-xs text-green-600 mt-1">{applyMrFile.name}</p>}
+                </div>
               </div>
             )}
           </div>

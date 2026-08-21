@@ -630,6 +630,14 @@ export default function Page1() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_code: formData.projectCode.toUpperCase() })
       })
+      // 신청서에 첨부된 음원/MR 파일을 정식 프로젝트로 이관
+      if (approvedApp.cover_audio_path || approvedApp.cover_mr_path) {
+        await fetchWithAuth('/api/cover-audio-migrate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ application_id: approvedApp.id, project_code: formData.projectCode.toUpperCase() })
+        })
+      }
       fetchProjectApplications()
     }
     

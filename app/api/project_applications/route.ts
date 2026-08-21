@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { error } = await auth.client.from('project_applications').insert(body)
+  const { data, error } = await auth.client.from('project_applications').insert(body).select().single()
   if (error) return NextResponse.json({ error }, { status: 500 })
-  return NextResponse.json({ success: true })
+  return NextResponse.json(data)
 }
 
 export async function PATCH(request: NextRequest) {

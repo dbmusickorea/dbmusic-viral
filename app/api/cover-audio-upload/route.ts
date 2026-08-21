@@ -9,15 +9,18 @@ const supabaseAdmin = createClient(
 export async function POST(request: NextRequest) {
   const formData = await request.formData()
   const file = formData.get('file') as File
-  const projectCode = formData.get('project_code') as string
+  const projectCode = formData.get('project_code') as string | null
+  const applicationId = formData.get('application_id') as string | null
   const type = formData.get('type') as string // 'audio' or 'mr'
 
-  if (!file || !projectCode || !type) {
-    return NextResponse.json({ error: 'file, project_code, type 필요' }, { status: 400 })
+  if (!file || (!projectCode && !applicationId) || !type) {
+    return NextResponse.json({ error: 'file, (project_code 또는 application_id), type 필요' }, { status: 400 })
   }
 
   const ext = file.name.split('.').pop()
-  const path = `${projectCode}/${type}.${ext}`
+  const path = projectCode
+    ? `${projectCode}/${type}.${ext}`
+    : `applications/${applicationId}/${type}.${ext}`
 
   const arrayBuffer = await file.arrayBuffer()
   const { error: uploadError } = await supabaseAdmin.storage
@@ -30,10 +33,14 @@ export async function POST(request: NextRequest) {
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 })
 
   const column = type === 'mr' ? 'cover_mr_path' : 'cover_audio_path'
+  const table = projectCode ? 'projects' : 'project_applications'
+  const matchColumn = projectCode ? 'project_code' : 'id'
+  const matchValue = projectCode ?? applicationId
+
   const { error: updateError } = await supabaseAdmin
-    .from('projects')
+    .from(table)
     .update({ [column]: path })
-    .eq('project_code', projectCode)
+    .eq(matchColumn, matchValue!)
 
   if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
 
