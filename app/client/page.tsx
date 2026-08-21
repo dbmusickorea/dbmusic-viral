@@ -937,11 +937,11 @@ export default function Page3() {
                           <p className="text-sm font-bold text-green-600 dark:text-green-400">{(snsPosts.reduce((s, p) => s + (p.comments_count ?? 0), 0) + snsLinks.reduce((s, l) => s + (l.comments_count ?? 0), 0)).toLocaleString()}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">총 음원사용</p>
-                          <p className="text-sm font-bold text-purple-600 dark:text-purple-400">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{label === '유튜브' ? '음원사용 확인' : '총 음원사용'}</p>
+                          <p className={`font-bold text-purple-600 dark:text-purple-400 ${label === '유튜브' ? 'text-[10px] leading-tight' : 'text-sm'}`}>
                             {label === '인스타그램' ? (igAudioCount !== null ? `${igAudioCount}개` : '-') : ''}
                             {label === '틱톡' ? (ttAudioCount !== null ? `${ttAudioCount}개` : '-') : ''}
-                            {label === '유튜브' ? (ytAudioCount !== null ? `${ytAudioCount}개` : '-') : ''}
+                            {label === '유튜브' ? '정책상 목록 직접 확인 필요' : ''}
                           </p>                          
                           {label === '인스타그램' && projectInfo?.instagram_audio_id && (
                             <a href={`https://www.instagram.com/reels/audio/${projectInfo.instagram_audio_id}/`} target="_blank" className="text-xs text-pink-500 border border-pink-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
