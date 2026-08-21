@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
   const projectCode = searchParams.get('project_code')
   const type = searchParams.get('type') // 'audio' or 'mr'
   const memberId = searchParams.get('member_id')
+  const role = searchParams.get('role') // 'admin' | 'client' | 'participant'
 
   if (!projectCode || !type || !memberId) {
     return NextResponse.json({ error: 'project_code, type, member_id 필요' }, { status: 400 })
@@ -39,16 +40,19 @@ export async function GET(request: NextRequest) {
 
   if (!project) return NextResponse.json({ error: '프로젝트 없음' }, { status: 404 })
 
-  const { data: participant } = await supabaseAdmin
-    .from('participants')
-    .select('cover_approved')
-    .eq('id', memberId)
-    .maybeSingle()
+  const isStaff = role === 'admin' || role === 'client'
 
   if (type === 'audio') {
-    // 원곡 미리듣기: cover_approved 체험단만
-    if (!participant?.cover_approved) {
-      return NextResponse.json({ error: '커버 참여 자격이 없어요' }, { status: 403 })
+    // 원곡 미리듣기: 관리자/의뢰인은 무조건 허용, 체험단은 cover_approved만
+    if (!isStaff) {
+      const { data: participant } = await supabaseAdmin
+        .from('participants')
+        .select('cover_approved')
+        .eq('id', memberId)
+        .maybeSingle()
+      if (!participant?.cover_approved) {
+        return NextResponse.json({ error: '커버 참여 자격이 없어요' }, { status: 403 })
+      }
     }
     if (!project.cover_audio_path) return NextResponse.json({ error: '음원이 없어요' }, { status: 404 })
 

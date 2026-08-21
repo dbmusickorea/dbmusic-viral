@@ -740,6 +740,23 @@ export default function Page1() {
       })
     })
     if (!res.ok) { showToast('수정 실패!'); return }
+
+    // 커버 음원/MR 업로드
+    if (coverAudioFile) {
+      const audioFormData = new FormData()
+      audioFormData.append('file', coverAudioFile)
+      audioFormData.append('project_code', formData.projectCode.toUpperCase())
+      audioFormData.append('type', 'audio')
+      await fetchWithAuth('/api/cover-audio-upload', { method: 'POST', body: audioFormData })
+    }
+    if (coverMrFile) {
+      const mrFormData = new FormData()
+      mrFormData.append('file', coverMrFile)
+      mrFormData.append('project_code', formData.projectCode.toUpperCase())
+      mrFormData.append('type', 'mr')
+      await fetchWithAuth('/api/cover-audio-upload', { method: 'POST', body: mrFormData })
+    }
+
     if (formData.selectedClientId) {
       await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`, {
         method: 'PATCH',

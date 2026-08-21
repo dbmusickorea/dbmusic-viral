@@ -9,6 +9,7 @@ import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import PlatformIcon from '../../components/PlatformIcon'
+import CoverAudioPlayer from '../../components/CoverAudioPlayer'
 
 export default function CoverPage() {
   const router = useRouter()
@@ -535,6 +536,11 @@ export default function CoverPage() {
             {selectedProject && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 가능 체험단</h2>
+                {selectedProject.cover_audio_path && (
+                  <div className="mb-3">
+                    <CoverAudioPlayer projectCode={selectedProject.project_code} memberId={userInfo?.id} role={userRole} showMr={false} />
+                  </div>
+                )}
                 {userRole === 'admin' && selectedProject && (() => {
                   const daysSinceStart = selectedProject.start_date ? Math.floor((new Date().getTime() - new Date(selectedProject.start_date).getTime()) / (1000 * 60 * 60 * 24)) : 0
                   const coverClosed = daysSinceStart >= 15
