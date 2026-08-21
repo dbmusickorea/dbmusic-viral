@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import BackButton from './BackButton'
+import { Bell, ArrowRight } from 'lucide-react'
+import PlatformIcon from '../../components/PlatformIcon'
 
 export const metadata: Metadata = {
   title: '더블비뮤직 크리에이터 가이드',
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
 export default function GuidePage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{wordBreak: "keep-all"}}>
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex items-center gap-3">
             <BackButton />
@@ -22,9 +24,35 @@ export default function GuidePage() {
           <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">더블비뮤직은 발매되는 신곡 음원을 본인의 소셜 미디어(SNS) 채널에 배경음악으로 매칭하여 업로드하고 이에 따른 정당한 경제적 리워드를 정산받는 테크 기반의 음악 마케팅 플랫폼입니다.</p>
         </div>
 
-        {/* 2. 체험단 유형 */}
+        {/* 2. 가입 방법 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">2. 체험단 유형 및 자격 구분</h2>
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">2. 가입 방법</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-medium dark:text-white">① 앱 다운로드 및 기본정보 입력</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">더블비뮤직 앱을 다운로드한 후 [체험단 가입]을 선택하여 이름, 이메일, 비밀번호를 입력합니다.</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium dark:text-white">② SNS 계정 등록 및 휴대전화 인증</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">본인이 실제로 사용하는 인스타그램, 유튜브, 틱톡 계정 중 1개 이상을 등록한 뒤 휴대전화 본인인증을 진행합니다. 팔로워·구독자가 100명 이상인 계정이어야 하며, 3개 중 1개 이상이 100명을 넘으면 가입이 가능합니다.</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium dark:text-white">③ 체험단 유형 선택</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 화면에서 [커버영상 촬영 가능]을 체크하면 커버 체험단으로도 함께 신청할 수 있습니다. 가입 후에도 마이페이지에서 언제든 신청·수정이 가능합니다.</p>
+              <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-2 mt-2">
+                <p className="text-xs text-orange-700 dark:text-orange-400">커버 체험단은 관리자 승인이 필요하며, 신청 시 본인이 직접 가창한 영상 중 확인 가능한 링크를 반드시 입력해주셔야 합니다.</p>
+              </div>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">추천인 코드가 있다면</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 화면에서 추천인 코드를 입력하면, 추천인에게 즉시 150포인트 적립 + 레벨 1단계 상승 혜택이 지급됩니다.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. 체험단 유형 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">3. 체험단 유형 및 자격 구분</h2>
           <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3 mb-2">
             <p className="text-sm font-medium text-blue-800 dark:text-blue-300">일반 체험단</p>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">미션 음원을 본인 소셜 미디어 게시물의 배경음악으로 깔고 일상적인 영상 또는 사진과 함께 업로드하는 크리에이터입니다.</p>
@@ -37,17 +65,52 @@ export default function GuidePage() {
 
         {/* 3. 미션 참여 절차 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">3. 미션 참여 및 게시 절차</h2>
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-3 text-sm text-gray-600 dark:text-gray-300 text-center font-medium">
-            [1단계] 알림 수령 → [2단계] 참여 클릭 → [3단계] SNS 업로드 → [4단계] 링크 제출
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">4. 미션 참여 및 게시 절차</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-2">
+              <p className="text-[10px] text-gray-400 text-center mb-1">1. 알림 수령</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 flex flex-col items-center gap-1 text-center">
+                <Bell size={12} className="text-blue-500" />
+                <p className="text-[10px] font-medium leading-tight dark:text-white">새 프로젝트가 기다리고 있어요!</p>
+              </div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-2">
+              <p className="text-[10px] text-gray-400 text-center mb-1">2. 참여 클릭</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 text-center">
+                <p className="text-[10px] font-medium mb-1 dark:text-white">가수명 / 곡명</p>
+                <div className="bg-blue-600 text-white rounded-md py-1 text-[10px] font-medium">참여하기</div>
+              </div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-2">
+              <p className="text-[10px] text-gray-400 text-center mb-1">3. SNS 업로드</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 flex flex-col items-center gap-1">
+                <div className="flex gap-1.5">
+                  <PlatformIcon platform="instagram" size={14} />
+                  <PlatformIcon platform="youtube_shorts" size={14} />
+                  <PlatformIcon platform="tiktok" size={14} />
+                </div>
+                <p className="text-[9px] text-gray-500 dark:text-gray-400 text-center leading-tight">협찬문구 + 게시물 업로드</p>
+              </div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-2">
+              <p className="text-[10px] text-gray-400 text-center mb-1">4. 링크 제출</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 flex flex-col gap-1">
+                <div className="bg-gray-100 dark:bg-gray-700 rounded px-1.5 py-1 text-[9px] text-gray-400">게시물 링크 붙여넣기</div>
+                <div className="bg-blue-600 text-white rounded-md py-1 text-center text-[10px] font-medium">제출</div>
+              </div>
+            </div>
           </div>
           <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium dark:text-white">① 미션 참여</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">음원 캠페인이 오픈되면 참여알림 푸시가 발송됩니다. 앱에 접속하여 해당 캠페인의 [참여] 버튼을 누르면 즉시 미션이 배정되며 모집인원에 따라 마감됩니다. (알림 설정 반드시 해주셔야합니다)</p>
+              <p className="text-sm font-medium dark:text-white">① 알림 수령</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">음원 캠페인이 오픈되면 참여알림 푸시가 발송됩니다. (알림 설정을 반드시 해주셔야 합니다)</p>
             </div>
             <div>
-              <p className="text-sm font-medium dark:text-white">② 콘텐츠 제작 및 게시</p>
+              <p className="text-sm font-medium dark:text-white">② 참여 클릭</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">앱에 접속하여 해당 캠페인의 [참여] 버튼을 누르면 즉시 미션이 배정되며, 모집인원에 따라 마감될 수 있습니다.</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium dark:text-white">③ SNS 업로드</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">더블비뮤직 앱에 연동 등록해 두신 본인의 SNS 계정(인스타그램, 유튜브, 틱톡 등) 1곳 이상에 일상적인 사진이나 영상물과 함께 미션 곡을 배경음악으로 선택하여 업로드 하면 됩니다.</p>
               <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-2 mt-2">
                 <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">게시글 설명에 필히 표기:</p>
@@ -56,7 +119,7 @@ export default function GuidePage() {
               </div>
             </div>
             <div>
-              <p className="text-sm font-medium dark:text-white">③ 미션 완료 인증</p>
+              <p className="text-sm font-medium dark:text-white">④ 링크 제출</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">SNS 채널에 업로드가 완료되면 해당 게시글의 링크를 복사하여 더블비뮤직 앱 내 미션제출하기란에 붙여넣고 제출을 완료하면 검수 봇이 자동 매칭 분석을 시작합니다.</p>
             </div>
           </div>
@@ -64,7 +127,7 @@ export default function GuidePage() {
 
         {/* 4. 리워드 및 레벨 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">4. 리워드 적립 및 레벨 시스템</h2>
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">5. 리워드 적립 및 레벨 시스템</h2>
           <div className="space-y-3">
             <div>
               <p className="text-sm font-medium dark:text-white">적립 구조</p>
@@ -74,12 +137,59 @@ export default function GuidePage() {
               <p className="text-sm font-medium dark:text-white">레벨 성장 규칙</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">크리에이터의 레벨은 1단계부터 최고 50단계까지 구성되어 있습니다. 본인의 고유 추천인 코드를 통해 신규 가입자가 발생할 때마다 가입자 1명당 크리에이터의 레벨이 정확히 1단계씩 즉시 상승합니다.</p>
             </div>
+            <div>
+              <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-2">레벨별 정산 단가 (게시물 1개당)</p>
+              <div className="overflow-hidden rounded-lg border border-purple-200 dark:border-purple-700">
+                <table className="w-full text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                  <thead className="bg-purple-50 dark:bg-purple-900">
+                    <tr>
+                      <th className="py-2 px-3 text-left">레벨</th>
+                      <th className="py-2 px-3 text-right">적립금</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((lv) => (
+                      <tr key={lv} className="border-t border-gray-100 dark:border-gray-600">
+                        <td className="py-2 px-3">Lv.{lv}</td>
+                        <td className="py-2 px-3 text-right text-purple-600 dark:text-purple-400 font-medium">
+                          {lv === 50 ? '10,000P' : `${(2500 + (lv - 1) * 150).toLocaleString()}P`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* 5. 환전 신청 */}
+        {/* 6. 밴 및 페널티 안내 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">5. 환전 신청 및 세무 고지</h2>
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">6. 활동 제한(밴) 및 페널티 안내</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">건강한 캠페인 운영을 위해 아래와 같은 경우 일시적으로 활동이 제한될 수 있습니다.</p>
+          <div className="space-y-3">
+            <div className="bg-red-50 dark:bg-red-900 rounded-lg p-3">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">게시물 미업로드</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">미션 참여 후 48시간 이내에 게시물을 업로드하지 않으면 레벨이 10단계 하락하고 7일간 미션 참여가 제한됩니다.</p>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900 rounded-lg p-3">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">커버영상 미업로드</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">커버 미션 승인 후 미션 시작일로부터 15일 이내에 커버영상을 업로드하지 않으면 3개월간 커버 미션 참여가 제한됩니다.</p>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900 rounded-lg p-3">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">SNS 게시물 임의 삭제</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">미션 인증 후 SNS에서 게시물을 임의로 삭제한 사실이 확인되면 지급된 적립금이 즉시 회수됩니다. 커버 게시물의 경우 적립금 회수와 함께 3개월간 커버 미션 참여가 추가로 제한됩니다.</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+              <p className="text-sm font-medium dark:text-white">1개월 이상 미활동 시 계정 잠금</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 후 1개월이 지났음에도 최근 1개월간 활동 내역이 없으면 계정이 잠깁니다. 유튜브 댓글 미션을 10회 작성하여 인증하면 잠금이 자동으로 해제됩니다.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. 환전 신청 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">7. 환전 신청 및 세무 고지</h2>
           <div className="space-y-3">
             <div>
               <p className="text-sm font-medium dark:text-white">신청 기준</p>
