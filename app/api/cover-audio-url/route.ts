@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
   const { data: project } = await supabaseAdmin
     .from('projects')
-    .select('cover_audio_path, cover_mr_path, start_date')
+    .select('cover_audio_path, cover_mr_path, start_date, artist_name, client_name, song_title')
     .ilike('project_code', projectCode)
     .maybeSingle()
 
@@ -88,9 +88,11 @@ export async function GET(request: NextRequest) {
 
     if (!project.cover_mr_path) return NextResponse.json({ error: 'MR 파일이 없어요' }, { status: 404 })
 
+    const ext = project.cover_mr_path.split('.').pop()
+    const fileName = `${project.artist_name || project.client_name || ''}-${project.song_title || ''}-MR.${ext}`.replace(/[/\\?%*:|"<>]/g, '')
     const { data, error } = await supabaseAdmin.storage
       .from('cover-audio')
-      .createSignedUrl(project.cover_mr_path, 60 * 10, { download: true })
+      .createSignedUrl(project.cover_mr_path, 60 * 10, { download: fileName })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ url: data.signedUrl })
