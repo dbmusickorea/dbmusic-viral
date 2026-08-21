@@ -39,6 +39,18 @@ export default function CoverAudioPlayer({ projectCode, memberId, role, showMr =
     }, 100)
   }
 
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        resolve(result.split(',')[1])
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  }
+
   const handleMrDownload = async () => {
     setMrLoading(true)
     setError('')
@@ -54,14 +66,35 @@ export default function CoverAudioPlayer({ projectCode, memberId, role, showMr =
     const match = disposition.match(/filename\*=UTF-8''(.+)/)
     const fileName = match ? decodeURIComponent(match[1]) : 'MR.mp3'
 
-    const blobUrl = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = blobUrl
-    a.download = fileName
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(blobUrl)
+    const isNative = (window as any).Capacitor?.isNativePlatform?.()
+
+    if (isNative) {
+      try {
+        const { Filesystem, Directory } = await import('@capacitor/filesystem')
+        const { Share } = await import('@capacitor/share')
+        const base64Data = await blobToBase64(blob)
+        const writeResult = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache
+        })
+        await Share.share({
+          title: fileName,
+          url: writeResult.uri
+        })
+      } catch (e) {
+        setError('파일 저장에 실패했어요')
+      }
+    } else {
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = fileName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    }
     setMrLoading(false)
   }
 
