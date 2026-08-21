@@ -43,13 +43,26 @@ export default function CoverAudioPlayer({ projectCode, memberId, role, showMr =
     setMrLoading(true)
     setError('')
     const res = await fetchWithAuth(`/api/cover-audio-url?project_code=${projectCode}&type=mr&member_id=${memberId}&role=${role ?? ''}`)
-    const data = await res.json()
-    setMrLoading(false)
     if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
       setError(data.error ?? 'MR을 다운로드할 수 없어요')
+      setMrLoading(false)
       return
     }
-    window.open(data.url, '_blank')
+    const blob = await res.blob()
+    const disposition = res.headers.get('Content-Disposition') ?? ''
+    const match = disposition.match(/filename\*=UTF-8''(.+)/)
+    const fileName = match ? decodeURIComponent(match[1]) : 'MR.mp3'
+
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+    setMrLoading(false)
   }
 
   return (

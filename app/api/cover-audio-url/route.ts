@@ -89,13 +89,23 @@ export async function GET(request: NextRequest) {
     if (!project.cover_mr_path) return NextResponse.json({ error: 'MR 파일이 없어요' }, { status: 404 })
 
     const ext = project.cover_mr_path.split('.').pop()
-    const fileName = `${project.artist_name || project.client_name || ''}-${project.song_title || ''}-MR.${ext}`.replace(/[/\\?%*:|"<>]/g, '')
-    const { data, error } = await supabaseAdmin.storage
-      .from('cover-audio')
-      .createSignedUrl(project.cover_mr_path, 60 * 10, { download: fileName })
+    const rawFileName = `${project.artist_name || project.client_name || ''}-${project.song_title || ''}-MR.${ext}`.replace(/[/\\?*:|"<>]/g, '')
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ url: data.signedUrl })
+    const { data: fileData, error: downloadError } = await supabaseAdmin.storage
+      .from('cover-audio')
+      .download(project.cover_mr_path)
+
+    if (downloadError || !fileData) return NextResponse.json({ error: downloadError?.message ?? '다운로드 실패' }, { status: 500 })
+
+    const encodedFileName = encodeURIComponent(rawFileName)
+    const arrayBuffer = await fileData.arrayBuffer()
+
+    return new NextResponse(arrayBuffer, {
+      headers: {
+        'Content-Type': fileData.type || 'audio/mpeg',
+        'Content-Disposition': `attachment; filename*=UTF-8''${encodedFileName}`
+      }
+    })
   }
 
   return NextResponse.json({ error: 'type은 audio 또는 mr이어야 해요' }, { status: 400 })
