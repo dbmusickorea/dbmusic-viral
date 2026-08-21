@@ -120,7 +120,8 @@ export default function GuidePage() {
             </div>
             <div>
               <p className="text-sm font-medium dark:text-white">④ 링크 제출</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">SNS 채널에 업로드가 완료되면 해당 게시글의 링크를 복사하여 더블비뮤직 앱 내 미션제출하기란에 붙여넣고 제출을 완료하면 검수 봇이 자동 매칭 분석을 시작합니다.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">SNS 채널에 업로드가 완료되면 해당 게시글의 링크를 복사하여 더블비뮤직 앱 내 미션제출하기란에 붙여넣고 제출을 완료하면 검수 봇이 자동 매칭 분석을 시작합니다. 제출이 완료되면 본인의 현재 레벨에 맞는 리워드가 적립됩니다.</p>
+              <p className="text-sm font-medium text-purple-700 dark:text-purple-400 mt-2">✓ 커버 옵션이 있는 프로젝트에 한해 커버 체험단으로 선정될 수 있으며, 커버영상이 승인되면 별도의 리워드가 추가 지급됩니다. (모든 프로젝트에 커버 옵션이 있는 것은 아닙니다)</p>
             </div>
           </div>
         </div>
@@ -170,7 +171,8 @@ export default function GuidePage() {
           <div className="space-y-3">
             <div className="bg-red-50 dark:bg-red-900 rounded-lg p-3">
               <p className="text-sm font-medium text-red-800 dark:text-red-300">게시물 미업로드</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">미션 참여 후 48시간 이내에 게시물을 업로드하지 않으면 레벨이 10단계 하락하고 7일간 미션 참여가 제한됩니다.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">미션 참여 후 48시간 이내에 게시물을 업로드하지 않으면 레벨이 10단계 하락하고 7일간 미션 참여가 제한됩니다. (최저 레벨은 Lv.1, 2,500P이며 그 이하로는 하락하지 않습니다)</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">중간에 게시물을 삭제하더라도 48시간 마감 전에 다시 업로드하면 페널티가 적용되지 않습니다.</p>
             </div>
             <div className="bg-red-50 dark:bg-red-900 rounded-lg p-3">
               <p className="text-sm font-medium text-red-800 dark:text-red-300">커버영상 미업로드</p>
@@ -182,7 +184,7 @@ export default function GuidePage() {
             </div>
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
               <p className="text-sm font-medium dark:text-white">1개월 이상 미활동 시 계정 잠금</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 후 1개월이 지났음에도 최근 1개월간 활동 내역이 없으면 계정이 잠깁니다. 유튜브 댓글 미션을 10회 작성하여 인증하면 잠금이 자동으로 해제됩니다.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 후 1개월이 지났음에도 최근 1개월간 활동 내역이 없으면 계정이 잠깁니다. 유튜브 댓글 미션을 10회 작성하여 인증하면 잠금이 자동으로 해제됩니다. 인증이 어려우신 경우 고객센터로 문의해주시면 확인 후 해제해드립니다.</p>
             </div>
           </div>
         </div>

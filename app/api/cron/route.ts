@@ -458,8 +458,17 @@ export async function GET() {
       // 1개월 미활동 락 체크
       const oneMonthAgo = new Date()
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+
+      // 체험단이 참여할 수 있는(모집중인) 프로젝트가 현재 존재하는지 확인
+      const { data: recentOpenProjects } = await supabase
+        .from('projects')
+        .select('id')
+        .in('status', ['ONGOING', 'PENDING'])
+        .limit(1)
+      const hadOpportunity = (recentOpenProjects?.length ?? 0) > 0
+
       const { data: allParticipants } = await supabase.from('participants').select('id, created_at').eq('is_locked', false)
-      if (allParticipants) {
+      if (allParticipants && hadOpportunity) {
         for (const p of allParticipants) {
           // 가입한 지 1개월 미만인 사람은 제외
           if (new Date(p.created_at) > oneMonthAgo) continue
