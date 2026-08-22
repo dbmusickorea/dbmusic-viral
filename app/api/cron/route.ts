@@ -1004,7 +1004,7 @@ export async function GET() {
               const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
               const igData = await igRes.json()
               if (igData.followers !== undefined && igData.followers > 0) {
-                await supabase.from('participants').update({ instagram_followers: igData.followers, instagram_profile_image: igData.thumbnail ?? undefined }).eq('id', p.id)
+                await supabase.from('participants').update({ instagram_followers: igData.followers, instagram_profile_image: igData.thumbnail ?? undefined, instagram_is_private: igData.isPrivate ?? false }).eq('id', p.id)
               }
             }
             if (p.youtube_id) {
@@ -1015,15 +1015,15 @@ export async function GET() {
               }
             }
             if (p.tiktok_id) {
-              const ttRes = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${p.tiktok_id.replace('@','')}`, {
+              const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p.tiktok_id.replace('@','')}`, {
                 headers: {
                   'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
-                  'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com'
+                  'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
                 }
               })
               const ttData = await ttRes.json()
-              if (ttData?.userInfo?.stats?.followerCount !== undefined && ttData.userInfo.stats.followerCount > 0) {
-                await supabase.from('participants').update({ tiktok_followers: ttData.userInfo.stats.followerCount, tiktok_profile_image: ttData.userInfo?.user?.avatarMedium ?? undefined }).eq('id', p.id)
+              if (ttData?.data?.stats?.followerCount !== undefined && ttData.data.stats.followerCount > 0) {
+                await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount, tiktok_profile_image: ttData.data?.user?.avatarLarger ?? undefined, tiktok_is_private: ttData.data?.user?.privateAccount ?? false }).eq('id', p.id)
               }
             }
           } catch { continue }

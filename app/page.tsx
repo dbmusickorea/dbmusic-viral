@@ -488,6 +488,11 @@ export default function LoginPage() {
     if (p_instagram) {
       const igRes = await fetchWithAuth(`/api/instagram-user?username=${p_instagram}`)
       const igData = await igRes.json()
+      if (igData.isPrivate) {
+        showToast('인스타그램 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
+        setParticipantSignupLoading(false)
+        return
+      }
       igFollowers = igData.followers ?? 0
       igProfileImage = igData.thumbnail ?? ''
       if (igFollowers >= 100) hasEnoughFollowers = true
@@ -508,6 +513,11 @@ export default function LoginPage() {
           }
         })
         const ttData = await ttRes.json()
+        if (ttData?.data?.user?.privateAccount) {
+          showToast('틱톡 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
+          setParticipantSignupLoading(false)
+          return
+        }
         ttFollowers = ttData?.data?.stats?.followerCount ?? 0
         ttProfileImage = ttData?.data?.user?.avatarLarger ?? ''
       } catch {

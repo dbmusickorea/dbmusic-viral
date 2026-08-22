@@ -746,7 +746,20 @@ useEffect(() => {
 
   const handleJoin = async () => {
     if (!projectCode || !userInfo) return
-    
+
+    // 최신 SNS 공개/팔로워 상태 확인 (localStorage는 스냅샷이라 오래된 값일 수 있음)
+    const freshRes = await fetchWithAuth(`/api/participants?id=${userInfo.id}`)
+    const freshData = await freshRes.json()
+    const fresh = Array.isArray(freshData) ? freshData[0] : freshData
+    const hasEligiblePublicAccount =
+      (fresh?.instagram_followers >= 100 && !fresh?.instagram_is_private) ||
+      (fresh?.youtube_subscribers >= 100) ||
+      (fresh?.tiktok_followers >= 100 && !fresh?.tiktok_is_private)
+    if (!hasEligiblePublicAccount) {
+      showToast('공개 계정 중 팔로워/구독자 100명 이상인 SNS가 없어 참여할 수 없어요. 계정을 공개로 전환해주세요.', 'error')
+      return
+    }
+
     const deadline15 = new Date(new Date(projectInfo?.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     const deadline48 = new Date(new Date(projectInfo?.start_date).getTime() + 48 * 60 * 60 * 1000).toLocaleDateString('ko-KR')
     const joinSongInfo = `${projectInfo?.artist_name || projectInfo?.client_name || ''} - ${projectInfo?.song_title || ''}`

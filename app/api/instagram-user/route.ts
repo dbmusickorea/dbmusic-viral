@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     followers: data?.follower_count ?? 0,
     posts: data?.media_count ?? 0,
-    thumbnail: data?.profile_pic_url ?? null
+    thumbnail: data?.profile_pic_url ?? null,
+    isPrivate: data?.is_private ?? false
   })
 }
