@@ -1,5 +1,6 @@
 import Foundation
 import Capacitor
+import WidgetKit
 
 @objc(WidgetDataPlugin)
 public class WidgetDataPlugin: CAPPlugin, CAPBridgedPlugin {
@@ -22,6 +23,7 @@ public class WidgetDataPlugin: CAPPlugin, CAPBridgedPlugin {
             defaults.set(id, forKey: "userId")
             defaults.synchronize()
         }
+        WidgetCenter.shared.reloadAllTimelines()
         call.resolve()
     }
 
@@ -31,6 +33,7 @@ public class WidgetDataPlugin: CAPPlugin, CAPBridgedPlugin {
             defaults.removeObject(forKey: "userId")
             defaults.synchronize()
         }
+        WidgetCenter.shared.reloadAllTimelines()
         call.resolve()
     }
 }

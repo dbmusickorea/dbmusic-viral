@@ -183,34 +183,34 @@ struct DBMusicWidgetEntryView: View {
     var participantDetailView: some View {
         let d = entry.data
         let progress = min(1.0, Double(d?.withdrawableBalance ?? 0) / Double(max(d?.minWithdrawAmount ?? 10000, 1)))
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 5) {
                 Image("AppLogo")
                     .resizable()
-                    .frame(width: 18, height: 18)
+                    .frame(width: 16, height: 16)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
                 Text((d?.name?.isEmpty == false ? d!.name! + "님 · 체험단" : "체험단"))
-                    .font(.caption)
+                    .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Spacer()
                 Text("Lv.\(d?.level ?? 1)")
-                    .font(.caption)
+                    .font(.caption2)
                     .fontWeight(.bold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
                     .background(Color.blue.opacity(0.15))
                     .foregroundStyle(.blue)
                     .clipShape(Capsule())
             }
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text("\((d?.withdrawableBalance ?? 0).formatted())P")
-                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                    .font(.system(size: 19, weight: .heavy, design: .rounded))
                     .foregroundStyle(.blue)
                 Text("환전 가능 금액")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
 
@@ -218,16 +218,16 @@ struct DBMusicWidgetEntryView: View {
                 ProgressView(value: progress)
                     .tint(.blue)
                 Text("\((min - w).formatted())P 더 모으면 환전 가능해요")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
             Divider()
             HStack(spacing: 4) {
                 Image(systemName: "music.note.list")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.purple)
                 Text("참여중 프로젝트")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
             }
@@ -236,17 +236,17 @@ struct DBMusicWidgetEntryView: View {
                     HStack(spacing: 4) {
                         Circle().fill(Color.green).frame(width: 5, height: 5)
                         Text(p.name)
-                            .font(.caption2)
+                            .font(.system(size: 11))
                             .lineLimit(1)
                     }
                 }
             } else {
                 Text("참여중인 프로젝트가 없어요")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
+        .padding(12)
     }
 
     var participantLargeView: some View {

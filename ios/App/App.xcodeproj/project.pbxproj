@@ -21,6 +21,7 @@
 		ED7BF7383039D20400C861A3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED7BF7373039D20400C861A3 /* SwiftUI.framework */; };
 		ED7BF7433039D20500C861A3 /* DBMusicWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ED7BF7333039D20400C861A3 /* DBMusicWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		ED7BF74F3039D6FC00C861A3 /* WidgetDataPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7BF74E3039D6FB00C861A3 /* WidgetDataPlugin.swift */; };
+		ED7BF754303A040900C861A3 /* MyBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7BF753303A03F700C861A3 /* MyBridgeViewController.swift */; };
 		EDBC21BA302AF48B005C1260 /* FacebookAEM in Frameworks */ = {isa = PBXBuildFile; productRef = EDBC21B9302AF48B005C1260 /* FacebookAEM */; };
 		EDBC21BC302AF48B005C1260 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = EDBC21BB302AF48B005C1260 /* FacebookCore */; };
 /* End PBXBuildFile section */
@@ -67,6 +68,8 @@
 		ED7BF7373039D20400C861A3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		ED7BF7493039D58C00C861A3 /* DBMusicWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DBMusicWidgetExtension.entitlements; sourceTree = "<group>"; };
 		ED7BF74E3039D6FB00C861A3 /* WidgetDataPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataPlugin.swift; sourceTree = "<group>"; };
+		ED7BF752303A002100C861A3 /* App-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "App-Bridging-Header.h"; sourceTree = "<group>"; };
+		ED7BF753303A03F700C861A3 /* MyBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyBridgeViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -131,6 +134,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				ED7BF753303A03F700C861A3 /* MyBridgeViewController.swift */,
 				ED7BF74E3039D6FB00C861A3 /* WidgetDataPlugin.swift */,
 				ED6592842FFFF0C20078E96C /* GoogleService-Info.plist */,
 				ED423BE42FF9326200B0C0C9 /* App.entitlements */,
@@ -142,6 +146,7 @@
 				504EC3131FED79650016851F /* Info.plist */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
+				ED7BF752303A002100C861A3 /* App-Bridging-Header.h */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -216,7 +221,7 @@
 				TargetAttributes = {
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
-						LastSwiftMigration = 1100;
+						LastSwiftMigration = 2660;
 					};
 					ED7BF7323039D20400C861A3 = {
 						CreatedOnToolsVersion = 26.6;
@@ -278,6 +283,7 @@
 			files = (
 				ED7BF74F3039D6FC00C861A3 /* WidgetDataPlugin.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				ED7BF754303A040900C861A3 /* MyBridgeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,11 +438,13 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 4;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 9DQVZF23SL;
 				INFOPLIST_FILE = App/Info.plist;
@@ -452,6 +460,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "더블비뮤직 AppStore";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/App-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -461,11 +471,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 4;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 9DQVZF23SL;
 				INFOPLIST_FILE = App/Info.plist;
@@ -480,6 +492,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "더블비뮤직 AppStore";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "App/App-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
