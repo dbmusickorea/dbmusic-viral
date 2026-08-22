@@ -179,6 +179,20 @@ export default function Page1() {
           cover_reward: reward
         })
       })
+      // point_history 저장
+      const projRes = await fetchWithAuth(`/api/projects?project_code=${post.project_code}`)
+      const projData = await projRes.json()
+      const proj = Array.isArray(projData) ? projData[0] : projData
+      await fetchWithAuth('/api/point_history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          member_id: post.member_id,
+          amount: reward,
+          memo: `커버영상 승인 (${type === 'long' ? '롱폼' : '숏츠'}) (${proj?.artist_name ?? post.project_code} / ${proj?.song_title ?? ''})`,
+          project_code: post.project_code
+        })
+      })
     }
 
     // 푸시 알림
@@ -971,7 +985,7 @@ export default function Page1() {
       await fetchWithAuth('/api/point_history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ member_id: post.member_id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` : `게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` })
+        body: JSON.stringify({ member_id: post.member_id, amount: -deductAmount, memo: post.is_cover ? `커버 게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})` : `게시물 삭제 (관리자) (${projectData?.[0]?.artist_name || post.project_code} / ${projectData?.[0]?.song_title ?? ''})`, project_code: post.project_code })
       })
     }
     await fetchWithAuth(`/api/posts?id=${post.id}`, { method: 'DELETE' })
