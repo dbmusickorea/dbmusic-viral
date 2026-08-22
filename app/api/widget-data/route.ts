@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
     const withdrawableBalance = Math.max(0, availableAmount - settledAmount)
 
     return NextResponse.json({
+      name: participant?.name ?? '',
       level: participant?.level ?? 1,
       levelAmount: getLevelAmount(participant?.level ?? 1),
       balance: participant?.balance ?? 0,
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
   if (role === 'client') {
     if (!id) return NextResponse.json({ error: 'id 필요' }, { status: 400 })
 
-    const { data: user } = await supabaseAdmin.from('users').select('client_id').eq('id', id).maybeSingle()
+    const { data: user } = await supabaseAdmin.from('users').select('client_id, name').eq('id', id).maybeSingle()
     const clientId = user?.client_id
     const { data: projects } = clientId
       ? await supabaseAdmin.from('projects').select('*').eq('client_id', clientId).eq('status', 'ONGOING')
@@ -106,6 +107,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({
+      name: user?.name ?? '',
       ongoingCount: projects?.length ?? 0,
       projects: projectSummaries
     })
