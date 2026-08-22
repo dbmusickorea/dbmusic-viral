@@ -9,6 +9,7 @@ import { supabase } from './lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { initPushNotifications } from './lib/push'
+import { saveWidgetUserInfo } from './lib/widget'
 import { Eye, EyeOff } from 'lucide-react'
 import { useToast } from '../components/ToastContext'
 
@@ -306,6 +307,7 @@ export default function LoginPage() {
       localStorage.setItem('userRole', 'participant')
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(participant.id), 'participant')
+        await saveWidgetUserInfo('participant', String(participant.id))
       }
       if (!participant.agreed_terms) {
         setPendingUserInfo(participant)
@@ -347,6 +349,7 @@ export default function LoginPage() {
       localStorage.setItem('userRole', user.role)
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(user.id), user.role)
+        await saveWidgetUserInfo(user.role, String(user.id))
       }
       // 개인정보 동의 체크
       if (!user.agreed_terms) {
@@ -766,7 +769,10 @@ export default function LoginPage() {
                 const participant = roleSelectData.participant
                 localStorage.setItem('userInfo', JSON.stringify(participant))
                 localStorage.setItem('userRole', 'participant')
-                if (Capacitor.isNativePlatform()) await initPushNotifications(String(participant.id), 'participant')
+                if (Capacitor.isNativePlatform()) {
+                  await initPushNotifications(String(participant.id), 'participant')
+                  await saveWidgetUserInfo('participant', String(participant.id))
+                }
                 setShowRoleSelect(false)
                 if (!participant.agreed_terms) { setPendingUserInfo(participant); setPendingRole('participant'); setShowTermsModal(true); return }
                 router.push('/participant')
@@ -775,7 +781,10 @@ export default function LoginPage() {
                 const user = roleSelectData.user
                 localStorage.setItem('userInfo', JSON.stringify(user))
                 localStorage.setItem('userRole', user.role)
-                if (Capacitor.isNativePlatform()) await initPushNotifications(String(user.id), user.role)
+                if (Capacitor.isNativePlatform()) {
+                  await initPushNotifications(String(user.id), user.role)
+                  await saveWidgetUserInfo(user.role, String(user.id))
+                }
                 setShowRoleSelect(false)
                 if (!user.agreed_terms) { setPendingUserInfo(user); setPendingRole(user.role); setShowTermsModal(true); return }
                 if (user.role === 'admin') router.push('/admin')

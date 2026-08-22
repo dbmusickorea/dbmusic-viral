@@ -81,16 +81,27 @@ export async function GET(request: NextRequest) {
 
     const projectCodes = (projects ?? []).map((p: any) => p.project_code)
     const { data: posts } = projectCodes.length > 0
-      ? await supabaseAdmin.from('posts').select('project_code, likes_count, comments_count, views_count').in('project_code', projectCodes)
+      ? await supabaseAdmin.from('posts').select('project_code, platform, likes_count, comments_count, views_count').in('project_code', projectCodes)
       : { data: [] }
+
+    const sumBy = (list: any[], key: string) => list.reduce((s: number, post: any) => s + (post[key] ?? 0), 0)
+    const platformStat = (list: any[], platform: string) => {
+      const filtered = list.filter((post: any) => post.platform === platform)
+      return { platform, views: sumBy(filtered, 'views_count'), likes: sumBy(filtered, 'likes_count'), comments: sumBy(filtered, 'comments_count') }
+    }
 
     const projectSummaries = (projects ?? []).map((p: any) => {
       const relatedPosts = (posts ?? []).filter((post: any) => post.project_code?.toLowerCase() === p.project_code?.toLowerCase())
       return {
         name: `${p.artist_name || p.client_name} - ${p.song_title ?? p.product_content}`,
-        likes: relatedPosts.reduce((s: number, post: any) => s + (post.likes_count ?? 0), 0),
-        comments: relatedPosts.reduce((s: number, post: any) => s + (post.comments_count ?? 0), 0),
-        views: relatedPosts.reduce((s: number, post: any) => s + (post.views_count ?? 0), 0)
+        likes: sumBy(relatedPosts, 'likes_count'),
+        comments: sumBy(relatedPosts, 'comments_count'),
+        views: sumBy(relatedPosts, 'views_count'),
+        platformStats: [
+          platformStat(relatedPosts, 'instagram'),
+          platformStat(relatedPosts, 'youtube'),
+          platformStat(relatedPosts, 'tiktok')
+        ]
       }
     })
 
