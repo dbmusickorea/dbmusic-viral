@@ -9,6 +9,7 @@ import SwiftUI
 // MARK: - 데이터 모델
 
 struct WidgetData: Codable {
+    var name: String?
     // participant
     var level: Int?
     var levelAmount: Int?
@@ -157,9 +158,11 @@ struct DBMusicWidgetEntryView: View {
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundStyle(.blue)
-                    Text("체험단")
+                    Text((d?.name?.isEmpty == false ? d!.name! + "님 · 체험단" : "체험단"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
             Spacer(minLength: 2)
@@ -186,10 +189,11 @@ struct DBMusicWidgetEntryView: View {
                     .resizable()
                     .frame(width: 18, height: 18)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
-                Text("체험단")
+                Text((d?.name?.isEmpty == false ? d!.name! + "님 · 체험단" : "체험단"))
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
                 Text("Lv.\(d?.level ?? 1)")
                     .font(.caption)
@@ -254,10 +258,11 @@ struct DBMusicWidgetEntryView: View {
                     .resizable()
                     .frame(width: 20, height: 20)
                     .clipShape(RoundedRectangle(cornerRadius: 5))
-                Text("체험단")
+                Text((d?.name?.isEmpty == false ? d!.name! + "님 · 체험단" : "체험단"))
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
                 Text("Lv.\(d?.level ?? 1)")
                     .font(.caption)
@@ -421,10 +426,11 @@ struct DBMusicWidgetEntryView: View {
                     .resizable()
                     .frame(width: 18, height: 18)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
-                Text("의뢰인")
+                Text((d?.name?.isEmpty == false ? d!.name! + "님 · 의뢰인" : "의뢰인"))
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
                 Text("\(d?.ongoingCount ?? 0)건 진행중")
                     .font(.caption)
@@ -494,10 +500,11 @@ struct DBMusicWidgetEntryView: View {
                     .resizable()
                     .frame(width: 20, height: 20)
                     .clipShape(RoundedRectangle(cornerRadius: 5))
-                Text("의뢰인")
+                Text((d?.name?.isEmpty == false ? d!.name! + "님 · 의뢰인" : "의뢰인"))
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Spacer()
                 Text("\(d?.ongoingCount ?? 0)건 진행중")
                     .font(.caption)
@@ -512,21 +519,38 @@ struct DBMusicWidgetEntryView: View {
             Divider()
 
             if let projects = d?.projects, !projects.isEmpty {
-                VStack(spacing: 8) {
-                    ForEach(projects.prefix(5), id: \.name) { p in
-                        VStack(alignment: .leading, spacing: 4) {
+                VStack(spacing: 10) {
+                    ForEach(projects.prefix(3), id: \.name) { p in
+                        VStack(alignment: .leading, spacing: 5) {
                             Text(p.name)
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
-                            Text("좋아요 \(p.likes) · 댓글 \(p.comments) · 조회 \(p.views)")
+                            Text("합계 · 조회 \(p.views)회 · 좋아요 \(p.likes)개 · 댓글 \(p.comments)개")
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
+                            ForEach(["instagram", "youtube", "tiktok"], id: \.self) { platform in
+                                let stat = p.platformStats?.first(where: { $0.platform == platform })
+                                HStack(spacing: 5) {
+                                    Image(platform == "instagram" ? "PlatformInstagram" : platform == "youtube" ? "PlatformYoutube" : "PlatformTiktok")
+                                        .resizable()
+                                        .frame(width: 12, height: 12)
+                                    Text("조회 \(stat?.views ?? 0)회 · 좋아요 \(stat?.likes ?? 0)개 · 댓글 \(stat?.comments ?? 0)개")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.gray.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    if projects.count > 3 {
+                        Text("외 \(projects.count - 3)건")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
                 }
             } else {
@@ -542,42 +566,133 @@ struct DBMusicWidgetEntryView: View {
     // MARK: 관리자
 
     var adminView: some View {
+        if family == .systemSmall {
+            return AnyView(adminSmallView)
+        } else if family == .systemLarge {
+            return AnyView(adminLargeView)
+        } else {
+            return AnyView(adminDetailView)
+        }
+    }
+
+    var adminSmallView: some View {
         let d = entry.data
         return VStack(alignment: .leading, spacing: 6) {
-            Text("관리자")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            HStack {
-                statBlock("신규가입", d?.newSignups ?? 0)
-                if family != .systemSmall {
-                    statBlock("정산대기", d?.settlementPending ?? 0)
-                }
+            HStack(alignment: .center, spacing: 6) {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 22, height: 22)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                Text("관리자")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.orange)
             }
-            if family == .systemLarge {
-                HStack {
-                    statBlock("커버승인대기", d?.coverPending ?? 0)
-                    statBlock("SNS변경요청", d?.snsChangePending ?? 0)
+            Spacer(minLength: 2)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(d?.coverPending ?? 0)건")
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.orange)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                Text("커버 승인 대기")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+            }
+            Divider()
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(d?.settlementPending ?? 0)건")
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                Text("정산 대기")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(10)
+    }
+
+    var adminDetailView: some View {
+        let d = entry.data
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 18, height: 18)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                Text("관리자")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+            Divider()
+            VStack(spacing: 7) {
+                HStack(spacing: 8) {
+                    adminStatCard("신규가입", d?.newSignups ?? 0, "person.badge.plus")
+                    adminStatCard("정산대기", d?.settlementPending ?? 0, "wonsign.circle")
                 }
-            } else if family == .systemMedium {
-                HStack {
-                    statBlock("커버대기", d?.coverPending ?? 0)
-                    statBlock("SNS요청", d?.snsChangePending ?? 0)
+                HStack(spacing: 8) {
+                    adminStatCard("커버대기", d?.coverPending ?? 0, "music.mic")
+                    adminStatCard("SNS요청", d?.snsChangePending ?? 0, "at")
                 }
             }
         }
         .padding()
     }
 
-    func statBlock(_ label: String, _ value: Int) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("\(value)")
-                .font(.title3)
-                .fontWeight(.bold)
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+    var adminLargeView: some View {
+        let d = entry.data
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                Text("관리자")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("오늘의 처리 현황")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Divider()
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    adminStatCard("신규가입", d?.newSignups ?? 0, "person.badge.plus", big: true)
+                    adminStatCard("정산대기", d?.settlementPending ?? 0, "wonsign.circle", big: true)
+                }
+                HStack(spacing: 10) {
+                    adminStatCard("커버승인대기", d?.coverPending ?? 0, "music.mic", big: true)
+                    adminStatCard("SNS변경요청", d?.snsChangePending ?? 0, "at", big: true)
+                }
+            }
+            Spacer()
         }
+        .padding()
+    }
+
+    func adminStatCard(_ label: String, _ value: Int, _ icon: String, big: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Text("\(value)\(label.contains("가입") ? "명" : "건")")
+                .font(big ? .title2 : .headline)
+                .fontWeight(.bold)
+        }
+        .padding(big ? 12 : 7)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
@@ -608,37 +723,37 @@ struct DBMusicWidget: Widget {
 #Preview("체험단 Small", as: .systemSmall) {
     DBMusicWidget()
 } timeline: {
-    SimpleEntry(date: .now, role: "participant", data: WidgetData(level: 12, levelAmount: 5000, balance: 32000, withdrawableBalance: 32000, minWithdrawAmount: 10000, activeProjects: []))
+    SimpleEntry(date: .now, role: "participant", data: WidgetData(name: "김철수", level: 12, levelAmount: 5000, balance: 32000, withdrawableBalance: 32000, minWithdrawAmount: 10000, activeProjects: []))
 }
 
 #Preview("체험단 Medium", as: .systemMedium) {
     DBMusicWidget()
 } timeline: {
-    SimpleEntry(date: .now, role: "participant", data: WidgetData(level: 12, levelAmount: 5000, balance: 32000, withdrawableBalance: 32000, minWithdrawAmount: 10000, activeProjects: [ProjectSummary(name: "옐로 - 결혼해서 좋겠다", status: "ONGOING")]))
+    SimpleEntry(date: .now, role: "participant", data: WidgetData(name: "김철수", level: 12, levelAmount: 5000, balance: 32000, withdrawableBalance: 32000, minWithdrawAmount: 10000, activeProjects: [ProjectSummary(name: "옐로 - 결혼해서 좋겠다", status: "ONGOING")]))
 }
 
 #Preview("체험단 Large", as: .systemLarge) {
     DBMusicWidget()
 } timeline: {
-    SimpleEntry(date: .now, role: "participant", data: WidgetData(level: 12, levelAmount: 5000, balance: 32000, withdrawableBalance: 32000, minWithdrawAmount: 10000, activeProjects: [ProjectSummary(name: "옐로 - 결혼해서 좋겠다", status: "ONGOING"), ProjectSummary(name: "다른 아티스트 - 곡명", status: "ONGOING"), ProjectSummary(name: "세번째 아티스트 - 곡명", status: "PENDING")]))
+    SimpleEntry(date: .now, role: "participant", data: WidgetData(name: "김철수", level: 12, levelAmount: 5000, balance: 32000, withdrawableBalance: 32000, minWithdrawAmount: 10000, activeProjects: [ProjectSummary(name: "옐로 - 결혼해서 좋겠다", status: "ONGOING"), ProjectSummary(name: "다른 아티스트 - 곡명", status: "ONGOING"), ProjectSummary(name: "세번째 아티스트 - 곡명", status: "PENDING")]))
 }
 
 #Preview("의뢰인 Small", as: .systemSmall) {
     DBMusicWidget()
 } timeline: {
-    SimpleEntry(date: .now, role: "client", data: WidgetData(ongoingCount: 2, projects: [ClientProjectSummary(name: "옐로 - 결혼해서 좋겠다", likes: 1240, comments: 89, views: 15300), ClientProjectSummary(name: "다른 아티스트 - 곡명", likes: 500, comments: 30, views: 8000)]))
+    SimpleEntry(date: .now, role: "client", data: WidgetData(name: "박대표", ongoingCount: 2, projects: []))
 }
 
 #Preview("의뢰인 Medium", as: .systemMedium) {
     DBMusicWidget()
 } timeline: {
-    SimpleEntry(date: .now, role: "client", data: WidgetData(ongoingCount: 1, projects: [ClientProjectSummary(name: "옐로 - 결혼해서 좋겠다", likes: 1240, comments: 89, views: 15300, platformStats: [PlatformStat(platform: "instagram", views: 9200, likes: 800, comments: 60), PlatformStat(platform: "youtube", views: 4100, likes: 300, comments: 20), PlatformStat(platform: "tiktok", views: 2000, likes: 140, comments: 9)])]))
+    SimpleEntry(date: .now, role: "client", data: WidgetData(name: "박대표", ongoingCount: 1, projects: [ClientProjectSummary(name: "옐로 - 결혼해서 좋겠다", likes: 1240, comments: 89, views: 15300, platformStats: [PlatformStat(platform: "instagram", views: 9200, likes: 800, comments: 60), PlatformStat(platform: "youtube", views: 4100, likes: 300, comments: 20), PlatformStat(platform: "tiktok", views: 2000, likes: 140, comments: 9)])]))
 }
 
 #Preview("의뢰인 Large", as: .systemLarge) {
     DBMusicWidget()
 } timeline: {
-    SimpleEntry(date: .now, role: "client", data: WidgetData(ongoingCount: 2, projects: [ClientProjectSummary(name: "옐로 - 결혼해서 좋겠다", likes: 1240, comments: 89, views: 15300), ClientProjectSummary(name: "다른 아티스트 - 곡명", likes: 500, comments: 30, views: 8000)]))
+    SimpleEntry(date: .now, role: "client", data: WidgetData(name: "박대표", ongoingCount: 2, projects: [ClientProjectSummary(name: "옐로 - 결혼해서 좋겠다", likes: 1240, comments: 89, views: 15300, platformStats: [PlatformStat(platform: "instagram", views: 9200, likes: 800, comments: 60), PlatformStat(platform: "youtube", views: 4100, likes: 300, comments: 20), PlatformStat(platform: "tiktok", views: 2000, likes: 140, comments: 9)]), ClientProjectSummary(name: "다른 아티스트 - 곡명", likes: 500, comments: 30, views: 8000, platformStats: [PlatformStat(platform: "instagram", views: 5000, likes: 350, comments: 20), PlatformStat(platform: "youtube", views: 2000, likes: 100, comments: 8), PlatformStat(platform: "tiktok", views: 1000, likes: 50, comments: 2)])]))
 }
 
 #Preview("관리자 Small", as: .systemSmall) {

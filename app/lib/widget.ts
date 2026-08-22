@@ -10,8 +10,9 @@ const WidgetData = registerPlugin<WidgetDataPlugin>('WidgetData')
 export const saveWidgetUserInfo = async (role: string, id: string) => {
   try {
     await WidgetData.saveUserInfo({ role, id })
-  } catch {
-    // 네이티브 플랫폼이 아니거나 플러그인 미지원 시 무시
+    alert(`위젯 저장 성공: role=${role}, id=${id}`)
+  } catch (e) {
+    alert(`위젯 저장 실패: ${JSON.stringify(e)}`)
   }
 }
 
