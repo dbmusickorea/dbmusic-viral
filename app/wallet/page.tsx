@@ -83,24 +83,9 @@ export default function WalletPage() {
     const phData = await phRes.json()
     setPointHistory(phData ?? [])
 
-    const settledAmount = data.settlements
-      ?.filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
-      .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0) ?? 0
-    
-    // 완료된 프로젝트 적립금만 환전 가능
-    const availablePostsAmount = data.availablePosts?.reduce((sum: number, p: any) => {
-      const project = data.myProjects?.find((proj: any) => proj.project_code.toLowerCase() === p.project_code?.toLowerCase())
-      const baseAmount = project?.reward_per_post ?? 0
-      const level = participant?.level ?? 1
-      const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
-      return sum + Math.min(baseAmount, earnAmount)
-    }, 0) ?? 0
-    
-    const coverAvailableAmount = data.coverAvailablePosts?.reduce((sum: number, p: any) => {
-      return sum + (participant?.cover_reward ?? 0)
-    }, 0) ?? 0
-    
-    setAvailableBalance(Math.max(0, availablePostsAmount + coverAvailableAmount - settledAmount))
+    // 환전 가능 금액: API에서 실제 point_history 기록 기준으로 정확히 계산되어 내려옴
+    // (친구추천 등 프로젝트 무관 내역은 항상 포함, 프로젝트 관련 내역은 해당 프로젝트 종료 시에만 포함)
+    setAvailableBalance(data.withdrawableBalance ?? 0)
 
     if (data.posts && data.posts.length > 0) {
       const codes = [...new Set(data.posts.map((p: any) => p.project_code))]

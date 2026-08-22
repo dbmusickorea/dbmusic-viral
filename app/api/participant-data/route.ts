@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
     allProjectsRes,
     unlockVideosRes,
     participationsRes,
-    notificationsRes
+    notificationsRes,
+    pointHistoryRes
   ] = await Promise.all([
     auth.client.from('participants').select('*').eq('id', id).maybeSingle(),
     auth.client.from('posts').select('*').eq('member_id', id).order('created_at', { ascending: false }),
@@ -47,7 +48,8 @@ export async function GET(request: NextRequest) {
     auth.client.from('projects').select('*').in('status', ['ONGOING', 'PENDING']).order('created_at', { ascending: false }),
     auth.client.from('unlock_videos').select('*'),
     auth.client.from('project_participants').select('*').eq('member_id', id).order('joined_at', { ascending: false }),
-    auth.client.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false })
+    auth.client.from('notifications').select('*').eq('user_id', id).order('created_at', { ascending: false }),
+    auth.client.from('point_history').select('*').eq('member_id', id).order('created_at', { ascending: false })
   ])
 
   const participationCodes = participationsRes.data?.map((p: any) => p.project_code) ?? []
@@ -84,10 +86,25 @@ export async function GET(request: NextRequest) {
   participantCounts?.forEach((p: any) => { countMap[p.project_code] = (countMap[p.project_code] ?? 0) + 1 })
 
   const completedProjects = myProjectsRes.data?.filter((p: any) => p.status === 'COMPLETED') ?? []
-  const completedCodes = completedProjects.map((p: any) => p.project_code)
+  const completedCodes = completedProjects.map((p: any) => p.project_code.toLowerCase())
 
+  // 환전 가능 금액 계산: 프로젝트 무관 내역(추천인 등)은 항상 포함, 프로젝트 관련 내역은 해당 프로젝트가 종료됐을 때만 포함
+  // 실제 지급/차감된 point_history 금액을 그대로 합산 (재계산하지 않음)
+  const availableAmount = (pointHistoryRes.data ?? []).reduce((sum: number, ph: any) => {
+    if (!ph.project_code) return sum + (ph.amount ?? 0) // 프로젝트 무관 (친구추천 등) - 항상 포함
+    if (completedCodes.includes(ph.project_code.toLowerCase())) return sum + (ph.amount ?? 0) // 프로젝트 종료된 경우만 포함
+    return sum
+  }, 0)
+
+  const settledAmount = (settlementsRes.data ?? [])
+    .filter((s: any) => ['PENDING', 'APPROVED'].includes(s.status))
+    .reduce((sum: number, s: any) => sum + (s.amount ?? 0), 0)
+
+  const withdrawableBalance = Math.max(0, availableAmount - settledAmount)
+
+  // availablePosts / coverAvailablePosts는 화면 표시(게시물 목록 등)용으로 유지
   const availablePosts = postsRes.data?.filter((p: any) =>
-    completedCodes.some((code: string) => code.toLowerCase() === p.project_code?.toLowerCase()) && !p.is_cover
+    completedCodes.includes(p.project_code?.toLowerCase()) && !p.is_cover
   ) ?? []
 
   const coverAvailablePosts = postsRes.data?.filter((p: any) => {
@@ -110,6 +127,7 @@ export async function GET(request: NextRequest) {
     myProjects: myProjectsRes.data ?? [],
     rankMap,
     availablePosts,
-    coverAvailablePosts
+    coverAvailablePosts,
+    withdrawableBalance
   })
 }
