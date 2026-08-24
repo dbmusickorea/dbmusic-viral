@@ -61,6 +61,20 @@ export async function PATCH(request: NextRequest) {
   const email = searchParams.get('email')
   const body = await request.json()
 
+  // 이메일 변경 시 Supabase Auth(실제 로그인 계정)도 동기화
+  if (body.email && id) {
+    const { data: existing } = await supabaseAdmin.from('participants').select('auth_id, email').eq('id', id).maybeSingle()
+    if (existing?.auth_id && existing.email !== body.email) {
+      const { error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(existing.auth_id, {
+        email: body.email,
+        email_confirm: true
+      })
+      if (authUpdateError) {
+        return NextResponse.json({ error: `인증 이메일 수정 실패: ${authUpdateError.message}` }, { status: 500 })
+      }
+    }
+  }
+
   let query = auth.client.from('participants').update(body)
   if (id) query = query.eq('id', id)
   else if (email) query = query.eq('email', email)
