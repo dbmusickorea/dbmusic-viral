@@ -88,7 +88,8 @@ export async function GET(request: NextRequest) {
     if (!project.cover_mr_path) return NextResponse.json({ error: 'MR 파일이 없어요' }, { status: 404 })
 
     const ext = project.cover_mr_path.split('.').pop()
-    const fileName = `${projectCode}_MR.${ext}`
+    const songLabel = `${project.artist_name || project.client_name || projectCode} - ${project.song_title || ''}`.trim()
+    const fileName = `${songLabel} MR.${ext}`
 
     const { data, error } = await supabaseAdmin.storage
       .from('cover-audio')

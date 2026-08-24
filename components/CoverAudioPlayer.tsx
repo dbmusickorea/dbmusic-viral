@@ -3,6 +3,9 @@
 import { useState, useRef } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { Play, Pause, Download, Music } from 'lucide-react'
+import { Capacitor } from '@capacitor/core'
+import { Filesystem, Directory } from '@capacitor/filesystem'
+import { Share } from '@capacitor/share'
 
 export default function CoverAudioPlayer({ projectCode, memberId, role, showMr = false }: { projectCode: string, memberId: number, role?: string, showMr?: boolean }) {
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -44,12 +47,51 @@ export default function CoverAudioPlayer({ projectCode, memberId, role, showMr =
     setError('')
     const res = await fetchWithAuth(`/api/cover-audio-url?project_code=${projectCode}&type=mr&member_id=${memberId}&role=${role ?? ''}`)
     const data = await res.json()
-    setMrLoading(false)
     if (!res.ok) {
+      setMrLoading(false)
       setError(data.error ?? 'MR을 다운로드할 수 없어요')
       return
     }
-    window.open(data.url, '_blank')
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        // 응답 헤더의 Content-Disposition에서 실제 파일명(한글 포함) 추출
+        const fileRes = await fetch(data.url)
+        const disposition = fileRes.headers.get('content-disposition') ?? ''
+        const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/)
+        const plainMatch = disposition.match(/filename="?([^";]+)"?/)
+        const fileName = utf8Match ? decodeURIComponent(utf8Match[1]) : (plainMatch ? plainMatch[1] : `${projectCode}_MR.mp3`)
+
+        const blob = await fileRes.blob()
+        const base64Data: string = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            const result = reader.result as string
+            resolve(result.split(',')[1])
+          }
+          reader.onerror = reject
+          reader.readAsDataURL(blob)
+        })
+
+        const written = await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Cache
+        })
+
+        await Share.share({
+          title: fileName,
+          url: written.uri
+        })
+      } catch {
+        setError('다운로드 중 문제가 발생했어요')
+      } finally {
+        setMrLoading(false)
+      }
+    } else {
+      window.open(data.url, '_blank')
+      setMrLoading(false)
+    }
   }
 
   return (
