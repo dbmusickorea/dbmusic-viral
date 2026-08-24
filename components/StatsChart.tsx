@@ -64,7 +64,7 @@ export default function StatsChart({ data, platform, likesKey, commentsKey, view
         </LineChart>
       </ResponsiveContainer>
       {platform === 'youtube' && (
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-center">
           유튜브 조회수는 플랫폼 집계 방식에 따라 일시적으로 오차가 발생할 수 있어요.
         </p>
       )}
