@@ -149,6 +149,15 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent] = useState(false)
+  const [showFindEmail, setShowFindEmail] = useState(false)
+  const [findEmailMobile, setFindEmailMobile] = useState('')
+  const [findEmailResult, setFindEmailResult] = useState<string[] | null>(null)
+  const [findEmailLoading, setFindEmailLoading] = useState(false)
+  const [findEmailSentCode, setFindEmailSentCode] = useState('')
+  const [findEmailInputCode, setFindEmailInputCode] = useState('')
+  const [findEmailCodeExpiry, setFindEmailCodeExpiry] = useState(0)
+  const [findEmailSending, setFindEmailSending] = useState(false)
+  const [findEmailVerified, setFindEmailVerified] = useState(false)
   const [saveId, setSaveId] = useState(false)
   const [autoLogin, setAutoLogin] = useState(false)
 
@@ -376,6 +385,48 @@ export default function LoginPage() {
     })
     if (error) { showToast('이메일 발송 실패! 이메일 주소를 확인해주세요.'); return }
     setForgotSent(true)
+  }
+
+  const handleSendFindEmailCode = async () => {
+    if (!findEmailMobile) { showToast('휴대전화번호를 입력해주세요.'); return }
+    setFindEmailSending(true)
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    setFindEmailSentCode(code)
+    setFindEmailCodeExpiry(Date.now() + 5 * 60 * 1000)
+
+    const response = await fetch('/api/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: findEmailMobile,
+        name: '고객',
+        code: code,
+        expiry: '5분'
+      })
+    })
+    const data = await response.json()
+    if (data.success) {
+      showToast('인증번호가 발송됐어요!')
+    } else {
+      showToast('발송 실패! 번호를 확인해주세요.')
+    }
+    setFindEmailSending(false)
+  }
+
+  const handleVerifyFindEmailCode = async () => {
+    if (Date.now() > findEmailCodeExpiry) { showToast('인증번호가 만료됐어요. 다시 받아주세요.'); return }
+    if (findEmailInputCode !== findEmailSentCode) { showToast('인증번호가 일치하지 않아요.'); return }
+    setFindEmailVerified(true)
+    setFindEmailLoading(true)
+    try {
+      const res = await fetch(`/api/find-email?mobile=${encodeURIComponent(findEmailMobile)}`)
+      const data = await res.json()
+      setFindEmailResult(Array.isArray(data.emails) ? data.emails : [])
+    } catch {
+      showToast('조회 중 오류가 발생했어요.')
+    } finally {
+      setFindEmailLoading(false)
+    }
   }
 
   const handleSendVerifyCode = async () => {
@@ -815,7 +866,7 @@ export default function LoginPage() {
           </div>
         </div>   
       )}
-    <div className={`min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 ${(showSignup && signupType) || showForgotPassword ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+    <div className={`min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 ${(showSignup && signupType) || showForgotPassword || showFindEmail ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       
       {/* 개인정보 동의 모달 */}
       {showTermsModal && (
@@ -841,12 +892,12 @@ export default function LoginPage() {
         </div>
       )}
 
-      {(showSignup || showForgotPassword) && (
+      {(showSignup || showForgotPassword || showFindEmail) && (
         <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         </div>
       )}
       <div className="w-full max-w-sm">
-        {!showSignup && !showForgotPassword ? (
+        {!showSignup && !showForgotPassword && !showFindEmail ? (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
             <div className="flex justify-center mb-6">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
@@ -874,7 +925,11 @@ export default function LoginPage() {
                 </label>
               </div>
               <button onClick={handleLogin} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">로그인</button>
-              <button onClick={() => setShowForgotPassword(true)} className="w-full text-sm text-gray-500 text-center">비밀번호를 잊으셨나요?</button>
+              <div className="flex justify-center gap-3">
+                <button onClick={() => { setShowFindEmail(true); setShowForgotPassword(false); setFindEmailResult(null); setFindEmailMobile('') }} className="text-sm text-gray-500">이메일을 잊으셨나요?</button>
+                <span className="text-gray-300">|</span>
+                <button onClick={() => { setShowForgotPassword(true); setShowFindEmail(false) }} className="text-sm text-gray-500">비밀번호를 잊으셨나요?</button>
+              </div>
               <button onClick={() => setShowSignup(true)} className="w-full border rounded-lg py-2 text-sm text-gray-600">회원가입</button>
               <a href="/privacy" className="block text-xs text-gray-400 text-center mt-2" onClick={(e) => { e.preventDefault(); router.push('/privacy') }}>개인정보처리방침</a>
               <a href="/terms" className="block text-xs text-gray-400 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/terms') }}>이용약관</a>
@@ -886,6 +941,57 @@ export default function LoginPage() {
                 <p className="text-xs text-gray-300 dark:text-gray-500 text-center">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
               </div>
             </div>
+          </div>
+        ) : showFindEmail ? (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+            <h1 className="text-xl font-bold text-center mb-4 dark:text-white">이메일 찾기</h1>
+            {findEmailResult === null ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">가입하신 휴대전화번호로 본인인증 후 이메일 주소를 알려드려요.</p>
+                <div>
+                  <label className="block text-sm font-medium mb-1 dark:text-white">휴대전화번호</label>
+                  <div className="flex gap-2">
+                    <input type="tel" value={findEmailMobile} onChange={(e) => setFindEmailMobile(e.target.value.replace(/[^0-9]/g, ''))} disabled={findEmailVerified} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white disabled:opacity-50" placeholder="'-' 없이 숫자만 입력" />
+                    <button onClick={handleSendFindEmailCode} disabled={findEmailSending || findEmailVerified} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:bg-gray-400 whitespace-nowrap">
+                      {findEmailSending ? '발송 중...' : '인증번호 받기'}
+                    </button>
+                  </div>
+                </div>
+                {findEmailSentCode && !findEmailVerified && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1 dark:text-white">인증번호</label>
+                    <div className="flex gap-2">
+                      <input value={findEmailInputCode} onChange={(e) => setFindEmailInputCode(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyFindEmailCode() }} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="인증번호 6자리" />
+                      <button onClick={handleVerifyFindEmailCode} disabled={findEmailLoading} className="bg-green-600 text-white rounded-lg px-3 py-2 text-sm disabled:opacity-50 whitespace-nowrap">
+                        {findEmailLoading ? '확인 중...' : '확인'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <button onClick={() => { setShowFindEmail(false); setFindEmailResult(null); setFindEmailMobile(''); setFindEmailSentCode(''); setFindEmailInputCode(''); setFindEmailVerified(false) }} className="w-full border rounded-lg py-2 text-sm text-gray-600">로그인으로 돌아가기</button>
+              </div>
+            ) : (
+              <div className="space-y-4 text-center">
+                {findEmailResult.length > 0 ? (
+                  <>
+                    <p className="text-4xl">📧</p>
+                    <p className="font-medium dark:text-white">가입된 이메일을 찾았어요!</p>
+                    <div className="space-y-1">
+                      {findEmailResult.map((e, i) => (
+                        <p key={i} className="text-sm text-gray-700 dark:text-gray-300 font-medium">{e}</p>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-4xl">🔍</p>
+                    <p className="font-medium dark:text-white">가입 내역을 찾을 수 없어요</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">입력하신 번호로 등록된 계정이 없어요. 번호를 다시 확인해주세요.</p>
+                  </>
+                )}
+                <button onClick={() => { setShowFindEmail(false); setFindEmailResult(null); setFindEmailMobile(''); setFindEmailSentCode(''); setFindEmailInputCode(''); setFindEmailVerified(false) }} className="w-full border rounded-lg py-2 text-sm text-gray-600">로그인으로 돌아가기</button>
+              </div>
+            )}
           </div>
         ) : showForgotPassword ? (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
