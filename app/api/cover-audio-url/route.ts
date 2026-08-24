@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
       .createSignedUrl(project.cover_mr_path, 60 * 10, { download: fileName })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ url: data.signedUrl })
+    return NextResponse.json({ url: data.signedUrl, fileName })
   }
 
   return NextResponse.json({ error: 'type은 audio 또는 mr이어야 해요' }, { status: 400 })

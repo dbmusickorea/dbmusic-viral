@@ -55,24 +55,9 @@ export default function CoverAudioPlayer({ projectCode, memberId, role, showMr =
 
     if (Capacitor.isNativePlatform()) {
       try {
-        // 응답 헤더의 Content-Disposition에서 실제 파일명(한글 포함) 추출
+        // 파일명은 서버 응답(JSON)에서 그대로 받아옴 (CORS로 헤더 접근 불가하므로)
+        const fileName = data.fileName || `${projectCode}_MR.mp3`
         const fileRes = await fetch(data.url)
-        const disposition = fileRes.headers.get('content-disposition') ?? ''
-        const safeDecode = (s: string) => {
-          let result = s
-          for (let i = 0; i < 3; i++) {
-            try {
-              const decoded = decodeURIComponent(result)
-              if (decoded === result) break
-              result = decoded
-            } catch { break }
-          }
-          return result
-        }
-        const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/)
-        const plainMatch = disposition.match(/filename="?([^";]+)"?/)
-        const fileName = utf8Match ? safeDecode(utf8Match[1]) : (plainMatch ? safeDecode(plainMatch[1]) : `${projectCode}_MR.mp3`)
-
         const blob = await fileRes.blob()
         const base64Data: string = await new Promise((resolve, reject) => {
           const reader = new FileReader()
