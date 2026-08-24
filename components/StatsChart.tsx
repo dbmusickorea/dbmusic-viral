@@ -63,6 +63,11 @@ export default function StatsChart({ data, platform, likesKey, commentsKey, view
           {showAudio && <Line type="monotone" dataKey={audioKey} stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />}
         </LineChart>
       </ResponsiveContainer>
+      {platform === 'youtube' && (
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          유튜브 조회수는 플랫폼 집계 방식에 따라 일시적으로 오차가 발생할 수 있어요.
+        </p>
+      )}
     </div>
   )
 }
