@@ -58,9 +58,20 @@ export default function CoverAudioPlayer({ projectCode, memberId, role, showMr =
         // 응답 헤더의 Content-Disposition에서 실제 파일명(한글 포함) 추출
         const fileRes = await fetch(data.url)
         const disposition = fileRes.headers.get('content-disposition') ?? ''
+        const safeDecode = (s: string) => {
+          let result = s
+          for (let i = 0; i < 3; i++) {
+            try {
+              const decoded = decodeURIComponent(result)
+              if (decoded === result) break
+              result = decoded
+            } catch { break }
+          }
+          return result
+        }
         const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/)
         const plainMatch = disposition.match(/filename="?([^";]+)"?/)
-        const fileName = utf8Match ? decodeURIComponent(utf8Match[1]) : (plainMatch ? plainMatch[1] : `${projectCode}_MR.mp3`)
+        const fileName = utf8Match ? safeDecode(utf8Match[1]) : (plainMatch ? safeDecode(plainMatch[1]) : `${projectCode}_MR.mp3`)
 
         const blob = await fileRes.blob()
         const base64Data: string = await new Promise((resolve, reject) => {
