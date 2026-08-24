@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
 import { LayoutGrid, Building2, Users, Wallet, Music, UserCircle, Briefcase } from 'lucide-react'
+import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 
 type AdminBottomNavProps = {
   active?: 'admin' | 'client' | 'members' | 'settlement' | 'cover' | 'agency' | 'mypage'
@@ -19,10 +20,10 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
   useEffect(() => {
     const fetchCounts = async () => {
       const [snsRes, coverRes, settleRes, coverApprovalRes] = await Promise.all([
-        fetch('/api/sns_change_requests?status=PENDING'),
-        fetch('/api/posts?is_cover=true&cover_status=PENDING'),
-        fetch('/api/settlements?status=PENDING'),
-        fetch('/api/participants?cover_approved=false')
+        fetchWithAuth('/api/sns_change_requests?status=PENDING'),
+        fetchWithAuth('/api/posts?is_cover=true&cover_status=PENDING'),
+        fetchWithAuth('/api/settlements?status=PENDING'),
+        fetchWithAuth('/api/participants?cover_approved=false')
       ])
       const snsData = await snsRes.json()
       const coverData = await coverRes.json()
