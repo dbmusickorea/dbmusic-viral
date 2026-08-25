@@ -44,6 +44,7 @@ private val BlueMain = Color(0xFF2563EB)
 private val GrayMuted = Color(0xFF64748B)
 private val TextDark = Color(0xFF1E293B)
 private val PurpleMain = Color(0xFF9333EA)
+private val OrangeMain = Color(0xFFEA580C)
 
 class DBMusicWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
@@ -73,6 +74,8 @@ class DBMusicWidget : GlanceAppWidget() {
                     ParticipantContent(data)
                 } else if (userRole == "client") {
                     ClientContent(data)
+                } else if (userRole == "admin") {
+                    AdminContent(data)
                 } else {
                     Text("역할: $userRole", style = TextStyle(fontSize = 12.sp, color = ColorProvider(day = TextDark, night = TextDark)))
                 }
@@ -371,6 +374,74 @@ private fun ClientContent(data: JSONObject) {
                 style = TextStyle(fontSize = 11.sp, color = ColorProvider(day = GrayMuted, night = GrayMuted))
             )
         }
+    }
+}
+
+@Composable
+private fun AdminContent(data: JSONObject) {
+    val size = LocalSize.current
+    val isExpanded = size.height > 100.dp
+
+    val newSignups = data.optInt("newSignups", 0)
+    val settlementPending = data.optInt("settlementPending", 0)
+    val coverPending = data.optInt("coverPending", 0)
+    val snsChangePending = data.optInt("snsChangePending", 0)
+
+    Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
+        Image(
+            provider = ImageProvider(R.mipmap.ic_launcher),
+            contentDescription = "로고",
+            modifier = GlanceModifier.size(24.dp)
+        )
+        Spacer(modifier = GlanceModifier.width(6.dp))
+        Text(
+            "관리자",
+            style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ColorProvider(day = OrangeMain, night = OrangeMain))
+        )
+    }
+
+    if (!isExpanded) {
+        Spacer(modifier = GlanceModifier.height(6.dp))
+        Text(
+            "${settlementPending}건",
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = ColorProvider(day = OrangeMain, night = OrangeMain))
+        )
+        Text(
+            "정산 대기",
+            style = TextStyle(fontSize = 11.sp, color = ColorProvider(day = GrayMuted, night = GrayMuted))
+        )
+    } else {
+        Spacer(modifier = GlanceModifier.height(8.dp))
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            AdminStatCard("신규가입", newSignups, "명", GlanceModifier.defaultWeight())
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            AdminStatCard("정산대기", settlementPending, "건", GlanceModifier.defaultWeight())
+        }
+        Spacer(modifier = GlanceModifier.height(8.dp))
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            AdminStatCard("커버대기", coverPending, "건", GlanceModifier.defaultWeight())
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            AdminStatCard("SNS요청", snsChangePending, "건", GlanceModifier.defaultWeight())
+        }
+    }
+}
+
+@Composable
+private fun AdminStatCard(label: String, value: Int, unit: String, modifier: GlanceModifier) {
+    Column(
+        modifier = modifier
+            .background(Color(0x1AEA580C))
+            .cornerRadius(10.dp)
+            .padding(8.dp)
+    ) {
+        Text(
+            label,
+            style = TextStyle(fontSize = 9.sp, color = ColorProvider(day = GrayMuted, night = GrayMuted))
+        )
+        Text(
+            "${value}${unit}",
+            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold, color = ColorProvider(day = TextDark, night = TextDark))
+        )
     }
 }
 
