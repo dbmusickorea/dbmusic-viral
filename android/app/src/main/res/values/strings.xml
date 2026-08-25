@@ -7,4 +7,7 @@
     <string name="facebook_app_id">1971917726837424</string>
     <string name="fb_login_protocol_scheme">fb1971917726837424</string>
     <string name="facebook_client_token">25f1a09cf79da7301d424a95742dfe1a</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
 </resources>

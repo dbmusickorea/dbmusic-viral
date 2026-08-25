@@ -110,6 +110,7 @@ export default function LoginPage() {
               const parsed = JSON.parse(stored)
               const role = localStorage.getItem('userRole')
               await initPushNotifications(String(parsed.id), role ?? 'participant')
+              await saveWidgetUserInfo(role ?? 'participant', String(parsed.id))
             }
           }
         })
