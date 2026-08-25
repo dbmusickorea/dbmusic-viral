@@ -34,6 +34,9 @@ function decrypt(text: string): string {
 }
 
 export async function GET(request: NextRequest) {
+  const isAdmin = await checkAdminAuth(request)
+  if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { data: settlements } = await supabaseAdmin
     .from('settlements')
     .select('*')

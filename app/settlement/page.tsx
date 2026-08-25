@@ -1,6 +1,49 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
+async function downloadExcelWithAuth(apiPath: string, filename: string, showToast: (msg: string) => void) {
+  try {
+    const res = await fetchWithAuth(apiPath)
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      showToast(data.error || '다운로드에 실패했어요')
+      return
+    }
+    const blob = await res.blob()
+
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Share } = await import('@capacitor/share')
+      const base64Data: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          const result = reader.result as string
+          resolve(result.split(',')[1])
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+      const written = await Filesystem.writeFile({
+        path: filename,
+        data: base64Data,
+        directory: Directory.Cache
+      })
+      await Share.share({ title: filename, url: written.uri })
+    } else {
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(objectUrl)
+    }
+  } catch {
+    showToast('다운로드 중 오류가 발생했어요')
+  }
+}
+
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -230,27 +273,11 @@ export default function Page5() {
               <h1 className="text-xl font-bold dark:text-white">정산 관리</h1>
             </div>
             <div className="flex gap-2">
-              <button onClick={async () => {
-                const url = 'https://app.doubleb.kr/api/settlement-excel'
-                if ((window as any).Capacitor?.isNativePlatform?.()) {
-                  const { Browser } = await import('@capacitor/browser')
-                  await Browser.open({ url })
-                } else {
-                  window.open(url, '_blank')
-                }
-              }} className="text-xs bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
+              <button onClick={() => downloadExcelWithAuth('/api/settlement-excel', '환전내역.xlsx', showToast)} className="text-xs bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
                 <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white"><path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/></svg>
                 환전 엑셀
               </button>
-              <button onClick={async () => {
-                const url = 'https://app.doubleb.kr/api/point-history-excel'
-                if ((window as any).Capacitor?.isNativePlatform?.()) {
-                  const { Browser } = await import('@capacitor/browser')
-                  await Browser.open({ url })
-                } else {
-                  window.open(url, '_blank')
-                }
-              }} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
+              <button onClick={() => downloadExcelWithAuth('/api/point-history-excel', '적립금내역.xlsx', showToast)} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
                 <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white"><path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/></svg>
                 적립금 내역
               </button>
