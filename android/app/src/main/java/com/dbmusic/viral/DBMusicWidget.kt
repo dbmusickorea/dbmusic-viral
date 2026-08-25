@@ -1,44 +1,28 @@
 package com.dbmusic.viral
 
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.widget.RemoteViews
+import androidx.glance.GlanceId
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.provideContent
+import androidx.glance.text.Text
 
-/**
- * Implementation of App Widget functionality.
- */
-class DBMusicWidget : AppWidgetProvider() {
-    override fun onUpdate(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
-    ) {
-        // There may be multiple widgets active, so update all of them
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+class DBMusicWidget : GlanceAppWidget() {
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val userRole = prefs.getString("userRole", null)
+        val userId = prefs.getString("userId", null)
+
+        provideContent {
+            if (userRole == null || userId == null) {
+                Text("앱에서 로그인해주세요")
+            } else {
+                Text("로그인됨: $userRole ($userId)")
+            }
         }
-    }
-
-    override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
-    }
-
-    override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
     }
 }
 
-internal fun updateAppWidget(
-    context: Context,
-    appWidgetManager: AppWidgetManager,
-    appWidgetId: Int
-) {
-    val widgetText = context.getString(R.string.appwidget_text)
-    // Construct the RemoteViews object
-    val views = RemoteViews(context.packageName, R.layout.d_b_music_widget)
-    views.setTextViewText(R.id.appwidget_text, widgetText)
-
-    // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, views)
+class DBMusicWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = DBMusicWidget()
 }

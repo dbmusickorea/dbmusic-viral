@@ -61,7 +61,7 @@
         </provider>
 
         <receiver
-            android:name=".DBMusicWidget"
+            android:name=".DBMusicWidgetReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
