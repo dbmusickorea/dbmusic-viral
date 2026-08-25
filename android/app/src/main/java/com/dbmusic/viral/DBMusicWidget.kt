@@ -13,6 +13,8 @@ import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.cornerRadius
@@ -100,11 +102,13 @@ class DBMusicWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContainer(content: @Composable () -> Unit) {
+    val context = androidx.glance.LocalContext.current
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
             .appWidgetBackground()
             .background(Color.White)
+            .clickable(actionStartActivity(android.content.Intent(context, MainActivity::class.java)))
             .padding(12.dp)
     ) {
         content()
