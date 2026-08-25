@@ -51,6 +51,7 @@ export default function Page2() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [myPosts, setMyPosts] = useState<any[]>([])
+  const [pointHistory, setPointHistory] = useState<any[]>([])
   const [mySettlements, setMySettlements] = useState<any[]>([])
   const [projectsMap, setProjectsMap] = useState<any>({})
   const [showPosts, setShowPosts] = useState(false)
@@ -451,6 +452,7 @@ useEffect(() => {
       
 
       setMyPosts(data.posts)
+      setPointHistory(data.pointHistory ?? [])
       // projectsMap 업데이트
       if (data.posts && data.posts.length > 0) {
         const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
@@ -1303,6 +1305,7 @@ useEffect(() => {
             {/* 게시물 현황 */}
             <ParticipantPostList
               displayPosts={displayPosts}
+              pointHistory={pointHistory}
               instagramPosts={instagramPosts}
               youtubePosts={youtubePosts}
               tiktokPosts={tiktokPosts}

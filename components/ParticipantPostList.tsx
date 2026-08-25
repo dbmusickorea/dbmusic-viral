@@ -4,6 +4,7 @@ import { BarChart2, Music, Heart, ThumbsUp } from 'lucide-react'
 
 type Props = {
   displayPosts: any[]
+  pointHistory?: any[]
   instagramPosts: any[]
   youtubePosts: any[]
   tiktokPosts: any[]
@@ -27,7 +28,23 @@ type Props = {
   getLevelAmount: (baseAmount: number, level: number) => number
 }
 
-export default function ParticipantPostList({ displayPosts, instagramPosts, youtubePosts, tiktokPosts, showPosts, setShowPosts, postFilter, setPostFilter, setParticipationFilter, setSelectedParticipation, setShowParticipation, myPostPage, setMyPostPage, PAGE_SIZE, level, coverReward, projectsMap, isDeletingPost, onDeletePost, onUrlEdit, statusBadge, getLevelAmount }: Props) {
+export default function ParticipantPostList({ displayPosts, instagramPosts, youtubePosts, tiktokPosts, showPosts, setShowPosts, postFilter, setPostFilter, setParticipationFilter, setSelectedParticipation, setShowParticipation, myPostPage, setMyPostPage, PAGE_SIZE, level, coverReward, projectsMap, isDeletingPost, onDeletePost, onUrlEdit, statusBadge, getLevelAmount, pointHistory }: Props) {
+  // 게시물과 가장 가까운 시간의 point_history를 찾아 실제 지급액을 매칭
+  const findActualAmount = (post: any): number | null => {
+    if (!pointHistory || pointHistory.length === 0) return null
+    const postTime = new Date(post.created_at).getTime()
+    const candidates = pointHistory.filter((ph: any) => {
+      if (!ph.project_code || !post.project_code) return false
+      if (ph.project_code.toLowerCase() !== post.project_code.toLowerCase()) return false
+      if (post.is_cover && !ph.memo?.includes('커버')) return false
+      if (!post.is_cover && ph.memo?.includes('커버')) return false
+      const diffMs = Math.abs(new Date(ph.created_at).getTime() - postTime)
+      return diffMs < 5 * 60 * 1000 // 5분 이내
+    })
+    if (candidates.length === 0) return null
+    candidates.sort((a: any, b: any) => Math.abs(new Date(a.created_at).getTime() - postTime) - Math.abs(new Date(b.created_at).getTime() - postTime))
+    return candidates[0].amount
+  }
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
@@ -64,7 +81,8 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
             <>
               {displayPosts.slice(myPostPage * PAGE_SIZE, (myPostPage + 1) * PAGE_SIZE).map((post) => {
                 const baseAmount = projectsMap[post.project_code?.toUpperCase()]?.reward_per_post ?? 0
-                const myAmount = getLevelAmount(baseAmount, level)
+                const actualAmount = findActualAmount(post)
+                const myAmount = actualAmount ?? getLevelAmount(baseAmount, level)
                 return (
                   <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                     <div className="flex justify-between items-start">

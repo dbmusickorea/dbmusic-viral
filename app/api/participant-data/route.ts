@@ -139,6 +139,7 @@ export async function GET(request: NextRequest) {
     rankMap,
     availablePosts,
     coverAvailablePosts,
-    withdrawableBalance
+    withdrawableBalance,
+    pointHistory: pointHistoryRes.data ?? []
   })
 }
