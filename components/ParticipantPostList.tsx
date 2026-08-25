@@ -38,8 +38,11 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
       if (ph.project_code.toLowerCase() !== post.project_code.toLowerCase()) return false
       if (post.is_cover && !ph.memo?.includes('커버')) return false
       if (!post.is_cover && ph.memo?.includes('커버')) return false
-      const diffMs = Math.abs(new Date(ph.created_at).getTime() - postTime)
-      return diffMs < 5 * 60 * 1000 // 5분 이내
+      const phDate = new Date(ph.created_at)
+      const postDate = new Date(post.created_at)
+      const diffMs = Math.abs(phDate.getTime() - postTime)
+      const sameDay = phDate.getFullYear() === postDate.getFullYear() && phDate.getMonth() === postDate.getMonth() && phDate.getDate() === postDate.getDate()
+      return diffMs < 5 * 60 * 1000 || sameDay // 5분 이내 또는 같은 날짜(옛날 기록의 자정 저장 대응)
     })
     if (candidates.length === 0) return null
     candidates.sort((a: any, b: any) => Math.abs(new Date(a.created_at).getTime() - postTime) - Math.abs(new Date(b.created_at).getTime() - postTime))
