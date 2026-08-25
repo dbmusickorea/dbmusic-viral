@@ -5,7 +5,7 @@
     android:initialLayout="@layout/d_b_music_widget"
     android:minWidth="110dp"
     android:minHeight="70dp"
-    android:maxResizeHeight="400dp"
+    android:maxResizeHeight="200dp"
     android:previewImage="@drawable/example_appwidget_preview"
     android:previewLayout="@layout/d_b_music_widget"
     android:resizeMode="horizontal|vertical"
