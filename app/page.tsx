@@ -127,9 +127,11 @@ export default function LoginPage() {
       const userRole = localStorage.getItem('userRole')
       if (!userInfo || !userRole) return
 
+      const parsedUser = JSON.parse(userInfo)
+      await saveWidgetUserInfo(userRole, String(parsedUser.id))
+
       if (userRole === 'admin') router.push('/admin')
       else if (userRole === 'client') {
-        const parsedUser = JSON.parse(userInfo)
         if (parsedUser.has_distribution) router.push('/distribution')
         else router.push('/client')
       }
