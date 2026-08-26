@@ -114,7 +114,10 @@ export async function GET(request: NextRequest) {
   }
 
   if (role === 'admin') {
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    // 한국시간(KST, UTC+9) 기준 오늘 00:00:00부터
+    const nowKST = new Date(Date.now() + 9 * 60 * 60 * 1000)
+    const todayStartKST = new Date(Date.UTC(nowKST.getUTCFullYear(), nowKST.getUTCMonth(), nowKST.getUTCDate()) - 9 * 60 * 60 * 1000)
+    const oneDayAgo = todayStartKST.toISOString()
 
     const [newParticipantsRes, newClientsRes, coverPendingRes, snsPendingRes, settlementPendingRes] = await Promise.all([
       supabaseAdmin.from('participants').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo),
