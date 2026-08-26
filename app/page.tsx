@@ -119,29 +119,16 @@ export default function LoginPage() {
 
     // 자동 로그인 체크
     const checkSession = async () => {
-      const DEBUG_ADMIN_ID = '18'
-      const currentInfo = localStorage.getItem('userInfo')
-      const isDebugUser = currentInfo && JSON.parse(currentInfo)?.id?.toString() === DEBUG_ADMIN_ID
-      const debugAlert = (msg: string) => { if (isDebugUser) alert(msg) }
-
-      debugAlert('checkSession 시작, savedAutoLogin=' + savedAutoLogin)
       if (savedAutoLogin !== 'true') return
       const { data: { session } } = await supabase.auth.getSession()
-      debugAlert('session 확인: ' + (session ? '있음' : '없음'))
       if (!session) return
 
       const userInfo = localStorage.getItem('userInfo')
       const userRole = localStorage.getItem('userRole')
-      debugAlert('userInfo=' + (userInfo ? '있음' : '없음') + ', userRole=' + userRole)
       if (!userInfo || !userRole) return
 
       const parsedUser = JSON.parse(userInfo)
-      try {
-        await saveWidgetUserInfo(userRole, String(parsedUser.id))
-        debugAlert('위젯 저장 성공')
-      } catch (e) {
-        debugAlert('위젯 저장 실패: ' + JSON.stringify(e))
-      }
+      await saveWidgetUserInfo(userRole, String(parsedUser.id))
 
       if (userRole === 'admin') router.push('/admin')
       else if (userRole === 'client') {
