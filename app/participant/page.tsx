@@ -188,6 +188,7 @@ useEffect(() => {
       }
 
       setMyPosts(data.posts)
+      setPointHistory(data.pointHistory ?? [])
       setMySettlements(data.settlements)
       setCommentMissions(data.commentMissions)
       setIsCoverPossible(participant?.is_cover_possible ?? false)
