@@ -165,17 +165,39 @@ struct DBMusicWidgetEntryView: View {
                         .minimumScaleFactor(0.7)
                 }
             }
-            Spacer(minLength: 2)
             VStack(alignment: .leading, spacing: 2) {
-                Text("\((d?.balance ?? 0).formatted())P")
-                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                Text("\((d?.withdrawableBalance ?? 0).formatted())P")
+                    .font(.system(size: 20, weight: .heavy, design: .rounded))
                     .foregroundStyle(.blue)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
-                Text("적립 포인트")
+                Text("환전 가능 금액")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
+            Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
+            HStack(spacing: 4) {
+                Image(systemName: "music.note.list")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.purple)
+                Text("참여중 프로젝트")
+                    .font(.system(size: 11))
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+            }
+            if let projects = d?.activeProjects, !projects.isEmpty {
+                Text(projects[0].name)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            } else {
+                Text("참여중인 프로젝트가 없어요")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
         }
         .padding()
     }
@@ -184,22 +206,22 @@ struct DBMusicWidgetEntryView: View {
         let d = entry.data
         let progress = min(1.0, Double(d?.withdrawableBalance ?? 0) / Double(max(d?.minWithdrawAmount ?? 10000, 1)))
         return VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 5) {
+            HStack(spacing: 6) {
                 Image("AppLogo")
                     .resizable()
-                    .frame(width: 16, height: 16)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .frame(width: 20, height: 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
                 Text((d?.name?.isEmpty == false ? d!.name! + "님 · 체험단" : "체험단"))
-                    .font(.caption2)
+                    .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Spacer()
                 Text("Lv.\(d?.level ?? 1)")
-                    .font(.caption2)
+                    .font(.caption)
                     .fontWeight(.bold)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
                     .background(Color.blue.opacity(0.15))
                     .foregroundStyle(.blue)
                     .clipShape(Capsule())
@@ -245,8 +267,9 @@ struct DBMusicWidgetEntryView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
+            Spacer(minLength: 0)
         }
-        .padding(12)
+        .padding()
     }
 
     var participantLargeView: some View {
@@ -387,13 +410,12 @@ struct DBMusicWidgetEntryView: View {
                         .foregroundStyle(.purple)
                 }
             }
+            Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
             if projects.isEmpty {
-                Spacer(minLength: 2)
                 Text("진행중인 프로젝트가 없어요")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } else {
-                Spacer(minLength: 4)
                 Text("목록")
                     .font(.caption2)
                     .fontWeight(.semibold)
@@ -414,8 +436,9 @@ struct DBMusicWidgetEntryView: View {
                     }
                 }
             }
+            Spacer(minLength: 0)
         }
-        .padding(10)
+        .padding()
     }
 
     var clientDetailView: some View {
@@ -483,10 +506,11 @@ struct DBMusicWidgetEntryView: View {
                     }
                 }
             } else {
-                Spacer()
+                Divider()
                 Text("진행중인 프로젝트가 없어요")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
             }
         }
         .padding()
@@ -588,7 +612,6 @@ struct DBMusicWidgetEntryView: View {
                     .fontWeight(.bold)
                     .foregroundStyle(.orange)
             }
-            Spacer(minLength: 2)
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(d?.coverPending ?? 0)건")
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
@@ -599,7 +622,7 @@ struct DBMusicWidgetEntryView: View {
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
             }
-            Divider()
+            Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(d?.settlementPending ?? 0)건")
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
@@ -609,8 +632,9 @@ struct DBMusicWidgetEntryView: View {
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
             }
+            Spacer(minLength: 0)
         }
-        .padding(10)
+        .padding()
     }
 
     var adminDetailView: some View {
@@ -713,6 +737,7 @@ struct DBMusicWidget: Widget {
             }
         }
         .configurationDisplayName("더블비뮤직")
+        .contentMarginsDisabled()
         .description("체험단/의뢰인/관리자 현황을 한눈에 확인하세요.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
