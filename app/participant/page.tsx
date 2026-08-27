@@ -1,5 +1,6 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
+import { logCompleteRegistration } from '../lib/fbEvents'
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
@@ -821,6 +822,7 @@ useEffect(() => {
       const parsed = JSON.parse(info)
       await fetchMyParticipations(parsed.id)
     }
+    logCompleteRegistration()
     showToast('✅ 참여 완료!')
   }
 
