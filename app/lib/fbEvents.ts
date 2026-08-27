@@ -4,7 +4,7 @@ import { FacebookLogin } from '@capacitor-community/facebook-login'
 export async function logFBEvent(eventName: string, params?: Record<string, any>) {
   try {
     if (Capacitor.isNativePlatform()) {
-      await FacebookLogin.logEvent({ event: eventName, params: params ?? {} })
+      await FacebookLogin.logEvent({ eventName: eventName, parameters: (params ?? {}) as Record<string, string | number> })
     } else {
       console.log(`[FB Event] ${eventName}`, params)
     }
