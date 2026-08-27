@@ -822,7 +822,7 @@ useEffect(() => {
       const parsed = JSON.parse(info)
       await fetchMyParticipations(parsed.id)
     }
-    logCompleteRegistration()
+    await logCompleteRegistration()
     showToast('✅ 참여 완료!')
   }
 
