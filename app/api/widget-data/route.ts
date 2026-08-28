@@ -20,11 +20,12 @@ export async function GET(request: NextRequest) {
   if (role === 'participant') {
     if (!id) return NextResponse.json({ error: 'id 필요' }, { status: 400 })
 
-    const [participantRes, activeParticipationsRes, pointHistoryRes, settlementsRes] = await Promise.all([
+    const [participantRes, activeParticipationsRes, pointHistoryRes, settlementsRes, allParticipationsRes] = await Promise.all([
       supabaseAdmin.from('participants').select('*').eq('id', id).maybeSingle(),
       supabaseAdmin.from('project_participants').select('*, projects(artist_name, client_name, song_title, status, end_date)').eq('member_id', id).eq('status', 'ACTIVE'),
       supabaseAdmin.from('point_history').select('*').eq('member_id', id),
-      supabaseAdmin.from('settlements').select('*').eq('member_id', id).in('status', ['PENDING', 'APPROVED'])
+      supabaseAdmin.from('settlements').select('*').eq('member_id', id).in('status', ['PENDING', 'APPROVED']),
+      supabaseAdmin.from('project_participants').select('project_code').eq('member_id', id)
     ])
 
     const participant = participantRes.data
@@ -34,11 +35,7 @@ export async function GET(request: NextRequest) {
       .filter((p: any) => p.status === 'ONGOING' || p.status === 'PENDING')
       .map((p: any) => ({ name: `${p.artist_name || p.client_name} - ${p.song_title ?? ''}`, status: p.status }))
 
-    const { data: myProjectCodes } = await supabaseAdmin
-      .from('project_participants')
-      .select('project_code')
-      .eq('member_id', id)
-    const codes = [...new Set((myProjectCodes ?? []).map((p: any) => p.project_code))]
+    const codes = [...new Set((allParticipationsRes.data ?? []).map((p: any) => p.project_code))]
     const { data: myProjects } = codes.length > 0
       ? await supabaseAdmin.from('projects').select('project_code, status, end_date').in('project_code', codes)
       : { data: [] }
