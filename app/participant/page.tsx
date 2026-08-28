@@ -1,5 +1,6 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
+import { clearWidgetUserInfo } from '../lib/widget'
 import { logCompleteRegistration } from '../lib/fbEvents'
 
 import { useState, useEffect, useRef } from 'react'
@@ -1134,10 +1135,10 @@ useEffect(() => {
     setMyPassword('')
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
-    import('../lib/widget').then(({ clearWidgetUserInfo }) => clearWidgetUserInfo())
+    await clearWidgetUserInfo()
     router.push('/')
   }
 

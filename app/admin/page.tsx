@@ -1,5 +1,6 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
+import { clearWidgetUserInfo } from '../lib/widget'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
@@ -1012,10 +1013,10 @@ export default function Page1() {
     })
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
-    import('../lib/widget').then(({ clearWidgetUserInfo }) => clearWidgetUserInfo())
+    await clearWidgetUserInfo()
     router.push('/')
   }
 

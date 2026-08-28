@@ -1,6 +1,7 @@
 'use client'
 import MetaInsightsDashboard from '../../components/MetaInsightsDashboard'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
+import { clearWidgetUserInfo } from '../lib/widget'
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
@@ -279,10 +280,10 @@ export default function Page3() {
     } else { setProjectInfo(null); setPosts([]) }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
-    import('../lib/widget').then(({ clearWidgetUserInfo }) => clearWidgetUserInfo())
+    await clearWidgetUserInfo()
     router.push('/')
   }
 
