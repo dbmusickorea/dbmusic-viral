@@ -282,6 +282,7 @@ export default function Page3() {
   const handleLogout = () => {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('userRole')
+    import('../lib/widget').then(({ clearWidgetUserInfo }) => clearWidgetUserInfo())
     router.push('/')
   }
 
