@@ -14,6 +14,7 @@ export default function AdminLinksPage() {
   const [stats, setStats] = useState<Record<string, { count: number, latest: string }>>({})
   const [metaAndroidInstalls, setMetaAndroidInstalls] = useState<string>('0')
   const [metaIosInstalls, setMetaIosInstalls] = useState<string>('0')
+  const [pixelPageViews, setPixelPageViews] = useState<number>(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -52,6 +53,8 @@ export default function AdminLinksPage() {
     // Meta 앱 설치 수
     fetch('/api/meta-insights?campaign_id=120255973470720715').then(r => r.json()).then(d => { if (d.mobile_app_installs) setMetaAndroidInstalls(d.mobile_app_installs) })
     fetch('/api/meta-insights?campaign_id=120256259817260715').then(r => r.json()).then(d => { if (d.mobile_app_installs) setMetaIosInstalls(d.mobile_app_installs) })
+    // 픽셀 웹사이트 방문 통계
+    fetch('/api/meta-pixel-insights').then(r => r.json()).then(d => { if (typeof d.page_views === 'number') setPixelPageViews(d.page_views) })
   }
 
   const handleGenerate = async () => {
@@ -163,6 +166,13 @@ export default function AdminLinksPage() {
                 <div className="flex justify-between">
                   <p className="text-xs text-gray-500 dark:text-gray-400">iOS</p>
                   <span className="text-xs font-bold text-blue-600">{metaIosInstalls}건</span>
+                </div>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900 rounded-xl px-3 py-2 mb-3">
+                <p className="text-xs font-bold text-purple-700 dark:text-purple-300 mb-1">doubleb.kr 방문 (의뢰인용 광고 · 최근 30일)</p>
+                <div className="flex justify-between">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">페이지뷰</p>
+                  <span className="text-xs font-bold text-purple-600">{pixelPageViews.toLocaleString('ko-KR')}회</span>
                 </div>
               </div>
               {links.length === 0 ? (

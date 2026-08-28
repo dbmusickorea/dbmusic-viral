@@ -16,11 +16,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { source_name } = await request.json()
+  const { source_name, label } = await request.json()
   if (!source_name) return NextResponse.json({ error: 'source_name 없음' }, { status: 400 })
   const { data, error } = await supabaseAdmin
     .from('download_links')
-    .insert({ source_name })
+    .insert({ source_name, label: label || null })
     .select()
     .single()
   if (error) return NextResponse.json({ error }, { status: 500 })
