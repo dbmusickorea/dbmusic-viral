@@ -71,7 +71,7 @@ export default function AboutPage() {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 mb-4">
           <h2 className="font-bold mb-3 dark:text-white">사업자 정보</h2>
           <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
-            <p>상호명: 더블비뮤직</p>
+            <p>상호명: 주식회사 더블비뮤직</p>
             <p>대표자: 최병민</p>
             <p>사업자등록번호: 659-87-03644</p>
             <p>고객센터: 070-8065-5811</p>
@@ -79,7 +79,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 dark:text-gray-500 pb-8">© 2026 더블비뮤직. All rights reserved.</p>
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 pb-8">COPYRIGHT 2026. Double B Music Co.,Ltd. ALL RIGHTS RESERVED.</p>
       </div>
     </div>
   )
