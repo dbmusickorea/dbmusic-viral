@@ -118,8 +118,8 @@ export default function TermsPage() {
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1">
             <li>회사명: 더블비뮤직</li>
             <li>대표자명: 최병민</li>
-            <li>사업자등록번호: 280-02-02331</li>
-            <li>주소: 서울특별시 송파구 백제고분로 116, 3층 611호</li>
+            <li>사업자등록번호: 659-87-03644</li>
+            <li>주소: 서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</li>
             <li>이메일: doubleb@doubleb.kr</li>
             <li>유선전화: 070-8065-5811</li>
           </ul>

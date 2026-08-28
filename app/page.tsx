@@ -938,8 +938,8 @@ export default function LoginPage() {
               <a href="/terms" className="block text-xs text-gray-400 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/terms') }}>이용약관</a>
               <a href="/about" className="block text-xs text-blue-500 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/about') }}>서비스 소개</a>
               <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">더블비뮤직 · 대표: 최병민 · 사업자등록번호: 280-02-02331</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">서울특별시 송파구 백제고분로 116, 3층 611호</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 text-center">고객센터: 070-8065-5811</p>
                 <p className="text-xs text-gray-300 dark:text-gray-500 text-center">COPYRIGHT 2026. 더블비뮤직 ALL RIGHTS RESERVED.</p>
               </div>
