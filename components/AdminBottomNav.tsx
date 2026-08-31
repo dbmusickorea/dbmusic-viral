@@ -55,11 +55,11 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
   const tabs = [
     { id: 'admin', label: '프로젝트', icon: <LayoutGrid size={20} className="mb-0.5" />, onClick: () => router.push('/admin') },
     { id: 'client', label: '의뢰인', icon: <Building2 size={20} className="mb-0.5" />, onClick: () => onClientClick ? onClientClick() : router.push('/client') },
+    { id: 'chat', label: '채팅', icon: <MessageCircle size={20} className="mb-0.5" />, onClick: () => router.push('/admin-chat'), badge: chatUnreadCount },
     { id: 'members', label: '회원관리', icon: <Users size={20} className="mb-0.5" />, onClick: () => router.push('/members'), badge: snsRequestCount },
     { id: 'settlement', label: '정산', icon: <Wallet size={20} className="mb-0.5" />, onClick: () => router.push('/settlement'), badge: settlementCount },
     { id: 'cover', label: '커버', icon: <Music size={20} className="mb-0.5" />, onClick: () => router.push('/cover'), badge: coverPendingCount },
     { id: 'agency', label: '에이전시', icon: <Briefcase size={20} className="mb-0.5" />, onClick: () => router.push('/agency') },
-    { id: 'chat', label: '채팅', icon: <MessageCircle size={20} className="mb-0.5" />, onClick: () => router.push('/admin-chat'), badge: chatUnreadCount },
     { id: 'mypage', label: '마이페이지', icon: <UserCircle size={20} className="mb-0.5" />, onClick: () => router.push('/admin-mypage') },
   ]
 
