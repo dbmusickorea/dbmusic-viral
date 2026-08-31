@@ -142,6 +142,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     })
     await fetchMessages()
     setSending(false)
+    // 내가 보낸 메시지는 스크롤 위치와 상관없이 항상 최신으로 이동
+    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
 
   return (
