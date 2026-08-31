@@ -6,10 +6,12 @@ let listenersRegistered = false
 
 export const initPushNotifications = async (userId: string, userRole: string) => {
   try {
+    alert('DEBUG: initPushNotifications 시작 userId=' + userId + ' role=' + userRole)
     currentUserId = userId
     currentUserRole = userRole
 
     const permission = await PushNotifications.requestPermissions()
+    alert('DEBUG: 권한 결과 = ' + JSON.stringify(permission))
     
     if (permission.receive !== 'granted') {
       console.log('푸시 알림 권한 거부됨')
@@ -17,12 +19,14 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
     }
 
     await PushNotifications.register()
+    alert('DEBUG: register() 호출 완료, listenersRegistered=' + listenersRegistered)
 
     if (!listenersRegistered) {
       listenersRegistered = true
 
       PushNotifications.addListener('registration', async (token) => {
         console.log('FCM Token:', token.value)
+        alert('DEBUG: registration 이벤트 수신, 토큰=' + token.value.slice(0, 10) + '...')
         await fetch('/api/push_tokens', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
