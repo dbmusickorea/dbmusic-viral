@@ -88,22 +88,24 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+    <div className="fixed inset-0 z-40 flex flex-col items-center bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'env(safe-area-inset-top)'}}>
       {(title || onBack) && (
-        <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
-          {onBack && (
-            <button onClick={onBack} className="text-gray-600 dark:text-gray-300">
-              <ArrowLeft size={20} />
-            </button>
-          )}
-          <div className="min-w-0">
-            {title && <p className="font-bold dark:text-white truncate">{title}</p>}
-            {subtitle && <p className="text-xs text-gray-400 truncate">{subtitle}</p>}
+        <div className="w-full bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
+          <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
+            {onBack && (
+              <button onClick={onBack} className="text-gray-600 dark:text-gray-300">
+                <ArrowLeft size={20} />
+              </button>
+            )}
+            <div className="min-w-0">
+              {title && <p className="font-bold dark:text-white truncate">{title}</p>}
+              {subtitle && <p className="text-xs text-gray-400 truncate">{subtitle}</p>}
+            </div>
           </div>
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 max-w-2xl w-full">
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
@@ -133,21 +135,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         <div ref={bottomRef} />
       </div>
 
-      <div className="shrink-0 flex gap-2 p-3 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSend() }}
-          className="flex-1 border dark:border-gray-600 rounded-full px-4 py-2 text-sm dark:bg-gray-700 dark:text-white"
-          placeholder="메시지 입력..."
-        />
-        <button
-          onClick={handleSend}
-          disabled={sending || !input.trim()}
-          className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-40 shrink-0"
-        >
-          <Send size={16} />
-        </button>
+      <div className="w-full shrink-0 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}>
+        <div className="max-w-2xl mx-auto flex gap-2 p-3 pb-0">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSend() }}
+            className="flex-1 border dark:border-gray-600 rounded-full px-4 py-2 text-sm dark:bg-gray-700 dark:text-white"
+            placeholder="메시지 입력..."
+          />
+          <button
+            onClick={handleSend}
+            disabled={sending || !input.trim()}
+            className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-40 shrink-0"
+          >
+            <Send size={16} />
+          </button>
+        </div>
       </div>
     </div>
   )
