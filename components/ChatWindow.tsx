@@ -81,7 +81,11 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         table: 'chat_messages',
         filter: `user_id=eq.${userId}`,
       }, (payload) => {
-        if ((payload.new as any)?.role !== role && (payload.old as any)?.role !== role) return
+        console.log('[채팅 실시간] 이벤트 수신:', payload.eventType, payload.new, payload.old)
+        if ((payload.new as any)?.role !== role && (payload.old as any)?.role !== role) {
+          console.log('[채팅 실시간] role 불일치로 무시함')
+          return
+        }
         fetchMessages().then(() => markRead())
       })
       .subscribe()
