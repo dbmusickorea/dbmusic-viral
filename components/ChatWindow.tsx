@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
 import { Send, Check, CheckCheck, ArrowLeft } from 'lucide-react'
-import { Keyboard } from '@capacitor/keyboard'
 
 type ChatMessage = {
   id: number
@@ -93,19 +92,17 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }, [messages])
 
   useEffect(() => {
-    if (!(window as any).Capacitor?.isNativePlatform?.()) return
-    const showListener = Keyboard.addListener('keyboardWillShow', (info: any) => {
-      alert('KB-DEBUG: keyboardWillShow 도착, height=' + info?.keyboardHeight)
-      setKeyboardVisible(true)
-    })
-    const hideListener = Keyboard.addListener('keyboardWillHide', () => {
-      alert('KB-DEBUG: keyboardWillHide 도착')
-      setKeyboardVisible(false)
-    })
-    return () => {
-      showListener.then(l => l.remove())
-      hideListener.then(l => l.remove())
+    const vv = window.visualViewport
+    if (!vv) return
+    const handleResize = () => {
+      // 레이아웃 뷰포트(window.innerHeight)보다 시각 뷰포트(visualViewport.height)가
+      // 눈에 띄게 작아지면 키보드가 열린 것으로 판단 (브라우저/Capacitor 공통으로 동작)
+      const diff = window.innerHeight - vv.height
+      setKeyboardVisible(diff > 100)
     }
+    vv.addEventListener('resize', handleResize)
+    handleResize()
+    return () => vv.removeEventListener('resize', handleResize)
   }, [])
 
   const handleSend = async () => {
