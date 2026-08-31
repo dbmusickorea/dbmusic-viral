@@ -186,6 +186,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       </div>
       {showScrollButton && (
         <button
+          onMouseDown={(e) => e.preventDefault()}
+          onTouchStart={(e) => e.preventDefault()}
           onClick={scrollToBottom}
           className="absolute bottom-24 right-1/2 translate-x-[calc(50%+1rem)] max-w-2xl bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-10"
         >
