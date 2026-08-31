@@ -94,8 +94,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   useEffect(() => {
     if (!(window as any).Capacitor?.isNativePlatform?.()) return
-    const showListener = Keyboard.addListener('keyboardWillShow', () => setKeyboardVisible(true))
-    const hideListener = Keyboard.addListener('keyboardWillHide', () => setKeyboardVisible(false))
+    const showListener = Keyboard.addListener('keyboardWillShow', (info: any) => {
+      alert('KB-DEBUG: keyboardWillShow 도착, height=' + info?.keyboardHeight)
+      setKeyboardVisible(true)
+    })
+    const hideListener = Keyboard.addListener('keyboardWillHide', () => {
+      alert('KB-DEBUG: keyboardWillHide 도착')
+      setKeyboardVisible(false)
+    })
     return () => {
       showListener.then(l => l.remove())
       hideListener.then(l => l.remove())
