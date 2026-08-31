@@ -24,6 +24,7 @@ export default function CoverPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [coverRequests, setCoverRequests] = useState<any[]>([])
+  const [coverAddRequests, setCoverAddRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState('')
   const [isPulling, setIsPulling] = useState(false)
@@ -116,6 +117,10 @@ export default function CoverPage() {
       const projectsRes = await fetchWithAuth('/api/projects?status=ONGOING,PENDING')
       const projects = await projectsRes.json()
       setProjects(projects ?? [])
+      // 커버 체험단 추가 요청(의뢰인이 문의로 제출한 것) 대기중 목록
+      const coverAddReqRes = await fetchWithAuth('/api/client_requests?title=' + encodeURIComponent('커버 체험단 추가 요청') + '&status=PENDING')
+      const coverAddReqData = await coverAddReqRes.json()
+      setCoverAddRequests(Array.isArray(coverAddReqData) ? coverAddReqData : [])
     } else if (role === 'client') {
       const projectsRes = await fetchWithAuth(`/api/projects?client_id=${user.client_id}`)
       const projects = await projectsRes.json()
@@ -136,6 +141,43 @@ export default function CoverPage() {
     await loadData(userInfo, userRole)
     setIsRefreshing(false)
     setIsPulling(false)
+  }
+
+  const handleCoverAddApprove = async (req: any) => {
+    const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
+    if (!participantName) return
+    const pRes = await fetchWithAuth(`/api/participants?name=${encodeURIComponent(participantName)}`)
+    const pData = await pRes.json()
+    const participant = pData?.[0]
+    if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
+    await fetchWithAuth('/api/cover_requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        project_code: req.project_code,
+        participant_id: participant.id,
+        status: 'APPROVED',
+        approved_at: new Date().toISOString()
+      })
+    })
+    await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'APPROVED' })
+    })
+    showToast('커버 승인 완료!')
+    await loadData(userInfo, userRole)
+  }
+
+  const handleCoverAddReject = async (req: any) => {
+    if (!confirm('이 요청을 거절하시겠어요?')) return
+    await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'REJECTED' })
+    })
+    showToast('거절 처리했어요.')
+    await loadData(userInfo, userRole)
   }
 
   const handleSelectParticipant = async (participant: any) => {
@@ -458,6 +500,26 @@ export default function CoverPage() {
               <p className="text-xs text-blue-700 dark:text-blue-300">• 미션 시작 전까지 커버 체험단을 선택할 수 있습니다.</p>
             </div>
           </>
+        )}
+
+        {/* 커버 체험단 추가 요청 (의뢰인 문의로 접수된 것, 관리자 전용) */}
+        {userRole === 'admin' && coverAddRequests.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 체험단 추가 요청 <span className="text-xs bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 ml-1">{coverAddRequests.length}</span></h2>
+            <div className="space-y-2">
+              {coverAddRequests.map((req: any) => (
+                <div key={req.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                  <p className="text-sm font-medium dark:text-white">{req.client_name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">{req.content}</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleCoverAddApprove(req)} className="flex-1 text-xs bg-purple-600 text-white rounded-lg py-1.5">승인</button>
+                    <button onClick={() => handleCoverAddReject(req)} className="flex-1 text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg py-1.5">거절</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         <div className="md:grid md:grid-cols-2 md:gap-4">

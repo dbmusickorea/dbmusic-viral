@@ -25,11 +25,15 @@ export async function GET(request: NextRequest) {
   const clientId = searchParams.get('client_id')
   const memberId = searchParams.get('member_id')
   const projectCode = searchParams.get('project_code')
+  const title = searchParams.get('title')
+  const status = searchParams.get('status')
 
   let query = auth.client.from('client_requests').select('*').order('created_at', { ascending: false })
   if (clientId) query = query.eq('client_id', clientId)
   if (memberId) query = query.eq('member_id', memberId)
   if (projectCode) query = query.eq('project_code', projectCode)
+  if (title) query = query.eq('title', title)
+  if (status) query = query.eq('status', status)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })

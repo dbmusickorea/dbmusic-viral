@@ -14,7 +14,6 @@ import AdminBottomNav from '../../components/AdminBottomNav'
 import AdminParticipantList from '../../components/AdminParticipantList'
 import AdminPostList from '../../components/AdminPostList'
 import AdminProjectApplications from '../../components/AdminProjectApplications'
-import AdminClientRequests from '../../components/AdminClientRequests'
 import AdminPushSection from '../../components/AdminPushSection'
 import AdminUnlockVideos from '../../components/AdminUnlockVideos'
 import AdminProductManager from '../../components/AdminProductManager'
@@ -50,7 +49,6 @@ export default function Page1() {
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
   const [isSendingPush, setIsSendingPush] = useState(false)
-  const [clientRequests, setClientRequests] = useState<any[]>([])
   const [projectApplications, setProjectApplications] = useState<any[]>([])
   const [participants, setParticipants] = useState<any[]>([])
   const [showProjectForm, setShowProjectForm] = useState(false)
@@ -96,7 +94,6 @@ export default function Page1() {
         fetchProjects(),
         fetchProducts(),
         fetchClients(),
-        fetchClientRequests(),
         fetchProjectApplications(),
         fetchUnlockVideos(),
         fetchCoverPosts(),
@@ -125,12 +122,6 @@ export default function Page1() {
     const res = await fetchWithAuth('/api/users')
     const data = await res.json()
     setClients(data ?? [])
-  }
-
-  const fetchClientRequests = async () => {
-    const res = await fetchWithAuth('/api/client_requests')
-    const data = await res.json()
-    setClientRequests(data ?? [])
   }
 
   const fetchProjectApplications = async () => {
@@ -1026,7 +1017,6 @@ export default function Page1() {
     await fetchProjects()
     await fetchProducts()
     await fetchClients()
-    await fetchClientRequests()
     await fetchUnlockVideos()
     await fetchCoverPosts()
     const userInfo = localStorage.getItem('userInfo')
@@ -1242,46 +1232,6 @@ export default function Page1() {
               setSelectedProject(null)
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
-          />
-          <AdminClientRequests
-            clientRequests={clientRequests}
-            PAGE_SIZE={PAGE_SIZE}
-            projectCode={formData.projectCode}
-            onConfirm={async (reqId) => {
-              await fetchWithAuth(`/api/client_requests?id=${reqId}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'CONFIRMED' })
-              })
-              fetchClientRequests()
-            }}
-            onCoverApprove={async (req) => {
-              const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
-              if (!participantName) return
-              const pRes = await fetchWithAuth(`/api/participants?name=${encodeURIComponent(participantName)}`)
-              const pData = await pRes.json()
-              const participant = pData?.[0]
-              if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
-              await fetchWithAuth('/api/cover_requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  project_code: req.project_code ?? formData.projectCode,
-                  participant_id: participant.id,
-                  status: 'APPROVED',
-                  approved_at: new Date().toISOString()
-                })
-              })
-              await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'APPROVED' })
-              })
-              showToast('커버 승인 완료!')
-              fetchClientRequests()
-            }}
-            onRefresh={fetchClientRequests}
-            showToast={showToast}
           />
           <AdminUnlockVideos
             unlockVideos={unlockVideos}
