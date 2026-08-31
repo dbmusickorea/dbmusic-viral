@@ -2,11 +2,11 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
-import { LayoutGrid, Building2, Users, Wallet, Music, UserCircle, Briefcase } from 'lucide-react'
+import { LayoutGrid, Building2, Users, Wallet, Music, UserCircle, Briefcase, MessageCircle } from 'lucide-react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 
 type AdminBottomNavProps = {
-  active?: 'admin' | 'client' | 'members' | 'settlement' | 'cover' | 'agency' | 'mypage'
+  active?: 'admin' | 'client' | 'members' | 'settlement' | 'cover' | 'agency' | 'mypage' | 'chat'
   onClientClick?: () => void
 }
 
@@ -15,23 +15,27 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
   const [snsRequestCount, setSnsRequestCount] = useState(0)
   const [coverPendingCount, setCoverPendingCount] = useState(0)
   const [settlementCount, setSettlementCount] = useState(0)
+  const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchCounts = async () => {
-      const [snsRes, coverRes, settleRes, coverApprovalRes] = await Promise.all([
+      const [snsRes, coverRes, settleRes, coverApprovalRes, chatRes] = await Promise.all([
         fetchWithAuth('/api/sns_change_requests?status=PENDING'),
         fetchWithAuth('/api/posts?is_cover=true&cover_status=PENDING'),
         fetchWithAuth('/api/settlements?status=PENDING'),
-        fetchWithAuth('/api/participants?cover_approved=false')
+        fetchWithAuth('/api/participants?cover_approved=false'),
+        fetchWithAuth('/api/chat_threads')
       ])
       const snsData = await snsRes.json()
       const coverData = await coverRes.json()
       const settleData = await settleRes.json()
       const coverApprovalData = await coverApprovalRes.json()
+      const chatData = await chatRes.json()
       setSnsRequestCount((Array.isArray(snsData) ? snsData.length : 0) + (Array.isArray(coverApprovalData) ? coverApprovalData.length : 0))
       setCoverPendingCount(Array.isArray(coverData) ? coverData.length : 0)
       setSettlementCount(Array.isArray(settleData) ? settleData.length : 0)
+      setChatUnreadCount(Array.isArray(chatData) ? chatData.reduce((sum: number, t: any) => sum + (t.unread_count ?? 0), 0) : 0)
     }
     fetchCounts()
   }, [])
@@ -53,6 +57,7 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
     { id: 'settlement', label: '정산', icon: <Wallet size={20} className="mb-0.5" />, onClick: () => router.push('/settlement'), badge: settlementCount },
     { id: 'cover', label: '커버', icon: <Music size={20} className="mb-0.5" />, onClick: () => router.push('/cover'), badge: coverPendingCount },
     { id: 'agency', label: '에이전시', icon: <Briefcase size={20} className="mb-0.5" />, onClick: () => router.push('/agency') },
+    { id: 'chat', label: '채팅', icon: <MessageCircle size={20} className="mb-0.5" />, onClick: () => router.push('/admin-chat'), badge: chatUnreadCount },
     { id: 'mypage', label: '마이페이지', icon: <UserCircle size={20} className="mb-0.5" />, onClick: () => router.push('/admin-mypage') },
   ]
 

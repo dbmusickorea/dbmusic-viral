@@ -187,7 +187,7 @@ export default function AdminChatPage() {
           </div>
         )}
       </div>
-      <AdminBottomNav />
+      <AdminBottomNav active="chat" />
     </div>
   )
 }
