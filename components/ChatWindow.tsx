@@ -46,6 +46,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, role, reader: myLabel })
     })
+    // 앱 아이콘 뱃지 즉시 갱신 (읽음 처리 후 최신 정확한 숫자로)
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      try {
+        let badgeUserId = userId
+        let badgeRole: string = role
+        if (myLabel === 'admin') {
+          const info = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
+          badgeUserId = String(info.id ?? userId)
+          badgeRole = 'admin'
+        }
+        const res = await fetch(`/api/badge-count?user_id=${badgeUserId}&role=${badgeRole}`)
+        const { count } = await res.json()
+        const { Badge } = await import('@capawesome/capacitor-badge')
+        if (count > 0) await Badge.set({ count })
+        else await Badge.clear()
+      } catch (e) {}
+    }
   }, [userId, role, myLabel])
 
   useEffect(() => {
