@@ -1,6 +1,7 @@
 'use client'
 import MetaInsightsDashboard from '../../components/MetaInsightsDashboard'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
+import ChatWindow from '../../components/ChatWindow'
 import { clearWidgetUserInfo } from '../lib/widget'
 
 import { useState, useEffect, useRef } from 'react'
@@ -36,6 +37,7 @@ export default function Page3() {
   const [commentMissionData, setCommentMissionData] = useState<any>(null)
   const [requests, setRequests] = useState<any[]>([])
   const [showRequestForm, setShowRequestForm] = useState(true)
+  const [showChat, setShowChat] = useState(false)
   const [requestTitle, setRequestTitle] = useState('')
   const [requestContent, setRequestContent] = useState('')
   const [requestedPosts, setRequestedPosts] = useState('1')
@@ -138,7 +140,7 @@ export default function Page3() {
   }
 
   const handleSubmitRequest = async () => {
-    if (!requestTitle || !requestContent) { showToast('제목과 내용을 입력해주세요.'); return }
+    if (!requestContent) { showToast('내용을 입력해주세요.'); return }
     const res = await fetchWithAuth('/api/client_requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -146,7 +148,7 @@ export default function Page3() {
         client_id: userInfo?.client_id,
         client_name: userInfo?.name,
         client_mobile: userInfo?.mobile,
-        title: requestTitle,
+        title: '커버 체험단 추가 요청',
         content: requestContent,
         requested_posts: Number(requestedPosts),
         project_code: projectInfo?.project_code ?? null
@@ -706,63 +708,62 @@ export default function Page3() {
               </div>
             )}
 
-            {/* 프로젝트 문의 게시판 */}
+            {/* 커버 체험단 추가 요청 */}
             {isClient && (
               <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 프로젝트 문의</h2>
+                  <h2 className="font-bold dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 커버 체험단 추가 요청</h2>
                   <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
-                    {showRequestForm ? '취소' : '+ 문의하기'}
+                    {showRequestForm ? '취소' : '+ 신청하기'}
                   </button>
                 </div>
                 {showRequestForm && (
                   <div className="space-y-3 mb-4 border-b dark:border-gray-600 pb-4">
                     <div>
-                      <label className="text-sm font-medium dark:text-white">문의 유형</label>
-                      <select value={requestCategory} onChange={(e) => { setRequestCategory(e.target.value); if (e.target.value !== '기타 문의') setRequestTitle(e.target.value) }} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
-                        <option value="">선택해주세요</option>
-                        <option value="커버 체험단 추가 요청">커버 체험단 추가 요청</option>
-                        <option value="기타 문의">기타 문의</option>
-                      </select>
-                    </div>
-                    {requestCategory === '기타 문의' && (
-                      <div>
-                        <label className="text-sm font-medium dark:text-white">제목</label>
-                        <input value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="문의 제목" />
-                      </div>
-                    )}
-                    <div>
                       <label className="text-sm font-medium dark:text-white">내용</label>
-                      <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={4} placeholder="문의 내용을 입력해주세요" />
+                      <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={4} placeholder="원하시는 커버 체험단 관련 내용을 입력해주세요" />
                     </div>
-                    <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">문의 등록</button>
+                    <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">신청하기</button>
                   </div>
                 )}
-                {requests.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-2">문의 내역이 없습니다.</p>
+                {requests.filter((req: any) => req.title === '커버 체험단 추가 요청').length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-2">신청 내역이 없습니다.</p>
                 ) : (
                   <div className="space-y-2">
-                    {requests.map((req) => (
+                    {requests.filter((req: any) => req.title === '커버 체험단 추가 요청').map((req) => (
                       <div key={req.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <p className="text-sm font-medium dark:text-white">{req.title}</p>
-                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {req.status === 'PENDING' ? '검토중' : '✅ 확인됨'}
+                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : req.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '✅ 승인' : req.status === 'REJECTED' ? '거절' : '확인됨'}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{req.content}</p>
-                        {req.reply && (
-                          <div className="mt-2 bg-blue-50 dark:bg-blue-900 rounded p-2">
-                            <p className="text-xs text-blue-700 font-medium mb-1">💬 답장</p>
-                            <p className="text-xs text-blue-600">{req.reply}</p>
-                          </div>
-                        )}
                         <p className="text-xs text-gray-400 mt-1">{new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+            )}
+
+            {/* 관리자와 대화 */}
+            {isClient && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <button onClick={() => setShowChat(true)} className="w-full flex justify-between items-center">
+                  <h2 className="font-bold dark:text-white flex items-center gap-1"><MessageSquare size={16} /> 관리자와 대화하기</h2>
+                  <span className="text-xs text-blue-600 dark:text-blue-400">문의사항을 남겨보세요 &gt;</span>
+                </button>
+              </div>
+            )}
+            {showChat && userInfo && (
+              <ChatWindow
+                userId={String(userInfo.id)}
+                role="client"
+                viewerType="user"
+                title="관리자와의 대화"
+                onBack={() => setShowChat(false)}
+              />
             )}
           </div>
 
