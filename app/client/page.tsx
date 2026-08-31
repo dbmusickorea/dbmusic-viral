@@ -76,7 +76,14 @@ export default function Page3() {
   const { showToast } = useToast()
   const [applyJacketImage, setApplyJacketImage] = useState('')
   const [showApplyModal, setShowApplyModal] = useState(false)
+  const [showScrollTopBtn, setShowScrollTopBtn] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTopBtn(window.scrollY > 300)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     if ((window as any).Capacitor?.isNativePlatform?.()) {
@@ -1165,13 +1172,15 @@ export default function Page3() {
           </div>
         </div>
       </div>
-    {/* 스크롤 상단 버튼 */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
-      >
-        ↑
-      </button>
+    {/* 스크롤 상단 버튼 (일정 이상 내렸을 때만 표시) */}
+      {showScrollTopBtn && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+        >
+          ↑
+        </button>
+      )}
       {/* 하단 탭바 */}
       {userRole === 'admin' ? (
         <AdminBottomNav active="client" onClientClick={() => setActiveTab('project')} />
