@@ -49,6 +49,9 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
             if (url.pathname === '/participant') sessionStorage.setItem('participantTab', tab)
             else if (url.pathname === '/client') sessionStorage.setItem('clientTab', tab)
           }
+          if (url.searchParams.get('open_chat') === '1') {
+            sessionStorage.setItem('openAdminChat', '1')
+          }
           window.location.href = url.pathname
         } else if (data?.page || data?.data?.page) {
           window.location.href = data?.page || data?.data?.page

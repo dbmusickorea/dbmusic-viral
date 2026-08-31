@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             title: '📬 새 메시지가 왔어요',
             body: messageBody,
-            data: { url: role === 'client' ? '/client' : '/participant' },
+            data: { url: (role === 'client' ? '/client' : '/participant') + '?open_chat=1' },
             tokens: tokens.map((t: any) => t.token),
             userIds: [String(user_id)]
           })

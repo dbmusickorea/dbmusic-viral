@@ -83,6 +83,7 @@ export default function MyPage() {
   const [requestContent, setRequestContent] = useState('')
   const [showRequestForm, setShowRequestForm] = useState(false)
   const [showChat, setShowChat] = useState(false)
+  const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -104,6 +105,19 @@ export default function MyPage() {
     if (!info) { router.push('/'); return }
     const parsed = JSON.parse(info)
     setUserInfo(parsed)
+    // 관리자 채팅 푸시로 들어온 경우 자동으로 채팅창 열기
+    if (sessionStorage.getItem('openAdminChat') === '1') {
+      sessionStorage.removeItem('openAdminChat')
+      setShowChat(true)
+    }
+    // 안읽은 채팅 메시지 개수
+    fetchWithAuth(`/api/chat_messages?user_id=${parsed.id}&role=participant`)
+      .then(r => r.json())
+      .then(msgs => {
+        if (Array.isArray(msgs)) {
+          setChatUnreadCount(msgs.filter((m: any) => m.sender === 'admin' && !m.read_at).length)
+        }
+      })
     if ((window as any).Capacitor) {
       import('@capacitor/app').then(({ App }) => {
         App.getInfo().then(async info => {
@@ -651,7 +665,12 @@ export default function MyPage() {
         {/* 관리자와 대화 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <button onClick={() => setShowChat(true)} className="w-full flex justify-between items-center">
-            <h2 className="font-bold dark:text-white flex items-center gap-1"><MessageSquare size={16} /> 관리자와 대화하기</h2>
+            <h2 className="font-bold dark:text-white flex items-center gap-1">
+              <MessageSquare size={16} /> 관리자와 대화하기
+              {chatUnreadCount > 0 && (
+                <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center ml-1">{chatUnreadCount}</span>
+              )}
+            </h2>
             <span className="text-xs text-blue-600 dark:text-blue-400">문의사항을 남겨보세요 &gt;</span>
           </button>
         </div>
@@ -661,7 +680,7 @@ export default function MyPage() {
             role="participant"
             viewerType="user"
             title="관리자와의 대화"
-            onBack={() => setShowChat(false)}
+            onBack={() => { setShowChat(false); setChatUnreadCount(0) }}
           />
         )}
 
