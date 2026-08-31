@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown } from 'lucide-react'
 
 type ChatMessage = {
   id: number
@@ -31,6 +31,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const [sending, setSending] = useState(false)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [showScrollButton, setShowScrollButton] = useState(false)
 
   const myLabel = viewerType === 'admin' ? 'admin' : 'user'
 
@@ -88,8 +90,24 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }, [userId, role, fetchMessages, markRead])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollContainerRef.current
+    if (!el) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    if (distanceFromBottom < 150) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
+
+  const handleScroll = () => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    setShowScrollButton(distanceFromBottom > 200)
+  }
+
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
     const vv = window.visualViewport
@@ -137,7 +155,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 max-w-2xl w-full">
+      <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-4 py-3 space-y-2 max-w-2xl w-full relative">
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
@@ -166,6 +184,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         )}
         <div ref={bottomRef} />
       </div>
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-24 right-1/2 translate-x-[calc(50%+1rem)] max-w-2xl bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-10"
+        >
+          <ChevronDown size={20} />
+        </button>
+      )}
 
       <div className="w-full shrink-0 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: keyboardVisible ? '0.75rem' : 'max(0.75rem, env(safe-area-inset-bottom))'}}>
         <div className="max-w-2xl mx-auto flex gap-2 p-3 pb-0">
