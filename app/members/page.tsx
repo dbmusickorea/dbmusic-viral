@@ -439,10 +439,6 @@ export default function Page4() {
   
   const [participants, setParticipants] = useState<any[]>([])
   const [selected, setSelected] = useState<any>(null)
-  const [showMessageModal, setShowMessageModal] = useState(false)
-  const [messageTitle, setMessageTitle] = useState('')
-  const [messageBody, setMessageBody] = useState('')
-  const [sendingMessage, setSendingMessage] = useState(false)
   const [adminMemo, setAdminMemo] = useState('')
   const [selectedReferredUsers, setSelectedReferredUsers] = useState<any[]>([])
   const [expandedCard, setExpandedCard] = useState<number | null>(null)
@@ -880,48 +876,6 @@ export default function Page4() {
 
   return (
     <>
-      {showMessageModal && selected && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold text-lg dark:text-white flex items-center gap-1"><MessageSquare size={16} /> {selected.name}님께 메시지 보내기</h2>
-              <button onClick={() => setShowMessageModal(false)} className="text-gray-400 text-xl">✕</button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium dark:text-white">제목</label>
-                <input value={messageTitle} onChange={(e) => setMessageTitle(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="예: 안내드립니다" />
-              </div>
-              <div>
-                <label className="text-sm font-medium dark:text-white">내용</label>
-                <textarea value={messageBody} onChange={(e) => setMessageBody(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={4} placeholder="전달할 내용을 입력해주세요" />
-              </div>
-              <button disabled={sendingMessage} onClick={async () => {
-                if (!messageTitle.trim() || !messageBody.trim()) { showToast('제목과 내용을 입력해주세요.', 'error'); return }
-                setSendingMessage(true)
-                const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.id)}`)
-                const tokens = await tokensRes.json()
-                await fetch('/api/push', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    title: messageTitle,
-                    body: messageBody,
-                    data: { url: '/participant' },
-                    tokens: (tokens ?? []).map((t: any) => t.token),
-                    userIds: [String(selected.id)]
-                  })
-                })
-                setSendingMessage(false)
-                setShowMessageModal(false)
-                showToast('메시지를 보냈어요!')
-              }} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium disabled:opacity-50">
-                {sendingMessage ? '전송 중...' : '보내기'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
@@ -1197,7 +1151,7 @@ export default function Page4() {
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white">{selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2 mt-3">
-                    {selected && <button onClick={() => { setMessageTitle(''); setMessageBody(''); setShowMessageModal(true) }} className="text-xs text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-700 rounded px-2 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>}
+                    {selected && <button onClick={() => router.push(`/admin-chat?open_user_id=${selected.id}&open_role=participant&open_name=${encodeURIComponent(selected.name)}`)} className="text-xs text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-700 rounded px-2 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>}
                     {selected && <button onClick={clearForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">새 등록</button>}
                     {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
                       {showParticipantInsert ? '접기 ▲' : '펼치기 ▼'}
