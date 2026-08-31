@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
 import { Send, Check, CheckCheck, ArrowLeft, ChevronDown } from 'lucide-react'
+import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
   id: number
@@ -108,6 +109,12 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return
+    const isDark = document.documentElement.classList.contains('dark')
+    Keyboard.setStyle({ style: isDark ? KeyboardStyle.Dark : KeyboardStyle.Light }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const vv = window.visualViewport
