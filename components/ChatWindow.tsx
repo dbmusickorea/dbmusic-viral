@@ -112,8 +112,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   useEffect(() => {
     if (!(window as any).Capacitor?.isNativePlatform?.()) return
-    const isDark = document.documentElement.classList.contains('dark')
-    Keyboard.setStyle({ style: isDark ? KeyboardStyle.Dark : KeyboardStyle.Light }).catch(() => {})
+    const applyKeyboardStyle = () => {
+      const isDark = document.documentElement.classList.contains('dark')
+      Keyboard.setStyle({ style: isDark ? KeyboardStyle.Dark : KeyboardStyle.Light }).catch(() => {})
+    }
+    applyKeyboardStyle()
+    const observer = new MutationObserver(applyKeyboardStyle)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
