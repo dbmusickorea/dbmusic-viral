@@ -23,6 +23,7 @@ import CoverAudioPlayer from '../../components/CoverAudioPlayer'
 export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const [userRole, setUserRole] = useState('')
   const [projectCode, setProjectCode] = useState('')
   const [requirements, setRequirements] = useState('')
@@ -136,6 +137,17 @@ useEffect(() => {
     setYoutubeHandle(accounts.youtube ?? '')
     setUserInfo(parsed)
     setUserRole(role ?? '')
+
+    // 안읽은 채팅 메시지 개수 (마이페이지 탭 뱃지용)
+    if (parsed?.id) {
+      fetchWithAuth(`/api/chat_messages?user_id=${parsed.id}&role=participant`)
+        .then(r => r.json())
+        .then(msgs => {
+          if (Array.isArray(msgs)) {
+            setChatUnreadCount(msgs.filter((m: any) => m.sender === 'admin' && !m.read_at).length)
+          }
+        })
+    }
 
     // 가이드 팝업 첫 로그인 시 표시
     const guideShown = localStorage.getItem('participantTutorialDone')
@@ -1809,7 +1821,7 @@ useEffect(() => {
         { icon: <Target size={20} />, label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, id: 'tutorial-tab-project' },
         { icon: <Wallet size={20} />, label: '적립금', href: '/wallet', id: 'tutorial-tab-wallet' },
         ...(userInfo?.is_agency ? [{ icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member' }] : []),
-        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', id: 'tutorial-tab-mypage' },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', badge: chatUnreadCount, id: 'tutorial-tab-mypage' },
       ]} />
       
     </div>

@@ -1216,7 +1216,13 @@ export default function Page3() {
       ) : (
         <div id="tutorial-bottom-nav" className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex md:hidden z-50" style={{paddingBottom: 'env(safe-area-inset-bottom)'}}>
           <button onClick={() => setActiveTab('project')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'project' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
-            <LayoutGrid size={20} className="mb-0.5" />프로젝트
+            <div className="relative">
+              <LayoutGrid size={20} className="mb-0.5" />
+              {chatUnreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">{chatUnreadCount}</span>
+              )}
+            </div>
+            프로젝트
           </button>
           <button id="tutorial-stats-btn" onClick={() => setActiveTab('stats')} className={`flex-1 flex flex-col items-center py-3 text-xs ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
             <BarChart2 size={20} className="mb-0.5" />현황

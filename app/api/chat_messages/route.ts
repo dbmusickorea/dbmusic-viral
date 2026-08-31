@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
             body: messageBody,
             data: { url: (role === 'client' ? '/client' : '/participant') + '?open_chat=1' },
             tokens: tokens.map((t: any) => t.token),
-            userIds: [String(user_id)]
+            userIds: [String(user_id)],
+            skipNotificationSave: true
           })
         })
       }
@@ -70,7 +71,8 @@ export async function POST(request: NextRequest) {
             body: messageBody,
             data: { url: '/admin-chat' },
             tokens: tokens.map((t: any) => t.token),
-            userIds: adminIds
+            userIds: adminIds,
+            skipNotificationSave: true
           })
         })
       }

@@ -20,7 +20,7 @@ if (!getApps().length) {
 }
 
 export async function POST(request: NextRequest) {
-  const { title, body, tokens, userIds, saveToRole, data } = await request.json()
+  const { title, body, tokens, userIds, saveToRole, data, skipNotificationSave } = await request.json()
   
   const autoData = data ?? (saveToRole === 'participant' ? { url: '/participant' } : saveToRole === 'client' ? { url: '/client' } : {})
 
@@ -85,7 +85,9 @@ results.push(result)
   }
 
   // notifications 테이블에 저장
-  if (saveToRole) {
+  if (skipNotificationSave) {
+    // 채팅 등, 별도 화면에 이미 저장되는 경우 알림함에는 중복 저장하지 않음
+  } else if (saveToRole) {
     const table = saveToRole === 'participant' ? 'participants' : 'users'
     const { data: allUsers } = await supabaseAdmin.from(table).select('id')
     const rows = allUsers?.map((u: any) => ({ user_id: String(u.id), title, body }))
