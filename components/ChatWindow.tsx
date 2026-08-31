@@ -88,7 +88,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         }
         fetchMessages().then(() => markRead())
       })
-      .subscribe()
+      .subscribe((status) => {
+        console.log('[채팅 실시간] 구독 상태:', status, 'channel=', `chat_${role}_${userId}`)
+      })
 
     return () => { supabase.removeChannel(channel) }
   }, [userId, role, fetchMessages, markRead])
