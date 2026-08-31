@@ -37,6 +37,48 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error }, { status: 500 })
+
+  // 푸시 알림 발송
+  try {
+    if (sender === 'admin') {
+      // 관리자 -> 체험단/의뢰인
+      const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token').eq('user_id', String(user_id))
+      if (tokens && tokens.length > 0) {
+        await fetch('https://app.doubleb.kr/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '📬 새 메시지가 왔어요',
+            body: messageBody,
+            data: { url: role === 'client' ? '/client' : '/participant' },
+            tokens: tokens.map((t: any) => t.token),
+            userIds: [String(user_id)]
+          })
+        })
+      }
+    } else {
+      // 체험단/의뢰인 -> 관리자
+      const { data: adminUsers } = await supabaseAdmin.from('users').select('id').eq('role', 'admin')
+      const adminIds = (adminUsers ?? []).map((u: any) => String(u.id))
+      const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token').in('user_id', adminIds)
+      if (tokens && tokens.length > 0) {
+        await fetch('https://app.doubleb.kr/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '💬 새 채팅 메시지가 왔어요',
+            body: messageBody,
+            data: { url: '/admin-chat' },
+            tokens: tokens.map((t: any) => t.token),
+            userIds: adminIds
+          })
+        })
+      }
+    }
+  } catch (e) {
+    console.error('채팅 푸시 발송 실패:', e)
+  }
+
   return NextResponse.json(data)
 }
 
