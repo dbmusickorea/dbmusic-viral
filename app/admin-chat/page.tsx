@@ -29,6 +29,7 @@ function AdminChatContent() {
   const [allParticipants, setAllParticipants] = useState<any[]>([])
   const [allClients, setAllClients] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [listSearchQuery, setListSearchQuery] = useState('')
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -72,7 +73,9 @@ function AdminChatContent() {
     setLoading(false)
   }
 
-  const filtered = threads.filter(t => filter === 'all' || t.role === filter)
+  const filtered = threads
+    .filter(t => filter === 'all' || t.role === filter)
+    .filter(t => t.name.toLowerCase().includes(listSearchQuery.toLowerCase()))
 
   if (loading) return <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
@@ -158,6 +161,16 @@ function AdminChatContent() {
           <button onClick={() => setFilter('all')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'all' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>전체</button>
           <button onClick={() => setFilter('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>의뢰인</button>
           <button onClick={() => setFilter('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>체험단</button>
+        </div>
+
+        <div className="relative mb-3">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            value={listSearchQuery}
+            onChange={(e) => setListSearchQuery(e.target.value)}
+            placeholder="이름 검색..."
+            className="w-full border dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
+          />
         </div>
 
         {filtered.length === 0 ? (
