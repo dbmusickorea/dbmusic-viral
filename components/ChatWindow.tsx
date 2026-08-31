@@ -203,7 +203,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             placeholder="메시지 입력..."
             autoComplete="new-password"
             autoCorrect="off"
+            autoCapitalize="off"
             spellCheck="false"
+            inputMode="text"
             name="msg-body-nofill"
             data-lpignore="true"
           />
