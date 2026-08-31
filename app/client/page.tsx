@@ -472,6 +472,7 @@ export default function Page3() {
           items={[
             { icon: '', label: '프로젝트', onClick: () => router.push('/admin') },
             { icon: '', label: '의뢰인', onClick: () => {}, active: true },
+            { icon: '', label: '채팅', onClick: () => router.push('/admin-chat') },
             { icon: '', label: '회원관리', onClick: () => router.push('/members') },
             { icon: '', label: '정산', onClick: () => router.push('/settlement') },
             { icon: '', label: '커버', onClick: () => router.push('/cover') },
