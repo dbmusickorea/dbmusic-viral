@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: '📬 새 메시지가 왔어요',
+            title: '💬 새 채팅 메시지가 왔어요',
             body: messageBody,
             data: { url: (role === 'client' ? '/client' : '/participant') + '?open_chat=1' },
             tokens: tokens.map((t: any) => t.token),
