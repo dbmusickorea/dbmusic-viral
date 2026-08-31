@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft } from 'lucide-react'
 
 type ChatMessage = {
   id: number
@@ -20,9 +20,11 @@ type Props = {
   role: 'participant' | 'client'
   viewerType: 'admin' | 'user'
   title?: string
+  subtitle?: string
+  onBack?: () => void
 }
 
-export default function ChatWindow({ userId, role, viewerType, title }: Props) {
+export default function ChatWindow({ userId, role, viewerType, title, subtitle, onBack }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
@@ -85,44 +87,53 @@ export default function ChatWindow({ userId, role, viewerType, title }: Props) {
     setSending(false)
   }
 
-  if (loading) return (
-    <div className="flex justify-center items-center py-12">
-      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
-    </div>
-  )
-
   return (
-    <div className="flex flex-col h-full">
-      {title && (
-        <div className="px-4 py-3 border-b dark:border-gray-700">
-          <h2 className="font-bold dark:text-white">{title}</h2>
+    <div className="fixed inset-0 z-40 flex flex-col bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      {(title || onBack) && (
+        <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+          {onBack && (
+            <button onClick={onBack} className="text-gray-600 dark:text-gray-300">
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div className="min-w-0">
+            {title && <p className="font-bold dark:text-white truncate">{title}</p>}
+            {subtitle && <p className="text-xs text-gray-400 truncate">{subtitle}</p>}
+          </div>
         </div>
       )}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-gray-50 dark:bg-gray-900">
-        {messages.length === 0 && (
+
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
+          </div>
+        ) : messages.length === 0 ? (
           <p className="text-center text-xs text-gray-400 py-8">아직 대화가 없어요.</p>
-        )}
-        {messages.map((m) => {
-          const isMine = m.sender === myLabel
-          return (
-            <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600 rounded-bl-sm'}`}>
-                  {m.body}
-                </div>
-                <div className="flex items-center gap-1 mt-0.5 px-1">
-                  {isMine && (m.read_at ? <CheckCheck size={11} className="text-blue-400" /> : <Check size={11} className="text-gray-300" />)}
-                  <span className="text-[10px] text-gray-400">
-                    {new Date(m.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+        ) : (
+          messages.map((m) => {
+            const isMine = m.sender === myLabel
+            return (
+              <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                  <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600 rounded-bl-sm'}`}>
+                    {m.body}
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5 px-1">
+                    {isMine && (m.read_at ? <CheckCheck size={11} className="text-blue-400" /> : <Check size={11} className="text-gray-300" />)}
+                    <span className="text-[10px] text-gray-400">
+                      {new Date(m.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })
+        )}
         <div ref={bottomRef} />
       </div>
-      <div className="flex gap-2 p-3 border-t dark:border-gray-700 bg-white dark:bg-gray-800">
+
+      <div className="shrink-0 flex gap-2 p-3 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
