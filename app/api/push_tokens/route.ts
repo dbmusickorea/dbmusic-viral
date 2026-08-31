@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { user_id, user_role, token } = body
 
+  // 같은 토큰 값이 이미 있으면 정리(기기 재등록 시 중복 방지). 같은 계정의 다른 기기 토큰은 유지.
   await supabaseAdmin.from('push_tokens').delete().eq('token', token)
-  await supabaseAdmin.from('push_tokens').delete().eq('user_id', user_id)
-  
+
   const { error } = await supabaseAdmin.from('push_tokens').insert({ user_id, user_role, token })
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
