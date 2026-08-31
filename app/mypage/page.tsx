@@ -664,7 +664,7 @@ export default function MyPage() {
 
         {/* 관리자와 대화 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <button onClick={() => setShowChat(true)} className="w-full flex justify-between items-center">
+          <button onClick={() => { window.scrollTo(0, 0); setShowChat(true) }} className="w-full flex justify-between items-center">
             <h2 className="font-bold dark:text-white flex items-center gap-1">
               <MessageSquare size={16} /> 관리자와 대화하기
               {chatUnreadCount > 0 && (
