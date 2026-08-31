@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 import ChatWindow from '../../components/ChatWindow'
@@ -17,7 +17,7 @@ type Thread = {
   unread_count: number
 }
 
-export default function AdminChatPage() {
+function AdminChatContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState<Thread[]>([])
@@ -196,5 +196,13 @@ export default function AdminChatPage() {
       </div>
       <AdminBottomNav active="chat" />
     </div>
+  )
+}
+
+export default function AdminChatPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>}>
+      <AdminChatContent />
+    </Suspense>
   )
 }
