@@ -116,19 +116,23 @@ export async function GET(request: NextRequest) {
     const todayStartKST = new Date(Date.UTC(nowKST.getUTCFullYear(), nowKST.getUTCMonth(), nowKST.getUTCDate()) - 9 * 60 * 60 * 1000)
     const oneDayAgo = todayStartKST.toISOString()
 
-    const [newParticipantsRes, newClientsRes, coverPendingRes, snsPendingRes, settlementPendingRes] = await Promise.all([
+    const [newParticipantsRes, newClientsRes, coverPendingRes, snsPendingRes, settlementPendingRes, chatUnreadRes, ongoingProjectsRes] = await Promise.all([
       supabaseAdmin.from('participants').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo),
       supabaseAdmin.from('users').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo),
       supabaseAdmin.from('participants').select('id', { count: 'exact', head: true }).eq('is_cover_possible', true).eq('cover_approved', false),
       supabaseAdmin.from('sns_change_requests').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
-      supabaseAdmin.from('settlements').select('id', { count: 'exact', head: true }).eq('status', 'PENDING')
+      supabaseAdmin.from('settlements').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
+      supabaseAdmin.from('chat_messages').select('id', { count: 'exact', head: true }).eq('sender', 'user').is('read_at', null),
+      supabaseAdmin.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'ONGOING')
     ])
 
     return NextResponse.json({
       newSignups: (newParticipantsRes.count ?? 0) + (newClientsRes.count ?? 0),
       coverPending: coverPendingRes.count ?? 0,
       snsChangePending: snsPendingRes.count ?? 0,
-      settlementPending: settlementPendingRes.count ?? 0
+      settlementPending: settlementPendingRes.count ?? 0,
+      chatUnread: chatUnreadRes.count ?? 0,
+      ongoingProjectCount: ongoingProjectsRes.count ?? 0
     })
   }
 
