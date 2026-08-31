@@ -21,6 +21,10 @@ const config: CapacitorConfig = {
       launchAutoHide: true,
       backgroundColor: '#ffffff',
       showSpinner: false
+    },
+    Keyboard: {
+      resize: 'native',
+      style: 'light'
     }
   }
 };
