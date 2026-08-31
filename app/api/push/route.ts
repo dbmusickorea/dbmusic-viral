@@ -19,6 +19,41 @@ if (!getApps().length) {
   })
 }
 
+// 특정 사용자(user_id, role)의 정확한 뱃지 숫자 계산
+async function getBadgeCountForUser(userId: string, role: string | null): Promise<number> {
+  try {
+    const { count: notifUnread } = await supabaseAdmin
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_read', false)
+
+    if (role === 'admin') {
+      const [snsRes, coverRes, settleRes, coverApprovalRes, coverAddReqRes, chatRes] = await Promise.all([
+        supabaseAdmin.from('sns_change_requests').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
+        supabaseAdmin.from('posts').select('id', { count: 'exact', head: true }).eq('is_cover', true).eq('cover_status', 'PENDING'),
+        supabaseAdmin.from('settlements').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
+        supabaseAdmin.from('participants').select('id', { count: 'exact', head: true }).eq('cover_approved', false),
+        supabaseAdmin.from('client_requests').select('id', { count: 'exact', head: true }).eq('title', '커버 체험단 추가 요청').eq('status', 'PENDING'),
+        supabaseAdmin.from('chat_messages').select('id', { count: 'exact', head: true }).eq('sender', 'user').is('read_at', null),
+      ])
+      const pending = (snsRes.count ?? 0) + (coverRes.count ?? 0) + (settleRes.count ?? 0) + (coverApprovalRes.count ?? 0) + (coverAddReqRes.count ?? 0) + (chatRes.count ?? 0)
+      return pending + (notifUnread ?? 0)
+    } else {
+      const { count: chatUnread } = await supabaseAdmin
+        .from('chat_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('sender', 'admin')
+        .is('read_at', null)
+      return (chatUnread ?? 0) + (notifUnread ?? 0)
+    }
+  } catch (e) {
+    console.error('뱃지 계산 실패:', e)
+    return 1
+  }
+}
+
 export async function POST(request: NextRequest) {
   const { title, body, tokens, userIds, saveToRole, data, skipNotificationSave } = await request.json()
   
@@ -47,16 +82,27 @@ export async function POST(request: NextRequest) {
         production: true
       })
 
-      const notification = new apn.Notification()
-      notification.alert = { title, body }
-      notification.sound = 'default'
-      notification.badge = 1
-      notification.payload = { data: autoData }
-      notification.topic = 'com.dbmusic.viral'
+      // 토큰별 소유자(user_id, role) 조회
+      const { data: tokenOwners } = await supabaseAdmin
+        .from('push_tokens')
+        .select('token, user_id, user_role')
+        .in('token', iosTokens)
+      const ownerMap: Record<string, { user_id: string; user_role: string | null }> = {}
+      for (const o of tokenOwners ?? []) ownerMap[o.token] = { user_id: o.user_id, user_role: o.user_role }
 
       for (const token of iosTokens) {
+        const owner = ownerMap[token]
+        const badgeCount = owner ? await getBadgeCountForUser(owner.user_id, owner.user_role) : 1
+
+        const notification = new apn.Notification()
+        notification.alert = { title, body }
+        notification.sound = 'default'
+        notification.badge = badgeCount
+        notification.payload = { data: autoData }
+        notification.topic = 'com.dbmusic.viral'
+
         const result = await provider.send(notification, token)
-results.push(result)
+        results.push(result)
       }
       provider.shutdown()
     }
