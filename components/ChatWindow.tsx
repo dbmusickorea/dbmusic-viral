@@ -88,7 +88,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+    <div className="fixed inset-0 z-[60] flex flex-col items-center bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'env(safe-area-inset-top)'}}>
       {(title || onBack) && (
         <div className="w-full bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
           <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
