@@ -81,16 +81,10 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         table: 'chat_messages',
         filter: `user_id=eq.${userId}`,
       }, (payload) => {
-        console.log('[채팅 실시간] 이벤트 수신:', payload.eventType, payload.new, payload.old)
-        if ((payload.new as any)?.role !== role && (payload.old as any)?.role !== role) {
-          console.log('[채팅 실시간] role 불일치로 무시함')
-          return
-        }
+        if ((payload.new as any)?.role !== role && (payload.old as any)?.role !== role) return
         fetchMessages().then(() => markRead())
       })
-      .subscribe((status) => {
-        console.log('[채팅 실시간] 구독 상태:', status, 'channel=', `chat_${role}_${userId}`)
-      })
+      .subscribe()
 
     return () => { supabase.removeChannel(channel) }
   }, [userId, role, fetchMessages, markRead])
