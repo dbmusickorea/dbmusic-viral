@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
 import { Send, Check, CheckCheck, ArrowLeft } from 'lucide-react'
+import { Keyboard } from '@capacitor/keyboard'
 
 type ChatMessage = {
   id: number
@@ -29,6 +30,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const myLabel = viewerType === 'admin' ? 'admin' : 'user'
@@ -89,6 +91,16 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return
+    const showListener = Keyboard.addListener('keyboardWillShow', () => setKeyboardVisible(true))
+    const hideListener = Keyboard.addListener('keyboardWillHide', () => setKeyboardVisible(false))
+    return () => {
+      showListener.then(l => l.remove())
+      hideListener.then(l => l.remove())
+    }
+  }, [])
 
   const handleSend = async () => {
     if (!input.trim() || sending) return
@@ -152,7 +164,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         <div ref={bottomRef} />
       </div>
 
-      <div className="w-full shrink-0 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}>
+      <div className="w-full shrink-0 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: keyboardVisible ? '0.75rem' : 'max(0.75rem, env(safe-area-inset-bottom))'}}>
         <div className="max-w-2xl mx-auto flex gap-2 p-3 pb-0">
           <input
             value={input}

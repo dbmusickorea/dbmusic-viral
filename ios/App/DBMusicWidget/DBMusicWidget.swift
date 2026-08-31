@@ -25,6 +25,8 @@ struct WidgetData: Codable {
     var coverPending: Int?
     var snsChangePending: Int?
     var settlementPending: Int?
+    var chatUnread: Int?
+    var ongoingProjectCount: Int?
 }
 
 struct ProjectSummary: Codable {
@@ -613,14 +615,18 @@ struct DBMusicWidgetEntryView: View {
                     .foregroundStyle(.orange)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(d?.coverPending ?? 0)건")
+                Text("\(d?.chatUnread ?? 0)건")
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .foregroundStyle(.orange)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
-                Text("커버 승인 대기")
-                    .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 3) {
+                    Image(systemName: "message.fill")
+                        .font(.system(size: 8))
+                    Text("새로운 메시지")
+                        .font(.system(size: 9))
+                }
+                .foregroundStyle(.secondary)
             }
             Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
             VStack(alignment: .leading, spacing: 2) {
@@ -628,9 +634,13 @@ struct DBMusicWidgetEntryView: View {
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
-                Text("정산 대기")
-                    .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 3) {
+                    Image(systemName: "wonsign.circle")
+                        .font(.system(size: 8))
+                    Text("정산 대기")
+                        .font(.system(size: 9))
+                }
+                .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
         }
@@ -652,14 +662,14 @@ struct DBMusicWidgetEntryView: View {
                 Spacer()
             }
             Divider()
-            VStack(spacing: 7) {
-                HStack(spacing: 8) {
-                    adminStatCard("신규가입", d?.newSignups ?? 0, "person.badge.plus")
+            VStack(spacing: 5) {
+                HStack(spacing: 6) {
+                    adminStatCard("새로운 메시지", d?.chatUnread ?? 0, "message.fill")
                     adminStatCard("정산대기", d?.settlementPending ?? 0, "wonsign.circle")
                 }
-                HStack(spacing: 8) {
-                    adminStatCard("커버대기", d?.coverPending ?? 0, "music.mic")
-                    adminStatCard("SNS요청", d?.snsChangePending ?? 0, "at")
+                HStack(spacing: 6) {
+                    adminStatCard("커버승인대기", d?.coverPending ?? 0, "music.mic")
+                    adminStatCard("SNS변경요청", d?.snsChangePending ?? 0, "at")
                 }
             }
         }
@@ -668,7 +678,7 @@ struct DBMusicWidgetEntryView: View {
 
     var adminLargeView: some View {
         let d = entry.data
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 6) {
                 Image("AppLogo")
                     .resizable()
@@ -684,7 +694,11 @@ struct DBMusicWidgetEntryView: View {
                     .foregroundStyle(.secondary)
             }
             Divider()
-            VStack(spacing: 10) {
+            VStack(spacing: 16) {
+                HStack(spacing: 10) {
+                    adminStatCard("새로운 메시지", d?.chatUnread ?? 0, "message.fill", big: true)
+                    adminStatCard("진행중 프로젝트", d?.ongoingProjectCount ?? 0, "chart.bar.fill", big: true)
+                }
                 HStack(spacing: 10) {
                     adminStatCard("신규가입", d?.newSignups ?? 0, "person.badge.plus", big: true)
                     adminStatCard("정산대기", d?.settlementPending ?? 0, "wonsign.circle", big: true)
@@ -694,7 +708,6 @@ struct DBMusicWidgetEntryView: View {
                     adminStatCard("SNS변경요청", d?.snsChangePending ?? 0, "at", big: true)
                 }
             }
-            Spacer()
         }
         .padding()
     }

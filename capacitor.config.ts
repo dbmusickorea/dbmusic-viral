@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'com.dbmusic.viral',
@@ -23,8 +24,8 @@ const config: CapacitorConfig = {
       showSpinner: false
     },
     Keyboard: {
-      resize: 'native',
-      style: 'light'
+      resize: KeyboardResize.Native,
+      style: KeyboardStyle.Light
     }
   }
 };
