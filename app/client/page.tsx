@@ -726,48 +726,9 @@ export default function Page3() {
               </div>
             )}
 
-            {/* 커버 체험단 추가 요청 */}
-            {isClient && (
-              <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 커버 체험단 추가 요청</h2>
-                  <button onClick={() => setShowRequestForm(!showRequestForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1">
-                    {showRequestForm ? '취소' : '+ 신청하기'}
-                  </button>
-                </div>
-                {showRequestForm && (
-                  <div className="space-y-3 mb-4 border-b dark:border-gray-600 pb-4">
-                    <div>
-                      <label className="text-sm font-medium dark:text-white">내용</label>
-                      <textarea value={requestContent} onChange={(e) => setRequestContent(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" rows={4} placeholder="원하시는 커버 체험단 관련 내용을 입력해주세요" />
-                    </div>
-                    <button onClick={handleSubmitRequest} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">신청하기</button>
-                  </div>
-                )}
-                {requests.filter((req: any) => req.title === '커버 체험단 추가 요청').length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-2">신청 내역이 없습니다.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {requests.filter((req: any) => req.title === '커버 체험단 추가 요청').map((req) => (
-                      <div key={req.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
-                        <div className="flex justify-between items-start">
-                          <p className="text-sm font-medium dark:text-white">{req.title}</p>
-                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'APPROVED' ? 'bg-green-100 text-green-700' : req.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {req.status === 'PENDING' ? '검토중' : req.status === 'APPROVED' ? '✅ 승인' : req.status === 'REJECTED' ? '거절' : '확인됨'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">{req.content}</p>
-                        <p className="text-xs text-gray-400 mt-1">{new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* 관리자와 대화 */}
             {isClient && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
                 <button onClick={() => setShowChat(true)} className="w-full flex justify-between items-center">
                   <h2 className="font-bold dark:text-white flex items-center gap-1">
                     <MessageSquare size={16} /> 관리자와 대화하기

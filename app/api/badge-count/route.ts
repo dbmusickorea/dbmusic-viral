@@ -15,14 +15,13 @@ async function getBadgeCountForUser(userId: string, role: string | null): Promis
       .eq('is_read', false)
 
     if (role === 'admin') {
-      const [snsRes, coverRes, settleRes, coverAddReqRes, chatRes] = await Promise.all([
+      const [snsRes, coverRes, settleRes, chatRes] = await Promise.all([
         supabaseAdmin.from('sns_change_requests').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
         supabaseAdmin.from('posts').select('id', { count: 'exact', head: true }).eq('is_cover', true).eq('cover_status', 'PENDING'),
         supabaseAdmin.from('settlements').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
-        supabaseAdmin.from('client_requests').select('id', { count: 'exact', head: true }).eq('title', '커버 체험단 추가 요청').eq('status', 'PENDING'),
         supabaseAdmin.from('chat_messages').select('id', { count: 'exact', head: true }).eq('sender', 'user').is('read_at', null),
       ])
-      const pending = (snsRes.count ?? 0) + (coverRes.count ?? 0) + (settleRes.count ?? 0) + (coverAddReqRes.count ?? 0) + (chatRes.count ?? 0)
+      const pending = (snsRes.count ?? 0) + (coverRes.count ?? 0) + (settleRes.count ?? 0) + (chatRes.count ?? 0)
       return pending + (notifUnread ?? 0)
     } else {
       const { count: chatUnread } = await supabaseAdmin

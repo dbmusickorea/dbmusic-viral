@@ -20,22 +20,20 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
 
   useEffect(() => {
     const fetchCounts = async () => {
-      const [snsRes, coverRes, settleRes, coverApprovalRes, chatRes, coverAddReqRes] = await Promise.all([
+      const [snsRes, coverRes, settleRes, coverApprovalRes, chatRes] = await Promise.all([
         fetchWithAuth('/api/sns_change_requests?status=PENDING'),
         fetchWithAuth('/api/posts?is_cover=true&cover_status=PENDING'),
         fetchWithAuth('/api/settlements?status=PENDING'),
         fetchWithAuth('/api/participants?cover_approved=false'),
-        fetchWithAuth('/api/chat_threads'),
-        fetchWithAuth('/api/client_requests?title=' + encodeURIComponent('커버 체험단 추가 요청') + '&status=PENDING')
+        fetchWithAuth('/api/chat_threads')
       ])
       const snsData = await snsRes.json()
       const coverData = await coverRes.json()
       const settleData = await settleRes.json()
       const coverApprovalData = await coverApprovalRes.json()
       const chatData = await chatRes.json()
-      const coverAddReqData = await coverAddReqRes.json()
       setSnsRequestCount((Array.isArray(snsData) ? snsData.length : 0) + (Array.isArray(coverApprovalData) ? coverApprovalData.length : 0))
-      setCoverPendingCount((Array.isArray(coverData) ? coverData.length : 0) + (Array.isArray(coverAddReqData) ? coverAddReqData.length : 0))
+      setCoverPendingCount(Array.isArray(coverData) ? coverData.length : 0)
       setSettlementCount(Array.isArray(settleData) ? settleData.length : 0)
       setChatUnreadCount(Array.isArray(chatData) ? chatData.reduce((sum: number, t: any) => sum + (t.unread_count ?? 0), 0) : 0)
     }

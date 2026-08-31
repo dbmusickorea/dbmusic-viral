@@ -42,7 +42,7 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
     { target: `tutorial-stats-btn${suffix}`, title: '현황 탭', description: '실시간으로 좋아요, 댓글, 조회수 등 통계를 확인할 수 있어요.', position: 'top' },
     { target: `tutorial-apply-btn${suffix}`, title: '프로젝트 신청', description: '새로운 프로젝트를 신청할 수 있어요. 가수명, 노래제목, 희망 시작일 등을 입력해주세요.', position: 'top' },
     { target: `tutorial-report-btn${suffix}`, title: '보고서 탭', description: '프로젝트 종료 후 결과보고서를 PDF, 워드, 엑셀로 다운로드할 수 있어요.', position: 'top' },
-    { target: 'tutorial-inquiry-card', title: '프로젝트 문의', description: '진행 중인 프로젝트에 대해 궁금한 점을 문의할 수 있어요. 더블비뮤직 담당자가 빠르게 답변드려요.', position: 'bottom' },
+    { target: 'tutorial-inquiry-card', title: '관리자와 대화하기', description: '궁금한 점이나 요청사항을 관리자와 실시간 채팅으로 바로 주고받을 수 있어요.', position: 'bottom' },
     { target: 'tutorial-guide-card', title: '앱 사용 가이드', description: '더블비뮤직 앱 사용 방법을 자세히 안내해드려요. 펼쳐서 확인해보세요!', position: 'bottom' },
   ]
 

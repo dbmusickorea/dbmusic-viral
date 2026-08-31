@@ -24,7 +24,9 @@ export default function CoverPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [coverRequests, setCoverRequests] = useState<any[]>([])
-  const [coverAddRequests, setCoverAddRequests] = useState<any[]>([])
+  const [showAddCoverModal, setShowAddCoverModal] = useState(false)
+  const [addCoverProjectCode, setAddCoverProjectCode] = useState('')
+  const [addCoverParticipantName, setAddCoverParticipantName] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState('')
   const [isPulling, setIsPulling] = useState(false)
@@ -117,10 +119,6 @@ export default function CoverPage() {
       const projectsRes = await fetchWithAuth('/api/projects?status=ONGOING,PENDING')
       const projects = await projectsRes.json()
       setProjects(projects ?? [])
-      // 커버 체험단 추가 요청(의뢰인이 문의로 제출한 것) 대기중 목록
-      const coverAddReqRes = await fetchWithAuth('/api/client_requests?title=' + encodeURIComponent('커버 체험단 추가 요청') + '&status=PENDING')
-      const coverAddReqData = await coverAddReqRes.json()
-      setCoverAddRequests(Array.isArray(coverAddReqData) ? coverAddReqData : [])
     } else if (role === 'client') {
       const projectsRes = await fetchWithAuth(`/api/projects?client_id=${user.client_id}`)
       const projects = await projectsRes.json()
@@ -143,10 +141,10 @@ export default function CoverPage() {
     setIsPulling(false)
   }
 
-  const handleCoverAddApprove = async (req: any) => {
-    const participantName = prompt('커버 승인할 체험단 이름 또는 ID를 입력해주세요:')
-    if (!participantName) return
-    const pRes = await fetchWithAuth(`/api/participants?name=${encodeURIComponent(participantName)}`)
+  const handleDirectCoverAdd = async () => {
+    if (!addCoverProjectCode) { showToast('프로젝트를 선택해주세요.'); return }
+    if (!addCoverParticipantName.trim()) { showToast('체험단 이름을 입력해주세요.'); return }
+    const pRes = await fetchWithAuth(`/api/participants?name=${encodeURIComponent(addCoverParticipantName.trim())}`)
     const pData = await pRes.json()
     const participant = pData?.[0]
     if (!participant) { showToast('체험단을 찾을 수 없어요.'); return }
@@ -154,29 +152,16 @@ export default function CoverPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        project_code: req.project_code,
+        project_code: addCoverProjectCode,
         participant_id: participant.id,
         status: 'APPROVED',
         approved_at: new Date().toISOString()
       })
     })
-    await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'APPROVED' })
-    })
-    showToast('커버 승인 완료!')
-    await loadData(userInfo, userRole)
-  }
-
-  const handleCoverAddReject = async (req: any) => {
-    if (!confirm('이 요청을 거절하시겠어요?')) return
-    await fetchWithAuth(`/api/client_requests?id=${req.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'REJECTED' })
-    })
-    showToast('거절 처리했어요.')
+    showToast('커버 체험단 추가 완료!')
+    setShowAddCoverModal(false)
+    setAddCoverProjectCode('')
+    setAddCoverParticipantName('')
     await loadData(userInfo, userRole)
   }
 
@@ -503,22 +488,38 @@ export default function CoverPage() {
           </>
         )}
 
-        {/* 커버 체험단 추가 요청 (의뢰인 문의로 접수된 것, 관리자 전용) */}
-        {userRole === 'admin' && coverAddRequests.length > 0 && (
+        {/* 커버 체험단 직접 추가 (관리자 전용) */}
+        {userRole === 'admin' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 체험단 추가 요청 <span className="text-xs bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 ml-1">{coverAddRequests.length}</span></h2>
-            <div className="space-y-2">
-              {coverAddRequests.map((req: any) => (
-                <div key={req.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
-                  <p className="text-sm font-medium dark:text-white">{req.client_name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{req.client_mobile} · {new Date(req.created_at).toLocaleDateString('ko-KR')}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">{req.content}</p>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleCoverAddApprove(req)} className="flex-1 text-xs bg-purple-600 text-white rounded-lg py-1.5">승인</button>
-                    <button onClick={() => handleCoverAddReject(req)} className="flex-1 text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg py-1.5">거절</button>
-                  </div>
+            <button onClick={() => setShowAddCoverModal(true)} className="w-full flex items-center justify-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400 py-1">
+              <Mic size={16} /> 커버 체험단 추가
+            </button>
+          </div>
+        )}
+
+        {showAddCoverModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-bold text-lg dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 체험단 추가</h2>
+                <button onClick={() => setShowAddCoverModal(false)} className="text-gray-400 text-xl">✕</button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium dark:text-white">프로젝트</label>
+                  <select value={addCoverProjectCode} onChange={(e) => setAddCoverProjectCode(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
+                    <option value="">선택해주세요</option>
+                    {projects.map((p: any) => (
+                      <option key={p.project_code} value={p.project_code}>{p.artist_name || p.client_name} - {p.song_title}</option>
+                    ))}
+                  </select>
                 </div>
-              ))}
+                <div>
+                  <label className="text-sm font-medium dark:text-white">체험단 이름</label>
+                  <input value={addCoverParticipantName} onChange={(e) => setAddCoverParticipantName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="체험단 이름 입력" />
+                </div>
+                <button onClick={handleDirectCoverAdd} className="w-full bg-purple-600 text-white rounded-lg py-2 text-sm font-medium">추가하기</button>
+              </div>
             </div>
           </div>
         )}
