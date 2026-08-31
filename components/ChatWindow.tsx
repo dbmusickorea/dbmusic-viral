@@ -117,6 +117,13 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       // 눈에 띄게 작아지면 키보드가 열린 것으로 판단 (브라우저/Capacitor 공통으로 동작)
       const diff = window.innerHeight - vv.height
       setKeyboardVisible(diff > 100)
+      // 키보드가 열리면서 화면이 줄어들 때도 "최신 메시지로 이동" 버튼 표시 여부 재계산
+      setTimeout(() => {
+        const el = scrollContainerRef.current
+        if (!el) return
+        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+        setShowScrollButton(distanceFromBottom > 200)
+      }, 50)
     }
     vv.addEventListener('resize', handleResize)
     handleResize()
