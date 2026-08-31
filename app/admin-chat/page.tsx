@@ -77,13 +77,15 @@ export default function AdminChatPage() {
   if (showNewChat) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col" style={{paddingTop: 'max(0px, env(safe-area-inset-top))'}}>
-        <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
-          <button onClick={() => setShowNewChat(false)} className="text-gray-600 dark:text-gray-300">
-            <X size={20} />
-          </button>
-          <p className="font-bold dark:text-white">새 대화 시작</p>
+        <div className="w-full bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
+          <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
+            <button onClick={() => setShowNewChat(false)} className="text-gray-600 dark:text-gray-300">
+              <X size={20} />
+            </button>
+            <p className="font-bold dark:text-white">새 대화 시작</p>
+          </div>
         </div>
-        <div className="p-4">
+        <div className="max-w-2xl w-full mx-auto p-4">
           <div className="flex gap-2 mb-3">
             <button onClick={() => setNewChatRole('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${newChatRole === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>체험단</button>
             <button onClick={() => setNewChatRole('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${newChatRole === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>의뢰인</button>
@@ -114,16 +116,18 @@ export default function AdminChatPage() {
   if (selected) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col" style={{paddingTop: 'max(0px, env(safe-area-inset-top))'}}>
-        <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
-          <button onClick={() => { setSelected(null); fetchThreads() }} className="text-gray-600 dark:text-gray-300">
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <p className="font-bold dark:text-white">{selected.name}</p>
-            <p className="text-xs text-gray-400">{selected.role === 'participant' ? '체험단' : '의뢰인'}</p>
+        <div className="w-full bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
+          <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
+            <button onClick={() => { setSelected(null); fetchThreads() }} className="text-gray-600 dark:text-gray-300">
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <p className="font-bold dark:text-white">{selected.name}</p>
+              <p className="text-xs text-gray-400">{selected.role === 'participant' ? '체험단' : '의뢰인'}</p>
+            </div>
           </div>
         </div>
-        <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
+        <div className="flex-1 overflow-hidden max-w-2xl w-full mx-auto" style={{ height: 'calc(100vh - 60px)' }}>
           <ChatWindow userId={selected.user_id} role={selected.role as 'participant' | 'client'} viewerType="admin" />
         </div>
       </div>
