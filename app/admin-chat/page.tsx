@@ -133,9 +133,9 @@ function AdminChatContent() {
   )
 
   const listColumn = (
-    <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 flex-col md:h-screen`}>
-      <div style={{paddingTop: 'env(safe-area-inset-top)'}} />
-      <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0 md:border-r md:border-gray-100 md:dark:border-gray-700">
+    <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 md:border-r md:border-gray-100 md:dark:border-gray-700 flex-col md:h-screen`}>
+      <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0">
+        <div style={{paddingTop: 'env(safe-area-inset-top)'}} />
         <div className="flex justify-center mb-4">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
         </div>
