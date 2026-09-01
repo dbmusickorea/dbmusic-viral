@@ -200,7 +200,7 @@ function AdminChatContent() {
   )
 
   return (
-    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900 md:flex md:overflow-hidden md:max-w-5xl md:mx-auto md:border-x md:dark:border-gray-700">
+    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900 md:flex md:overflow-hidden md:max-w-7xl md:mx-auto">
       {listColumn}
 
       {!selected && (
