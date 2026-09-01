@@ -168,11 +168,8 @@ export async function POST(request: NextRequest) {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       })
 
-      const rawText = await res.text()
-      console.log('eformsign status HTTP:', res.status)
-      console.log('eformsign status raw response:', rawText)
-      const data = rawText ? JSON.parse(rawText) : {}
-      return NextResponse.json({ success: true, status: data.current_status?.status_type, raw: data.current_status, fullResponse: data, httpStatus: res.status })
+      const data = await res.json()
+      return NextResponse.json({ success: true, status: data.current_status?.status_type, raw: data.current_status })
     }
 
   } catch (error) {
