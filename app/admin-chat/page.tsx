@@ -30,6 +30,7 @@ function AdminChatContent() {
   const [allClients, setAllClients] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [listSearchQuery, setListSearchQuery] = useState('')
+  const [showListSearch, setShowListSearch] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -80,6 +81,7 @@ function AdminChatContent() {
 
   const newChatList = (newChatRole === 'participant' ? allParticipants : allClients)
     .filter((u: any) => (u.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a: any, b: any) => (a.name ?? '').localeCompare(b.name ?? '', 'ko'))
 
   const openNewChat = (u: any) => {
     setSelected({
@@ -91,10 +93,10 @@ function AdminChatContent() {
     setShowNewChat(false)
   }
 
-  if (showNewChat) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col" style={{paddingTop: 'max(0px, env(safe-area-inset-top))'}}>
-        <div className="w-full bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
+  const newChatModal = showNewChat && (
+    <div className="fixed inset-0 z-50 md:bg-black/40 md:flex md:items-center md:justify-center" style={{paddingTop: 'max(0px, env(safe-area-inset-top))'}}>
+      <div className="h-full md:h-[70vh] md:w-full md:max-w-md bg-gray-50 dark:bg-gray-900 md:rounded-2xl md:shadow-2xl flex flex-col overflow-hidden">
+        <div className="w-full bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 shrink-0 md:rounded-t-2xl">
           <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
             <button onClick={() => setShowNewChat(false)} className="text-gray-600 dark:text-gray-300">
               <X size={20} />
@@ -102,7 +104,7 @@ function AdminChatContent() {
             <p className="font-bold dark:text-white">새 대화 시작</p>
           </div>
         </div>
-        <div className="max-w-2xl w-full mx-auto p-4">
+        <div className="max-w-2xl md:max-w-none w-full mx-auto p-4 flex-1 flex flex-col overflow-hidden">
           <div className="flex gap-2 mb-3">
             <button onClick={() => setNewChatRole('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${newChatRole === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>체험단</button>
             <button onClick={() => setNewChatRole('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${newChatRole === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>의뢰인</button>
@@ -116,7 +118,7 @@ function AdminChatContent() {
               className="w-full border dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </div>
-          <div className="space-y-1 max-h-[70vh] overflow-y-auto">
+          <div className="space-y-1 flex-1 overflow-y-auto">
             {newChatList.length === 0 ? (
               <p className="text-center text-xs text-gray-400 py-8">검색 결과가 없어요.</p>
             ) : newChatList.map((u: any) => (
@@ -127,20 +129,25 @@ function AdminChatContent() {
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 
   const listColumn = (
-    <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 md:border-r md:dark:border-gray-700 flex-col md:h-screen`}>
+    <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 md:border-r md:border-gray-100 md:dark:border-gray-700 flex-col md:h-screen`}>
       <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
         <div className="flex justify-center mb-4">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
         </div>
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold dark:text-white flex items-center gap-2"><MessageCircle size={20} /> 채팅</h1>
-          <button onClick={() => { setShowNewChat(true); setSearchQuery('') }} className="bg-blue-600 text-white rounded-full p-2">
-            <Plus size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => { setShowListSearch(!showListSearch); if (showListSearch) setListSearchQuery('') }} className="text-gray-500 dark:text-gray-400 p-2">
+              <Search size={18} />
+            </button>
+            <button onClick={() => { setShowNewChat(true); setSearchQuery('') }} className="bg-blue-600 text-white rounded-full p-2">
+              <Plus size={18} />
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-2 mb-3">
@@ -149,15 +156,18 @@ function AdminChatContent() {
           <button onClick={() => setFilter('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>체험단</button>
         </div>
 
-        <div className="relative mb-3">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            value={listSearchQuery}
-            onChange={(e) => setListSearchQuery(e.target.value)}
-            placeholder="이름 검색..."
-            className="w-full border dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
-          />
-        </div>
+        {showListSearch && (
+          <div className="relative mb-3">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              autoFocus
+              value={listSearchQuery}
+              onChange={(e) => setListSearchQuery(e.target.value)}
+              placeholder="이름 검색..."
+              className="w-full border dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+        )}
 
         {filtered.length === 0 ? (
           <p className="text-center text-sm text-gray-400 py-12">대화 내역이 없어요.</p>
@@ -200,30 +210,33 @@ function AdminChatContent() {
   )
 
   return (
-    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900 md:flex md:overflow-hidden md:max-w-7xl md:mx-auto">
-      {listColumn}
+    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="md:max-w-7xl md:w-full md:mx-auto md:h-full md:flex md:overflow-hidden">
+        {listColumn}
 
-      {!selected && (
-        <div className="hidden md:flex md:flex-1 md:h-screen items-center justify-center text-gray-400 dark:text-gray-500">
-          <div className="text-center">
-            <MessageCircle size={40} className="mx-auto mb-2 opacity-40" />
-            <p className="text-sm">왼쪽에서 대화를 선택해주세요</p>
+        {!selected && (
+          <div className="hidden md:flex md:flex-1 md:h-full items-center justify-center text-gray-400 dark:text-gray-500">
+            <div className="text-center">
+              <MessageCircle size={40} className="mx-auto mb-2 opacity-40" />
+              <p className="text-sm">왼쪽에서 대화를 선택해주세요</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {selected && (
-        <div className="md:flex-1 md:h-screen">
-          <ChatWindow
-            userId={selected.user_id}
-            role={selected.role as 'participant' | 'client'}
-            viewerType="admin"
-            title={selected.name}
-            subtitle={selected.role === 'participant' ? '체험단' : '의뢰인'}
-            onBack={() => { setSelected(null); fetchThreads() }}
-          />
-        </div>
-      )}
+        {selected && (
+          <div className="md:flex-1 md:h-full">
+            <ChatWindow
+              userId={selected.user_id}
+              role={selected.role as 'participant' | 'client'}
+              viewerType="admin"
+              title={selected.name}
+              subtitle={selected.role === 'participant' ? '체험단' : '의뢰인'}
+              onBack={() => { setSelected(null); fetchThreads() }}
+            />
+          </div>
+        )}
+      </div>
+      {newChatModal}
     </div>
   )
 }

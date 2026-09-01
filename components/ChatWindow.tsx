@@ -162,8 +162,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   return (
     <div className="fixed md:static top-0 left-0 right-0 z-[60] md:z-0 flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] md:h-full w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
       {(title || onBack) && (
-        <div className="w-full bg-white dark:bg-gray-800 border-b dark:border-gray-700 shrink-0">
-          <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
+        <div className="w-full bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 shrink-0">
+          <div className="max-w-2xl md:max-w-none mx-auto flex items-center gap-3 px-4 py-3">
             {onBack && (
               <button onClick={onBack} className="text-gray-600 dark:text-gray-300">
                 <ArrowLeft size={20} />
@@ -177,7 +177,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         </div>
       )}
 
-      <div className="relative flex-1 w-full max-w-2xl mx-auto overflow-hidden flex flex-col">
+      <div className="relative flex-1 w-full max-w-2xl md:max-w-none mx-auto overflow-hidden flex flex-col">
       <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -191,7 +191,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             return (
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                  <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600 rounded-bl-sm'}`}>
+                  <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white rounded-bl-sm'}`}>
                     {m.body}
                   </div>
                   <div className="flex items-center gap-1 mt-0.5 px-1">
@@ -219,13 +219,13 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       )}
       </div>
 
-      <div className="w-full shrink-0 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: keyboardVisible ? '0.75rem' : 'max(0.75rem, env(safe-area-inset-bottom))'}}>
-        <div className="max-w-2xl mx-auto flex gap-2 p-3 pb-0">
+      <div className="w-full shrink-0 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: keyboardVisible ? '0.75rem' : 'max(0.75rem, env(safe-area-inset-bottom))'}}>
+        <div className="max-w-2xl md:max-w-none mx-auto flex gap-2 p-3 pb-0">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSend() }}
-            className="flex-1 border dark:border-gray-600 rounded-full px-4 py-2 text-sm dark:bg-gray-700 dark:text-white"
+            className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 text-sm dark:text-white"
             placeholder="메시지 입력..."
             autoComplete="new-password"
             autoCorrect="off"
