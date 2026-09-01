@@ -28,7 +28,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   return new Promise<NextResponse>((resolve) => {
     accountCheckService.CheckAccountHolder(
-      '2800202331',
+      '6598703644',
       bankCode,
       cleanAccountNumber,
       (result: any) => {

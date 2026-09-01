@@ -49,6 +49,9 @@ async function getAccessToken() {
 }
 
 export async function POST(request: NextRequest) {
+  const isAuthed = await checkAuth(request)
+  if (!isAuthed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const action = request.nextUrl.searchParams.get('action')
 
   try {
@@ -178,6 +181,9 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ error: 'invalid action' }, { status: 400 })
 }
 export async function GET(request: NextRequest) {
+  const isAuthed = await checkAuth(request)
+  if (!isAuthed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const documentId = searchParams.get('document_id')
