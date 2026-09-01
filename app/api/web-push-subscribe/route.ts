@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'invalid subscription' }, { status: 400 })
   }
 
-  // 같은 endpoint(브라우저 구독)가 이미 있으면 정리 후 재등록
-  await supabaseAdmin.from('web_push_subscriptions').delete().eq('endpoint', subscription.endpoint)
+  // 같은 계정의 기존 구독은 정리하고, 이번 구독 하나만 유지 (여러 개 중복 누적 방지)
+  await supabaseAdmin.from('web_push_subscriptions').delete().eq('user_id', user_id).eq('role', role)
 
   const { error } = await supabaseAdmin.from('web_push_subscriptions').insert({
     user_id,
