@@ -12,6 +12,41 @@ export default function AdminMypagePage() {
   const router = useRouter()
   const { showToast } = useToast()
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [webPushEnabled, setWebPushEnabled] = useState(false)
+
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+    const rawData = window.atob(base64)
+    const outputArray = new Uint8Array(rawData.length)
+    for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i)
+    return outputArray
+  }
+
+  const handleEnableWebPush = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      showToast('이 브라우저는 웹 알림을 지원하지 않아요.', 'error')
+      return
+    }
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') {
+      showToast('알림 권한이 거부됐어요.', 'error')
+      return
+    }
+    const reg = await navigator.serviceWorker.register('/sw.js')
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+    })
+    const info = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    await fetchWithAuth('/api/web-push-subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: String(info.id), role: 'admin', subscription: sub.toJSON() })
+    })
+    setWebPushEnabled(true)
+    showToast('브라우저 알림이 켜졌어요!')
+  }
   const [showSidebar, setShowSidebar] = useState(false)
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 
@@ -265,6 +300,13 @@ export default function AdminMypagePage() {
               </div>
             </div>
           </div>
+          {/* 웹 브라우저 알림 */}
+          {typeof window !== 'undefined' && !(window as any).Capacitor?.isNativePlatform?.() && (
+            <button onClick={handleEnableWebPush} disabled={webPushEnabled} className="w-full text-sm text-white bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 rounded-lg py-3 mb-4">
+              {webPushEnabled ? '✓ 브라우저 알림 켜짐' : '🔔 이 브라우저에서 알림 받기'}
+            </button>
+          )}
+
           {/* 로그아웃 */}
           <p className="text-xs text-center text-gray-300 mb-3">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 

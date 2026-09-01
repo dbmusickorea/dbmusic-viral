@@ -3,6 +3,15 @@ import apn from 'node-apn'
 import { createClient } from '@supabase/supabase-js'
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getMessaging } from 'firebase-admin/messaging'
+import webpush from 'web-push'
+
+if (process.env.VAPID_PRIVATE_KEY && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || 'mailto:admin@doubleb.kr',
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  )
+}
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -124,6 +133,28 @@ export async function POST(request: NextRequest) {
         results.push({ success: true, result })
       } catch (error) {
         results.push({ error })
+      }
+    }
+  }
+
+  // 웹 브라우저 구독자에게도 발송 (userIds가 있을 때만; 어떤 사용자들인지 알아야 구독을 찾을 수 있음)
+  if (userIds && userIds.length > 0) {
+    const { data: webSubs } = await supabaseAdmin
+      .from('web_push_subscriptions')
+      .select('*')
+      .in('user_id', userIds)
+
+    for (const sub of webSubs ?? []) {
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title, body, url: (autoData as any)?.url })
+        )
+      } catch (err: any) {
+        // 구독이 만료/취소된 경우(410 Gone 등) DB에서 정리
+        if (err?.statusCode === 404 || err?.statusCode === 410) {
+          await supabaseAdmin.from('web_push_subscriptions').delete().eq('id', sub.id)
+        }
       }
     }
   }
