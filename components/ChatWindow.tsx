@@ -160,7 +160,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   return (
-    <div className="fixed md:static top-0 left-0 right-0 z-[60] md:z-0 flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] md:h-full w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+    <div className="fixed md:static top-0 left-0 right-0 z-[60] md:z-0 flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] md:h-full w-full" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       {(title || onBack) && (
         <div className="w-full bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 shrink-0">
           <div className="max-w-2xl md:max-w-none mx-auto flex items-center gap-3 px-4 py-3">
