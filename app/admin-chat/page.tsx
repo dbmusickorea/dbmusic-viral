@@ -132,7 +132,7 @@ function AdminChatContent() {
 
   const listColumn = (
     <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 md:border-r md:dark:border-gray-700 flex-col md:h-screen`}>
-      <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
         <div className="flex justify-center mb-4">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
         </div>
@@ -200,7 +200,7 @@ function AdminChatContent() {
   )
 
   return (
-    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900 md:flex md:overflow-hidden">
+    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900 md:flex md:overflow-hidden md:max-w-5xl md:mx-auto md:border-x md:dark:border-gray-700">
       {listColumn}
 
       {!selected && (

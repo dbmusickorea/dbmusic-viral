@@ -177,7 +177,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         </div>
       )}
 
-      <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-4 py-3 space-y-2 max-w-2xl w-full relative">
+      <div className="relative flex-1 w-full max-w-2xl mx-auto overflow-hidden flex flex-col">
+      <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
@@ -211,11 +212,12 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           onMouseDown={(e) => e.preventDefault()}
           onTouchStart={(e) => e.preventDefault()}
           onClick={scrollToBottom}
-          className="absolute bottom-24 right-1/2 translate-x-[calc(50%+1rem)] max-w-2xl bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-10"
+          className="absolute bottom-4 right-4 bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-10"
         >
           <ChevronDown size={20} />
         </button>
       )}
+      </div>
 
       <div className="w-full shrink-0 border-t dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: keyboardVisible ? '0.75rem' : 'max(0.75rem, env(safe-area-inset-bottom))'}}>
         <div className="max-w-2xl mx-auto flex gap-2 p-3 pb-0">
