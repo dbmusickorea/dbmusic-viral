@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 import ChatWindow from '../../components/ChatWindow'
 import AdminBottomNav from '../../components/AdminBottomNav'
-import { ArrowLeft, MessageCircle, Plus, Search, X } from 'lucide-react'
+import { MessageCircle, Plus, Search, X } from 'lucide-react'
 
 type Thread = {
   user_id: string
@@ -39,7 +39,6 @@ function AdminChatContent() {
     fetchAllUsers()
     pollRef.current = setInterval(fetchThreads, 15000)
 
-    // URL 파라미터로 특정 대화 바로 열기 (예: 회원관리에서 넘어올 때)
     const openUserId = searchParams.get('open_user_id')
     const openRole = searchParams.get('open_role')
     const openName = searchParams.get('open_name')
@@ -131,22 +130,9 @@ function AdminChatContent() {
     )
   }
 
-  if (selected) {
-    return (
-      <ChatWindow
-        userId={selected.user_id}
-        role={selected.role as 'participant' | 'client'}
-        viewerType="admin"
-        title={selected.name}
-        subtitle={selected.role === 'participant' ? '체험단' : '의뢰인'}
-        onBack={() => { setSelected(null); fetchThreads() }}
-      />
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{paddingTop: 'env(safe-area-inset-top)'}}>
-      <div className="max-w-2xl mx-auto p-4 pb-24">
+  const listColumn = (
+    <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 md:border-r md:dark:border-gray-700 flex-col md:h-screen`}>
+      <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         <div className="flex justify-center mb-4">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
         </div>
@@ -181,7 +167,7 @@ function AdminChatContent() {
               <button
                 key={`${t.role}_${t.user_id}`}
                 onClick={() => setSelected(t)}
-                className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow p-4 flex items-center gap-3 text-left"
+                className={`w-full rounded-2xl shadow p-4 flex items-center gap-3 text-left ${selected?.user_id === t.user_id && selected?.role === t.role ? 'bg-blue-50 dark:bg-gray-700 ring-1 ring-blue-300 dark:ring-blue-500' : 'bg-white dark:bg-gray-800'}`}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -207,7 +193,37 @@ function AdminChatContent() {
           </div>
         )}
       </div>
-      <AdminBottomNav active="chat" />
+      <div className="md:hidden">
+        <AdminBottomNav active="chat" />
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900 md:flex md:overflow-hidden">
+      {listColumn}
+
+      {!selected && (
+        <div className="hidden md:flex md:flex-1 md:h-screen items-center justify-center text-gray-400 dark:text-gray-500">
+          <div className="text-center">
+            <MessageCircle size={40} className="mx-auto mb-2 opacity-40" />
+            <p className="text-sm">왼쪽에서 대화를 선택해주세요</p>
+          </div>
+        </div>
+      )}
+
+      {selected && (
+        <div className="md:flex-1 md:h-screen">
+          <ChatWindow
+            userId={selected.user_id}
+            role={selected.role as 'participant' | 'client'}
+            viewerType="admin"
+            title={selected.name}
+            subtitle={selected.role === 'participant' ? '체험단' : '의뢰인'}
+            onBack={() => { setSelected(null); fetchThreads() }}
+          />
+        </div>
+      )}
     </div>
   )
 }
