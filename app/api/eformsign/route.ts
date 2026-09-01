@@ -181,9 +181,8 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ error: 'invalid action' }, { status: 400 })
 }
 export async function GET(request: NextRequest) {
-  const isAuthed = await checkAuth(request)
-  if (!isAuthed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  // 참고: 이 GET 핸들러는 앱(iOS/Android)에서 시스템 브라우저로 다운로드 링크를 직접 열 때 쓰여서
+  // 인증 헤더를 실어보낼 수 없음 - document_id(추측 불가능한 긴 랜덤값)로만 보호됨
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const documentId = searchParams.get('document_id')
