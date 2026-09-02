@@ -851,7 +851,7 @@ export default function Page4() {
 
   // SNS 변경 요청 대기중 이거나, 커버가능자 승인 대기중인 회원은 목록 맨 위로 (처리되면 원래 위치로 복귀)
   const hasPendingAction = (p: any) =>
-    allPendingSnsRequests.some((r: any) => r.member_id === p.id) || p.cover_status === 'PENDING'
+    allPendingSnsRequests.some((r: any) => r.member_id === p.id) || (p.is_cover_possible && !p.cover_approved)
 
   const filteredParticipants = participants
     .filter(p => {
