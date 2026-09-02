@@ -798,7 +798,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           title: '🎵 새 의뢰인이 가입했어요!',
           data: { url: '/members' },
-          body: `${c_name}님이 가입했어요. (${c_company || ''})`,
+          body: c_company ? `${c_name}님이 가입했어요. (${c_company})` : `${c_name}님이 가입했어요.`,
           tokens: adminTokens.map((t: any) => t.token),
           userIds: adminTokens.map((t: any) => t.user_id)
         })

@@ -168,7 +168,8 @@ export async function POST(request: NextRequest) {
     const rows = allUsers?.map((u: any) => ({ user_id: String(u.id), title, body }))
     if (rows) await supabaseAdmin.from('notifications').insert(rows)
   } else if (userIds && userIds.length > 0) {
-    const notificationRows = userIds.map((userId: string) => ({
+    const uniqueUserIds: string[] = [...new Set(userIds as string[])]
+    const notificationRows = uniqueUserIds.map((userId: string) => ({
       user_id: userId,
       title,
       body
