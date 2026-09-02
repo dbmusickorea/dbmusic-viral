@@ -163,6 +163,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
+  const [isDraggingFile, setIsDraggingFile] = useState(false)
+  const dragCounter = useRef(0)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
@@ -190,6 +192,10 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/') && file.size > 50 * 1024 * 1024) {
+      alert('50MB보다 큰 파일은 보낼 수 없어요.')
+      return
+    }
     setPendingFile(file)
     setPendingPreviewUrl(URL.createObjectURL(file))
   }
@@ -211,12 +217,21 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       uploadBlob = await resizeImage(pendingFile, 1600, 0.85)
       uploadName = pendingFile.name.replace(/\.[^.]+$/, '') + '.jpg'
     }
-    const formData = new FormData()
-    formData.append('file', new File([uploadBlob], uploadName, { type: isImage ? 'image/jpeg' : pendingFile.type }))
-    const uploadRes = await fetchWithAuth('/api/chat-attachment-upload', { method: 'POST', body: formData })
-    const uploadData = await uploadRes.json()
+    const finalType = isImage ? 'image/jpeg' : pendingFile.type
 
-    if (uploadData.url) {
+    // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드 - 용량 제한 없음
+    const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file_name: uploadName })
+    })
+    const { path, token, publicUrl } = await signRes.json()
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-attachments')
+      .uploadToSignedUrl(path, token, uploadBlob, { contentType: finalType })
+
+    if (!uploadError) {
       const caption = input.trim()
       setInput('')
       await fetchWithAuth('/api/chat_messages', {
@@ -224,7 +239,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: userId, role, sender: myLabel, body: caption,
-          attachment_url: uploadData.url, attachment_name: uploadData.name, attachment_type: uploadData.type,
+          attachment_url: publicUrl, attachment_name: uploadName, attachment_type: finalType,
         })
       })
       await fetchMessages()
@@ -255,7 +270,24 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         </div>
       )}
 
-      <div className="relative flex-1 w-full max-w-2xl md:max-w-none mx-auto overflow-hidden flex flex-col">
+      <div
+        className="relative flex-1 w-full max-w-2xl md:max-w-none mx-auto overflow-hidden flex flex-col"
+        onDragEnter={(e) => { e.preventDefault(); dragCounter.current++; setIsDraggingFile(true) }}
+        onDragOver={(e) => e.preventDefault()}
+        onDragLeave={(e) => { e.preventDefault(); dragCounter.current--; if (dragCounter.current <= 0) setIsDraggingFile(false) }}
+        onDrop={(e) => {
+          e.preventDefault()
+          dragCounter.current = 0
+          setIsDraggingFile(false)
+          const f = e.dataTransfer.files?.[0]
+          if (f) handleFileSelect(f)
+        }}
+      >
+        {isDraggingFile && (
+          <div className="absolute inset-0 z-20 bg-blue-500/10 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none">
+            <p className="text-blue-600 font-medium bg-white dark:bg-gray-800 px-4 py-2 rounded-lg">여기에 파일을 놓으세요</p>
+          </div>
+        )}
       <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
         {loading ? (
           <div className="flex justify-center items-center py-12">
