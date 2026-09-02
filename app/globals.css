@@ -35,6 +35,10 @@ input, select, textarea {
   font-size: 16px !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  border-color: #e5e7eb !important; /* 라이트모드 기본 테두리색(연한 회색) */
+}
+.dark input, .dark select, .dark textarea {
+  border-color: #4b5563 !important; /* 다크모드는 gray-600 */
 }
 
 input[type="date"] {

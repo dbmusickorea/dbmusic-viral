@@ -156,10 +156,33 @@ export default function DistributionAdminPage() {
     setTracks(Array.isArray(data) ? data : [])
   }
 
+  const resizeImage = (file: File, maxSize: number, quality: number): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(url)
+        let { width, height } = img
+        if (width > height && width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize }
+        else if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { reject(new Error('canvas 실패')); return }
+        ctx.drawImage(img, 0, 0, width, height)
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('압축 실패')), 'image/jpeg', quality)
+      }
+      img.onerror = reject
+      img.src = url
+    })
+  }
+
   const handleUploadCover = async (file: File) => {
     if (!selectedAlbum) return
+    const resized = await resizeImage(file, 1200, 0.85)
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', new File([resized], 'cover.jpg', { type: 'image/jpeg' }))
     formData.append('album_id', String(selectedAlbum.id))
     const res = await fetchWithAuth('/api/distribution-cover-upload', { method: 'POST', body: formData })
     const data = await res.json()
