@@ -236,7 +236,10 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     await fetchMessages()
   }
 
-  const PREVIEWABLE_TYPES = ['application/pdf', 'text/plain']
+  const PREVIEWABLE_TYPES = [
+    'application/pdf', 'text/plain',
+    'audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/wav', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/webm',
+  ]
 
   const handleOpenFile = async (messageId: number, url: string, filename: string, type?: string | null) => {
     const alreadyCached = await isAttachmentCached(messageId, filename)
@@ -542,7 +545,12 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
                         <button onClick={() => handleOpenFile(m.id, m.attachment_url!, m.attachment_name || 'file', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
                           <FileText size={16} className="shrink-0" />
-                          <span className="truncate">{m.attachment_name || '첨부파일'}</span>
+                          <div className="min-w-0">
+                            <p className="truncate">{m.attachment_name || '첨부파일'}</p>
+                            <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
+                              {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
+                            </p>
+                          </div>
                         </button>
                         <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'file')} className="shrink-0">
                           <Download size={16} />
@@ -715,7 +723,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           <button onClick={() => { setViewingImageUrl(null); setViewingImageIndex(null) }} className="absolute right-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
             <X size={28} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); handleDownload(viewingImageUrl, 'image.jpg') }} className="absolute left-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
+          <button onClick={(e) => { e.stopPropagation(); handleDownloadViewing() }} className="absolute left-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
             <Download size={26} />
           </button>
           {viewingImageIndex !== null && viewingImageIndex > 0 && (
