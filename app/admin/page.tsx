@@ -705,18 +705,22 @@ export default function Page1() {
     try {
     // 이미지 업로드
     let uploadedImageUrl = selectedProject?.cover_image_url || ''
+    console.log('자켓 수정 시작. coverImageFile 존재?:', !!coverImageFile, 'project_code:', selectedProject?.project_code)
     if (coverImageFile) {
       const { data, error } = await supabase.storage
         .from('covers')
         .upload(`${selectedProject.project_code}_${Date.now()}`, coverImageFile, { upsert: true })
+      console.log('자켓 업로드 결과 - data:', JSON.stringify(data), 'error:', JSON.stringify(error))
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
+        console.log('자켓 최종 URL:', uploadedImageUrl)
       } else {
         console.error('앨범자켓 업로드 실패(수정):', error)
         showToast('앨범자켓 업로드에 실패했어요. 나머지 정보는 저장할게요.')
       }
     }
+    console.log('PATCH에 보낼 cover_image_url:', uploadedImageUrl)
 
     const res = await fetchWithAuth(`/api/projects?project_code=${selectedProject.project_code}`, {
       method: 'PATCH',
