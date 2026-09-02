@@ -1738,7 +1738,7 @@ useEffect(() => {
                             <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
                             {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
                               <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
-                            ) : !projectInfo.start_date || new Date() < new Date(projectInfo.start_date) ? (
+                            ) : !projectInfo.mission_date || new Date() < new Date(`${projectInfo.mission_date}T${projectInfo.mission_time || '00:00'}`) ? (
                               <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">모집 예정</span>
                             ) : (
                               <div className="flex gap-2 flex-wrap">
