@@ -78,6 +78,7 @@ export default function MyPage() {
   const [referralCode, setReferralCode] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [snsChangeRequest, setSnsChangeRequest] = useState<{platform: string, newId: string} | null>(null)
+  const [submittingSnsRequest, setSubmittingSnsRequest] = useState(false)
   const [requests, setRequests] = useState<any[]>([])
   const [requestTitle, setRequestTitle] = useState('')
   const [requestContent, setRequestContent] = useState('')
@@ -622,9 +623,11 @@ export default function MyPage() {
                   <p className="text-xs font-medium text-blue-800 mb-2">SNS 계정 변경 요청</p>
                   <input value={snsChangeRequest.newId} onChange={(e) => setSnsChangeRequest({...snsChangeRequest, newId: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm mb-2" placeholder="새 계정 입력" />
                   <div className="flex gap-2">
-                    <button onClick={async () => {
+                    <button disabled={submittingSnsRequest} onClick={async () => {
+                      if (submittingSnsRequest) return
+                      setSubmittingSnsRequest(true)
                       const oldId = snsChangeRequest.platform === 'instagram' ? myInstagram : snsChangeRequest.platform === 'youtube' ? myYoutube : myTiktok
-                      await fetchWithAuth('/api/sns_change_requests', {
+                      const submitRes = await fetchWithAuth('/api/sns_change_requests', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -635,6 +638,12 @@ export default function MyPage() {
                           status: 'PENDING'
                         })
                       })
+                      if (!submitRes.ok) {
+                        const errData = await submitRes.json().catch(() => ({}))
+                        showToast(errData.error || '요청 접수에 실패했어요.', 'error')
+                        setSubmittingSnsRequest(false)
+                        return
+                      }
                       // 관리자 푸시
                       const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
                       const adminTokens = await adminTokensRes.json()
@@ -656,8 +665,9 @@ export default function MyPage() {
                         })
                       })
                       showToast('변경 요청이 접수됐어요. 관리자 승인 후 반영됩니다.')
+                      setSubmittingSnsRequest(false)
                       setSnsChangeRequest(null)
-                    }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">요청 제출</button>
+                    }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm disabled:opacity-50">{submittingSnsRequest ? '처리중...' : '요청 제출'}</button>
                     <button onClick={() => setSnsChangeRequest(null)} className="flex-1 bg-gray-200 rounded-lg py-2 text-sm">취소</button>
                   </div>
                 </div>
