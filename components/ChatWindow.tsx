@@ -176,6 +176,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const [audioSrc, setAudioSrc] = useState<Record<number, string>>({})
   const touchStartX = useRef<number | null>(null)
   const [showGallery, setShowGallery] = useState(false)
+  const [galleryTab, setGalleryTab] = useState<'media' | 'files' | 'links'>('media')
   const [cachedPaths, setCachedPaths] = useState<Record<number, string>>({})
 
   useEffect(() => {
@@ -756,83 +757,113 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
       {showGallery && (
         <div className="fixed inset-0 z-[75] bg-white dark:bg-gray-900 flex flex-col" style={{paddingTop: 'env(safe-area-inset-top)'}}>
-          <div className="flex items-center gap-3 p-4 border-b dark:border-gray-700 shrink-0">
-            <button onClick={() => setShowGallery(false)}><ArrowLeft size={20} className="text-gray-600 dark:text-gray-300" /></button>
-            <p className="font-bold dark:text-white">첨부파일 모아보기</p>
+          <div className="border-b dark:border-gray-700 shrink-0">
+            <div className="flex items-center gap-3 p-4 md:max-w-7xl md:mx-auto">
+              <button onClick={() => setShowGallery(false)}><ArrowLeft size={20} className="text-gray-600 dark:text-gray-300" /></button>
+              <p className="font-bold dark:text-white">첨부파일 모아보기</p>
+            </div>
           </div>
+
+          <div className="w-full md:max-w-7xl md:mx-auto flex gap-2 p-3 shrink-0">
+            <button onClick={() => setGalleryTab('media')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${galleryTab === 'media' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500 dark:text-gray-400'}`}>사진/동영상</button>
+            <button onClick={() => setGalleryTab('files')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${galleryTab === 'files' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500 dark:text-gray-400'}`}>파일</button>
+            <button onClick={() => setGalleryTab('links')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${galleryTab === 'links' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500 dark:text-gray-400'}`}>링크</button>
+          </div>
+
           <div className="flex-1 overflow-y-auto p-4">
+            <div className="w-full md:max-w-7xl md:mx-auto">
             {(() => {
               const attachments = messages.filter((m) => m.attachment_url && !m.deleted_at)
-              const galleryImages = attachments.filter((m) => m.attachment_type?.startsWith('image/'))
-              const galleryFiles = attachments.filter((m) => !m.attachment_type?.startsWith('image/'))
-              if (attachments.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 파일이 없어요.</p>
-              return (
-                <>
-                  {galleryImages.length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-xs font-bold text-gray-400 mb-2">사진 {galleryImages.length}개</p>
-                      <div className="grid grid-cols-3 gap-1">
-                        {galleryImages.map((m) => {
-                          const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
-                          const src = cachedPaths[m.id] ?? (expired ? null : m.attachment_url)
-                          return (
-                            <button
-                              key={m.id}
-                              disabled={!src}
-                              onClick={() => src && (cachedPaths[m.id] ? openImageViewer(m.id) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
-                              className="relative aspect-square"
-                            >
-                              {src ? (
-                                <img src={src} className="w-full h-full object-cover rounded" />
-                              ) : (
-                                <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
-                                  <span className="text-[9px] text-gray-400 text-center px-1">만료됨</span>
-                                </div>
-                              )}
-                              <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
-                                {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
-                              </span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  {galleryFiles.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold text-gray-400 mb-2">파일 {galleryFiles.length}개</p>
-                      <div className="space-y-2">
-                        {galleryFiles.map((m) => {
-                          const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
-                          const cached = cachedPaths[m.id]
-                          const usable = cached || !expired
-                          return (
-                            <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                              <button
-                                disabled={!usable}
-                                onClick={() => cached ? window.open(cached, '_blank') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
-                                className="flex items-center gap-2 flex-1 min-w-0 text-left disabled:opacity-40"
-                              >
-                                <FileText size={18} className="shrink-0 text-gray-500" />
-                                <div className="min-w-0">
-                                  <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}{!usable && ' (만료됨)'}</p>
-                                  <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
-                                </div>
-                              </button>
-                              {usable && !cached && (
-                                <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
-                                  <Download size={16} />
-                                </button>
-                              )}
+              const galleryImages = attachments.filter((m) => m.attachment_type?.startsWith('image/') || m.attachment_type?.startsWith('video/'))
+              const galleryFiles = attachments.filter((m) => !m.attachment_type?.startsWith('image/') && !m.attachment_type?.startsWith('video/'))
+
+              const galleryLinks = messages
+                .filter((m) => m.body && !m.deleted_at)
+                .flatMap((m) => {
+                  const found = m.body.match(URL_REGEX)
+                  return found ? found.map((url) => ({ url, message: m })) : []
+                })
+                .reverse()
+
+              if (galleryTab === 'media') {
+                if (galleryImages.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 사진/동영상이 없어요.</p>
+                return (
+                  <div className="grid grid-cols-3 gap-1">
+                    {galleryImages.map((m) => {
+                      const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
+                      const src = cachedPaths[m.id] ?? (expired ? null : m.attachment_url)
+                      return (
+                        <button
+                          key={m.id}
+                          disabled={!src}
+                          onClick={() => src && (cachedPaths[m.id] ? openImageViewer(m.id) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
+                          className="relative aspect-square"
+                        >
+                          {src ? (
+                            <img src={src} className="w-full h-full object-cover rounded" />
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
+                              <span className="text-[9px] text-gray-400 text-center px-1">만료됨</span>
                             </div>
-                          )
-                        })}
+                          )}
+                          <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
+                            {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )
+              }
+
+              if (galleryTab === 'files') {
+                if (galleryFiles.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 파일이 없어요.</p>
+                return (
+                  <div className="space-y-2">
+                    {galleryFiles.map((m) => {
+                      const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
+                      const cached = cachedPaths[m.id]
+                      const usable = cached || !expired
+                      return (
+                        <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                          <button
+                            disabled={!usable}
+                            onClick={() => cached ? window.open(cached, '_blank') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
+                            className="flex items-center gap-2 flex-1 min-w-0 text-left disabled:opacity-40"
+                          >
+                            <FileText size={18} className="shrink-0 text-gray-500" />
+                            <div className="min-w-0">
+                              <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}{!usable && ' (만료됨)'}</p>
+                              <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
+                            </div>
+                          </button>
+                          {usable && !cached && (
+                            <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
+                              <Download size={16} />
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              }
+
+              if (galleryLinks.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 링크가 없어요.</p>
+              return (
+                <div className="space-y-2">
+                  {galleryLinks.map(({ url, message: m }, i) => (
+                    <button key={`${m.id}_${i}`} onClick={() => handleLinkClick(url)} className="w-full flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-left">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-blue-600 dark:text-blue-400 truncate underline">{url}</p>
+                        <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
                       </div>
-                    </div>
-                  )}
-                </>
+                    </button>
+                  ))}
+                </div>
               )
             })()}
+            </div>
           </div>
         </div>
       )}
