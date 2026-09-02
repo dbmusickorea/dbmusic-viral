@@ -18,7 +18,7 @@ const getPlatformIconKey = (type: string, platform: string) => type === 'shorts'
 
 export default function DistributionAdminPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'requests' | 'albums'>('requests')
+  const [activeTab, setActiveTab] = useState<'requests' | 'artists' | 'albums'>('requests')
 
   // --- 발매 신청 관리 ---
   const [requests, setRequests] = useState<any[]>([])
@@ -59,6 +59,12 @@ export default function DistributionAdminPage() {
 
   // --- 의뢰인 선택 후: 앨범 목록 ---
   const [clientAlbums, setClientAlbums] = useState<any[]>([])
+  const [clientArtists, setClientArtists] = useState<any[]>([])
+  const [editingArtistId, setEditingArtistId] = useState<number | null>(null)
+  const [artistFormName, setArtistFormName] = useState('')
+  const [artistFormBio, setArtistFormBio] = useState('')
+  const [artistFormStreamingUrl, setArtistFormStreamingUrl] = useState('')
+  const [artistFormImageUrl, setArtistFormImageUrl] = useState('')
   const [selectedAlbum, setSelectedAlbum] = useState<any>(null)
 
   // --- 앨범 기본정보 편집 ---
@@ -131,14 +137,79 @@ export default function DistributionAdminPage() {
     setSelectedClient(client)
     setSelectedAlbum(null)
     resetForm()
-    const [itemsRes, albumsRes] = await Promise.all([
+    const [itemsRes, albumsRes, artistsRes] = await Promise.all([
       fetchWithAuth(`/api/distribution-items?client_id=${client.id}`),
       fetchWithAuth(`/api/distribution-albums?client_id=${client.id}`),
+      fetchWithAuth(`/api/distribution-artists?client_id=${client.id}`),
     ])
     const itemsData = await itemsRes.json()
     const albumsData = await albumsRes.json()
+    const artistsData = await artistsRes.json()
     setItems(Array.isArray(itemsData) ? itemsData : [])
     setClientAlbums(Array.isArray(albumsData) ? albumsData : [])
+    setClientArtists(Array.isArray(artistsData) ? artistsData : [])
+    resetArtistForm()
+  }
+
+  const resetArtistForm = () => {
+    setEditingArtistId(null)
+    setArtistFormName('')
+    setArtistFormBio('')
+    setArtistFormStreamingUrl('')
+    setArtistFormImageUrl('')
+  }
+
+  const startEditArtist = (artist: any) => {
+    setEditingArtistId(artist.id)
+    setArtistFormName(artist.name ?? '')
+    setArtistFormBio(artist.bio ?? '')
+    setArtistFormStreamingUrl(artist.streaming_url ?? '')
+    setArtistFormImageUrl(artist.profile_image_url ?? '')
+  }
+
+  const handleSaveArtist = async () => {
+    if (!artistFormName.trim() || !selectedClient) return
+    const body = {
+      client_id: selectedClient.id,
+      name: artistFormName.trim(),
+      bio: artistFormBio || null,
+      streaming_url: artistFormStreamingUrl || null,
+    }
+    if (editingArtistId) {
+      await fetchWithAuth(`/api/distribution-artists?id=${editingArtistId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+    } else {
+      await fetchWithAuth('/api/distribution-artists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+    }
+    resetArtistForm()
+    openClient(selectedClient)
+  }
+
+  const handleDeleteArtist = async (id: number) => {
+    if (!confirm('아티스트를 삭제하시겠어요?')) return
+    await fetchWithAuth(`/api/distribution-artists?id=${id}`, { method: 'DELETE' })
+    if (editingArtistId === id) resetArtistForm()
+    if (selectedClient) openClient(selectedClient)
+  }
+
+  const handleUploadArtistProfile = async (artistId: number, file: File) => {
+    const resized = await resizeImage(file, 800, 0.85)
+    const formData = new FormData()
+    formData.append('file', new File([resized], 'profile.jpg', { type: 'image/jpeg' }))
+    formData.append('artist_id', String(artistId))
+    const res = await fetchWithAuth('/api/distribution-artist-profile-upload', { method: 'POST', body: formData })
+    const data = await res.json()
+    if (data.url) {
+      setArtistFormImageUrl(data.url)
+      if (selectedClient) openClient(selectedClient)
+    }
   }
 
   const openAlbum = async (album: any) => {
@@ -390,6 +461,9 @@ export default function DistributionAdminPage() {
           <button onClick={() => setActiveTab('requests')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'requests' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
             발매 신청 관리 {requests.filter(r => r.status === 'PENDING').length > 0 && `(${requests.filter(r => r.status === 'PENDING').length})`}
           </button>
+          <button onClick={() => setActiveTab('artists')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'artists' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
+            아티스트 관리
+          </button>
           <button onClick={() => setActiveTab('albums')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
             앨범/링크 관리
           </button>
@@ -435,7 +509,7 @@ export default function DistributionAdminPage() {
           </div>
         )}
 
-        {activeTab === 'albums' && (
+        {(activeTab === 'artists' || activeTab === 'albums') && (
         <div className="flex flex-col md:flex-row gap-4 items-start">
           <div className="w-full md:w-1/3 space-y-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
@@ -485,6 +559,65 @@ export default function DistributionAdminPage() {
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
                 <p className="text-xs text-gray-400">왼쪽에서 의뢰인을 선택해주세요.</p>
               </div>
+            ) : activeTab === 'artists' ? (
+              <>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className="font-bold dark:text-white">{selectedClient.name} - {editingArtistId ? '아티스트 수정' : '아티스트 등록'}</h2>
+                    {editingArtistId && (
+                      <button onClick={resetArtistForm} className="text-xs text-gray-400 flex items-center gap-0.5"><X size={14} /> 취소</button>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      {artistFormImageUrl ? (
+                        <img src={artistFormImageUrl} className="w-16 h-16 rounded-full object-cover shrink-0" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0" />
+                      )}
+                      {editingArtistId ? (
+                        <label className="flex-1 text-center text-sm border dark:border-gray-600 dark:text-gray-300 rounded-lg py-2 cursor-pointer">
+                          프로필 사진 업로드
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f && editingArtistId) handleUploadArtistProfile(editingArtistId, f) }} />
+                        </label>
+                      ) : (
+                        <p className="text-xs text-gray-400 flex-1">아티스트를 먼저 등록한 후 사진을 올릴 수 있어요.</p>
+                      )}
+                    </div>
+                    <input value={artistFormName} onChange={(e) => setArtistFormName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명" />
+                    <input value={artistFormStreamingUrl} onChange={(e) => setArtistFormStreamingUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="스트리밍 사이트 URL (Melon/Spotify 등)" />
+                    <textarea value={artistFormBio} onChange={(e) => setArtistFormBio(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트 소개" />
+                    <button onClick={handleSaveArtist} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">{editingArtistId ? '수정 완료' : '등록'}</button>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <h2 className="font-bold dark:text-white mb-3">아티스트 목록</h2>
+                  {clientArtists.length === 0 ? (
+                    <p className="text-xs text-gray-400">등록된 아티스트가 없어요.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {clientArtists.map((artist: any) => (
+                        <div key={artist.id} className={`flex items-center gap-3 rounded-lg p-3 ${editingArtistId === artist.id ? 'bg-blue-50 dark:bg-blue-900' : 'bg-gray-50 dark:bg-gray-700'}`}>
+                          {artist.profile_image_url ? (
+                            <img src={artist.profile_image_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium dark:text-white truncate">{artist.name}</p>
+                            {artist.streaming_url && <p className="text-xs text-blue-500 truncate">{artist.streaming_url}</p>}
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <button onClick={() => startEditArtist(artist)} className="text-gray-400"><Pencil size={16} /></button>
+                            <button onClick={() => handleDeleteArtist(artist.id)} className="text-red-400"><Trash2 size={16} /></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             ) : selectedAlbum ? (
               <>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
