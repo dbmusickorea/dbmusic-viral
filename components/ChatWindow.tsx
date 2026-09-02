@@ -214,7 +214,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const PREVIEWABLE_TYPES = ['application/pdf', 'text/plain']
 
-  const handleOpenFile = async (url: string, type?: string | null) => {
+  const handleOpenFile = async (messageId: number, url: string, filename: string, type?: string | null) => {
+    cacheAttachment(messageId, url, filename)
     if (!type || !PREVIEWABLE_TYPES.includes(type)) {
       alert('미리보기를 지원하지 않는 파일입니다.')
       return
@@ -264,7 +265,32 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
-  const handleImageClick = async (url: string) => {
+  const cacheAttachment = async (messageId: number, url: string, filename: string) => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const path = `chat-cache/${messageId}_${filename}`
+      // 이미 캐시되어 있으면 다시 안 받음
+      try {
+        await Filesystem.stat({ path, directory: Directory.Cache })
+        return
+      } catch {}
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onerror = reject
+        reader.onload = () => resolve(reader.result as string)
+        reader.readAsDataURL(blob)
+      })
+      await Filesystem.writeFile({ path, data: base64Data, directory: Directory.Cache, recursive: true })
+    } catch (err) {
+      console.log('첨부파일 캐시 실패:', err)
+    }
+  }
+
+  const handleImageClick = async (messageId: number, url: string, filename: string) => {
+    cacheAttachment(messageId, url, filename)
     if ((window as any).Capacitor?.isNativePlatform?.()) {
       const { Browser } = await import('@capacitor/browser')
       await Browser.open({ url })
@@ -294,7 +320,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       .uploadToSignedUrl(path, token, file, { contentType: file.type })
 
     if (!uploadError) {
-      await fetchWithAuth('/api/chat_messages', {
+      const sendRes = await fetchWithAuth('/api/chat_messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -302,6 +328,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type,
         })
       })
+      const sentMsg = await sendRes.json()
+      if (sentMsg?.id) cacheAttachment(sentMsg.id, publicUrl, file.name)
       await fetchMessages()
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
     }
@@ -392,7 +420,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       </div>
                     ) : m.attachment_type?.startsWith('image/') ? (
                       <div className="relative mb-1 max-w-[240px]">
-                        <button onClick={() => handleImageClick(m.attachment_url ?? '')} className="block">
+                        <button onClick={() => handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg')} className="block">
                           <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
                         </button>
                         <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
@@ -401,7 +429,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       </div>
                     ) : (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
-                        <button onClick={() => handleOpenFile(m.attachment_url!, m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                        <button onClick={() => handleOpenFile(m.id, m.attachment_url!, m.attachment_name || 'file', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
                           <FileText size={16} className="shrink-0" />
                           <span className="truncate">{m.attachment_name || '첨부파일'}</span>
                         </button>
@@ -496,7 +524,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       <p className="text-xs font-bold text-gray-400 mb-2">사진 {galleryImages.length}개</p>
                       <div className="grid grid-cols-3 gap-1">
                         {galleryImages.map((m) => (
-                          <button key={m.id} onClick={() => handleImageClick(m.attachment_url ?? '')} className="relative aspect-square">
+                          <button key={m.id} onClick={() => handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg')} className="relative aspect-square">
                             <img src={m.attachment_url ?? ''} className="w-full h-full object-cover rounded" />
                             <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
                               {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
@@ -512,7 +540,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       <div className="space-y-2">
                         {galleryFiles.map((m) => (
                           <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                            <button onClick={() => handleOpenFile(m.attachment_url ?? '', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                            <button onClick={() => handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
                               <FileText size={18} className="shrink-0 text-gray-500" />
                               <div className="min-w-0">
                                 <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}</p>
