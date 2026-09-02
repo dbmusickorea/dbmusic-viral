@@ -854,7 +854,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               if (galleryTab === 'files') {
                 if (galleryFiles.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 파일이 없어요.</p>
                 return (
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {galleryFiles.map((m) => {
                       const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
                       const cached = cachedPaths[m.id]
@@ -882,7 +882,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
               if (galleryLinks.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 링크가 없어요.</p>
               return (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {galleryLinks.map(({ url, message: m }, i) => {
                     const preview = linkPreviews[url]
                     const hasPreview = preview && preview !== 'loading' && preview !== 'failed'
