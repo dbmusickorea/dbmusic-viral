@@ -162,6 +162,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
 
+  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
@@ -270,9 +271,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                 <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                   {m.attachment_url && (
                     m.attachment_type?.startsWith('image/') ? (
-                      <a href={m.attachment_url} target="_blank" rel="noopener noreferrer" className="block mb-1 max-w-[240px]">
+                      <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block mb-1 max-w-[240px]">
                         <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
-                      </a>
+                      </button>
                     ) : (
                       <a href={m.attachment_url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
                         <FileText size={16} className="shrink-0" />
@@ -375,6 +376,15 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               {uploadingAttachment ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Send size={16} />}
             </button>
           </div>
+        </div>
+      )}
+
+      {viewingImageUrl && (
+        <div className="fixed inset-0 z-[80] bg-black flex items-center justify-center" onClick={() => setViewingImageUrl(null)}>
+          <button onClick={() => setViewingImageUrl(null)} className="absolute top-4 right-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
+            <X size={28} />
+          </button>
+          <img src={viewingImageUrl} className="max-w-full max-h-full object-contain" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </div>
