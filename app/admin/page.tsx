@@ -550,6 +550,8 @@ export default function Page1() {
 
   const handleInsert = async () => {
     if (!formData.projectCode) { showToast('프로젝트 코드를 입력해주세요.'); return }
+    if (isSaving) return
+    setIsSaving(true)
     
     // 이미지 업로드
     let uploadedImageUrl = ''
@@ -691,6 +693,7 @@ export default function Page1() {
     fetchProjects()
     fetchClients()
     clearForm()
+    setIsSaving(false)
   }
 
   const handleUpdate = async () => {
