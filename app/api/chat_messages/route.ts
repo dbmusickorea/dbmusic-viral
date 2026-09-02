@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { user_id, role, sender, body: messageBody, project_code, attachment_url, attachment_name, attachment_type } = body
+  const { user_id, role, sender, body: messageBody, project_code, attachment_url, attachment_name, attachment_type, attachment_size } = body
   if (!user_id || !role || !sender || (!messageBody && !attachment_url)) {
     return NextResponse.json({ error: 'user_id, role, sender, (body 또는 attachment_url) 필요' }, { status: 400 })
   }
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       attachment_url: attachment_url ?? null,
       attachment_name: attachment_name ?? null,
       attachment_type: attachment_type ?? null,
+      attachment_size: attachment_size ?? null,
     })
     .select()
     .single()

@@ -17,6 +17,7 @@ type ChatMessage = {
   attachment_url?: string | null
   attachment_name?: string | null
   attachment_type?: string | null
+  attachment_size?: number | null
   deleted_at?: string | null
 }
 
@@ -263,6 +264,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           setDownloadProgress((prev) => ({ ...prev, [m.id]: { received, total } }))
         })
         setDownloadProgress((prev) => { const next = { ...prev }; delete next[m.id]; return next })
+        await markAsCached(m.id, filename)
       }
       const { Filesystem, Directory } = await import('@capacitor/filesystem')
       const { Capacitor } = await import('@capacitor/core')
@@ -286,6 +288,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         setDownloadProgress((prev) => ({ ...prev, [messageId]: { received, total } }))
       })
       setDownloadProgress((prev) => { const next = { ...prev }; delete next[messageId]; return next })
+      await markAsCached(messageId, filename)
     }
 
     if (!type || !PREVIEWABLE_TYPES.includes(type)) {
@@ -346,6 +349,30 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     } catch {
       return false
     }
+  }
+
+  const formatFileSize = (bytes?: number | null) => {
+    if (!bytes) return null
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`
+    return `${(bytes / 1024 / 1024).toFixed(1)}MB`
+  }
+
+  const attachmentInfoText = (m: ChatMessage) => {
+    const size = formatFileSize(m.attachment_size)
+    const dateStr = new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
+    return size ? `${size} · ${dateStr}까지 다운로드 가능` : `${dateStr}까지 다운로드 가능`
+  }
+
+  const markAsCached = async (messageId: number, filename: string) => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Capacitor } = await import('@capacitor/core')
+      const path = `chat-cache/${messageId}_${filename}`
+      await Filesystem.stat({ path, directory: Directory.Cache })
+      const uriResult = await Filesystem.getUri({ path, directory: Directory.Cache })
+      setCachedPaths((prev) => ({ ...prev, [messageId]: Capacitor.convertFileSrc(uriResult.uri) }))
+    } catch {}
   }
 
   const cacheAttachment = async (messageId: number, url: string, filename: string, onProgress?: (received: number, total: number) => void) => {
@@ -421,7 +448,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   const handleImageClick = async (messageId: number, url: string, filename: string) => {
-    cacheAttachment(messageId, url, filename)
+    cacheAttachment(messageId, url, filename).then(() => markAsCached(messageId, filename))
     openImageViewer(messageId)
   }
 
@@ -451,7 +478,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: userId, role, sender: myLabel, body: '',
-          attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type,
+          attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type, attachment_size: file.size,
         })
       })
       const sentMsg = await sendRes.json()
@@ -556,13 +583,20 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         </div>
                       )
                     ) : m.attachment_type?.startsWith('image/') ? (
-                      <div className="relative mb-1 max-w-[240px]">
-                        <button onClick={() => handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg')} className="block">
-                          <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
-                        </button>
-                        <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
-                          <Download size={14} />
-                        </button>
+                      <div className="mb-1 max-w-[240px]">
+                        <div className="relative">
+                          <button onClick={() => handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg')} className="block">
+                            <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
+                          </button>
+                          <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
+                            <Download size={14} />
+                          </button>
+                        </div>
+                        {!cachedPaths[m.id] && (
+                          <p className={`text-[10px] mt-0.5 px-1 ${isMine ? 'text-blue-400' : 'text-gray-400'}`}>
+                            {attachmentInfoText(m)}
+                          </p>
+                        )}
                       </div>
                     ) : downloadProgress[m.id] ? (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 bg-gray-100 dark:bg-gray-700">
@@ -589,7 +623,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                               <p className="truncate">{m.attachment_name || '음원 파일'}</p>
                               {!cachedPaths[m.id] && (
                                 <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
-                                  {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
+                                  {attachmentInfoText(m)}
                                 </p>
                               )}
                             </div>
@@ -610,7 +644,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                             <p className="truncate">{m.attachment_name || '첨부파일'}</p>
                             {!cachedPaths[m.id] && (
                               <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
-                                {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
+                                {attachmentInfoText(m)}
                               </p>
                             )}
                           </div>
