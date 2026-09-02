@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2 } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -210,6 +210,43 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     await fetchMessages()
   }
 
+  const PREVIEWABLE_TYPES = ['application/pdf', 'text/plain']
+
+  const handleOpenFile = async (url: string, type?: string | null) => {
+    if (!type || !PREVIEWABLE_TYPES.includes(type)) {
+      alert('미리보기를 지원하지 않는 파일입니다.')
+      return
+    }
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const { Browser } = await import('@capacitor/browser')
+      await Browser.open({ url })
+    } else {
+      window.open(url, '_blank')
+    }
+  }
+
+  const handleDownload = async (url: string, filename: string) => {
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const { Share } = await import('@capacitor/share')
+      await Share.share({ url })
+    } else {
+      try {
+        const res = await fetch(url)
+        const blob = await res.blob()
+        const objectUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = objectUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(objectUrl)
+      } catch {
+        window.open(url, '_blank')
+      }
+    }
+  }
+
   const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/') && file.size > 50 * 1024 * 1024) {
       alert('50MB보다 큰 파일은 보낼 수 없어요.')
@@ -318,14 +355,24 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <span>파일 다운로드 기간(7일)이 지났습니다.</span>
                       </div>
                     ) : m.attachment_type?.startsWith('image/') ? (
-                      <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block mb-1 max-w-[240px]">
-                        <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
-                      </button>
+                      <div className="relative mb-1 max-w-[240px]">
+                        <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block">
+                          <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
+                        </button>
+                        <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
+                          <Download size={14} />
+                        </button>
+                      </div>
                     ) : (
-                      <a href={m.attachment_url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
-                        <FileText size={16} className="shrink-0" />
-                        <span className="truncate">{m.attachment_name || '첨부파일'}</span>
-                      </a>
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                        <button onClick={() => handleOpenFile(m.attachment_url!, m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                          <FileText size={16} className="shrink-0" />
+                          <span className="truncate">{m.attachment_name || '첨부파일'}</span>
+                        </button>
+                        <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'file')} className="shrink-0">
+                          <Download size={16} />
+                        </button>
+                      </div>
                     )
                   )}
                   {m.body && (
