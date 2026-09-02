@@ -169,6 +169,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
   const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null)
+  const [viewingMessageId, setViewingMessageId] = useState<number | null>(null)
+  const [downloadProgress, setDownloadProgress] = useState<Record<number, { received: number; total: number }>>({})
   const touchStartX = useRef<number | null>(null)
   const [showGallery, setShowGallery] = useState(false)
   const [cachedPaths, setCachedPaths] = useState<Record<number, string>>({})
@@ -237,7 +239,15 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const PREVIEWABLE_TYPES = ['application/pdf', 'text/plain']
 
   const handleOpenFile = async (messageId: number, url: string, filename: string, type?: string | null) => {
-    cacheAttachment(messageId, url, filename)
+    const alreadyCached = await isAttachmentCached(messageId, filename)
+    if (!alreadyCached && (window as any).Capacitor?.isNativePlatform?.()) {
+      setDownloadProgress((prev) => ({ ...prev, [messageId]: { received: 0, total: 0 } }))
+      await cacheAttachment(messageId, url, filename, (received, total) => {
+        setDownloadProgress((prev) => ({ ...prev, [messageId]: { received, total } }))
+      })
+      setDownloadProgress((prev) => { const next = { ...prev }; delete next[messageId]; return next })
+    }
+
     if (!type || !PREVIEWABLE_TYPES.includes(type)) {
       alert('미리보기를 지원하지 않는 파일입니다.')
       return
@@ -287,7 +297,18 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
-  const cacheAttachment = async (messageId: number, url: string, filename: string) => {
+  const isAttachmentCached = async (messageId: number, filename: string) => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return false
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      await Filesystem.stat({ path: `chat-cache/${messageId}_${filename}`, directory: Directory.Cache })
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const cacheAttachment = async (messageId: number, url: string, filename: string, onProgress?: (received: number, total: number) => void) => {
     if (!(window as any).Capacitor?.isNativePlatform?.()) return
     try {
       const { Filesystem, Directory } = await import('@capacitor/filesystem')
@@ -297,13 +318,29 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         await Filesystem.stat({ path, directory: Directory.Cache })
         return
       } catch {}
+
       const res = await fetch(url)
-      const blob = await res.blob()
+      const total = Number(res.headers.get('content-length') || 0)
+      const reader = res.body?.getReader()
+      const chunks: Uint8Array[] = []
+      let received = 0
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          if (value) {
+            chunks.push(value)
+            received += value.length
+            onProgress?.(received, total)
+          }
+        }
+      }
+      const blob = new Blob(chunks as BlobPart[])
       const base64Data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = reject
-        reader.onload = () => resolve(reader.result as string)
-        reader.readAsDataURL(blob)
+        const fr = new FileReader()
+        fr.onerror = reject
+        fr.onload = () => resolve(fr.result as string)
+        fr.readAsDataURL(blob)
       })
       await Filesystem.writeFile({ path, data: base64Data, directory: Directory.Cache, recursive: true })
     } catch (err) {
@@ -323,6 +360,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     const idx = list.findIndex((m) => m.id === messageId)
     if (idx === -1) return
     setViewingImageIndex(idx)
+    setViewingMessageId(list[idx].id)
     setViewingImageUrl(resolveImageSrc(list[idx]))
   }
 
@@ -332,7 +370,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     const nextIndex = viewingImageIndex + direction
     if (nextIndex < 0 || nextIndex >= list.length) return
     setViewingImageIndex(nextIndex)
+    setViewingMessageId(list[nextIndex].id)
     setViewingImageUrl(resolveImageSrc(list[nextIndex]))
+  }
+
+  const handleDownloadViewing = async () => {
+    const msg = messages.find((m) => m.id === viewingMessageId)
+    if (!msg?.attachment_url) return
+    await handleDownload(msg.attachment_url, msg.attachment_name || 'image.jpg')
   }
 
   const handleImageClick = async (messageId: number, url: string, filename: string) => {
@@ -478,6 +523,20 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
                           <Download size={14} />
                         </button>
+                      </div>
+                    ) : downloadProgress[m.id] ? (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 bg-gray-100 dark:bg-gray-700">
+                        <FileText size={16} className="shrink-0 text-gray-400" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs truncate dark:text-gray-300">{m.attachment_name}</p>
+                          <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mt-1">
+                            <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${downloadProgress[m.id].total ? Math.min(100, Math.round(downloadProgress[m.id].received / downloadProgress[m.id].total * 100)) : 0}%` }} />
+                          </div>
+                          <p className="text-[10px] text-gray-400 mt-0.5">
+                            {(downloadProgress[m.id].received / 1024 / 1024).toFixed(1)}MB / {downloadProgress[m.id].total ? `${(downloadProgress[m.id].total / 1024 / 1024).toFixed(1)}MB` : '?'}
+                            {downloadProgress[m.id].total > 0 && ` (${Math.round(downloadProgress[m.id].received / downloadProgress[m.id].total * 100)}%)`}
+                          </p>
+                        </div>
                       </div>
                     ) : (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
@@ -669,7 +728,17 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               <ChevronRight size={32} />
             </button>
           )}
-          <img src={viewingImageUrl} className="max-w-full max-h-full object-contain" onClick={(e) => e.stopPropagation()} />
+          <img
+            src={viewingImageUrl}
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+            onError={(e) => {
+              const msg = messages.find((m) => m.id === viewingMessageId)
+              if (msg?.attachment_url && e.currentTarget.src !== msg.attachment_url) {
+                e.currentTarget.src = msg.attachment_url
+              }
+            }}
+          />
         </div>
       )}
     </div>
