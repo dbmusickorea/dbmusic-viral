@@ -44,10 +44,16 @@ export async function GET(request: NextRequest) {
       image = new URL(image, base.origin).toString()
     }
 
-    if (!title) return NextResponse.json({ error: 'no preview' }, { status: 404 })
+    console.log('link-preview 요청:', url, 'HTTP상태:', res.status, 'title:', title, 'image:', image)
+
+    if (!title) {
+      console.log('link-preview title 못찾음, html 앞부분:', html.slice(0, 500))
+      return NextResponse.json({ error: 'no preview' }, { status: 404 })
+    }
 
     return NextResponse.json({ title, description, image, siteName, url })
   } catch (e) {
+    console.error('link-preview 자체 실패:', e)
     return NextResponse.json({ error: 'fetch failed' }, { status: 500 })
   }
 }
