@@ -228,8 +228,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const handleDownload = async (url: string, filename: string) => {
     if ((window as any).Capacitor?.isNativePlatform?.()) {
-      const { Share } = await import('@capacitor/share')
-      await Share.share({ url })
+      try {
+        const res = await fetch(url)
+        const blob = await res.blob()
+        const base64Data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onerror = reject
+          reader.onload = () => resolve(reader.result as string)
+          reader.readAsDataURL(blob)
+        })
+        const { Filesystem, Directory } = await import('@capacitor/filesystem')
+        const { Share } = await import('@capacitor/share')
+        const written = await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.Cache })
+        await Share.share({ url: written.uri })
+      } catch {
+        const { Browser } = await import('@capacitor/browser')
+        await Browser.open({ url })
+      }
     } else {
       try {
         const res = await fetch(url)
@@ -363,14 +378,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <span>파일 다운로드 기간(7일)이 지났습니다.</span>
                       </div>
                     ) : m.attachment_type?.startsWith('image/') ? (
-                      <div className="relative mb-1 max-w-[240px]">
-                        <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block">
-                          <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
-                        </button>
-                        <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
-                          <Download size={14} />
-                        </button>
-                      </div>
+                      <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block mb-1 max-w-[240px]">
+                        <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
+                      </button>
                     ) : (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
                         <button onClick={() => handleOpenFile(m.attachment_url!, m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
@@ -451,8 +461,11 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
       {viewingImageUrl && (
         <div className="fixed inset-0 z-[80] bg-black flex items-center justify-center" onClick={() => setViewingImageUrl(null)}>
-          <button onClick={() => setViewingImageUrl(null)} className="absolute top-4 right-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
+          <button onClick={() => setViewingImageUrl(null)} className="absolute right-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
             <X size={28} />
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); handleDownload(viewingImageUrl, 'image.jpg') }} className="absolute left-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
+            <Download size={26} />
           </button>
           <img src={viewingImageUrl} className="max-w-full max-h-full object-contain" onClick={(e) => e.stopPropagation()} />
         </div>
