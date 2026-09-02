@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Folder, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Folder, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -171,6 +171,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null)
   const [viewingMessageId, setViewingMessageId] = useState<number | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<Record<number, { received: number; total: number }>>({})
+  const [playingAudioId, setPlayingAudioId] = useState<number | null>(null)
+  const [audioSrc, setAudioSrc] = useState<Record<number, string>>({})
   const touchStartX = useRef<number | null>(null)
   const [showGallery, setShowGallery] = useState(false)
   const [cachedPaths, setCachedPaths] = useState<Record<number, string>>({})
@@ -240,6 +242,39 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     'application/pdf', 'text/plain',
     'audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/wav', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/webm',
   ]
+
+  const handlePlayAudio = async (m: ChatMessage) => {
+    if (playingAudioId === m.id) {
+      setPlayingAudioId(null)
+      return
+    }
+    if (audioSrc[m.id]) {
+      setPlayingAudioId(m.id)
+      return
+    }
+    const filename = m.attachment_name || 'audio'
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const alreadyCached = await isAttachmentCached(m.id, filename)
+      if (!alreadyCached) {
+        setDownloadProgress((prev) => ({ ...prev, [m.id]: { received: 0, total: 0 } }))
+        await cacheAttachment(m.id, m.attachment_url!, filename, (received, total) => {
+          setDownloadProgress((prev) => ({ ...prev, [m.id]: { received, total } }))
+        })
+        setDownloadProgress((prev) => { const next = { ...prev }; delete next[m.id]; return next })
+      }
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Capacitor } = await import('@capacitor/core')
+      try {
+        const uriResult = await Filesystem.getUri({ path: `chat-cache/${m.id}_${filename}`, directory: Directory.Cache })
+        setAudioSrc((prev) => ({ ...prev, [m.id]: Capacitor.convertFileSrc(uriResult.uri) }))
+      } catch {
+        setAudioSrc((prev) => ({ ...prev, [m.id]: m.attachment_url! }))
+      }
+    } else {
+      setAudioSrc((prev) => ({ ...prev, [m.id]: m.attachment_url! }))
+    }
+    setPlayingAudioId(m.id)
+  }
 
   const handleOpenFile = async (messageId: number, url: string, filename: string, type?: string | null) => {
     const alreadyCached = await isAttachmentCached(messageId, filename)
@@ -541,15 +576,36 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                           </p>
                         </div>
                       </div>
+                    ) : m.attachment_type?.startsWith('audio/') ? (
+                      <div className={`px-3 py-2 rounded-2xl text-sm mb-1 ${playingAudioId === m.id ? 'min-w-[300px] md:min-w-[340px]' : 'min-w-[220px]'} ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                        <button onClick={() => handlePlayAudio(m)} className="flex items-center gap-2 w-full text-left">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isMine ? 'bg-white/20' : 'bg-blue-500 text-white'}`}>
+                            {playingAudioId === m.id ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate">{m.attachment_name || '음원 파일'}</p>
+                            {!cachedPaths[m.id] && (
+                              <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
+                                {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
+                              </p>
+                            )}
+                          </div>
+                        </button>
+                        {playingAudioId === m.id && audioSrc[m.id] && (
+                          <audio src={audioSrc[m.id]} controls autoPlay onEnded={() => setPlayingAudioId(null)} className="w-full mt-2 h-8" />
+                        )}
+                      </div>
                     ) : (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
                         <button onClick={() => handleOpenFile(m.id, m.attachment_url!, m.attachment_name || 'file', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
                           <FileText size={16} className="shrink-0" />
                           <div className="min-w-0">
                             <p className="truncate">{m.attachment_name || '첨부파일'}</p>
-                            <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
-                              {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
-                            </p>
+                            {!cachedPaths[m.id] && (
+                              <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
+                                {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
+                              </p>
+                            )}
                           </div>
                         </button>
                         <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'file')} className="shrink-0">
