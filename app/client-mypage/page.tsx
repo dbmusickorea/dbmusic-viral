@@ -84,6 +84,42 @@ export default function ClientMyPage() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const { showToast } = useToast()
+  const [cacheSizeMB, setCacheSizeMB] = useState<number | null>(null)
+  const [clearingCache, setClearingCache] = useState(false)
+
+  const calculateCacheSize = async () => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const list = await Filesystem.readdir({ path: 'chat-cache', directory: Directory.Cache })
+      let totalBytes = 0
+      for (const entry of list.files) {
+        try {
+          const info = await Filesystem.stat({ path: `chat-cache/${entry.name}`, directory: Directory.Cache })
+          totalBytes += info.size ?? 0
+        } catch {}
+      }
+      setCacheSizeMB(totalBytes / (1024 * 1024))
+    } catch {
+      setCacheSizeMB(0)
+    }
+  }
+
+  const handleClearCache = async () => {
+    if (!confirm('저장된 채팅 첨부파일 캐시를 모두 삭제하시겠어요? (채팅 목록에는 영향 없어요)')) return
+    setClearingCache(true)
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      await Filesystem.rmdir({ path: 'chat-cache', directory: Directory.Cache, recursive: true })
+    } catch {}
+    await calculateCacheSize()
+    setClearingCache(false)
+    showToast('캐시를 정리했어요.')
+  }
+
+  useEffect(() => {
+    calculateCacheSize()
+  }, [])
   const [appVersion, setAppVersion] = useState('0')
   const [minVersion, setMinVersion] = useState('0')
   const [showParticipantSignup, setShowParticipantSignup] = useState(false)
@@ -486,6 +522,19 @@ export default function ClientMyPage() {
             }} className="w-full text-sm text-blue-600 border border-blue-300 rounded-lg py-2 mb-3">체험단 페이지로 전환</button>
           ) : (
             <button onClick={() => setShowParticipantSignup(true)} className="w-full text-sm text-blue-600 border border-blue-300 rounded-lg py-2 mb-3">체험단으로도 이용하기</button>
+          )}
+          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
+            <div className="border dark:border-gray-600 rounded-lg p-3 mb-3 bg-gray-50 dark:bg-gray-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
+                  <p className="text-xs text-gray-400">{cacheSizeMB === null ? '계산 중...' : `${cacheSizeMB.toFixed(1)}MB 사용 중`}</p>
+                </div>
+                <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40 bg-white dark:bg-gray-800">
+                  {clearingCache ? '정리 중...' : '캐시 비우기'}
+                </button>
+              </div>
+            </div>
           )}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Folder } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Folder, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -168,6 +168,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
+  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null)
+  const touchStartX = useRef<number | null>(null)
   const [showGallery, setShowGallery] = useState(false)
   const [cachedPaths, setCachedPaths] = useState<Record<number, string>>({})
 
@@ -309,14 +311,33 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
+  const getViewableImages = () => messages.filter((m) => m.attachment_url && !m.deleted_at && m.attachment_type?.startsWith('image/'))
+
+  const resolveImageSrc = (m: ChatMessage) => {
+    const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
+    return cachedPaths[m.id] ?? (expired ? null : m.attachment_url)
+  }
+
+  const openImageViewer = (messageId: number) => {
+    const list = getViewableImages()
+    const idx = list.findIndex((m) => m.id === messageId)
+    if (idx === -1) return
+    setViewingImageIndex(idx)
+    setViewingImageUrl(resolveImageSrc(list[idx]))
+  }
+
+  const navigateImage = (direction: 1 | -1) => {
+    const list = getViewableImages()
+    if (viewingImageIndex === null) return
+    const nextIndex = viewingImageIndex + direction
+    if (nextIndex < 0 || nextIndex >= list.length) return
+    setViewingImageIndex(nextIndex)
+    setViewingImageUrl(resolveImageSrc(list[nextIndex]))
+  }
+
   const handleImageClick = async (messageId: number, url: string, filename: string) => {
     cacheAttachment(messageId, url, filename)
-    if ((window as any).Capacitor?.isNativePlatform?.()) {
-      const { Browser } = await import('@capacitor/browser')
-      await Browser.open({ url })
-    } else {
-      setViewingImageUrl(url)
-    }
+    openImageViewer(messageId)
   }
 
   const handleFileSelect = async (file: File) => {
@@ -436,7 +457,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     (Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) ? (
                       cachedPaths[m.id] ? (
                         m.attachment_type?.startsWith('image/') ? (
-                          <img src={cachedPaths[m.id]} className="rounded-2xl w-full max-w-[240px] object-cover mb-1" onClick={() => setViewingImageUrl(cachedPaths[m.id])} />
+                          <img src={cachedPaths[m.id]} className="rounded-2xl w-full max-w-[240px] object-cover mb-1" onClick={() => openImageViewer(m.id)} />
                         ) : (
                           <a href={cachedPaths[m.id]} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
                             <FileText size={16} className="shrink-0" />
@@ -561,7 +582,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                             <button
                               key={m.id}
                               disabled={!src}
-                              onClick={() => src && (cachedPaths[m.id] ? setViewingImageUrl(cachedPaths[m.id]) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
+                              onClick={() => src && (cachedPaths[m.id] ? openImageViewer(m.id) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
                               className="relative aspect-square"
                             >
                               {src ? (
@@ -620,13 +641,34 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       )}
 
       {viewingImageUrl && (
-        <div className="fixed inset-0 z-[80] bg-black flex items-center justify-center" onClick={() => setViewingImageUrl(null)}>
-          <button onClick={() => setViewingImageUrl(null)} className="absolute right-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
+        <div
+          className="fixed inset-0 z-[80] bg-black flex items-center justify-center"
+          onClick={() => { setViewingImageUrl(null); setViewingImageIndex(null) }}
+          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current === null) return
+            const delta = e.changedTouches[0].clientX - touchStartX.current
+            if (delta > 60) navigateImage(-1)
+            else if (delta < -60) navigateImage(1)
+            touchStartX.current = null
+          }}
+        >
+          <button onClick={() => { setViewingImageUrl(null); setViewingImageIndex(null) }} className="absolute right-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
             <X size={28} />
           </button>
           <button onClick={(e) => { e.stopPropagation(); handleDownload(viewingImageUrl, 'image.jpg') }} className="absolute left-4 text-white z-10" style={{top: 'max(1rem, env(safe-area-inset-top))'}}>
             <Download size={26} />
           </button>
+          {viewingImageIndex !== null && viewingImageIndex > 0 && (
+            <button onClick={(e) => { e.stopPropagation(); navigateImage(-1) }} className="hidden md:flex absolute left-4 text-white z-10 items-center justify-center" style={{top: '50%', transform: 'translateY(-50%)'}}>
+              <ChevronLeft size={32} />
+            </button>
+          )}
+          {viewingImageIndex !== null && viewingImageIndex < getViewableImages().length - 1 && (
+            <button onClick={(e) => { e.stopPropagation(); navigateImage(1) }} className="hidden md:flex absolute right-4 text-white z-10 items-center justify-center" style={{top: '50%', transform: 'translateY(-50%)'}}>
+              <ChevronRight size={32} />
+            </button>
+          )}
           <img src={viewingImageUrl} className="max-w-full max-h-full object-contain" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
