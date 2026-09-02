@@ -854,30 +854,26 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               if (galleryTab === 'files') {
                 if (galleryFiles.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 파일이 없어요.</p>
                 return (
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {galleryFiles.map((m) => {
                       const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
                       const cached = cachedPaths[m.id]
                       const usable = cached || !expired
                       return (
-                        <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                          <button
-                            disabled={!usable}
-                            onClick={() => cached ? window.open(cached, '_blank') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
-                            className="flex items-center gap-2 flex-1 min-w-0 text-left disabled:opacity-40"
-                          >
-                            <FileText size={18} className="shrink-0 text-gray-500" />
-                            <div className="min-w-0">
-                              <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}{!usable && ' (만료됨)'}</p>
-                              <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
-                            </div>
-                          </button>
-                          {usable && !cached && (
-                            <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
-                              <Download size={16} />
-                            </button>
-                          )}
-                        </div>
+                        <button
+                          key={m.id}
+                          disabled={!usable}
+                          onClick={() => cached ? window.open(cached, '_blank') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
+                          className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 disabled:opacity-40 text-left min-w-0"
+                        >
+                          <FileText size={18} className="shrink-0 text-gray-500" />
+                          <div className="min-w-0">
+                            <p className="text-xs dark:text-white truncate">{m.attachment_name || '첨부파일'}{!usable && ' (만료됨)'}</p>
+                            {!cached && (
+                              <p className="text-[9px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</p>
+                            )}
+                          </div>
+                        </button>
                       )
                     })}
                   </div>
@@ -886,15 +882,22 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
               if (galleryLinks.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 링크가 없어요.</p>
               return (
-                <div className="space-y-2">
-                  {galleryLinks.map(({ url, message: m }, i) => (
-                    <button key={`${m.id}_${i}`} onClick={() => handleLinkClick(url)} className="w-full flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-left">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm text-blue-600 dark:text-blue-400 truncate underline">{url}</p>
-                        <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
-                      </div>
-                    </button>
-                  ))}
+                <div className="grid grid-cols-3 gap-2">
+                  {galleryLinks.map(({ url, message: m }, i) => {
+                    const preview = linkPreviews[url]
+                    const hasPreview = preview && preview !== 'loading' && preview !== 'failed'
+                    return (
+                      <button key={`${m.id}_${i}`} onClick={() => handleLinkClick(url)} className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800 text-left min-w-0">
+                        {hasPreview && preview.image && (
+                          <img src={preview.image} className="w-full h-16 object-cover" />
+                        )}
+                        <div className="p-2">
+                          {hasPreview && preview.siteName && <p className="text-[9px] text-gray-400 truncate">{preview.siteName}</p>}
+                          <p className="text-xs font-medium dark:text-white line-clamp-2">{hasPreview ? preview.title : url}</p>
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               )
             })()}

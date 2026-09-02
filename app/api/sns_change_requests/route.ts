@@ -82,6 +82,21 @@ export async function PATCH(request: NextRequest) {
         const subscribers = Number(ytData?.items?.[0]?.statistics?.subscriberCount ?? 0)
         if (subscribers > 0) await supabaseAdmin.from('participants').update({ youtube_subscribers: subscribers }).eq('id', req.member_id)
       } catch {}
+    } else if (req.platform === 'tiktok') {
+      try {
+        const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${req.new_id.replace('@', '')}`, {
+          headers: { 'x-rapidapi-key': process.env.RAPIDAPI_KEY!, 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' }
+        })
+        const ttData = await ttRes.json()
+        const followers = ttData?.data?.stats?.followerCount
+        if (followers !== undefined && followers > 0) {
+          await supabaseAdmin.from('participants').update({
+            tiktok_followers: followers,
+            tiktok_profile_image: ttData.data?.user?.avatarLarger ?? undefined,
+            tiktok_is_private: ttData.data?.user?.privateAccount ?? false,
+          }).eq('id', req.member_id)
+        }
+      } catch {}
     }
   }
 
