@@ -894,6 +894,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <div className="p-2">
                           {hasPreview && preview.siteName && <p className="text-[9px] text-gray-400 truncate">{preview.siteName}</p>}
                           <p className="text-xs font-medium dark:text-white line-clamp-2">{hasPreview ? preview.title : url}</p>
+                          {hasPreview && preview.description && (
+                            <p className="text-[10px] text-gray-400 line-clamp-2 mt-0.5">{preview.description}</p>
+                          )}
                         </div>
                       </button>
                     )
