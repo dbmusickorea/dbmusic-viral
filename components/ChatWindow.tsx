@@ -263,6 +263,15 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
+  const handleImageClick = async (url: string) => {
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const { Browser } = await import('@capacitor/browser')
+      await Browser.open({ url })
+    } else {
+      setViewingImageUrl(url)
+    }
+  }
+
   const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/') && file.size > 50 * 1024 * 1024) {
       alert('50MB보다 큰 파일은 보낼 수 없어요.')
@@ -378,9 +387,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <span>파일 다운로드 기간(7일)이 지났습니다.</span>
                       </div>
                     ) : m.attachment_type?.startsWith('image/') ? (
-                      <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block mb-1 max-w-[240px]">
-                        <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
-                      </button>
+                      <div className="relative mb-1 max-w-[240px]">
+                        <button onClick={() => handleImageClick(m.attachment_url ?? '')} className="block">
+                          <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
+                        </button>
+                        <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'image.jpg')} className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5">
+                          <Download size={14} />
+                        </button>
+                      </div>
                     ) : (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
                         <button onClick={() => handleOpenFile(m.attachment_url!, m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
