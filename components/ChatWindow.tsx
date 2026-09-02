@@ -187,6 +187,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         if (!m.attachment_name) continue
         const path = `chat-cache/${m.id}_${m.attachment_name}`
         try {
+          // stat으로 실제 파일 존재 여부를 먼저 확인 (getUri는 존재 안 해도 성공해버림)
+          await Filesystem.stat({ path, directory: Directory.Cache })
           const uriResult = await Filesystem.getUri({ path, directory: Directory.Cache })
           results[m.id] = Capacitor.convertFileSrc(uriResult.uri)
         } catch {}
@@ -578,19 +580,24 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       </div>
                     ) : m.attachment_type?.startsWith('audio/') ? (
                       <div className={`px-3 py-2 rounded-2xl text-sm mb-1 ${playingAudioId === m.id ? 'min-w-[300px] md:min-w-[340px]' : 'min-w-[220px]'} ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
-                        <button onClick={() => handlePlayAudio(m)} className="flex items-center gap-2 w-full text-left">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isMine ? 'bg-white/20' : 'bg-blue-500 text-white'}`}>
-                            {playingAudioId === m.id ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate">{m.attachment_name || '음원 파일'}</p>
-                            {!cachedPaths[m.id] && (
-                              <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
-                                {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
-                              </p>
-                            )}
-                          </div>
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => handlePlayAudio(m)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isMine ? 'bg-white/20' : 'bg-blue-500 text-white'}`}>
+                              {playingAudioId === m.id ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate">{m.attachment_name || '음원 파일'}</p>
+                              {!cachedPaths[m.id] && (
+                                <p className={`text-[10px] ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
+                                  {new Date(new Date(m.created_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}까지 다운로드 가능
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                          <button onClick={() => handleDownload(m.attachment_url!, m.attachment_name || 'audio')} className="shrink-0">
+                            <Download size={16} />
+                          </button>
+                        </div>
                         {playingAudioId === m.id && audioSrc[m.id] && (
                           <audio src={audioSrc[m.id]} controls autoPlay onEnded={() => setPlayingAudioId(null)} className="w-full mt-2 h-8" />
                         )}
