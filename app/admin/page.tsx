@@ -548,6 +548,32 @@ export default function Page1() {
     setFormData(prev => ({...prev, projectLinks: data ?? []}))
   }
 
+  const resizeImageFile = (file: File, maxSize = 1200, quality = 0.85): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      const objectUrl = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl)
+        let { width, height } = img
+        if (width > maxSize || height > maxSize) {
+          if (width > height) { height = Math.round(height * (maxSize / width)); width = maxSize }
+          else { width = Math.round(width * (maxSize / height)); height = maxSize }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        canvas.toBlob((blob) => {
+          if (blob) resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+          else resolve(file)
+        }, 'image/jpeg', quality)
+      }
+      img.onerror = () => resolve(file)
+      img.src = objectUrl
+    })
+  }
+
   const handleInsert = async () => {
     if (!formData.projectCode) { showToast('프로젝트 코드를 입력해주세요.'); return }
     if (isSaving) return
@@ -556,9 +582,10 @@ export default function Page1() {
     // 이미지 업로드
     let uploadedImageUrl = ''
     if (coverImageFile) {
+      const resized = await resizeImageFile(coverImageFile)
       const { data, error } = await supabase.storage
         .from('covers')
-        .upload(`${formData.projectCode.toUpperCase()}_${Date.now()}`, coverImageFile, { upsert: true })
+        .upload(`${formData.projectCode.toUpperCase()}_${Date.now()}`, resized, { upsert: true })
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
@@ -705,22 +732,19 @@ export default function Page1() {
     try {
     // 이미지 업로드
     let uploadedImageUrl = selectedProject?.cover_image_url || ''
-    console.log('자켓 수정 시작. coverImageFile 존재?:', !!coverImageFile, 'project_code:', selectedProject?.project_code)
     if (coverImageFile) {
+      const resized = await resizeImageFile(coverImageFile)
       const { data, error } = await supabase.storage
         .from('covers')
-        .upload(`${selectedProject.project_code}_${Date.now()}`, coverImageFile, { upsert: true })
-      console.log('자켓 업로드 결과 - data:', JSON.stringify(data), 'error:', JSON.stringify(error))
+        .upload(`${selectedProject.project_code}_${Date.now()}`, resized, { upsert: true })
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
-        console.log('자켓 최종 URL:', uploadedImageUrl)
       } else {
         console.error('앨범자켓 업로드 실패(수정):', error)
         showToast('앨범자켓 업로드에 실패했어요. 나머지 정보는 저장할게요.')
       }
     }
-    console.log('PATCH에 보낼 cover_image_url:', uploadedImageUrl)
 
     const res = await fetchWithAuth(`/api/projects?project_code=${selectedProject.project_code}`, {
       method: 'PATCH',
