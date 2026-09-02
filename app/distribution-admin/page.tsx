@@ -156,6 +156,16 @@ export default function DistributionAdminPage() {
     setTracks(Array.isArray(data) ? data : [])
   }
 
+  const handleUploadCover = async (file: File) => {
+    if (!selectedAlbum) return
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('album_id', String(selectedAlbum.id))
+    const res = await fetchWithAuth('/api/distribution-cover-upload', { method: 'POST', body: formData })
+    const data = await res.json()
+    if (data.url) setAlbumCoverUrl(data.url)
+  }
+
   const handleSaveAlbumInfo = async () => {
     if (!selectedAlbum) return
     await fetchWithAuth(`/api/distribution-albums?id=${selectedAlbum.id}`, {
@@ -468,7 +478,17 @@ export default function DistributionAdminPage() {
                     </select>
                     <input type="date" value={albumReleaseDate} onChange={(e) => setAlbumReleaseDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" />
                     <input value={albumUpcEan} onChange={(e) => setAlbumUpcEan(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="UPC/EAN" />
-                    <input value={albumCoverUrl} onChange={(e) => setAlbumCoverUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="앨범 자켓 이미지 URL" />
+                    <div className="flex items-center gap-3">
+                      {albumCoverUrl ? (
+                        <img src={albumCoverUrl} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
+                      )}
+                      <label className="flex-1 text-center text-sm border dark:border-gray-600 dark:text-gray-300 rounded-lg py-2 cursor-pointer">
+                        자켓 이미지 업로드
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadCover(f) }} />
+                      </label>
+                    </div>
                     <textarea value={albumIntro} onChange={(e) => setAlbumIntro(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="앨범소개" />
                     <button onClick={handleSaveAlbumInfo} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">기본정보 저장</button>
                   </div>
