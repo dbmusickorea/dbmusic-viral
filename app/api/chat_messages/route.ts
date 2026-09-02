@@ -25,14 +25,21 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { user_id, role, sender, body: messageBody, project_code } = body
-  if (!user_id || !role || !sender || !messageBody) {
-    return NextResponse.json({ error: 'user_id, role, sender, body 필요' }, { status: 400 })
+  const { user_id, role, sender, body: messageBody, project_code, attachment_url, attachment_name, attachment_type } = body
+  if (!user_id || !role || !sender || (!messageBody && !attachment_url)) {
+    return NextResponse.json({ error: 'user_id, role, sender, (body 또는 attachment_url) 필요' }, { status: 400 })
   }
 
   const { data, error } = await supabaseAdmin
     .from('chat_messages')
-    .insert({ user_id, role, sender, body: messageBody, project_code: project_code ?? null })
+    .insert({
+      user_id, role, sender,
+      body: messageBody ?? '',
+      project_code: project_code ?? null,
+      attachment_url: attachment_url ?? null,
+      attachment_name: attachment_name ?? null,
+      attachment_type: attachment_type ?? null,
+    })
     .select()
     .single()
 

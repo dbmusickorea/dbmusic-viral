@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -14,6 +14,9 @@ type ChatMessage = {
   body: string
   created_at: string
   read_at: string | null
+  attachment_url?: string | null
+  attachment_name?: string | null
+  attachment_type?: string | null
 }
 
 type Props = {
@@ -159,6 +162,79 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
 
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null)
+  const [uploadingAttachment, setUploadingAttachment] = useState(false)
+
+  const resizeImage = (file: File, maxSize: number, quality: number): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(url)
+        let { width, height } = img
+        if (width > height && width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize }
+        else if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { reject(new Error('canvas 실패')); return }
+        ctx.drawImage(img, 0, 0, width, height)
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('압축 실패')), 'image/jpeg', quality)
+      }
+      img.onerror = reject
+      img.src = url
+    })
+  }
+
+  const handleFileSelect = (file: File) => {
+    setPendingFile(file)
+    setPendingPreviewUrl(URL.createObjectURL(file))
+  }
+
+  const cancelPendingFile = () => {
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl)
+    setPendingFile(null)
+    setPendingPreviewUrl(null)
+    setInput('')
+  }
+
+  const handleSendAttachment = async () => {
+    if (!pendingFile || uploadingAttachment) return
+    setUploadingAttachment(true)
+    const isImage = pendingFile.type.startsWith('image/')
+    let uploadBlob: Blob = pendingFile
+    let uploadName = pendingFile.name
+    if (isImage) {
+      uploadBlob = await resizeImage(pendingFile, 1600, 0.85)
+      uploadName = pendingFile.name.replace(/\.[^.]+$/, '') + '.jpg'
+    }
+    const formData = new FormData()
+    formData.append('file', new File([uploadBlob], uploadName, { type: isImage ? 'image/jpeg' : pendingFile.type }))
+    const uploadRes = await fetchWithAuth('/api/chat-attachment-upload', { method: 'POST', body: formData })
+    const uploadData = await uploadRes.json()
+
+    if (uploadData.url) {
+      const caption = input.trim()
+      setInput('')
+      await fetchWithAuth('/api/chat_messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId, role, sender: myLabel, body: caption,
+          attachment_url: uploadData.url, attachment_name: uploadData.name, attachment_type: uploadData.type,
+        })
+      })
+      await fetchMessages()
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+    }
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl)
+    setPendingFile(null)
+    setPendingPreviewUrl(null)
+    setUploadingAttachment(false)
+  }
+
   return (
     <div className="fixed md:static top-0 left-0 right-0 z-[60] md:z-0 flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] md:h-full w-full">
       <div className="w-full shrink-0" style={{paddingTop: 'env(safe-area-inset-top)'}} />
@@ -192,9 +268,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             return (
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                  <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white rounded-bl-sm'}`}>
-                    {m.body}
-                  </div>
+                  {m.attachment_url && (
+                    m.attachment_type?.startsWith('image/') ? (
+                      <a href={m.attachment_url} target="_blank" rel="noopener noreferrer" className="block mb-1 max-w-[240px]">
+                        <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
+                      </a>
+                    ) : (
+                      <a href={m.attachment_url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                        <FileText size={16} className="shrink-0" />
+                        <span className="truncate">{m.attachment_name || '첨부파일'}</span>
+                      </a>
+                    )
+                  )}
+                  {m.body && (
+                    <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white rounded-bl-sm'}`}>
+                      {m.body}
+                    </div>
+                  )}
                   <div className="flex items-center gap-1 mt-0.5 px-1">
                     {isMine && (m.read_at ? <CheckCheck size={11} className="text-blue-400" /> : <Check size={11} className="text-gray-300" />)}
                     <span className="text-[10px] text-gray-400">
@@ -222,6 +312,10 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
       <div className="w-full shrink-0 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800" style={{paddingBottom: keyboardVisible ? '0.75rem' : 'max(0.75rem, env(safe-area-inset-bottom))'}}>
         <div className="max-w-2xl md:max-w-none mx-auto flex gap-2 p-3 pb-0">
+          <label className="text-gray-400 dark:text-gray-500 w-10 h-10 flex items-center justify-center shrink-0 cursor-pointer">
+            <Paperclip size={20} />
+            <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); e.target.value = '' }} />
+          </label>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -245,6 +339,44 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           </button>
         </div>
       </div>
+
+      {pendingFile && (
+        <div className="fixed inset-0 z-[70] bg-black flex flex-col">
+          <div className="flex justify-between items-center p-4">
+            <button onClick={cancelPendingFile} className="text-white">
+              <X size={24} />
+            </button>
+            <p className="text-white text-sm">보내기 전 미리보기</p>
+            <div className="w-6" />
+          </div>
+          <div className="flex-1 flex items-center justify-center overflow-hidden px-4">
+            {pendingFile.type.startsWith('image/') ? (
+              <img src={pendingPreviewUrl ?? ''} className="max-w-full max-h-full object-contain rounded-lg" />
+            ) : (
+              <div className="bg-gray-800 rounded-2xl p-6 flex flex-col items-center gap-2 text-white">
+                <FileText size={40} />
+                <p className="text-sm break-all text-center">{pendingFile.name}</p>
+              </div>
+            )}
+          </div>
+          <div className="p-3 flex gap-2 items-center" style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSendAttachment() }}
+              className="flex-1 bg-gray-800 text-white rounded-full px-4 py-2 text-sm placeholder-gray-400"
+              placeholder="메시지 추가 (선택)"
+            />
+            <button
+              onClick={handleSendAttachment}
+              disabled={uploadingAttachment}
+              className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-40 shrink-0"
+            >
+              {uploadingAttachment ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Send size={16} />}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
