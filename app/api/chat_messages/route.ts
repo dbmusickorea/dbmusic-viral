@@ -46,7 +46,8 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error }, { status: 500 })
 
-  // 푸시 알림 발송
+  // 푸시 알림 발송 (첨부파일만 보내고 본문이 비어있으면, 빈 본문으론 푸시가 발송 안 되므로 대체 문구 사용)
+  const pushBody = messageBody || (attachment_type?.startsWith('image/') ? '사진을 보냈어요' : attachment_url ? `${attachment_name || '파일'}을 보냈어요` : messageBody)
   try {
     if (sender === 'admin') {
       // 관리자 -> 체험단/의뢰인
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '💬 새 채팅 메시지가 왔어요',
-            body: messageBody,
+            body: pushBody,
             data: { url: (role === 'client' ? '/client' : '/participant') + '?open_chat=1' },
             tokens: tokens.map((t: any) => t.token),
             userIds: [String(user_id)],
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '💬 새 채팅 메시지가 왔어요',
-            body: messageBody,
+            body: pushBody,
             data: { url: '/admin-chat' },
             tokens: tokens.map((t: any) => t.token),
             userIds: adminIds,
