@@ -18,6 +18,41 @@ const getPlatformIconKey = (type: string, platform: string) => type === 'shorts'
 
 export default function DistributionAdminPage() {
   const router = useRouter()
+  const [activeTab, setActiveTab] = useState<'requests' | 'albums'>('requests')
+
+  // --- 발매 신청 관리 ---
+  const [requests, setRequests] = useState<any[]>([])
+  const [requestsLoading, setRequestsLoading] = useState(true)
+
+  const fetchRequests = async () => {
+    setRequestsLoading(true)
+    const res = await fetchWithAuth('/api/distribution-release-requests')
+    const data = await res.json()
+    setRequests(Array.isArray(data) ? data : [])
+    setRequestsLoading(false)
+  }
+
+  const handleApprove = async (id: number) => {
+    if (!confirm('승인하시겠어요? 승인하면 앨범이 자동으로 생성돼요.')) return
+    await fetchWithAuth(`/api/distribution-release-requests?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'APPROVED' })
+    })
+    fetchRequests()
+  }
+
+  const handleReject = async (id: number) => {
+    if (!confirm('거절하시겠어요?')) return
+    await fetchWithAuth(`/api/distribution-release-requests?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'REJECTED' })
+    })
+    fetchRequests()
+  }
+
+  // --- 앨범 관리(기존 링크 관리) ---
   const [clients, setClients] = useState<any[]>([])
   const [selectedClient, setSelectedClient] = useState<any>(null)
   const [items, setItems] = useState<any[]>([])
@@ -33,6 +68,7 @@ export default function DistributionAdminPage() {
     const role = localStorage.getItem('userRole')
     if (role !== 'admin') { router.push('/'); return }
     fetchClients()
+    fetchRequests()
   }, [])
 
   const fetchClients = async () => {
@@ -119,13 +155,63 @@ export default function DistributionAdminPage() {
         <div className="flex justify-center mb-4">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
         </div>
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-4">
           <button onClick={() => router.push('/admin-mypage')} className="text-gray-600 dark:text-gray-300">
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-xl font-bold dark:text-white">유통 서비스 관리</h1>
         </div>
 
+        <div className="flex gap-2 mb-4">
+          <button onClick={() => setActiveTab('requests')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'requests' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
+            발매 신청 관리 {requests.filter(r => r.status === 'PENDING').length > 0 && `(${requests.filter(r => r.status === 'PENDING').length})`}
+          </button>
+          <button onClick={() => setActiveTab('albums')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
+            앨범/링크 관리
+          </button>
+        </div>
+
+        {activeTab === 'requests' && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+            {requestsLoading ? (
+              <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" /></div>
+            ) : requests.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-8">발매 신청 내역이 없어요.</p>
+            ) : (
+              <div className="space-y-3">
+                {requests.map((r: any) => (
+                  <div key={r.id} className="border dark:border-gray-600 rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-sm font-bold dark:text-white">{r.album_name}</p>
+                        <p className="text-xs text-gray-400">{r.participating_artists}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${r.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : r.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {r.status === 'PENDING' ? '검토중' : r.status === 'APPROVED' ? '승인됨' : '거절됨'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+                      <p>발매 희망일: {r.release_desired_date} {r.release_desired_time}</p>
+                      <p>자료 완성일: {r.material_complete_date}</p>
+                      {r.artist_streaming_url && <p className="break-all">아티스트 URL: {r.artist_streaming_url}</p>}
+                      {r.attachment_url && <p className="break-all">첨부파일: {r.attachment_url}</p>}
+                      <p>MV 포함: {r.has_mv ? 'Yes' : 'No'}</p>
+                      {r.inquiry && <p>문의: {r.inquiry}</p>}
+                    </div>
+                    {r.status === 'PENDING' && (
+                      <div className="flex gap-2 mt-3">
+                        <button onClick={() => handleApprove(r.id)} className="flex-1 text-xs bg-blue-600 text-white rounded-lg py-2">승인 (앨범 자동생성)</button>
+                        <button onClick={() => handleReject(r.id)} className="flex-1 text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg py-2">거절</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'albums' && (
         <div className="flex flex-col md:flex-row gap-4 items-start">
           <div className="w-full md:w-1/2 space-y-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
@@ -216,6 +302,7 @@ export default function DistributionAdminPage() {
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   )
