@@ -104,15 +104,21 @@ export async function PATCH(request: NextRequest) {
           headers: { 'x-rapidapi-key': process.env.RAPIDAPI_KEY!, 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' }
         })
         const ttData = await ttRes.json()
+        console.log('SNS 변경 승인 - 틱톡 조회 응답:', ttRes.status, JSON.stringify(ttData))
         const followers = ttData?.data?.stats?.followerCount
         if (followers !== undefined && followers > 0) {
-          await supabaseAdmin.from('participants').update({
+          const { error: followerUpdateError } = await supabaseAdmin.from('participants').update({
             tiktok_followers: followers,
             tiktok_profile_image: ttData.data?.user?.avatarLarger ?? undefined,
             tiktok_is_private: ttData.data?.user?.privateAccount ?? false,
           }).eq('id', req.member_id)
+          if (followerUpdateError) console.error('SNS 변경 승인 - 틱톡 팔로워 DB반영 실패:', followerUpdateError)
+        } else {
+          console.log('SNS 변경 승인 - 틱톡 팔로워 수 못 가져옴, followers 값:', followers)
         }
-      } catch {}
+      } catch (e) {
+        console.error('SNS 변경 승인 - 틱톡 조회 자체 실패:', e)
+      }
     }
   }
 

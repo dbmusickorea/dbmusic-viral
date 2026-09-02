@@ -1418,21 +1418,20 @@ export default function Page4() {
                                 {req.status === 'PENDING' ? (
                                   <>
                                     <button onClick={async () => {
+                                      // 회원 정보 반영(아이디+팔로워 조회 등)은 서버(승인 API)에서 전부 처리함
                                       await fetchWithAuth(`/api/sns_change_requests?id=${req.id}`, {
                                         method: 'PATCH',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ status: 'APPROVED' })
                                       })
-                                      // participants 테이블 업데이트
-                                      await fetchWithAuth(`/api/participants?id=${selected.id}`, {
-                                        method: 'PATCH',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ [`${req.platform}_id`]: req.new_id })
-                                      })
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
-                                      setSelected((prev: any) => ({...prev, [`${req.platform}_id`]: req.new_id}))
                                       showToast('승인됐어요!')
-                                      fetchParticipants() 
+                                      await fetchParticipants()
+                                      // 상세 패널에 열려있는 회원 정보도 최신으로 갱신
+                                      const refreshedRes = await fetchWithAuth(`/api/participants?id=${selected.id}`)
+                                      const refreshedData = await refreshedRes.json()
+                                      const refreshed = Array.isArray(refreshedData) ? refreshedData[0] : refreshedData
+                                      if (refreshed) setSelected(refreshed)
                                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
                                     <button onClick={async () => {
                                       await fetchWithAuth(`/api/sns_change_requests?id=${req.id}`, {
