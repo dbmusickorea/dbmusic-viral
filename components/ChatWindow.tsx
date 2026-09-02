@@ -177,6 +177,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const touchStartX = useRef<number | null>(null)
   const [showGallery, setShowGallery] = useState(false)
   const [galleryTab, setGalleryTab] = useState<'media' | 'files' | 'links'>('media')
+  const [linkPreviews, setLinkPreviews] = useState<Record<string, { title: string; description?: string; image?: string; siteName?: string } | 'loading' | 'failed'>>({})
   const [cachedPaths, setCachedPaths] = useState<Record<number, string>>({})
 
   useEffect(() => {
@@ -203,6 +204,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       setCachedPaths(results)
     }
     checkCache()
+  }, [messages])
+
+  useEffect(() => {
+    const urls = new Set<string>()
+    for (const m of messages) {
+      if (!m.body || m.deleted_at) continue
+      const found = m.body.match(URL_REGEX)
+      found?.forEach((u) => urls.add(u))
+    }
+    urls.forEach((url) => {
+      if (linkPreviews[url]) return
+      setLinkPreviews((prev) => ({ ...prev, [url]: 'loading' }))
+      fetch(`/api/link-preview?url=${encodeURIComponent(url)}`)
+        .then((res) => res.ok ? res.json() : Promise.reject())
+        .then((data) => setLinkPreviews((prev) => ({ ...prev, [url]: data })))
+        .catch(() => setLinkPreviews((prev) => ({ ...prev, [url]: 'failed' })))
+    })
   }, [messages])
   const [isDraggingFile, setIsDraggingFile] = useState(false)
   const dragCounter = useRef(0)
@@ -694,6 +712,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       {renderMessageBody(m.body, isMine)}
                     </div>
                   )}
+                  {m.body && m.body.match(URL_REGEX)?.[0] && (() => {
+                    const url = m.body.match(URL_REGEX)![0]
+                    const preview = linkPreviews[url]
+                    if (!preview || preview === 'loading' || preview === 'failed') return null
+                    return (
+                      <button onClick={() => handleLinkClick(url)} className="block max-w-[260px] mt-1 rounded-xl overflow-hidden bg-white dark:bg-gray-800 text-left">
+                        {preview.image && (
+                          <img src={preview.image} className="w-full h-32 object-cover" />
+                        )}
+                        <div className="p-2">
+                          {preview.siteName && <p className="text-[10px] text-gray-400 truncate">{preview.siteName}</p>}
+                          <p className="text-xs font-medium dark:text-white truncate">{preview.title}</p>
+                          {preview.description && <p className="text-[10px] text-gray-400 line-clamp-2 mt-0.5">{preview.description}</p>}
+                        </div>
+                      </button>
+                    )
+                  })()}
                     </>
                   )}
                   <div className="flex items-center gap-1 mt-0.5 px-1">
