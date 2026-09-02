@@ -719,7 +719,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     return (
                       <button onClick={() => handleLinkClick(url)} className="block max-w-[260px] mt-1 rounded-xl overflow-hidden bg-white dark:bg-gray-800 text-left">
                         {preview.image && (
-                          <img src={preview.image} className="w-full h-32 object-cover" />
+                          <img src={preview.image} className="w-full aspect-video object-cover" />
                         )}
                         <div className="p-2">
                           {preview.siteName && <p className="text-[10px] text-gray-400 truncate">{preview.siteName}</p>}
@@ -889,7 +889,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     return (
                       <button key={`${m.id}_${i}`} onClick={() => handleLinkClick(url)} className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800 text-left min-w-0">
                         {hasPreview && preview.image && (
-                          <img src={preview.image} className="w-full h-16 object-cover" />
+                          <img src={preview.image} className="w-full aspect-video object-cover" />
                         )}
                         <div className="p-2">
                           {hasPreview && preview.siteName && <p className="text-[9px] text-gray-400 truncate">{preview.siteName}</p>}
