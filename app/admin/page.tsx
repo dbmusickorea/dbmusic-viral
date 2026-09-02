@@ -562,6 +562,9 @@ export default function Page1() {
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
+      } else {
+        console.error('앨범자켓 업로드 실패:', error)
+        showToast('앨범자켓 업로드에 실패했어요. 등록은 계속 진행할게요.')
       }
     }
     
