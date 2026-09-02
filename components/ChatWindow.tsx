@@ -210,14 +210,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const handleSendAttachment = async () => {
     if (!pendingFile || uploadingAttachment) return
     setUploadingAttachment(true)
-    const isImage = pendingFile.type.startsWith('image/')
-    let uploadBlob: Blob = pendingFile
-    let uploadName = pendingFile.name
-    if (isImage) {
-      uploadBlob = await resizeImage(pendingFile, 1600, 0.85)
-      uploadName = pendingFile.name.replace(/\.[^.]+$/, '') + '.jpg'
-    }
-    const finalType = isImage ? 'image/jpeg' : pendingFile.type
+    const uploadBlob: Blob = pendingFile
+    const uploadName = pendingFile.name
+    const finalType = pendingFile.type
 
     // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드 - 용량 제한 없음
     const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
@@ -302,7 +297,12 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                   {m.attachment_url && (
-                    m.attachment_type?.startsWith('image/') ? (
+                    (Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) ? (
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs mb-1 ${isMine ? 'bg-blue-500/60 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border dark:border-gray-600'}`}>
+                        <FileText size={14} className="shrink-0" />
+                        <span>파일 다운로드 기간(7일)이 지났습니다.</span>
+                      </div>
+                    ) : m.attachment_type?.startsWith('image/') ? (
                       <button onClick={() => setViewingImageUrl(m.attachment_url ?? null)} className="block mb-1 max-w-[240px]">
                         <img src={m.attachment_url} className="rounded-2xl w-full object-cover" />
                       </button>
@@ -349,12 +349,13 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             <Paperclip size={20} />
             <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); e.target.value = '' }} />
           </label>
-          <input
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSend() }}
-            className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 text-sm dark:text-white"
-            placeholder="메시지 입력..."
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); handleSend() } }}
+            rows={1}
+            className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-2 text-sm dark:text-white resize-none max-h-32 leading-normal"
+            placeholder="메시지 입력... (Shift+Enter로 줄바꿈)"
             autoComplete="new-password"
             autoCorrect="off"
             autoCapitalize="off"
@@ -362,6 +363,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             inputMode="text"
             name="msg-body-nofill"
             data-lpignore="true"
+            onInput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 128) + 'px' }}
           />
           <button
             onClick={handleSend}

@@ -1303,6 +1303,29 @@ export async function GET() {
       }
     }
 
+    // 채팅 첨부파일: 7일 지난 것 실제 저장소에서 정리 (하루 한 번, 새벽 4시)
+    if (currentHour === 4) {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      const { data: oldAttachments } = await supabase
+        .from('chat_messages')
+        .select('id, attachment_url')
+        .not('attachment_url', 'is', null)
+        .lt('created_at', sevenDaysAgo.toISOString())
+
+      if (oldAttachments && oldAttachments.length > 0) {
+        const paths = oldAttachments
+          .map((m: any) => {
+            const marker = '/chat-attachments/'
+            const idx = m.attachment_url?.indexOf(marker)
+            return idx >= 0 ? m.attachment_url.slice(idx + marker.length) : null
+          })
+          .filter((p: any): p is string => !!p)
+        if (paths.length > 0) {
+          await supabase.storage.from('chat-attachments').remove(paths)
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, updated })
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) })
