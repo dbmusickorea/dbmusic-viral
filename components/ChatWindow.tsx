@@ -891,7 +891,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         {hasPreview && preview.image && (
                           <img src={preview.image} className="w-full aspect-video object-cover" />
                         )}
-                        <div className="p-2">
+                        <div className="p-2 h-[68px] overflow-hidden">
                           {hasPreview && preview.siteName && <p className="text-[9px] text-gray-400 truncate">{preview.siteName}</p>}
                           <p className="text-xs font-medium dark:text-white line-clamp-2">{hasPreview ? preview.title : url}</p>
                           {hasPreview && preview.description && (

@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
         // oEmbed엔 description이 없어서, 유튜브 데이터 API로 설명을 별도로 조회
         let description: string | null = null
         const videoIdMatch = url.match(/(?:youtu\.be\/|v=|\/shorts\/)([a-zA-Z0-9_-]{11})/)
-        if (videoIdMatch && process.env.YOUTUBE_API_KEY) {
+        if (videoIdMatch && process.env.NEXT_PUBLIC_YOUTUBE_API_KEY) {
           try {
-            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIdMatch[1]}&key=${process.env.YOUTUBE_API_KEY}`)
+            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIdMatch[1]}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
             const ytData = await ytRes.json()
             const rawDesc = ytData?.items?.[0]?.snippet?.description
             if (rawDesc) description = rawDesc.slice(0, 200)
