@@ -356,6 +356,34 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
+  const URL_REGEX = /(https?:\/\/[^\s]+)/g
+
+  const handleLinkClick = (url: string) => {
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      window.open(url, '_system')
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  const renderMessageBody = (text: string) => {
+    // split을 캡처그룹 정규식으로 하면, 홀수 인덱스가 매칭된 URL, 짝수 인덱스가 그 사이 일반 텍스트
+    const parts = text.split(URL_REGEX)
+    return parts.map((part, i) =>
+      i % 2 === 1 ? (
+        <span
+          key={i}
+          onClick={(e) => { e.stopPropagation(); handleLinkClick(part) }}
+          className="underline cursor-pointer break-all"
+        >
+          {part}
+        </span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    )
+  }
+
   const formatFileSize = (bytes?: number | null) => {
     if (!bytes) return null
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`
@@ -662,7 +690,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                   )}
                   {m.body && (
                     <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white rounded-bl-sm'}`}>
-                      {m.body}
+                      {renderMessageBody(m.body)}
                     </div>
                   )}
                     </>
