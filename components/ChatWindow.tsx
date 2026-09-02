@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Image as ImageIcon } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Folder } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -324,7 +324,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               {subtitle && <p className="text-xs text-gray-400 truncate">{subtitle}</p>}
             </div>
             <button onClick={() => setShowGallery(true)} className="text-gray-500 dark:text-gray-400 shrink-0">
-              <ImageIcon size={20} />
+              <Folder size={20} />
             </button>
           </div>
         </div>
@@ -492,27 +492,39 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               return (
                 <>
                   {galleryImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-1 mb-4">
-                      {galleryImages.map((m) => (
-                        <button key={m.id} onClick={() => { setShowGallery(false); handleImageClick(m.attachment_url ?? '') }} className="aspect-square">
-                          <img src={m.attachment_url ?? ''} className="w-full h-full object-cover rounded" />
-                        </button>
-                      ))}
+                    <div className="mb-5">
+                      <p className="text-xs font-bold text-gray-400 mb-2">사진 {galleryImages.length}개</p>
+                      <div className="grid grid-cols-3 gap-1">
+                        {galleryImages.map((m) => (
+                          <button key={m.id} onClick={() => { setShowGallery(false); handleImageClick(m.attachment_url ?? '') }} className="relative aspect-square">
+                            <img src={m.attachment_url ?? ''} className="w-full h-full object-cover rounded" />
+                            <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
+                              {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                   {galleryFiles.length > 0 && (
-                    <div className="space-y-2">
-                      {galleryFiles.map((m) => (
-                        <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                          <button onClick={() => handleOpenFile(m.attachment_url ?? '', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
-                            <FileText size={18} className="shrink-0 text-gray-500" />
-                            <span className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}</span>
-                          </button>
-                          <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
-                            <Download size={16} />
-                          </button>
-                        </div>
-                      ))}
+                    <div>
+                      <p className="text-xs font-bold text-gray-400 mb-2">파일 {galleryFiles.length}개</p>
+                      <div className="space-y-2">
+                        {galleryFiles.map((m) => (
+                          <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                            <button onClick={() => handleOpenFile(m.attachment_url ?? '', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                              <FileText size={18} className="shrink-0 text-gray-500" />
+                              <div className="min-w-0">
+                                <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}</p>
+                                <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
+                              </div>
+                            </button>
+                            <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
+                              <Download size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </>
