@@ -554,14 +554,29 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     <div className="mb-5">
                       <p className="text-xs font-bold text-gray-400 mb-2">사진 {galleryImages.length}개</p>
                       <div className="grid grid-cols-3 gap-1">
-                        {galleryImages.map((m) => (
-                          <button key={m.id} onClick={() => handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg')} className="relative aspect-square">
-                            <img src={m.attachment_url ?? ''} className="w-full h-full object-cover rounded" />
-                            <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
-                              {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
-                            </span>
-                          </button>
-                        ))}
+                        {galleryImages.map((m) => {
+                          const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
+                          const src = cachedPaths[m.id] ?? (expired ? null : m.attachment_url)
+                          return (
+                            <button
+                              key={m.id}
+                              disabled={!src}
+                              onClick={() => src && (cachedPaths[m.id] ? setViewingImageUrl(cachedPaths[m.id]) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
+                              className="relative aspect-square"
+                            >
+                              {src ? (
+                                <img src={src} className="w-full h-full object-cover rounded" />
+                              ) : (
+                                <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
+                                  <span className="text-[9px] text-gray-400 text-center px-1">만료됨</span>
+                                </div>
+                              )}
+                              <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
+                                {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
+                              </span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                   )}
@@ -569,20 +584,31 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     <div>
                       <p className="text-xs font-bold text-gray-400 mb-2">파일 {galleryFiles.length}개</p>
                       <div className="space-y-2">
-                        {galleryFiles.map((m) => (
-                          <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                            <button onClick={() => handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
-                              <FileText size={18} className="shrink-0 text-gray-500" />
-                              <div className="min-w-0">
-                                <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}</p>
-                                <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
-                              </div>
-                            </button>
-                            <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
-                              <Download size={16} />
-                            </button>
-                          </div>
-                        ))}
+                        {galleryFiles.map((m) => {
+                          const expired = Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000
+                          const cached = cachedPaths[m.id]
+                          const usable = cached || !expired
+                          return (
+                            <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                              <button
+                                disabled={!usable}
+                                onClick={() => cached ? window.open(cached, '_blank') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
+                                className="flex items-center gap-2 flex-1 min-w-0 text-left disabled:opacity-40"
+                              >
+                                <FileText size={18} className="shrink-0 text-gray-500" />
+                                <div className="min-w-0">
+                                  <p className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}{!usable && ' (만료됨)'}</p>
+                                  <p className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}</p>
+                                </div>
+                              </button>
+                              {usable && !cached && (
+                                <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
+                                  <Download size={16} />
+                                </button>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   )}
