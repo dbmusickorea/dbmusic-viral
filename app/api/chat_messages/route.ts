@@ -125,7 +125,11 @@ export async function DELETE(request: NextRequest) {
     }
   }
 
-  const { error } = await supabaseAdmin.from('chat_messages').delete().eq('id', id)
+  // 완전 삭제 대신 "삭제됨" 표시만 남김 (본문/첨부는 비움)
+  const { error } = await supabaseAdmin
+    .from('chat_messages')
+    .update({ deleted_at: new Date().toISOString(), body: '', attachment_url: null, attachment_name: null, attachment_type: null })
+    .eq('id', id)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }

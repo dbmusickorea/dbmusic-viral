@@ -17,6 +17,7 @@ type ChatMessage = {
   attachment_url?: string | null
   attachment_name?: string | null
   attachment_type?: string | null
+  deleted_at?: string | null
 }
 
 type Props = {
@@ -332,9 +333,10 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             return (
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`relative max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-                  onContextMenu={(e) => { if (isMine) { e.preventDefault(); setContextMenuMsgId(m.id) } }}
-                  onTouchStart={() => { if (isMine) startLongPress(m.id) }}
+                  className={`relative max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'} select-none`}
+                  style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
+                  onContextMenu={(e) => { if (isMine && !m.deleted_at) { e.preventDefault(); setContextMenuMsgId(m.id) } }}
+                  onTouchStart={() => { if (isMine && !m.deleted_at) startLongPress(m.id) }}
                   onTouchEnd={cancelLongPress}
                   onTouchMove={cancelLongPress}
                 >
@@ -348,6 +350,12 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       </div>
                     </>
                   )}
+                  {m.deleted_at ? (
+                    <div className="px-3 py-2 rounded-2xl text-xs italic text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700">
+                      메시지가 삭제되었습니다.
+                    </div>
+                  ) : (
+                    <>
                   {m.attachment_url && (
                     (Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) ? (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs mb-1 ${isMine ? 'bg-blue-500/60 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border dark:border-gray-600'}`}>
@@ -379,6 +387,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white rounded-bl-sm'}`}>
                       {m.body}
                     </div>
+                  )}
+                    </>
                   )}
                   <div className="flex items-center gap-1 mt-0.5 px-1">
                     {isMine && (m.read_at ? <CheckCheck size={11} className="text-blue-400" /> : <Check size={11} className="text-gray-300" />)}
