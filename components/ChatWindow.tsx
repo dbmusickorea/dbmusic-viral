@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Image as ImageIcon } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -168,6 +168,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
+  const [showGallery, setShowGallery] = useState(false)
   const [isDraggingFile, setIsDraggingFile] = useState(false)
   const dragCounter = useRef(0)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
@@ -318,10 +319,13 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                 <ArrowLeft size={20} />
               </button>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               {title && <p className="font-bold dark:text-white truncate">{title}</p>}
               {subtitle && <p className="text-xs text-gray-400 truncate">{subtitle}</p>}
             </div>
+            <button onClick={() => setShowGallery(true)} className="text-gray-500 dark:text-gray-400 shrink-0">
+              <ImageIcon size={20} />
+            </button>
           </div>
         </div>
       )}
@@ -472,6 +476,51 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       </div>
 
 
+
+      {showGallery && (
+        <div className="fixed inset-0 z-[75] bg-white dark:bg-gray-900 flex flex-col" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <div className="flex items-center gap-3 p-4 border-b dark:border-gray-700 shrink-0">
+            <button onClick={() => setShowGallery(false)}><ArrowLeft size={20} className="text-gray-600 dark:text-gray-300" /></button>
+            <p className="font-bold dark:text-white">첨부파일 모아보기</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            {(() => {
+              const attachments = messages.filter((m) => m.attachment_url && !m.deleted_at)
+              const galleryImages = attachments.filter((m) => m.attachment_type?.startsWith('image/'))
+              const galleryFiles = attachments.filter((m) => !m.attachment_type?.startsWith('image/'))
+              if (attachments.length === 0) return <p className="text-center text-sm text-gray-400 py-12">아직 주고받은 파일이 없어요.</p>
+              return (
+                <>
+                  {galleryImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-1 mb-4">
+                      {galleryImages.map((m) => (
+                        <button key={m.id} onClick={() => { setShowGallery(false); handleImageClick(m.attachment_url ?? '') }} className="aspect-square">
+                          <img src={m.attachment_url ?? ''} className="w-full h-full object-cover rounded" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {galleryFiles.length > 0 && (
+                    <div className="space-y-2">
+                      {galleryFiles.map((m) => (
+                        <div key={m.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                          <button onClick={() => handleOpenFile(m.attachment_url ?? '', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                            <FileText size={18} className="shrink-0 text-gray-500" />
+                            <span className="text-sm dark:text-white truncate">{m.attachment_name || '첨부파일'}</span>
+                          </button>
+                          <button onClick={() => handleDownload(m.attachment_url ?? '', m.attachment_name || 'file')} className="shrink-0 text-gray-400">
+                            <Download size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
 
       {viewingImageUrl && (
         <div className="fixed inset-0 z-[80] bg-black flex items-center justify-center" onClick={() => setViewingImageUrl(null)}>
