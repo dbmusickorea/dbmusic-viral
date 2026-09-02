@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 import { supabase } from '../app/lib/supabase'
-import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText } from 'lucide-react'
+import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2 } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 
 type ChatMessage = {
@@ -73,7 +73,11 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }, [userId, role, myLabel])
 
   useEffect(() => {
-    fetchMessages().then(() => markRead())
+    fetchMessages().then(() => {
+      markRead()
+      // 대화를 새로 열었을 때는 항상(스크롤 위치 무관) 즉시 최신 메시지로 이동
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }), 50)
+    })
   }, [fetchMessages, markRead])
 
   useEffect(() => {
@@ -165,8 +169,6 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
   const [isDraggingFile, setIsDraggingFile] = useState(false)
   const dragCounter = useRef(0)
-  const [pendingFile, setPendingFile] = useState<File | null>(null)
-  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
 
   const resizeImage = (file: File, maxSize: number, quality: number): Promise<Blob> => {
@@ -191,58 +193,55 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     })
   }
 
-  const handleFileSelect = (file: File) => {
+  const [contextMenuMsgId, setContextMenuMsgId] = useState<number | null>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const startLongPress = (msgId: number) => {
+    longPressTimer.current = setTimeout(() => setContextMenuMsgId(msgId), 500)
+  }
+  const cancelLongPress = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current)
+  }
+
+  const handleDeleteMessage = async (msgId: number) => {
+    setContextMenuMsgId(null)
+    if (!confirm('이 메시지를 삭제하시겠어요?')) return
+    await fetchWithAuth(`/api/chat_messages?id=${msgId}`, { method: 'DELETE' })
+    await fetchMessages()
+  }
+
+  const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/') && file.size > 50 * 1024 * 1024) {
       alert('50MB보다 큰 파일은 보낼 수 없어요.')
       return
     }
-    setPendingFile(file)
-    setPendingPreviewUrl(URL.createObjectURL(file))
-  }
-
-  const cancelPendingFile = () => {
-    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl)
-    setPendingFile(null)
-    setPendingPreviewUrl(null)
-    setInput('')
-  }
-
-  const handleSendAttachment = async () => {
-    if (!pendingFile || uploadingAttachment) return
+    if (uploadingAttachment) return
     setUploadingAttachment(true)
-    const uploadBlob: Blob = pendingFile
-    const uploadName = pendingFile.name
-    const finalType = pendingFile.type
 
     // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드 - 용량 제한 없음
     const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file_name: uploadName })
+      body: JSON.stringify({ file_name: file.name })
     })
     const { path, token, publicUrl } = await signRes.json()
 
     const { error: uploadError } = await supabase.storage
       .from('chat-attachments')
-      .uploadToSignedUrl(path, token, uploadBlob, { contentType: finalType })
+      .uploadToSignedUrl(path, token, file, { contentType: file.type })
 
     if (!uploadError) {
-      const caption = input.trim()
-      setInput('')
       await fetchWithAuth('/api/chat_messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId, role, sender: myLabel, body: caption,
-          attachment_url: publicUrl, attachment_name: uploadName, attachment_type: finalType,
+          user_id: userId, role, sender: myLabel, body: '',
+          attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type,
         })
       })
       await fetchMessages()
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
     }
-    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl)
-    setPendingFile(null)
-    setPendingPreviewUrl(null)
     setUploadingAttachment(false)
   }
 
@@ -295,7 +294,23 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             const isMine = m.sender === myLabel
             return (
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                <div
+                  className={`relative max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                  onContextMenu={(e) => { e.preventDefault(); setContextMenuMsgId(m.id) }}
+                  onTouchStart={() => startLongPress(m.id)}
+                  onTouchEnd={cancelLongPress}
+                  onTouchMove={cancelLongPress}
+                >
+                  {contextMenuMsgId === m.id && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setContextMenuMsgId(null)} />
+                      <div className={`absolute z-50 top-0 ${isMine ? 'right-full mr-1' : 'left-full ml-1'} bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden`}>
+                        <button onClick={() => handleDeleteMessage(m.id)} className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-500 whitespace-nowrap">
+                          <Trash2 size={14} /> 삭제
+                        </button>
+                      </div>
+                    </>
+                  )}
                   {m.attachment_url && (
                     (Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) ? (
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs mb-1 ${isMine ? 'bg-blue-500/60 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border dark:border-gray-600'}`}>
@@ -375,43 +390,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         </div>
       </div>
 
-      {pendingFile && (
-        <div className="fixed inset-0 z-[70] bg-black flex flex-col">
-          <div className="flex justify-between items-center p-4">
-            <button onClick={cancelPendingFile} className="text-white">
-              <X size={24} />
-            </button>
-            <p className="text-white text-sm">보내기 전 미리보기</p>
-            <div className="w-6" />
-          </div>
-          <div className="flex-1 flex items-center justify-center overflow-hidden px-4">
-            {pendingFile.type.startsWith('image/') ? (
-              <img src={pendingPreviewUrl ?? ''} className="max-w-full max-h-full object-contain rounded-lg" />
-            ) : (
-              <div className="bg-gray-800 rounded-2xl p-6 flex flex-col items-center gap-2 text-white">
-                <FileText size={40} />
-                <p className="text-sm break-all text-center">{pendingFile.name}</p>
-              </div>
-            )}
-          </div>
-          <div className="p-3 flex gap-2 items-center" style={{paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'}}>
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSendAttachment() }}
-              className="flex-1 bg-gray-800 text-white rounded-full px-4 py-2 text-sm placeholder-gray-400"
-              placeholder="메시지 추가 (선택)"
-            />
-            <button
-              onClick={handleSendAttachment}
-              disabled={uploadingAttachment}
-              className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-40 shrink-0"
-            >
-              {uploadingAttachment ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Send size={16} />}
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {viewingImageUrl && (
         <div className="fixed inset-0 z-[80] bg-black flex items-center justify-center" onClick={() => setViewingImageUrl(null)}>

@@ -109,3 +109,23 @@ export async function PATCH(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
+
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+  const { data: msg } = await supabaseAdmin.from('chat_messages').select('attachment_url').eq('id', id).single()
+  if (msg?.attachment_url) {
+    const marker = '/chat-attachments/'
+    const idx = msg.attachment_url.indexOf(marker)
+    if (idx >= 0) {
+      const path = msg.attachment_url.slice(idx + marker.length)
+      await supabaseAdmin.storage.from('chat-attachments').remove([path])
+    }
+  }
+
+  const { error } = await supabaseAdmin.from('chat_messages').delete().eq('id', id)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
