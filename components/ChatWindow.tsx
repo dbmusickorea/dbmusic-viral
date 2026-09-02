@@ -296,8 +296,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`relative max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-                  onContextMenu={(e) => { e.preventDefault(); setContextMenuMsgId(m.id) }}
-                  onTouchStart={() => startLongPress(m.id)}
+                  onContextMenu={(e) => { if (isMine) { e.preventDefault(); setContextMenuMsgId(m.id) } }}
+                  onTouchStart={() => { if (isMine) startLongPress(m.id) }}
                   onTouchEnd={cancelLongPress}
                   onTouchMove={cancelLongPress}
                 >
