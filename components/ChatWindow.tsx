@@ -366,7 +366,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
-  const renderMessageBody = (text: string) => {
+  const renderMessageBody = (text: string, isMine: boolean) => {
     // split을 캡처그룹 정규식으로 하면, 홀수 인덱스가 매칭된 URL, 짝수 인덱스가 그 사이 일반 텍스트
     const parts = text.split(URL_REGEX)
     return parts.map((part, i) =>
@@ -374,7 +374,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         <span
           key={i}
           onClick={(e) => { e.stopPropagation(); handleLinkClick(part) }}
-          className="underline cursor-pointer break-all"
+          className={`underline cursor-pointer break-all ${isMine ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}
         >
           {part}
         </span>
@@ -604,7 +604,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         m.attachment_type?.startsWith('image/') ? (
                           <img src={cachedPaths[m.id]} className="rounded-2xl w-full max-w-[240px] object-cover mb-1" onClick={() => openImageViewer(m.id)} />
                         ) : (
-                          <a href={cachedPaths[m.id]} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                          <a href={cachedPaths[m.id]} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white'}`}>
                             <FileText size={16} className="shrink-0" />
                             <span className="truncate">{m.attachment_name || '첨부파일'} (저장됨)</span>
                           </a>
@@ -646,7 +646,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         </div>
                       </div>
                     ) : m.attachment_type?.startsWith('audio/') ? (
-                      <div className={`px-3 py-2 rounded-2xl text-sm mb-1 ${playingAudioId === m.id ? 'min-w-[300px] md:min-w-[340px]' : 'min-w-[220px]'} ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                      <div className={`px-3 py-2 rounded-2xl text-sm mb-1 ${playingAudioId === m.id ? 'min-w-[300px] md:min-w-[340px]' : 'min-w-[220px]'} ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white'}`}>
                         <div className="flex items-center gap-2">
                           <button onClick={() => handlePlayAudio(m)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isMine ? 'bg-white/20' : 'bg-blue-500 text-white'}`}>
@@ -670,7 +670,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         )}
                       </div>
                     ) : (
-                      <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white'}`}>
                         <button onClick={() => handleOpenFile(m.id, m.attachment_url!, m.attachment_name || 'file', m.attachment_type)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
                           <FileText size={16} className="shrink-0" />
                           <div className="min-w-0">
@@ -690,7 +690,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                   )}
                   {m.body && (
                     <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-700 dark:text-white rounded-bl-sm'}`}>
-                      {renderMessageBody(m.body)}
+                      {renderMessageBody(m.body, isMine)}
                     </div>
                   )}
                     </>
