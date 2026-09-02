@@ -47,12 +47,33 @@ export default function AdminMypagePage() {
     setWebPushEnabled(true)
     showToast('브라우저 알림이 켜졌어요!')
   }
+
+  const handleDisableWebPush = async () => {
+    const reg = await navigator.serviceWorker.getRegistration('/sw.js')
+    const sub = await reg?.pushManager.getSubscription()
+    if (sub) {
+      await fetchWithAuth(`/api/web-push-subscribe?endpoint=${encodeURIComponent(sub.endpoint)}`, { method: 'DELETE' })
+      await sub.unsubscribe()
+    }
+    setWebPushEnabled(false)
+    showToast('브라우저 알림을 껐어요.')
+  }
   const [showSidebar, setShowSidebar] = useState(false)
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 
   useEffect(() => {
     const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
     setTheme(saved ?? 'system')
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if ((window as any).Capacitor?.isNativePlatform?.()) return
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
+    navigator.serviceWorker.getRegistration('/sw.js').then(async (reg) => {
+      const sub = await reg?.pushManager.getSubscription()
+      setWebPushEnabled(!!sub)
+    }).catch(() => {})
   }, [])
 
   const applyTheme = (t: 'system' | 'light' | 'dark') => {
@@ -302,8 +323,11 @@ export default function AdminMypagePage() {
           </div>
           {/* 웹 브라우저 알림 */}
           {typeof window !== 'undefined' && !(window as any).Capacitor?.isNativePlatform?.() && (
-            <button onClick={handleEnableWebPush} disabled={webPushEnabled} className="w-full text-sm text-white bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 rounded-lg py-3 mb-4">
-              {webPushEnabled ? '✓ 브라우저 알림 켜짐' : '🔔 이 브라우저에서 알림 받기'}
+            <button
+              onClick={webPushEnabled ? handleDisableWebPush : handleEnableWebPush}
+              className={`w-full text-sm rounded-lg py-3 mb-4 ${webPushEnabled ? 'text-gray-600 dark:text-gray-300 border dark:border-gray-600 bg-white dark:bg-gray-800' : 'text-white bg-blue-600'}`}
+            >
+              {webPushEnabled ? '🔕 브라우저 알림 끄기' : '🔔 이 브라우저에서 알림 받기'}
             </button>
           )}
 
