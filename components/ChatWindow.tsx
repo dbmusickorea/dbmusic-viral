@@ -496,7 +496,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                       <p className="text-xs font-bold text-gray-400 mb-2">사진 {galleryImages.length}개</p>
                       <div className="grid grid-cols-3 gap-1">
                         {galleryImages.map((m) => (
-                          <button key={m.id} onClick={() => { setShowGallery(false); handleImageClick(m.attachment_url ?? '') }} className="relative aspect-square">
+                          <button key={m.id} onClick={() => handleImageClick(m.attachment_url ?? '')} className="relative aspect-square">
                             <img src={m.attachment_url ?? ''} className="w-full h-full object-cover rounded" />
                             <span className="absolute bottom-0.5 right-0.5 text-[9px] text-white bg-black/50 px-1 rounded">
                               {new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
