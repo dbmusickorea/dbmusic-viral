@@ -107,7 +107,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                           {filteredClients.map((c: any) => (
                             <div key={c.id} onClick={async () => { 
                               setFormData((prev: any) => ({...prev, selectedClientId: c.client_id, clientName: c.name, artistName: c.artist ?? ''}))
-                              setClientSearch(`${c.name} - ${c.company ?? ''} ${c.artist ? `(${c.artist})` : ''} [${c.client_id}]`)
+                              setClientSearch(`${c.name} - ${c.company ?? ''} [${c.client_id}]`)
                               // 아티스트 목록 불러오기
                               const res = await fetchWithAuth(`/api/artists?client_id=${c.client_id}`)
                               const data = await res.json()
@@ -125,22 +125,36 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               setArtistList(list)
                             }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${formData.selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                               <p className="font-medium">{c.name}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{c.company} [{c.client_id}]</p>
                             </div>
                           ))}
                         </div>
                       )}
                       {formData.selectedClientId && <p className="text-xs text-green-600 mt-1">✅ 선택된 의뢰인 코드: {formData.selectedClientId}</p>}
                     </div>
-                    {formData.selectedClientId && artistList.length > 0 && (
+                    {formData.selectedClientId && (
                       <div>
-                        <label className="text-sm font-medium dark:text-gray-200">아티스트 선택</label>
-                        <select value={formData.artistName} onChange={(e) => setFormData((prev: any) => ({...prev, artistName: e.target.value}))} className={inputClass}>
-                          <option value="">아티스트 선택</option>
-                          {artistList.map((a) => (
-                            <option key={a.id} value={a.artist_name}>{a.artist_name}</option>
-                          ))}
-                        </select>
+                        <div className="flex justify-between items-center">
+                          <label className="text-sm font-medium dark:text-gray-200">아티스트 선택</label>
+                          <button type="button" onClick={() => setShowAddArtist(!showAddArtist)} className="text-xs text-blue-600 dark:text-blue-400">
+                            {showAddArtist ? '취소' : '+ 아티스트 추가'}
+                          </button>
+                        </div>
+                        {showAddArtist ? (
+                          <div className="flex gap-2 mt-1">
+                            <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className={inputClass} placeholder="새 아티스트명 입력" />
+                            <button type="button" onClick={handleAddArtist} disabled={addingArtist} className="shrink-0 bg-blue-600 text-white rounded-lg px-3 text-sm disabled:opacity-50">
+                              {addingArtist ? '추가중...' : '추가'}
+                            </button>
+                          </div>
+                        ) : (
+                          <select value={formData.artistName} onChange={(e) => setFormData((prev: any) => ({...prev, artistName: e.target.value}))} className={inputClass}>
+                            <option value="">아티스트 선택</option>
+                            {artistList.map((a) => (
+                              <option key={a.id} value={a.artist_name}>{a.artist_name}</option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                     )}
                     <div>
