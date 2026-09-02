@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
 
 type Props = {
@@ -31,6 +32,31 @@ const inputClass = 'w-full border rounded-lg px-3 py-2 text-base box-border dark
 const dateInputStyle = { WebkitAppearance: 'none' as const }
 
 export default function AdminProjectForm({ formData, setFormData, products, clients, artistList, coverImageFile, setCoverImageFile, coverAudioFile, setCoverAudioFile, coverMrFile, setCoverMrFile, isSaving, selectedProject, handleInsert, handleUpdate, handlePrefixChange, getTotalCost, getSelectedProductPrice, showToast, clientSearch, setClientSearch, setArtistList, filteredClients }: Props) {
+  const [showAddArtist, setShowAddArtist] = useState(false)
+  const [newArtistName, setNewArtistName] = useState('')
+  const [addingArtist, setAddingArtist] = useState(false)
+
+  const handleAddArtist = async () => {
+    if (!newArtistName.trim() || !formData.selectedClientId || addingArtist) return
+    setAddingArtist(true)
+    const res = await fetchWithAuth('/api/artists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: formData.selectedClientId, artist_name: newArtistName.trim() })
+    })
+    const created = await res.json()
+    if (created?.id) {
+      setArtistList([...artistList, created])
+      setFormData((prev: any) => ({ ...prev, artistName: created.artist_name }))
+      showToast('아티스트가 추가됐어요!')
+    } else {
+      showToast('아티스트 추가에 실패했어요.')
+    }
+    setNewArtistName('')
+    setShowAddArtist(false)
+    setAddingArtist(false)
+  }
+
   return (
     <>
                   {(formData.productContent && formData.productContent !== '__direct__') && (
@@ -85,7 +111,18 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               // 아티스트 목록 불러오기
                               const res = await fetchWithAuth(`/api/artists?client_id=${c.client_id}`)
                               const data = await res.json()
-                              setArtistList(data ?? [])
+                              let list = data ?? []
+                              // 가입 시 입력한 아티스트명이 아직 아티스트 테이블에 없으면 자동으로 만들어서 연결
+                              if (c.artist && !list.some((a: any) => a.artist_name === c.artist)) {
+                                const createRes = await fetchWithAuth('/api/artists', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ client_id: c.client_id, artist_name: c.artist })
+                                })
+                                const createdArtist = await createRes.json()
+                                if (createdArtist?.id) list = [...list, createdArtist]
+                              }
+                              setArtistList(list)
                             }} className={`px-3 py-2 cursor-pointer hover:bg-gray-50 text-sm ${formData.selectedClientId === c.client_id ? 'bg-blue-50' : ''}`}>
                               <p className="font-medium">{c.name}</p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">{c.company} {c.artist ? `· ${c.artist}` : ''} [{c.client_id}]</p>
