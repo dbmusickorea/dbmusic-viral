@@ -169,6 +169,26 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
   const [showGallery, setShowGallery] = useState(false)
+  const [cachedPaths, setCachedPaths] = useState<Record<number, string>>({})
+
+  useEffect(() => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) return
+    const checkCache = async () => {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Capacitor } = await import('@capacitor/core')
+      const results: Record<number, string> = {}
+      for (const m of messages) {
+        if (!m.attachment_name) continue
+        const path = `chat-cache/${m.id}_${m.attachment_name}`
+        try {
+          const uriResult = await Filesystem.getUri({ path, directory: Directory.Cache })
+          results[m.id] = Capacitor.convertFileSrc(uriResult.uri)
+        } catch {}
+      }
+      setCachedPaths(results)
+    }
+    checkCache()
+  }, [messages])
   const [isDraggingFile, setIsDraggingFile] = useState(false)
   const dragCounter = useRef(0)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
@@ -414,10 +434,21 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     <>
                   {m.attachment_url && (
                     (Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) ? (
-                      <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs mb-1 ${isMine ? 'bg-blue-500/60 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border dark:border-gray-600'}`}>
-                        <FileText size={14} className="shrink-0" />
-                        <span>파일 다운로드 기간(7일)이 지났습니다.</span>
-                      </div>
+                      cachedPaths[m.id] ? (
+                        m.attachment_type?.startsWith('image/') ? (
+                          <img src={cachedPaths[m.id]} className="rounded-2xl w-full max-w-[240px] object-cover mb-1" onClick={() => setViewingImageUrl(cachedPaths[m.id])} />
+                        ) : (
+                          <a href={cachedPaths[m.id]} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm mb-1 ${isMine ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 dark:text-white border dark:border-gray-600'}`}>
+                            <FileText size={16} className="shrink-0" />
+                            <span className="truncate">{m.attachment_name || '첨부파일'} (저장됨)</span>
+                          </a>
+                        )
+                      ) : (
+                        <div className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs mb-1 ${isMine ? 'bg-blue-500/60 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border dark:border-gray-600'}`}>
+                          <FileText size={14} className="shrink-0" />
+                          <span>파일 다운로드 기간(7일)이 지났습니다.</span>
+                        </div>
+                      )
                     ) : m.attachment_type?.startsWith('image/') ? (
                       <div className="relative mb-1 max-w-[240px]">
                         <button onClick={() => handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg')} className="block">
