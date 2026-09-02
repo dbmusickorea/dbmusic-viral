@@ -1427,11 +1427,11 @@ export default function Page4() {
                                       setSnsRequests(prev => prev.map(r => r.id === req.id ? {...r, status: 'APPROVED'} : r))
                                       showToast('승인됐어요!')
                                       await fetchParticipants()
-                                      // 상세 패널에 열려있는 회원 정보도 최신으로 갱신
+                                      // 상세 패널에 열려있는 회원 정보 + 수정 입력창 값들도 최신으로 갱신
                                       const refreshedRes = await fetchWithAuth(`/api/participants?id=${selected.id}`)
                                       const refreshedData = await refreshedRes.json()
                                       const refreshed = Array.isArray(refreshedData) ? refreshedData[0] : refreshedData
-                                      if (refreshed) setSelected(refreshed)
+                                      if (refreshed) handleSelect(refreshed)
                                     }} className="flex-1 bg-blue-600 text-white rounded-lg py-1 text-xs">승인</button>
                                     <button onClick={async () => {
                                       await fetchWithAuth(`/api/sns_change_requests?id=${req.id}`, {
