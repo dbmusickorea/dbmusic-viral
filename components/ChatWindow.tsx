@@ -451,7 +451,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); handleSend() } }}
             rows={1}
             className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-2 text-sm dark:text-white resize-none max-h-32 leading-normal"
-            placeholder="메시지 입력... (Shift+Enter로 줄바꿈)"
+            placeholder="메시지 입력..."
             autoComplete="new-password"
             autoCorrect="off"
             autoCapitalize="off"
