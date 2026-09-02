@@ -22,6 +22,9 @@ export default function DistributionPage() {
 
   // 앨범 목록
   const [albums, setAlbums] = useState<any[]>([])
+  const [selectedAlbum, setSelectedAlbum] = useState<any>(null)
+  const [albumTracks, setAlbumTracks] = useState<any[]>([])
+  const [expandedTrackId, setExpandedTrackId] = useState<number | null>(null)
 
   // 발매 신청
   const [releaseRequests, setReleaseRequests] = useState<any[]>([])
@@ -95,6 +98,14 @@ export default function DistributionPage() {
     setAlbums(Array.isArray(albumsData) ? albumsData : [])
     setReleaseRequests(Array.isArray(requestsData) ? requestsData : [])
     setDataLoading(false)
+  }
+
+  const openAlbumDetail = async (album: any) => {
+    setSelectedAlbum(album)
+    setExpandedTrackId(null)
+    const res = await fetchWithAuth(`/api/distribution-tracks?album_id=${album.id}`)
+    const data = await res.json()
+    setAlbumTracks(Array.isArray(data) ? data : [])
   }
 
   const handleSubmitRequest = async () => {
@@ -196,7 +207,7 @@ export default function DistributionPage() {
             </div>
           ) : (
             <>
-              {subTab === 'albums' && (
+              {subTab === 'albums' && !selectedAlbum && (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
                   <h2 className="font-bold dark:text-white mb-3">유통 앨범</h2>
                   {albums.length === 0 ? (
@@ -204,7 +215,7 @@ export default function DistributionPage() {
                   ) : (
                     <div className="space-y-2">
                       {albums.map((album: any) => (
-                        <div key={album.id} className="flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <button key={album.id} onClick={() => openAlbumDetail(album)} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
                           {album.cover_image_url ? (
                             <img src={album.cover_image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
                           ) : (
@@ -217,8 +228,103 @@ export default function DistributionPage() {
                             </p>
                             <p className="text-xs text-gray-400">{album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : ''} · {album.album_type}</p>
                           </div>
-                        </div>
+                        </button>
                       ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {subTab === 'albums' && selectedAlbum && (
+                <div className="space-y-4">
+                  <button onClick={() => setSelectedAlbum(null)} className="text-xs text-gray-500 dark:text-gray-400">← 앨범 목록으로</button>
+
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <div className="flex gap-4">
+                      {selectedAlbum.cover_image_url ? (
+                        <img src={selectedAlbum.cover_image_url} className="w-24 h-24 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-24 h-24 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-lg font-bold dark:text-white">{selectedAlbum.album_name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {(selectedAlbum.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(', ')}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">{selectedAlbum.genre}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+                      <div><span className="text-gray-400">발매일시</span><p className="dark:text-white">{selectedAlbum.release_date ? new Date(selectedAlbum.release_date).toLocaleDateString('ko-KR') : '-'}</p></div>
+                      <div><span className="text-gray-400">앨범유형</span><p className="dark:text-white">{selectedAlbum.album_type}</p></div>
+                      <div className="col-span-2"><span className="text-gray-400">UPC/EAN</span><p className="dark:text-white">{selectedAlbum.upc_ean || '-'}</p></div>
+                    </div>
+                    {selectedAlbum.album_intro && (
+                      <div className="mt-3 pt-3 border-t dark:border-gray-700">
+                        <p className="text-xs text-gray-400 mb-1">앨범소개</p>
+                        <p className="text-sm dark:text-gray-200 whitespace-pre-wrap">{selectedAlbum.album_intro}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <h2 className="font-bold dark:text-white mb-3">Track List</h2>
+                    {albumTracks.length === 0 ? (
+                      <p className="text-xs text-gray-400">등록된 트랙이 없어요.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {albumTracks.map((track: any) => (
+                          <div key={track.id} className="border dark:border-gray-700 rounded-lg p-3">
+                            <button onClick={() => setExpandedTrackId(expandedTrackId === track.id ? null : track.id)} className="w-full text-left">
+                              <p className="text-xs text-gray-400">Disc.{track.disc_number} - Track.{track.track_number}</p>
+                              <p className="text-sm font-medium dark:text-white">{track.track_name} <span className="text-xs text-gray-400">({track.version})</span></p>
+                            </button>
+                            {expandedTrackId === track.id && (
+                              <div className="mt-2 pt-2 border-t dark:border-gray-700 space-y-2 text-xs">
+                                {track.genre && <p><span className="text-gray-400">장르</span> · <span className="dark:text-gray-200">{track.genre}</span></p>}
+                                {(track.distribution_track_credits ?? []).length > 0 && (
+                                  <div>
+                                    <p className="text-gray-400 mb-1">참여자</p>
+                                    {track.distribution_track_credits.map((c: any) => (
+                                      <p key={c.id} className="dark:text-gray-200">{c.role} - {c.name}</p>
+                                    ))}
+                                  </div>
+                                )}
+                                {track.lyrics && (
+                                  <div>
+                                    <p className="text-gray-400 mb-1">가사</p>
+                                    <p className="dark:text-gray-200 whitespace-pre-wrap">{track.lyrics}</p>
+                                  </div>
+                                )}
+                                {(track.isrc || track.uci) && (
+                                  <p className="text-gray-400">{track.isrc && `ISRC: ${track.isrc}`} {track.uci && `· UCI: ${track.uci}`}</p>
+                                )}
+                                {(track.distribution_audio_files ?? []).length > 0 && (
+                                  <div>
+                                    <p className="text-gray-400 mb-1">오디오파일정보</p>
+                                    {track.distribution_audio_files.map((a: any) => (
+                                      <p key={a.id} className="dark:text-gray-200">{a.file_name} {a.duration && `(${a.duration})`}</p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {(selectedAlbum.distribution_store_links ?? []).length > 0 && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <h2 className="font-bold dark:text-white mb-3">Music Store 발매 링크</h2>
+                      <div className="space-y-2">
+                        {selectedAlbum.distribution_store_links.map((link: any) => (
+                          <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="block text-sm text-blue-500">
+                            {link.platform_name}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
