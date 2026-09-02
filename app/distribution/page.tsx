@@ -18,6 +18,24 @@ export default function DistributionPage() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [subTab, setSubTab] = useState<'albums' | 'apply' | 'content'>('albums')
+
+  // 앨범 목록
+  const [albums, setAlbums] = useState<any[]>([])
+
+  // 발매 신청
+  const [releaseRequests, setReleaseRequests] = useState<any[]>([])
+  const [showApplyForm, setShowApplyForm] = useState(false)
+  const [desiredDate, setDesiredDate] = useState('')
+  const [desiredTime, setDesiredTime] = useState('12:00')
+  const [materialDate, setMaterialDate] = useState('')
+  const [albumName, setAlbumName] = useState('')
+  const [participatingArtists, setParticipatingArtists] = useState('')
+  const [artistStreamingUrl, setArtistStreamingUrl] = useState('')
+  const [attachmentUrl, setAttachmentUrl] = useState('')
+  const [hasMv, setHasMv] = useState<'Y' | 'N'>('N')
+  const [inquiry, setInquiry] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const handleRefresh = async () => {
     if (isRefreshing) return
@@ -50,10 +68,12 @@ export default function DistributionPage() {
   }, [])
 
   const fetchAllData = async (userId: number, clientId: string) => {
-    const [userRes, itemsRes, projectsRes] = await Promise.all([
+    const [userRes, itemsRes, projectsRes, albumsRes, requestsRes] = await Promise.all([
       fetchWithAuth(`/api/users?id=${userId}`),
       fetchWithAuth(`/api/distribution-items?client_id=${userId}`),
-      fetchWithAuth(`/api/projects?client_id=${clientId}`)
+      fetchWithAuth(`/api/projects?client_id=${clientId}`),
+      fetchWithAuth(`/api/distribution-albums?client_id=${userId}`),
+      fetchWithAuth(`/api/distribution-release-requests?client_id=${userId}`),
     ])
 
     const userData = await userRes.json()
@@ -68,9 +88,42 @@ export default function DistributionPage() {
     }
     const itemsData = await itemsRes.json()
     const projectsData = await projectsRes.json()
+    const albumsData = await albumsRes.json()
+    const requestsData = await requestsRes.json()
     setItems(Array.isArray(itemsData) ? itemsData : [])
     setHasProjects(Array.isArray(projectsData) && projectsData.length > 0)
+    setAlbums(Array.isArray(albumsData) ? albumsData : [])
+    setReleaseRequests(Array.isArray(requestsData) ? requestsData : [])
     setDataLoading(false)
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!albumName.trim() || !desiredDate || !materialDate || !attachmentUrl.trim()) {
+      alert('필수 항목(*)을 모두 입력해주세요.')
+      return
+    }
+    setSubmitting(true)
+    await fetchWithAuth('/api/distribution-release-requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: userInfo.id,
+        release_desired_date: desiredDate,
+        release_desired_time: desiredTime,
+        material_complete_date: materialDate,
+        album_name: albumName.trim(),
+        participating_artists: participatingArtists.trim(),
+        artist_streaming_url: artistStreamingUrl.trim() || null,
+        attachment_url: attachmentUrl.trim(),
+        has_mv: hasMv === 'Y',
+        inquiry: inquiry.trim() || null,
+      })
+    })
+    setShowApplyForm(false)
+    setDesiredDate(''); setDesiredTime('12:00'); setMaterialDate(''); setAlbumName('')
+    setParticipatingArtists(''); setArtistStreamingUrl(''); setAttachmentUrl(''); setHasMv('N'); setInquiry('')
+    await fetchAllData(userInfo.id, userInfo.client_id)
+    setSubmitting(false)
   }
 
   const platformLabel = (p: string) => p === 'youtube' ? '유튜브' : p === 'instagram' ? '인스타그램 릴스' : '틱톡'
@@ -120,7 +173,7 @@ export default function DistributionPage() {
           <div className="flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
           </div>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-3">
               <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600 dark:text-gray-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,30 +184,146 @@ export default function DistributionPage() {
             </div>
           </div>
 
+          <div className="flex gap-2 mb-4">
+            <button onClick={() => setSubTab('albums')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범</button>
+            <button onClick={() => setSubTab('apply')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'apply' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>발매 신청</button>
+            <button onClick={() => setSubTab('content')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'content' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>콘텐츠</button>
+          </div>
+
           {dataLoading ? (
             <div className="flex justify-center py-20">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-              <h2 className="font-bold dark:text-white mb-3">등록된 콘텐츠</h2>
-              {items.length === 0 ? (
-                <p className="text-xs text-gray-400">등록된 콘텐츠가 없어요.</p>
-              ) : (
-                <div className="space-y-2">
-                  {items.map(item => (
-                    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                      <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} className="shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium dark:text-white">{item.type === 'lyric_video' ? '리릭비디오' : platformLabel(item.platform)}</p>
-                        {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
-                        <p className="text-xs text-blue-500 break-all">{item.url}</p>
-                      </div>
-                    </a>
-                  ))}
+            <>
+              {subTab === 'albums' && (
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <h2 className="font-bold dark:text-white mb-3">유통 앨범</h2>
+                  {albums.length === 0 ? (
+                    <p className="text-xs text-gray-400">등록된 앨범이 없어요. "발매 신청" 탭에서 먼저 신청해주세요.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {albums.map((album: any) => (
+                        <div key={album.id} className="flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                          {album.cover_image_url ? (
+                            <img src={album.cover_image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                          ) : (
+                            <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium dark:text-white truncate">{album.album_name}</p>
+                            <p className="text-xs text-gray-400 truncate">
+                              {(album.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(', ')}
+                            </p>
+                            <p className="text-xs text-gray-400">{album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : ''} · {album.album_type}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+
+              {subTab === 'apply' && (
+                <div className="space-y-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <button onClick={() => setShowApplyForm(!showApplyForm)} className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium">
+                      {showApplyForm ? '취소' : '+ 새 발매 신청'}
+                    </button>
+                    {showApplyForm && (
+                      <div className="space-y-3 mt-4">
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">발매 희망일 *</label>
+                          <input type="date" value={desiredDate} onChange={(e) => setDesiredDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                          <div className="flex gap-2 mt-1">
+                            <button onClick={() => setDesiredTime('12:00')} className={`flex-1 py-1.5 text-xs rounded-lg ${desiredTime === '12:00' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>12:00</button>
+                            <button onClick={() => setDesiredTime('18:00')} className={`flex-1 py-1.5 text-xs rounded-lg ${desiredTime === '18:00' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>18:00</button>
+                          </div>
+                          <p className="text-[10px] text-gray-400 mt-1">신청 당일로부터 14일(2주)까지는 발매 희망일로 지정하실 수 없어요.</p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">발매 자료 완성일 *</label>
+                          <input type="date" value={materialDate} onChange={(e) => setMaterialDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">발매앨범명 *</label>
+                          <input value={albumName} onChange={(e) => setAlbumName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="발매 앨범명을 입력해주세요." />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">참여 아티스트 *</label>
+                          <input value={participatingArtists} onChange={(e) => setParticipatingArtists(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="아티스트A, (피처링)아티스트B" />
+                          <p className="text-[10px] text-gray-400 mt-1">여러 명일 경우 콤마(,)로 구분, 피처링은 이름 앞에 (피처링) 표기</p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">참여 아티스트의 스트리밍 사이트 URL</label>
+                          <input value={artistStreamingUrl} onChange={(e) => setArtistStreamingUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="Melon/Vibe/Flo/Spotify 등 아티스트 페이지 링크" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">발매 앨범 관련 첨부파일 링크 *</label>
+                          <input value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="Google Drive, Dropbox 등의 URL" />
+                          <p className="text-[10px] text-gray-400 mt-1">음원(or 데모)를 첨부하지 않으실 경우 발매 검토 대상에서 제외돼요.</p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">MV 포함 여부 *</label>
+                          <div className="flex gap-2 mt-1">
+                            <button onClick={() => setHasMv('Y')} className={`flex-1 py-1.5 text-xs rounded-lg ${hasMv === 'Y' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>Yes</button>
+                            <button onClick={() => setHasMv('N')} className={`flex-1 py-1.5 text-xs rounded-lg ${hasMv === 'N' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>No</button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium dark:text-white">문의 및 요청사항</label>
+                          <textarea value={inquiry} onChange={(e) => setInquiry(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="발매관련 문의사항 및 기타 요청사항이 있다면 입력해주세요." />
+                        </div>
+                        <button onClick={handleSubmitRequest} disabled={submitting} className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50">신청하기</button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <h2 className="font-bold dark:text-white mb-3">신청 내역</h2>
+                    {releaseRequests.length === 0 ? (
+                      <p className="text-xs text-gray-400">신청 내역이 없어요.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {releaseRequests.map((r: any) => (
+                          <div key={r.id} className="border dark:border-gray-600 rounded-lg p-3">
+                            <div className="flex justify-between items-start">
+                              <p className="text-sm font-medium dark:text-white">{r.album_name}</p>
+                              <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${r.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : r.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {r.status === 'PENDING' ? '검토중' : r.status === 'APPROVED' ? '승인됨' : '거절됨'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">발매희망일: {r.release_desired_date} {r.release_desired_time}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {subTab === 'content' && (
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <h2 className="font-bold dark:text-white mb-3">등록된 콘텐츠</h2>
+                  {items.length === 0 ? (
+                    <p className="text-xs text-gray-400">등록된 콘텐츠가 없어요.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {items.map(item => (
+                        <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex gap-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                          <PlatformIcon platform={platformIconKey(item.type, item.platform)} size={18} className="shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium dark:text-white">{item.type === 'lyric_video' ? '리릭비디오' : platformLabel(item.platform)}</p>
+                            {(item.artist_name || item.song_title) && <p className="text-xs text-gray-400 mb-1">{item.artist_name} - {item.song_title}</p>}
+                            <p className="text-xs text-blue-500 break-all">{item.url}</p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
