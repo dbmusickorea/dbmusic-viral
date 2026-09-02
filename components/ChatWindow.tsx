@@ -240,7 +240,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         const { Filesystem, Directory } = await import('@capacitor/filesystem')
         const { Share } = await import('@capacitor/share')
         const written = await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.Cache })
-        await Share.share({ url: written.uri })
+        await Share.share({ files: [written.uri] })
       } catch {
         const { Browser } = await import('@capacitor/browser')
         await Browser.open({ url })
