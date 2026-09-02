@@ -76,5 +76,9 @@
         <string>fbapi</string>
         <string>fb-messenger-share-api</string>
     </array>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>채팅에서 받은 사진을 사진첩에 저장하기 위해 접근이 필요해요.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>채팅에서 받은 사진을 사진첩에 저장하기 위해 접근이 필요해요.</string>
 </dict>
 </plist>
