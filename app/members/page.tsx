@@ -849,21 +849,33 @@ export default function Page4() {
     setIsRefreshing(false)
   }
 
-  const filteredParticipants = participants.filter(p => {
-    if (coverFilter === 'cover') return p.is_cover_possible
-    if (coverFilter === 'normal') return !p.is_cover_possible && !p.is_agency
-    if (coverFilter === 'agency') return p.is_agency || participants.find((a: any) => a.is_agency && a.referral_code === p.referred_by)
-    if (participantSearch) {
-      const s = participantSearch.toLowerCase()
-      return p.name?.toLowerCase().includes(s) || 
-             p.email?.toLowerCase().includes(s) || 
-             p.mobile?.includes(s) ||
-             p.instagram_id?.toLowerCase().includes(s) ||
-             p.youtube_id?.toLowerCase().includes(s) ||
-             p.tiktok_id?.toLowerCase().includes(s)
-    }
-    return true
-  })
+  // SNS 변경 요청 대기중 이거나, 커버가능자 승인 대기중인 회원은 목록 맨 위로 (처리되면 원래 위치로 복귀)
+  const hasPendingAction = (p: any) =>
+    allPendingSnsRequests.some((r: any) => r.member_id === p.id) || p.cover_status === 'PENDING'
+
+  const filteredParticipants = participants
+    .filter(p => {
+      if (coverFilter === 'cover') return p.is_cover_possible
+      if (coverFilter === 'normal') return !p.is_cover_possible && !p.is_agency
+      if (coverFilter === 'agency') return p.is_agency || participants.find((a: any) => a.is_agency && a.referral_code === p.referred_by)
+      if (participantSearch) {
+        const s = participantSearch.toLowerCase()
+        return p.name?.toLowerCase().includes(s) || 
+               p.email?.toLowerCase().includes(s) || 
+               p.mobile?.includes(s) ||
+               p.instagram_id?.toLowerCase().includes(s) ||
+               p.youtube_id?.toLowerCase().includes(s) ||
+               p.tiktok_id?.toLowerCase().includes(s)
+      }
+      return true
+    })
+    .sort((a, b) => {
+      const aPending = hasPendingAction(a)
+      const bPending = hasPendingAction(b)
+      if (aPending && !bPending) return -1
+      if (!aPending && bPending) return 1
+      return 0
+    })
 
   const filteredClients = clients.filter(c => {
   if (!clientSearch) return true
