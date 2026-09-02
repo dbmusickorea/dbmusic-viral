@@ -187,6 +187,11 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
       for (const m of messages) {
         if (!m.attachment_name) continue
         const path = `chat-cache/${m.id}_${m.attachment_name}`
+        if (m.deleted_at) {
+          // 상대방(또는 나)이 메시지를 지웠으면, 내 기기에 남아있는 캐시도 같이 정리
+          try { await Filesystem.deleteFile({ path, directory: Directory.Cache }) } catch {}
+          continue
+        }
         try {
           // stat으로 실제 파일 존재 여부를 먼저 확인 (getUri는 존재 안 해도 성공해버림)
           await Filesystem.stat({ path, directory: Directory.Cache })
