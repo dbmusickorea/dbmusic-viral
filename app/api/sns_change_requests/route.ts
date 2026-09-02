@@ -44,6 +44,19 @@ export async function POST(request: NextRequest) {
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
+
+  // 같은 회원+플랫폼으로 이미 대기중인 요청이 있으면 중복 생성 막기
+  const { data: existing } = await auth.client
+    .from('sns_change_requests')
+    .select('id')
+    .eq('member_id', body.member_id)
+    .eq('platform', body.platform)
+    .eq('status', 'PENDING')
+    .maybeSingle()
+  if (existing) {
+    return NextResponse.json({ error: '이미 검토 대기중인 요청이 있어요.' }, { status: 409 })
+  }
+
   const { error } = await auth.client.from('sns_change_requests').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
@@ -64,7 +77,10 @@ export async function PATCH(request: NextRequest) {
     if (req.platform === 'instagram') updateField.instagram_id = req.new_id
     else if (req.platform === 'youtube') updateField.youtube_id = req.new_id
     else if (req.platform === 'tiktok') updateField.tiktok_id = req.new_id
-    await supabaseAdmin.from('participants').update(updateField).eq('id', req.member_id)
+    const { error: idUpdateError } = await supabaseAdmin.from('participants').update(updateField).eq('id', req.member_id)
+    if (idUpdateError) {
+      console.error('SNS 변경 승인 - 아이디 반영 실패:', idUpdateError, 'member_id:', req.member_id, 'field:', updateField)
+    }
 
     if (req.platform === 'instagram') {
       try {
