@@ -62,9 +62,14 @@ export default function DistributionAdminPage() {
   const [clientArtists, setClientArtists] = useState<any[]>([])
   const [editingArtistId, setEditingArtistId] = useState<number | null>(null)
   const [artistFormName, setArtistFormName] = useState('')
+  const [artistFormNameEn, setArtistFormNameEn] = useState('')
   const [artistFormBio, setArtistFormBio] = useState('')
-  const [artistFormStreamingUrl, setArtistFormStreamingUrl] = useState('')
   const [artistFormImageUrl, setArtistFormImageUrl] = useState('')
+  const [artistFormNationality, setArtistFormNationality] = useState('')
+  const [artistFormType, setArtistFormType] = useState('')
+  const [artistFormDebutYear, setArtistFormDebutYear] = useState('')
+  const [linkPlatform, setLinkPlatform] = useState('Melon')
+  const [linkUrl, setLinkUrl] = useState('')
   const [selectedAlbum, setSelectedAlbum] = useState<any>(null)
 
   // --- 앨범 기본정보 편집 ---
@@ -154,17 +159,39 @@ export default function DistributionAdminPage() {
   const resetArtistForm = () => {
     setEditingArtistId(null)
     setArtistFormName('')
+    setArtistFormNameEn('')
     setArtistFormBio('')
-    setArtistFormStreamingUrl('')
     setArtistFormImageUrl('')
+    setArtistFormNationality('')
+    setArtistFormType('')
+    setArtistFormDebutYear('')
   }
 
   const startEditArtist = (artist: any) => {
     setEditingArtistId(artist.id)
     setArtistFormName(artist.name ?? '')
+    setArtistFormNameEn(artist.name_en ?? '')
     setArtistFormBio(artist.bio ?? '')
-    setArtistFormStreamingUrl(artist.streaming_url ?? '')
     setArtistFormImageUrl(artist.profile_image_url ?? '')
+    setArtistFormNationality(artist.nationality ?? '')
+    setArtistFormType(artist.artist_type ?? '')
+    setArtistFormDebutYear(artist.debut_year ? String(artist.debut_year) : '')
+  }
+
+  const handleAddArtistLink = async () => {
+    if (!linkUrl.trim() || !editingArtistId) return
+    await fetchWithAuth('/api/distribution-artist-links', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artist_id: editingArtistId, platform_type: linkPlatform, url: linkUrl.trim() })
+    })
+    setLinkUrl('')
+    if (selectedClient) openClient(selectedClient)
+  }
+
+  const handleDeleteArtistLink = async (id: number) => {
+    await fetchWithAuth(`/api/distribution-artist-links?id=${id}`, { method: 'DELETE' })
+    if (selectedClient) openClient(selectedClient)
   }
 
   const handleSaveArtist = async () => {
@@ -172,8 +199,11 @@ export default function DistributionAdminPage() {
     const body = {
       client_id: selectedClient.id,
       name: artistFormName.trim(),
+      name_en: artistFormNameEn || null,
       bio: artistFormBio || null,
-      streaming_url: artistFormStreamingUrl || null,
+      nationality: artistFormNationality || null,
+      artist_type: artistFormType || null,
+      debut_year: artistFormDebutYear ? Number(artistFormDebutYear) : null,
     }
     if (editingArtistId) {
       await fetchWithAuth(`/api/distribution-artists?id=${editingArtistId}`, {
@@ -584,10 +614,47 @@ export default function DistributionAdminPage() {
                         <p className="text-xs text-gray-400 flex-1">아티스트를 먼저 등록한 후 사진을 올릴 수 있어요.</p>
                       )}
                     </div>
-                    <input value={artistFormName} onChange={(e) => setArtistFormName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명" />
-                    <input value={artistFormStreamingUrl} onChange={(e) => setArtistFormStreamingUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="스트리밍 사이트 URL (Melon/Spotify 등)" />
+                    <input value={artistFormName} onChange={(e) => setArtistFormName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 (한국어)" />
+                    <input value={artistFormNameEn} onChange={(e) => setArtistFormNameEn(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 (영어, 선택)" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={artistFormNationality} onChange={(e) => setArtistFormNationality(e.target.value)} className="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="국적 (예: 대한민국)" />
+                      <select value={artistFormType} onChange={(e) => setArtistFormType(e.target.value)} className="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                        <option value="">유형 선택</option>
+                        <option value="남성솔로">남성솔로</option>
+                        <option value="여성솔로">여성솔로</option>
+                        <option value="혼성그룹">혼성그룹</option>
+                        <option value="남성그룹">남성그룹</option>
+                        <option value="여성그룹">여성그룹</option>
+                      </select>
+                    </div>
+                    <input value={artistFormDebutYear} onChange={(e) => setArtistFormDebutYear(e.target.value)} type="number" className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="데뷔년도 (예: 2014)" />
                     <textarea value={artistFormBio} onChange={(e) => setArtistFormBio(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트 소개" />
                     <button onClick={handleSaveArtist} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">{editingArtistId ? '수정 완료' : '등록'}</button>
+
+                    {editingArtistId && (
+                      <div className="pt-3 border-t dark:border-gray-700">
+                        <p className="text-xs font-bold dark:text-white mb-2">SNS / 스트리밍 링크</p>
+                        {(clientArtists.find((a: any) => a.id === editingArtistId)?.distribution_artist_links ?? []).map((link: any) => (
+                          <div key={link.id} className="flex justify-between items-center text-xs bg-gray-50 dark:bg-gray-700 rounded px-2 py-1.5 mb-1">
+                            <span className="dark:text-gray-200 truncate">{link.platform_type}: <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 break-all">{link.url}</a></span>
+                            <button onClick={() => handleDeleteArtistLink(link.id)} className="text-red-400 shrink-0 ml-2"><X size={12} /></button>
+                          </div>
+                        ))}
+                        <div className="flex gap-1 mt-2">
+                          <select value={linkPlatform} onChange={(e) => setLinkPlatform(e.target.value)} className="border dark:border-gray-600 rounded px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
+                            <option>Melon</option>
+                            <option>Genie</option>
+                            <option>Vibe</option>
+                            <option>Spotify</option>
+                            <option>Apple Music</option>
+                            <option>YouTube</option>
+                            <option>Instagram</option>
+                          </select>
+                          <input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className="flex-1 border dark:border-gray-600 rounded px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white" placeholder="URL" />
+                          <button onClick={handleAddArtistLink} className="text-xs bg-blue-600 text-white rounded px-3">추가</button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

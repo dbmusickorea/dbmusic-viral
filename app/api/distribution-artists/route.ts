@@ -11,7 +11,14 @@ export async function GET(request: NextRequest) {
   const clientId = searchParams.get('client_id')
   const id = searchParams.get('id')
 
-  let query = supabaseAdmin.from('distribution_artists').select('*').order('created_at', { ascending: false })
+  let query = supabaseAdmin
+    .from('distribution_artists')
+    .select(`
+      *,
+      distribution_artist_links ( id, platform_type, url ),
+      distribution_album_artists ( role, distribution_albums ( id, album_name, release_date, album_type ) )
+    `)
+    .order('created_at', { ascending: false })
   if (clientId) query = query.eq('client_id', clientId)
   if (id) query = query.eq('id', id)
 
