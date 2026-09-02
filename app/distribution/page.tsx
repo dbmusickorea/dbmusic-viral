@@ -18,11 +18,13 @@ export default function DistributionPage() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [subTab, setSubTab] = useState<'albums' | 'apply' | 'content'>('albums')
+  const [subTab, setSubTab] = useState<'albums' | 'artists' | 'apply' | 'content'>('albums')
 
   // 앨범 목록
   const [albums, setAlbums] = useState<any[]>([])
   const [selectedAlbum, setSelectedAlbum] = useState<any>(null)
+  const [artists, setArtists] = useState<any[]>([])
+  const [selectedArtist, setSelectedArtist] = useState<any>(null)
   const [albumTracks, setAlbumTracks] = useState<any[]>([])
   const [expandedTrackId, setExpandedTrackId] = useState<number | null>(null)
 
@@ -71,12 +73,13 @@ export default function DistributionPage() {
   }, [])
 
   const fetchAllData = async (userId: number, clientId: string) => {
-    const [userRes, itemsRes, projectsRes, albumsRes, requestsRes] = await Promise.all([
+    const [userRes, itemsRes, projectsRes, albumsRes, requestsRes, artistsRes] = await Promise.all([
       fetchWithAuth(`/api/users?id=${userId}`),
       fetchWithAuth(`/api/distribution-items?client_id=${userId}`),
       fetchWithAuth(`/api/projects?client_id=${clientId}`),
       fetchWithAuth(`/api/distribution-albums?client_id=${userId}`),
       fetchWithAuth(`/api/distribution-release-requests?client_id=${userId}`),
+      fetchWithAuth(`/api/distribution-artists?client_id=${userId}`),
     ])
 
     const userData = await userRes.json()
@@ -97,6 +100,8 @@ export default function DistributionPage() {
     setHasProjects(Array.isArray(projectsData) && projectsData.length > 0)
     setAlbums(Array.isArray(albumsData) ? albumsData : [])
     setReleaseRequests(Array.isArray(requestsData) ? requestsData : [])
+    const artistsData = await artistsRes.json()
+    setArtists(Array.isArray(artistsData) ? artistsData : [])
     setDataLoading(false)
   }
 
@@ -197,6 +202,7 @@ export default function DistributionPage() {
 
           <div className="flex gap-2 mb-4">
             <button onClick={() => setSubTab('albums')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범</button>
+            <button onClick={() => setSubTab('artists')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'artists' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>아티스트</button>
             <button onClick={() => setSubTab('apply')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'apply' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>발매 신청</button>
             <button onClick={() => setSubTab('content')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'content' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>콘텐츠</button>
           </div>
@@ -327,6 +333,84 @@ export default function DistributionPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {subTab === 'artists' && !selectedArtist && (
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <h2 className="font-bold dark:text-white mb-3">아티스트</h2>
+                  {artists.length === 0 ? (
+                    <p className="text-xs text-gray-400">등록된 아티스트가 없어요.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {artists.map((artist: any) => (
+                        <button key={artist.id} onClick={() => setSelectedArtist(artist)} className="w-full flex items-center gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
+                          {artist.profile_image_url ? (
+                            <img src={artist.profile_image_url} className="w-12 h-12 rounded-full object-cover shrink-0" />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium dark:text-white truncate">{artist.name}</p>
+                            {artist.name_en && <p className="text-xs text-gray-400 truncate">{artist.name_en}</p>}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {subTab === 'artists' && selectedArtist && (
+                <div className="space-y-4">
+                  <button onClick={() => setSelectedArtist(null)} className="text-xs text-gray-500 dark:text-gray-400">← 아티스트 목록으로</button>
+
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <div className="flex flex-col items-center text-center mb-3">
+                      {selectedArtist.profile_image_url ? (
+                        <img src={selectedArtist.profile_image_url} className="w-24 h-24 rounded-full object-cover mb-2" />
+                      ) : (
+                        <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-600 mb-2" />
+                      )}
+                      <p className="text-lg font-bold dark:text-white">{selectedArtist.name}</p>
+                      {selectedArtist.name_en && <p className="text-sm text-gray-400">{selectedArtist.name_en}</p>}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs text-center border-t dark:border-gray-700 pt-3">
+                      <div><p className="text-gray-400">국적</p><p className="dark:text-white mt-0.5">{selectedArtist.nationality || '-'}</p></div>
+                      <div><p className="text-gray-400">유형</p><p className="dark:text-white mt-0.5">{selectedArtist.artist_type || '-'}</p></div>
+                      <div><p className="text-gray-400">데뷔년도</p><p className="dark:text-white mt-0.5">{selectedArtist.debut_year || '-'}</p></div>
+                    </div>
+                    {selectedArtist.bio && (
+                      <div className="mt-3 pt-3 border-t dark:border-gray-700">
+                        <p className="text-xs text-gray-400 mb-1">아티스트 소개</p>
+                        <p className="text-sm dark:text-gray-200 whitespace-pre-wrap">{selectedArtist.bio}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <h2 className="font-bold dark:text-white mb-2">발매 앨범</h2>
+                    <p className="text-xs text-gray-400 mb-2">총 앨범수: {(selectedArtist.distribution_album_artists ?? []).length}</p>
+                    {(selectedArtist.distribution_album_artists ?? []).map((rel: any) => (
+                      <div key={rel.distribution_albums?.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-2">
+                        <p className="text-sm font-medium dark:text-white">{rel.distribution_albums?.album_name}</p>
+                        <p className="text-xs text-gray-400">발매일: {rel.distribution_albums?.release_date ? new Date(rel.distribution_albums.release_date).toLocaleDateString('ko-KR') : '-'}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {(selectedArtist.distribution_artist_links ?? []).length > 0 && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <h2 className="font-bold dark:text-white mb-3">URL</h2>
+                      <div className="space-y-1">
+                        {selectedArtist.distribution_artist_links.map((link: any) => (
+                          <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="block text-sm text-blue-500">{link.platform_type}</a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-center text-xs text-gray-400">아티스트 정보수정은 고객센터로 문의해주세요.</p>
                 </div>
               )}
 
