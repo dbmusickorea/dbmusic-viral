@@ -1512,7 +1512,10 @@ export default function Page4() {
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white">의뢰인 수정</h2>
-                  <button onClick={clearClientForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">닫기</button>
+                  <div className="flex gap-2">
+                    <button onClick={() => router.push(`/admin-chat?open_user_id=${selectedClient.id}&open_role=client&open_name=${encodeURIComponent(selectedClient.name)}`)} className="text-xs text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-700 rounded px-2 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>
+                    <button onClick={clearClientForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">닫기</button>
+                  </div>
                 </div>
                 <div className="flex gap-2 mb-3">
                   <button onClick={() => setClientDetailTab('projects')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${clientDetailTab === 'projects' ? 'bg-green-600 text-white' : 'border text-gray-500'}`}>프로젝트 현황</button>
