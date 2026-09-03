@@ -456,6 +456,7 @@ export default function Page4() {
   const [coverReward, setCoverReward] = useState<number | ''>('')
   const [rewardSelected, setRewardSelected] = useState<number[]>([])
   const [rewardAmount, setRewardAmount] = useState('')
+  const [isSubmittingReward, setIsSubmittingReward] = useState(false)
   const [rewardMemo, setRewardMemo] = useState('')  
 
   const [clients, setClients] = useState<any[]>([])
@@ -486,6 +487,7 @@ export default function Page4() {
   const [coverFilter, setCoverFilter] = useState('all')
   const [artistList, setArtistList] = useState<any[]>([])
   const [newArtistName, setNewArtistName] = useState('')
+  const [isAddingArtist, setIsAddingArtist] = useState(false)
   const [snsRequests, setSnsRequests] = useState<any[]>([])
   const [allPendingSnsRequests, setAllPendingSnsRequests] = useState<any[]>([])
   const [bannedMemberIds, setBannedMemberIds] = useState<number[]>([])
@@ -970,9 +972,11 @@ export default function Page4() {
                   </div>
                   <input type="number" value={rewardAmount} onChange={(e) => setRewardAmount(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="지급 금액 입력" />
                   <input value={rewardMemo} onChange={(e) => setRewardMemo(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="메모 입력 (예: 가입 축하금)" />
-                  <button onClick={async () => {
+                  <button disabled={isSubmittingReward} onClick={async () => {
                     if (rewardSelected.length === 0) { showToast('체험단을 선택해주세요.', 'error'); return }
                     if (!rewardAmount) { showToast('금액을 입력해주세요.', 'error'); return }
+                    if (isSubmittingReward) return
+                    setIsSubmittingReward(true)
                     const amount = Number(rewardAmount)
                     for (const id of rewardSelected) {
                       const p = filteredParticipants.find((p: any) => p.id === id)
@@ -1014,7 +1018,8 @@ export default function Page4() {
                     setRewardAmount('')
                     setRewardMemo('')
                     fetchParticipants() 
-                  }} className="w-full bg-green-600 text-white rounded-lg py-2 text-sm font-medium">지급하기</button>
+                    setIsSubmittingReward(false)
+                  }} className="w-full bg-green-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">{isSubmittingReward ? '지급 중...' : '지급하기'}</button>
                 </div>
               </div>
             )}
@@ -1544,16 +1549,18 @@ export default function Page4() {
                       ))}
                       <div className="flex gap-2 mt-3">
                         <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
-                        <button onClick={async () => {
-                          if (!newArtistName) return
+                        <button disabled={isAddingArtist} onClick={async () => {
+                          if (!newArtistName || isAddingArtist) return
+                          setIsAddingArtist(true)
                           await fetchWithAuth('/api/artists', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ client_id: selectedClient.client_id, artist_name: newArtistName })
                           })
                           setNewArtistName('')
-                          fetchArtists(selectedClient.client_id)
-                        }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+                          await fetchArtists(selectedClient.client_id)
+                          setIsAddingArtist(false)
+                        }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:opacity-50">{isAddingArtist ? '추가중...' : '추가'}</button>
                       </div>
                     </div>
                   </div>
