@@ -35,6 +35,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
   const [showAddArtist, setShowAddArtist] = useState(false)
   const [newArtistName, setNewArtistName] = useState('')
   const [addingArtist, setAddingArtist] = useState(false)
+  const [isSendingContract, setIsSendingContract] = useState(false)
 
   const handleAddArtist = async () => {
     if (!newArtistName.trim() || !formData.selectedClientId || addingArtist) return
@@ -447,8 +448,9 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       {selectedProject ? (
                         <>
                           <button onClick={handleUpdate} disabled={isSaving} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2 disabled:bg-gray-400">{isSaving ? '저장 중...' : '정보 수정하기'}</button>
-                          <button onClick={async () => {
+                          <button disabled={isSendingContract} onClick={async () => {
                             if (!formData.selectedClientId) { showToast('의뢰인을 선택해주세요.'); return }
+                            if (isSendingContract) return
                             
                             // 총비용 계산
                             const totalCost = getTotalCost()
@@ -470,11 +472,12 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               `위 내용으로 계약서를 발송합니다.`
                             )
                             if (!confirmed) return
+                            setIsSendingContract(true)
 
                             const clientRes = await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`)
                             const clientData = await clientRes.json()
                             const client = clientData?.[0]
-                            if (!client) { showToast('의뢰인 정보를 찾을 수 없어요.'); return }
+                            if (!client) { showToast('의뢰인 정보를 찾을 수 없어요.'); setIsSendingContract(false); return }
                             
                             const res = await fetchWithAuth('/api/eformsign?action=send', {
                               method: 'POST',
@@ -525,7 +528,8 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                             } else {
                               showToast('계약서 발송 실패!')
                             }
-                          }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium">📄 계약서 발송</button>
+                            setIsSendingContract(false)
+                          }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:opacity-50">{isSendingContract ? '발송 중...' : '📄 계약서 발송'}</button>
                         </>
                       ) : (
                         <button onClick={handleInsert} disabled={isSaving} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">{isSaving ? '등록 중...' : '프로젝트 등록'}</button>
