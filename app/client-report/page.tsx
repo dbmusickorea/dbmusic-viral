@@ -175,11 +175,7 @@ export default function ClientReportPage() {
           <button className="flex-1 flex flex-col items-center py-3 text-xs text-blue-600">
             <svg viewBox="0 0 24 24" className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>보고서
           </button>
-          {userInfo?.has_distribution && (
-            <button onClick={() => router.push('/distribution')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
-              <Disc3 size={20} className="mb-0.5" />유통
-            </button>
-          )}
+
           <button onClick={() => router.push('/client-mypage')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
             <User size={20} className="mb-0.5" />마이페이지
           </button>

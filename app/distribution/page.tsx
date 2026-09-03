@@ -165,7 +165,6 @@ export default function DistributionPage() {
           { icon: '', label: '아티스트', onClick: () => { setSubTab('artists'); setShowSidebar(false) }, active: subTab === 'artists' },
           { icon: '', label: '발매신청', onClick: () => { setSubTab('apply'); setShowSidebar(false) }, active: subTab === 'apply' },
           { icon: '', label: '콘텐츠', onClick: () => { setSubTab('content'); setShowSidebar(false) }, active: subTab === 'content' },
-          { icon: '', label: '일반 서비스로 전환', onClick: () => { localStorage.setItem('distributionMode', 'false'); router.push('/client') } },
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />

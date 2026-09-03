@@ -287,7 +287,6 @@ export default function ClientMyPage() {
             { icon: '🎤', label: '아티스트', onClick: () => { sessionStorage.setItem('distributionTab', 'artists'); router.push('/distribution') } },
             { icon: '📝', label: '발매신청', onClick: () => { sessionStorage.setItem('distributionTab', 'apply'); router.push('/distribution') } },
             { icon: '🎬', label: '콘텐츠', onClick: () => { sessionStorage.setItem('distributionTab', 'content'); router.push('/distribution') } },
-            { icon: '', label: '일반 서비스로 전환', onClick: () => { localStorage.setItem('distributionMode', 'false'); router.push('/client') } },
             { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
           ] : [
             { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
@@ -297,7 +296,6 @@ export default function ClientMyPage() {
             }},
             { icon: '📝', label: '신청', onClick: () => { setShowApplyModal(true); setShowSidebar(false) }},
             { icon: '📥', label: '보고서', onClick: () => { setShowSidebar(false); router.push('/client-report') }},
-            ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스로 전환', onClick: () => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') } }] : []),
             { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
           ]
         }
