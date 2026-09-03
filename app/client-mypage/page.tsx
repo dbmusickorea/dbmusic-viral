@@ -69,6 +69,7 @@ export default function ClientMyPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [artistList, setArtistList] = useState<any[]>([])
   const [newArtistName, setNewArtistName] = useState('')
+  const [isAddingArtist, setIsAddingArtist] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
@@ -422,13 +423,15 @@ export default function ClientMyPage() {
                   ))}
                   <div className="flex gap-2">
                     <input value={newArtistName} onChange={(e) => setNewArtistName(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="아티스트명 입력" />
-                    <button onClick={async () => {
-                      if (!newArtistName) return
+                    <button disabled={isAddingArtist} onClick={async () => {
+                      if (!newArtistName || isAddingArtist) return
+                      setIsAddingArtist(true)
                       await fetchWithAuth('/api/artists', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client_id: userInfo.client_id, artist_name: newArtistName }) })
                       setNewArtistName('')
                       const res = await fetchWithAuth(`/api/artists?client_id=${userInfo.client_id}`)
                       setArtistList(await res.json())
-                    }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm">추가</button>
+                      setIsAddingArtist(false)
+                    }} className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm disabled:opacity-50">{isAddingArtist ? '추가중...' : '추가'}</button>
                   </div>
                 </div>
               </div>
