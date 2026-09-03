@@ -501,6 +501,7 @@ export default function DistributionPage() {
                         <div>
                           <label className="text-xs font-medium dark:text-white">발매 자료 완성일 *</label>
                           <input type="date" value={materialDate} onChange={(e) => setMaterialDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                          <p className="text-[10px] text-gray-400 mt-1">발매 자료 완성일은 요청하신 발매 희망일에 발매가 불가능할 경우 발매일을 제안하기 위해 참고하는 용도이며, 실제 발매 자료 업로드는 발매일로부터 최소 2주 전까지 완료되어야 해요.</p>
                         </div>
                         <div>
                           <label className="text-xs font-medium dark:text-white">발매앨범명 *</label>
