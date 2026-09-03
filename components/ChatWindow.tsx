@@ -386,6 +386,17 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
   }
 
+  const openCachedFileNative = async (messageId: number, filename: string) => {
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Share } = await import('@capacitor/share')
+      const uriResult = await Filesystem.getUri({ path: `chat-cache/${messageId}_${filename}`, directory: Directory.Cache })
+      await Share.share({ url: uriResult.uri })
+    } catch (e) {
+      console.log('캐시 파일 열기 실패:', e)
+    }
+  }
+
   const handleLinkClick = (url: string) => {
     if ((window as any).Capacitor?.isNativePlatform?.()) {
       window.open(url, '_system')
@@ -872,7 +883,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <button
                           key={m.id}
                           disabled={!usable}
-                          onClick={() => cached ? openCachedFile(cached) : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
+                          onClick={() => cached ? openCachedFileNative(m.id, m.attachment_name || 'file') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
                           className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 disabled:opacity-40 text-left min-w-0"
                         >
                           <FileText size={18} className="shrink-0 text-gray-500" />
