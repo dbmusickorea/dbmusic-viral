@@ -826,12 +826,21 @@ export default function MyPage() {
           </div>
         </div>
       </div>
+      {showChat && userInfo && (
+        <ChatWindow
+          userId={String(userInfo.id)}
+          role="participant"
+          viewerType="user"
+          title="관리자와의 대화"
+          onBack={() => { setShowChat(false); setChatUnreadCount(0) }}
+        />
+      )}
       <BottomNav tabs={[
         { icon: <BarChart2 size={20} />, label: '내 현황', href: '/participant' },
         { icon: <Target size={20} />, label: '프로젝트', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
         { icon: <Wallet size={20} />, label: '적립금', href: '/wallet' },
         ...(userInfo?.is_agency ? [{ icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member' }] : []),
-        { icon: <MessageSquare size={20} />, label: '채팅', badge: chatUnreadCount, onClick: () => { sessionStorage.setItem('openChat', 'true'); router.push('/participant') } },
+        { icon: <MessageSquare size={20} />, label: '채팅', badge: chatUnreadCount, onClick: () => setShowChat(true) },
         { icon: <User size={20} />, label: '마이페이지', href: '/mypage', active: true },
       ]} />
     </div>
