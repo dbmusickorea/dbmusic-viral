@@ -497,7 +497,7 @@ export default function Page3() {
             { icon: '', label: '현황', onClick: () => setActiveTab('stats'), active: activeTab === 'stats', id: 'tutorial-stats-btn-sidebar' },
             { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true), id: 'tutorial-apply-btn-sidebar' },
             { icon: '', label: '보고서', onClick: () => router.push('/client-report'), active: activeTab === 'report', id: 'tutorial-report-btn-sidebar' },
-            ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => router.push('/distribution') }] : []),
+            ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') } }] : []),
             { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
           ]}
         />
@@ -1209,7 +1209,7 @@ export default function Page3() {
             </svg>보고서
           </button>
           {userInfo?.has_distribution && (
-            <button onClick={() => router.push('/distribution')} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
+            <button onClick={() => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') }} className="flex-1 flex flex-col items-center py-3 text-xs text-gray-400 dark:text-gray-500">
               <Disc3 size={20} className="mb-0.5" />유통
             </button>
           )}

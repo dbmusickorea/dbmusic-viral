@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
+import { useToast } from './ToastContext'
 import { supabase } from '../app/lib/supabase'
 import { Send, Check, CheckCheck, ArrowLeft, ChevronDown, Paperclip, X, FileText, Trash2, Download, Folder, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
@@ -31,6 +32,7 @@ type Props = {
 }
 
 export default function ChatWindow({ userId, role, viewerType, title, subtitle, onBack }: Props) {
+  const { showToast } = useToast()
   // 채팅창이 열려있는 동안 스와이프/뒤로가기 제스처가 로그인 화면 등 엉뚱한 곳까지 가지 않고,
   // 채팅창만 자연스럽게 닫히도록 브라우저 히스토리에 가상의 한 단계를 추가
   useEffect(() => {
@@ -355,9 +357,10 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         const { Share } = await import('@capacitor/share')
         const written = await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.Cache })
         await Share.share({ files: [written.uri] })
-      } catch {
-        const { Browser } = await import('@capacitor/browser')
-        await Browser.open({ url })
+        showToast('저장됐어요!')
+      } catch (e) {
+        console.log('다운로드 실패:', e)
+        showToast('다운로드에 실패했어요.')
       }
     } else {
       try {

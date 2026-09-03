@@ -518,13 +518,10 @@ export default function DistributionPage() {
         </div>
       </div>
       <BottomNav tabs={[
-        ...(hasProjects ? [
-          { icon: <LayoutGrid size={20} />, label: '프로젝트', href: '/client' },
-          { icon: <BarChart2 size={20} />, label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
-          { icon: <FileText size={20} />, label: '신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
-          { icon: <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>, label: '보고서', onClick: () => { router.push('/client-report') } },
-        ] : []),
-        { icon: <Disc3 size={20} />, label: '유통', href: '/distribution', active: true },
+        { icon: <LayoutGrid size={20} />, label: '앨범', onClick: () => setSubTab('albums'), active: subTab === 'albums' },
+        { icon: <User size={20} />, label: '아티스트', onClick: () => setSubTab('artists'), active: subTab === 'artists' },
+        { icon: <FileText size={20} />, label: '발매신청', onClick: () => setSubTab('apply'), active: subTab === 'apply' },
+        { icon: <Disc3 size={20} />, label: '콘텐츠', onClick: () => setSubTab('content'), active: subTab === 'content' },
         { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage' },
       ]} />
     </>
