@@ -606,38 +606,7 @@ export default function LoginPage() {
       const referrerRes = await fetchWithAuth(`/api/participants/signup-check?referral_code=${p_referral}`)
       const referrerCheck = await referrerRes.json()
       if (!referrerCheck?.exists) { showToast('유효하지 않은 추천인 코드입니다.'); setParticipantSignupLoading(false); return }
-      const referrer = { id: referrerCheck.id, balance: referrerCheck.balance, level: referrerCheck.level }
-      
-      // 추천인에게 150원 적립 + 레벨 1 상승
-      const newBalance = (referrer.balance ?? 0) + 150
-      const newLevel = Math.min(50, (referrer.level ?? 1) + 1)
-      await fetchWithAuth(`/api/participants?id=${referrer.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ balance: newBalance, level: newLevel })
-      })
-      await fetchWithAuth('/api/point_history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ member_id: referrer.id, amount: 150, memo: `친구추천 보상 (${p_name})` })
-      })
-      
-      // 추천인에게 레벨 상승 푸시
-      const referrerTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(referrer.id)}`)
-      const referrerTokens = await referrerTokensRes.json()
-      if (referrerTokens && referrerTokens.length > 0) {
-        await fetch('/api/push', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: '🎉 레벨이 올랐어요!',
-            body: `추천인 보상으로 Lv.${newLevel}이 됐어요! 150P도 적립됐어요.`,
-            tokens: referrerTokens.map((t: any) => t.token),
-            userIds: referrerTokens.map((t: any) => t.user_id)
-          })
-        })
-      }
-
+      // 추천인 보상 적립(잔액/레벨/푸시)은 인증 없이도 안전하게 처리되도록 서버(/api/participants POST)에서 일괄 처리함
     }
 
     let referralCode = generateReferralCode()

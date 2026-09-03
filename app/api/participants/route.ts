@@ -114,5 +114,35 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { error } = await supabaseAdmin.from('participants').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
+
+  // 추천인 보상 처리 (인증 없는 가입 시점이라 서버(service_role)에서 안전하게 처리)
+  if (body.referred_by) {
+    try {
+      const { data: referrer } = await supabaseAdmin.from('participants').select('id, balance, level').eq('referral_code', body.referred_by).maybeSingle()
+      if (referrer) {
+        const newBalance = (referrer.balance ?? 0) + 150
+        const newLevel = Math.min(50, (referrer.level ?? 1) + 1)
+        await supabaseAdmin.from('participants').update({ balance: newBalance, level: newLevel }).eq('id', referrer.id)
+        await supabaseAdmin.from('point_history').insert({ member_id: referrer.id, amount: 150, memo: `친구추천 보상 (${body.name})` })
+
+        const { data: referrerTokens } = await supabaseAdmin.from('push_tokens').select('token, user_id').eq('user_id', String(referrer.id))
+        if (referrerTokens && referrerTokens.length > 0) {
+          await fetch('https://app.doubleb.kr/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🎉 레벨이 올랐어요!',
+              body: `추천인 보상으로 Lv.${newLevel}이 됐어요! 150P도 적립됐어요.`,
+              tokens: referrerTokens.map((t: any) => t.token),
+              userIds: referrerTokens.map((t: any) => t.user_id)
+            })
+          })
+        }
+      }
+    } catch (e) {
+      console.error('추천인 보상 처리 실패:', e)
+    }
+  }
+
   return NextResponse.json({ success: true })
 }
