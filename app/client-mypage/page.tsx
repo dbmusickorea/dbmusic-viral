@@ -5,7 +5,7 @@ import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, LayoutGrid, BarChart2, User, FileText, Disc3 } from 'lucide-react'
+import { Eye, EyeOff, LayoutGrid, BarChart2, User, FileText, Disc3, Wallet } from 'lucide-react'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
@@ -285,8 +285,9 @@ export default function ClientMyPage() {
           isInDistributionMode ? [
             { icon: '💿', label: '앨범', onClick: () => { sessionStorage.setItem('distributionTab', 'albums'); router.push('/distribution') } },
             { icon: '🎤', label: '아티스트', onClick: () => { sessionStorage.setItem('distributionTab', 'artists'); router.push('/distribution') } },
-            { icon: '📝', label: '발매신청', onClick: () => { sessionStorage.setItem('distributionTab', 'apply'); router.push('/distribution') } },
             { icon: '🎬', label: '콘텐츠', onClick: () => { sessionStorage.setItem('distributionTab', 'content'); router.push('/distribution') } },
+            { icon: '📊', label: '통계', onClick: () => { sessionStorage.setItem('distributionTab', 'stats'); router.push('/distribution') } },
+            { icon: '💰', label: '출금', onClick: () => { sessionStorage.setItem('distributionTab', 'withdraw'); router.push('/distribution') } },
             { icon: '👤', label: '마이페이지', onClick: () => router.push('/client-mypage'), active: true },
           ] : [
             { icon: '📋', label: '프로젝트', onClick: () => router.push('/client') },
@@ -595,8 +596,9 @@ export default function ClientMyPage() {
         isInDistributionMode ? [
           { icon: <LayoutGrid size={20} />, label: '앨범', onClick: () => { sessionStorage.setItem('distributionTab', 'albums'); router.push('/distribution') } },
           { icon: <User size={20} />, label: '아티스트', onClick: () => { sessionStorage.setItem('distributionTab', 'artists'); router.push('/distribution') } },
-          { icon: <FileText size={20} />, label: '발매신청', onClick: () => { sessionStorage.setItem('distributionTab', 'apply'); router.push('/distribution') } },
           { icon: <Disc3 size={20} />, label: '콘텐츠', onClick: () => { sessionStorage.setItem('distributionTab', 'content'); router.push('/distribution') } },
+          { icon: <BarChart2 size={20} />, label: '통계', onClick: () => { sessionStorage.setItem('distributionTab', 'stats'); router.push('/distribution') } },
+          { icon: <Wallet size={20} />, label: '출금', onClick: () => { sessionStorage.setItem('distributionTab', 'withdraw'); router.push('/distribution') } },
           { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage', active: true },
         ] : [
           { icon: <LayoutGrid size={20} />, label: '프로젝트', href: '/client' },
