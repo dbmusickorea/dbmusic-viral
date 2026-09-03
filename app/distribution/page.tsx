@@ -21,7 +21,7 @@ export default function DistributionPage() {
   const [albumStatusFilter, setAlbumStatusFilter] = useState('')
   const [albumSearchType, setAlbumSearchType] = useState<'' | 'artist' | 'album'>('')
   const [albumSearchQuery, setAlbumSearchQuery] = useState('')
-  const [albumViewMode, setAlbumViewMode] = useState<'grid' | 'list'>('list')
+  const [albumViewMode, setAlbumViewMode] = useState<'grid' | 'list'>('grid')
   const [statsMainTab, setStatsMainTab] = useState<'summary' | 'breakdown' | 'store'>('summary')
   const [statsBreakdownTab, setStatsBreakdownTab] = useState<'album' | 'artist'>('album')
   const [statsStoreTab, setStatsStoreTab] = useState<'store' | 'country'>('store')
