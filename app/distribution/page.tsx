@@ -264,14 +264,6 @@ export default function DistributionPage() {
             </div>
           </div>
 
-          <div className="flex gap-2 mb-4">
-            <button onClick={() => setSubTab('albums')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범</button>
-            <button onClick={() => setSubTab('artists')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'artists' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>아티스트</button>
-            <button onClick={() => setSubTab('content')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'content' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>콘텐츠</button>
-            <button onClick={() => setSubTab('stats')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'stats' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>통계</button>
-            <button onClick={() => setSubTab('withdraw')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'withdraw' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>출금</button>
-          </div>
-
           {dataLoading ? (
             <div className="flex justify-center py-20">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
@@ -280,108 +272,96 @@ export default function DistributionPage() {
             <>
               {subTab === 'albums' && !selectedAlbum && (
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                    <button onClick={() => setShowApplyForm(!showApplyForm)} className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium">
+                  <div className="flex justify-between items-center">
+                    <h2 className="font-bold dark:text-white">유통 앨범</h2>
+                    <button onClick={() => setShowApplyForm(!showApplyForm)} className="text-xs bg-blue-600 text-white rounded-lg px-3 py-1.5 font-medium">
                       {showApplyForm ? '취소' : '+ 새 발매 신청'}
                     </button>
-                    {showApplyForm && (
-                      <div className="space-y-3 mt-4">
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">발매 희망일 *</label>
-                          <input type="date" value={desiredDate} onChange={(e) => setDesiredDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
-                          <div className="flex gap-2 mt-1">
-                            <button onClick={() => setDesiredTime('12:00')} className={`flex-1 py-1.5 text-xs rounded-lg ${desiredTime === '12:00' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>12:00</button>
-                            <button onClick={() => setDesiredTime('18:00')} className={`flex-1 py-1.5 text-xs rounded-lg ${desiredTime === '18:00' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>18:00</button>
-                          </div>
-                          <p className="text-[10px] text-gray-400 mt-1">신청 당일로부터 14일(2주)까지는 발매 희망일로 지정하실 수 없어요.</p>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">발매 자료 완성일 *</label>
-                          <input type="date" value={materialDate} onChange={(e) => setMaterialDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
-                          <p className="text-[10px] text-gray-400 mt-1">발매 자료 완성일은 요청하신 발매 희망일에 발매가 불가능할 경우 발매일을 제안하기 위해 참고하는 용도이며, 실제 발매 자료 업로드는 발매일로부터 최소 2주 전까지 완료되어야 해요.</p>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">발매앨범명 *</label>
-                          <input value={albumName} onChange={(e) => setAlbumName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="발매 앨범명을 입력해주세요." />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">참여 아티스트 *</label>
-                          <input value={participatingArtists} onChange={(e) => setParticipatingArtists(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="아티스트A, (피처링)아티스트B" />
-                          <p className="text-[10px] text-gray-400 mt-1">여러 명일 경우 콤마(,)로 구분, 피처링은 이름 앞에 (피처링) 표기</p>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">참여 아티스트의 스트리밍 사이트 URL</label>
-                          <input value={artistStreamingUrl} onChange={(e) => setArtistStreamingUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="Melon/Vibe/Flo/Spotify 등 아티스트 페이지 링크" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">발매 앨범 관련 첨부파일 링크 *</label>
-                          <input value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="Google Drive, Dropbox 등의 URL" />
-                          <p className="text-[10px] text-gray-400 mt-1">음원(or 데모)를 첨부하지 않으실 경우 발매 검토 대상에서 제외돼요.</p>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">MV 포함 여부 *</label>
-                          <div className="flex gap-2 mt-1">
-                            <button onClick={() => setHasMv('Y')} className={`flex-1 py-1.5 text-xs rounded-lg ${hasMv === 'Y' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>Yes</button>
-                            <button onClick={() => setHasMv('N')} className={`flex-1 py-1.5 text-xs rounded-lg ${hasMv === 'N' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>No</button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium dark:text-white">문의 및 요청사항</label>
-                          <textarea value={inquiry} onChange={(e) => setInquiry(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="발매관련 문의사항 및 기타 요청사항이 있다면 입력해주세요." />
-                        </div>
-                        <button onClick={handleSubmitRequest} disabled={submitting} className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50">신청하기</button>
-                      </div>
-                    )}
                   </div>
 
+                  {showApplyForm && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 space-y-3">
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">발매 희망일 *</label>
+                        <input type="date" value={desiredDate} onChange={(e) => setDesiredDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                        <div className="flex gap-2 mt-1">
+                          <button onClick={() => setDesiredTime('12:00')} className={`flex-1 py-1.5 text-xs rounded-lg ${desiredTime === '12:00' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>12:00</button>
+                          <button onClick={() => setDesiredTime('18:00')} className={`flex-1 py-1.5 text-xs rounded-lg ${desiredTime === '18:00' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>18:00</button>
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-1">신청 당일로부터 14일(2주)까지는 발매 희망일로 지정하실 수 없어요.</p>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">발매 자료 완성일 *</label>
+                        <input type="date" value={materialDate} onChange={(e) => setMaterialDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                        <p className="text-[10px] text-gray-400 mt-1">발매 자료 완성일은 요청하신 발매 희망일에 발매가 불가능할 경우 발매일을 제안하기 위해 참고하는 용도이며, 실제 발매 자료 업로드는 발매일로부터 최소 2주 전까지 완료되어야 해요.</p>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">발매앨범명 *</label>
+                        <input value={albumName} onChange={(e) => setAlbumName(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="발매 앨범명을 입력해주세요." />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">참여 아티스트 *</label>
+                        <input value={participatingArtists} onChange={(e) => setParticipatingArtists(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="아티스트A, (피처링)아티스트B" />
+                        <p className="text-[10px] text-gray-400 mt-1">여러 명일 경우 콤마(,)로 구분, 피처링은 이름 앞에 (피처링) 표기</p>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">참여 아티스트의 스트리밍 사이트 URL</label>
+                        <input value={artistStreamingUrl} onChange={(e) => setArtistStreamingUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="Melon/Vibe/Flo/Spotify 등 아티스트 페이지 링크" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">발매 앨범 관련 첨부파일 링크 *</label>
+                        <input value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="Google Drive, Dropbox 등의 URL" />
+                        <p className="text-[10px] text-gray-400 mt-1">음원(or 데모)를 첨부하지 않으실 경우 발매 검토 대상에서 제외돼요.</p>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">MV 포함 여부 *</label>
+                        <div className="flex gap-2 mt-1">
+                          <button onClick={() => setHasMv('Y')} className={`flex-1 py-1.5 text-xs rounded-lg ${hasMv === 'Y' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>Yes</button>
+                          <button onClick={() => setHasMv('N')} className={`flex-1 py-1.5 text-xs rounded-lg ${hasMv === 'N' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500'}`}>No</button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium dark:text-white">문의 및 요청사항</label>
+                        <textarea value={inquiry} onChange={(e) => setInquiry(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" placeholder="발매관련 문의사항 및 기타 요청사항이 있다면 입력해주세요." />
+                      </div>
+                      <button onClick={handleSubmitRequest} disabled={submitting} className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50">신청하기</button>
+                    </div>
+                  )}
+
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                    <h2 className="font-bold dark:text-white mb-3">신청 내역</h2>
-                    {releaseRequests.length === 0 ? (
-                      <p className="text-xs text-gray-400">신청 내역이 없어요.</p>
+                    {albums.length === 0 && releaseRequests.filter((r: any) => !r.created_album_id).length === 0 ? (
+                      <p className="text-xs text-gray-400">등록된 앨범이 없어요. 위 "새 발매 신청" 버튼으로 신청해주세요.</p>
                     ) : (
                       <div className="space-y-2">
-                        {releaseRequests.map((r: any) => (
-                          <div key={r.id} className="border dark:border-gray-600 rounded-lg p-3">
-                            <div className="flex justify-between items-start">
-                              <p className="text-sm font-medium dark:text-white">{r.album_name}</p>
-                              <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${r.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : r.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                {r.status === 'PENDING' ? '검토중' : r.status === 'APPROVED' ? '승인됨' : '거절됨'}
-                              </span>
+                        {releaseRequests.filter((r: any) => !r.created_album_id).map((r: any) => (
+                          <div key={`req-${r.id}`} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-dashed dark:border-gray-500">
+                            <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0 flex items-center justify-center text-gray-400 text-[10px] text-center">심사중</div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium dark:text-white truncate">{r.album_name}</p>
+                              <p className="text-xs text-gray-400 truncate">{r.participating_artists}</p>
+                              <p className={`text-xs mt-0.5 ${r.status === 'REJECTED' ? 'text-red-500' : 'text-orange-500'}`}>{r.status === 'REJECTED' ? '반려됨' : '검토중'}</p>
                             </div>
-                            <p className="text-xs text-gray-400 mt-1">발매희망일: {r.release_desired_date} {r.release_desired_time}</p>
                           </div>
+                        ))}
+                        {albums.map((album: any) => (
+                          <button key={album.id} onClick={() => openAlbumDetail(album)} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
+                            {album.cover_image_url ? (
+                              <img src={album.cover_image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                            ) : (
+                              <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium dark:text-white truncate">{album.album_name}</p>
+                              <p className="text-xs text-gray-400 truncate">
+                                {(album.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(', ')}
+                              </p>
+                              <p className="text-xs text-gray-400">{album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : ''} · {album.album_type} · <span className="text-blue-500">{album.status ?? '발매완료'}</span></p>
+                            </div>
+                          </button>
                         ))}
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-
-              {subTab === 'albums' && !selectedAlbum && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                  <h2 className="font-bold dark:text-white mb-3">유통 앨범</h2>
-                  {albums.length === 0 ? (
-                    <p className="text-xs text-gray-400">등록된 앨범이 없어요. "발매 신청" 탭에서 먼저 신청해주세요.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {albums.map((album: any) => (
-                        <button key={album.id} onClick={() => openAlbumDetail(album)} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
-                          {album.cover_image_url ? (
-                            <img src={album.cover_image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                          ) : (
-                            <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
-                          )}
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium dark:text-white truncate">{album.album_name}</p>
-                            <p className="text-xs text-gray-400 truncate">
-                              {(album.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(', ')}
-                            </p>
-                            <p className="text-xs text-gray-400">{album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : ''} · {album.album_type}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
 
