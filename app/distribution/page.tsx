@@ -18,6 +18,10 @@ export default function DistributionPage() {
   const [withdrawals, setWithdrawals] = useState<any[]>([])
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [isSubmittingWithdraw, setIsSubmittingWithdraw] = useState(false)
+  const [albumStatusFilter, setAlbumStatusFilter] = useState('')
+  const [albumSearchType, setAlbumSearchType] = useState<'' | 'artist' | 'album'>('')
+  const [albumSearchQuery, setAlbumSearchQuery] = useState('')
+  const [albumViewMode, setAlbumViewMode] = useState<'grid' | 'list'>('list')
   const [statsMainTab, setStatsMainTab] = useState<'summary' | 'breakdown' | 'store'>('summary')
   const [statsBreakdownTab, setStatsBreakdownTab] = useState<'album' | 'artist'>('album')
   const [statsStoreTab, setStatsStoreTab] = useState<'store' | 'country'>('store')
@@ -329,38 +333,109 @@ export default function DistributionPage() {
                   )}
 
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                    {albums.length === 0 && releaseRequests.filter((r: any) => !r.created_album_id).length === 0 ? (
-                      <p className="text-xs text-gray-400">등록된 앨범이 없어요. 위 "새 발매 신청" 버튼으로 신청해주세요.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {releaseRequests.filter((r: any) => !r.created_album_id).map((r: any) => (
-                          <div key={`req-${r.id}`} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-dashed dark:border-gray-500">
-                            <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0 flex items-center justify-center text-gray-400 text-[10px] text-center">심사중</div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium dark:text-white truncate">{r.album_name}</p>
-                              <p className="text-xs text-gray-400 truncate">{r.participating_artists}</p>
-                              <p className={`text-xs mt-0.5 ${r.status === 'REJECTED' ? 'text-red-500' : 'text-orange-500'}`}>{r.status === 'REJECTED' ? '반려됨' : '검토중'}</p>
-                            </div>
-                          </div>
-                        ))}
-                        {albums.map((album: any) => (
-                          <button key={album.id} onClick={() => openAlbumDetail(album)} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
-                            {album.cover_image_url ? (
-                              <img src={album.cover_image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                            ) : (
-                              <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
-                            )}
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium dark:text-white truncate">{album.album_name}</p>
-                              <p className="text-xs text-gray-400 truncate">
-                                {(album.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(', ')}
-                              </p>
-                              <p className="text-xs text-gray-400">{album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : ''} · {album.album_type} · <span className="text-blue-500">{album.status ?? '발매완료'}</span></p>
-                            </div>
-                          </button>
-                        ))}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <select value={albumStatusFilter} onChange={(e) => setAlbumStatusFilter(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
+                        <option value="">상태 전체</option>
+                        <option value="임시저장">임시저장</option>
+                        <option value="신청완료">신청완료</option>
+                        <option value="반려">반려</option>
+                        <option value="유통준비중">유통준비중</option>
+                        <option value="유통중단">유통중단</option>
+                        <option value="유통취소">유통취소</option>
+                        <option value="발매완료">발매완료</option>
+                        <option value="유통완료">유통완료</option>
+                      </select>
+                      <select value={albumSearchType} onChange={(e) => setAlbumSearchType(e.target.value as any)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
+                        <option value="" disabled>검색구분</option>
+                        <option value="album">앨범명</option>
+                        <option value="artist">아티스트명</option>
+                      </select>
+                      <input value={albumSearchQuery} onChange={(e) => setAlbumSearchQuery(e.target.value)} placeholder="검색어 입력" className="flex-1 min-w-[120px] border dark:border-gray-600 rounded-lg px-3 py-1.5 text-xs dark:bg-gray-700 dark:text-white" />
+                      <div className="flex gap-1">
+                        <button onClick={() => setAlbumViewMode('grid')} className={`px-2 py-1.5 rounded-lg border text-xs ${albumViewMode === 'grid' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 text-gray-500'}`}>▦</button>
+                        <button onClick={() => setAlbumViewMode('list')} className={`px-2 py-1.5 rounded-lg border text-xs ${albumViewMode === 'list' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 text-gray-500'}`}>☰</button>
                       </div>
-                    )}
+                    </div>
+                    {(() => {
+                      const filteredRequests = releaseRequests.filter((r: any) => !r.created_album_id)
+                      const filteredAlbums = albums.filter((album: any) => {
+                        if (albumStatusFilter && (album.status ?? '발매완료') !== albumStatusFilter) return false
+                        if (albumSearchQuery) {
+                          const q = albumSearchQuery.toLowerCase()
+                          const artistNames = (album.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(' ').toLowerCase()
+                          if (albumSearchType === 'album') {
+                            if (!album.album_name?.toLowerCase().includes(q)) return false
+                          } else if (albumSearchType === 'artist') {
+                            if (!artistNames.includes(q)) return false
+                          } else {
+                            if (!album.album_name?.toLowerCase().includes(q) && !artistNames.includes(q)) return false
+                          }
+                        }
+                        return true
+                      })
+                      if (filteredRequests.length === 0 && filteredAlbums.length === 0) {
+                        return <p className="text-xs text-gray-400">조건에 맞는 앨범이 없어요.</p>
+                      }
+                      return (
+                        <div className={albumViewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-4 gap-3' : 'space-y-2'}>
+                          {filteredRequests.map((r: any) => (
+                            albumViewMode === 'grid' ? (
+                              <div key={`req-${r.id}`} className="border border-dashed dark:border-gray-500 rounded-lg p-2 text-center">
+                                <div className="w-full aspect-square rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-400 text-[10px] mb-1">심사중</div>
+                                <p className="text-xs font-medium dark:text-white truncate">{r.album_name}</p>
+                                <p className={`text-[10px] ${r.status === 'REJECTED' ? 'text-red-500' : 'text-orange-500'}`}>{r.status === 'REJECTED' ? '반려됨' : '검토중'}</p>
+                              </div>
+                            ) : (
+                              <div key={`req-${r.id}`} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-dashed dark:border-gray-500">
+                                <div className="w-14 h-14 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0 flex items-center justify-center text-gray-400 text-[10px] text-center">심사중</div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium dark:text-white truncate">{r.album_name}</p>
+                                  <p className="text-xs text-gray-400 truncate">{r.participating_artists}</p>
+                                  <p className={`text-xs mt-0.5 ${r.status === 'REJECTED' ? 'text-red-500' : 'text-orange-500'}`}>{r.status === 'REJECTED' ? '반려됨' : '검토중'}</p>
+                                </div>
+                              </div>
+                            )
+                          ))}
+                          {filteredAlbums.map((album: any) => {
+                            const trackCount = (album.distribution_tracks ?? []).length
+                            return albumViewMode === 'grid' ? (
+                              <button key={album.id} onClick={() => openAlbumDetail(album)} className="text-center">
+                                <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-1 bg-gray-200 dark:bg-gray-600">
+                                  {album.cover_image_url && (
+                                    <img src={album.cover_image_url} className="w-full h-full object-cover" />
+                                  )}
+                                  <span className="absolute top-1.5 left-1.5 bg-green-500 text-white text-[9px] px-1.5 py-0.5 rounded">{album.status ?? '발매완료'}</span>
+                                  {trackCount > 0 && (
+                                    <span className="absolute bottom-1.5 right-1.5 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded-full">♫ {trackCount}</span>
+                                  )}
+                                </div>
+                                <p className="text-xs font-medium dark:text-white truncate">{album.album_name}</p>
+                                <p className="text-[10px] text-gray-400 truncate">{album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : ''}</p>
+                              </button>
+                            ) : (
+                              <button key={album.id} onClick={() => openAlbumDetail(album)} className="w-full flex gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
+                                <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-600">
+                                  {album.cover_image_url && (
+                                    <img src={album.cover_image_url} className="w-full h-full object-cover" />
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1 mb-0.5">
+                                    {trackCount > 0 && <span className="text-[9px] bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded-full">♫ {trackCount}</span>}
+                                    <span className="text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded">{album.status ?? '발매완료'}</span>
+                                  </div>
+                                  <p className="text-sm font-medium dark:text-white truncate">{album.album_name}</p>
+                                  <p className="text-xs text-gray-400 truncate">
+                                    {(album.distribution_album_artists ?? []).map((a: any) => a.distribution_artists?.name).filter(Boolean).join(', ')}
+                                  </p>
+                                  <p className="text-xs text-gray-400">발매일 : {album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : '미정'}</p>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               )}

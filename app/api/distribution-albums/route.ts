@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     .select(`
       *,
       distribution_album_artists ( role, distribution_artists ( id, name, profile_image_url ) ),
-      distribution_store_links ( id, platform_name, url )
+      distribution_store_links ( id, platform_name, url ),
+      distribution_tracks ( id )
     `)
     .order('release_date', { ascending: false })
 
