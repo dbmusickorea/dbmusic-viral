@@ -3,31 +3,84 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { LayoutGrid, BarChart2, FileText, User, Disc3, RefreshCw, ArrowDown } from 'lucide-react'
+import { LayoutGrid, BarChart2, FileText, User, Disc3, RefreshCw, ArrowDown, Wallet } from 'lucide-react'
+import { useToast } from '../../components/ToastContext'
 import PlatformIcon from '../../components/PlatformIcon'
 import BottomNav from '../../components/BottomNav'
 import Sidebar from '../../components/Sidebar'
 
 export default function DistributionPage() {
+  const { showToast } = useToast()
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
   const [items, setItems] = useState<any[]>([])
+  const [distributionBalance, setDistributionBalance] = useState(0)
+  const [withdrawals, setWithdrawals] = useState<any[]>([])
+  const [withdrawAmount, setWithdrawAmount] = useState('')
+  const [isSubmittingWithdraw, setIsSubmittingWithdraw] = useState(false)
+  const [statsMainTab, setStatsMainTab] = useState<'summary' | 'breakdown' | 'store'>('summary')
+  const [statsBreakdownTab, setStatsBreakdownTab] = useState<'album' | 'artist'>('album')
+  const [statsStoreTab, setStatsStoreTab] = useState<'store' | 'country'>('store')
+  const [statsPeriodType, setStatsPeriodType] = useState<'settlement' | 'service'>('settlement')
+  const [statsRange, setStatsRange] = useState<'1' | '3' | '6' | '12'>('3')
+
+  const fetchWithdrawData = async () => {
+    if (!userInfo?.client_id) return
+    const userRes = await fetchWithAuth(`/api/users?client_id=${userInfo.client_id}`)
+    const userData = await userRes.json()
+    setDistributionBalance(userData?.[0]?.distribution_balance ?? 0)
+    const wRes = await fetchWithAuth(`/api/distribution-withdrawals?client_id=${userInfo.client_id}`)
+    const wData = await wRes.json()
+    setWithdrawals(Array.isArray(wData) ? wData : [])
+  }
+
+  const handleWithdrawSubmit = async () => {
+    if (isSubmittingWithdraw) return
+    const amount = Number(withdrawAmount)
+    if (!amount || amount < 50000) { showToast('최소 출금 금액은 50,000원이에요.', 'error'); return }
+    if (amount > distributionBalance) { showToast('잔액이 부족해요.', 'error'); return }
+    setIsSubmittingWithdraw(true)
+    const res = await fetchWithAuth('/api/distribution-withdrawals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: userInfo.client_id,
+        amount,
+        bank_name: userInfo.bank_name,
+        account_holder: userInfo.account_holder,
+        account_number: userInfo.account_number,
+      })
+    })
+    if (res.ok) {
+      showToast('출금 신청이 접수됐어요!')
+      setWithdrawAmount('')
+      fetchWithdrawData()
+    } else {
+      const data = await res.json()
+      showToast(data.error || '출금 신청에 실패했어요.', 'error')
+    }
+    setIsSubmittingWithdraw(false)
+  }
   const [hasProjects, setHasProjects] = useState(true)
   const [dataLoading, setDataLoading] = useState(true)
   const [showSidebar, setShowSidebar] = useState(false)
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [subTab, setSubTab] = useState<'albums' | 'artists' | 'apply' | 'content'>(() => {
+  const [subTab, setSubTab] = useState<'albums' | 'artists' | 'apply' | 'content' | 'stats' | 'withdraw'>(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('distributionTab')
       if (saved) {
         sessionStorage.removeItem('distributionTab')
-        return saved as 'albums' | 'artists' | 'apply' | 'content'
+        return saved as 'albums' | 'artists' | 'apply' | 'content' | 'stats' | 'withdraw'
       }
     }
     return 'albums'
   })
+
+  useEffect(() => {
+    if (subTab === 'withdraw') fetchWithdrawData()
+  }, [subTab, userInfo?.client_id])
 
   // 앨범 목록
   const [albums, setAlbums] = useState<any[]>([])
@@ -165,6 +218,8 @@ export default function DistributionPage() {
           { icon: '', label: '아티스트', onClick: () => { setSubTab('artists'); setShowSidebar(false) }, active: subTab === 'artists' },
           { icon: '', label: '발매신청', onClick: () => { setSubTab('apply'); setShowSidebar(false) }, active: subTab === 'apply' },
           { icon: '', label: '콘텐츠', onClick: () => { setSubTab('content'); setShowSidebar(false) }, active: subTab === 'content' },
+          { icon: '', label: '통계', onClick: () => { setSubTab('stats'); setShowSidebar(false) }, active: subTab === 'stats' },
+          { icon: '', label: '출금', onClick: () => { setSubTab('withdraw'); setShowSidebar(false) }, active: subTab === 'withdraw' },
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
@@ -211,6 +266,8 @@ export default function DistributionPage() {
             <button onClick={() => setSubTab('artists')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'artists' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>아티스트</button>
             <button onClick={() => setSubTab('apply')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'apply' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>발매 신청</button>
             <button onClick={() => setSubTab('content')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'content' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>콘텐츠</button>
+            <button onClick={() => setSubTab('stats')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'stats' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>통계</button>
+            <button onClick={() => setSubTab('withdraw')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${subTab === 'withdraw' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>출금</button>
           </div>
 
           {dataLoading ? (
@@ -519,6 +576,165 @@ export default function DistributionPage() {
                   )}
                 </div>
               )}
+
+              {subTab === 'stats' && (
+                <div className="space-y-4">
+                  {/* 기간 필터 */}
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">기간</p>
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <select value={statsPeriodType} onChange={(e) => setStatsPeriodType(e.target.value as any)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
+                        <option value="settlement">정산월</option>
+                        <option value="service">서비스월</option>
+                      </select>
+                      {(['1', '3', '6', '12'] as const).map((r) => (
+                        <button key={r} onClick={() => setStatsRange(r)} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${statsRange === r ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
+                          {r === '1' ? '이번달' : `${r}개월`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 대탭 */}
+                  <div className="flex gap-2">
+                    <button onClick={() => setStatsMainTab('summary')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${statsMainTab === 'summary' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>요약</button>
+                    <button onClick={() => setStatsMainTab('breakdown')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${statsMainTab === 'breakdown' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범/트랙별/아티스트별</button>
+                    <button onClick={() => setStatsMainTab('store')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${statsMainTab === 'store' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>뮤직스토어/국가별</button>
+                  </div>
+
+                  {statsMainTab === 'summary' && (
+                    <>
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                        <h2 className="font-bold dark:text-white mb-3">판매 추이</h2>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                            <p className="text-xs text-gray-400">스트리밍</p>
+                            <p className="text-lg font-bold dark:text-white">₩ 0</p>
+                          </div>
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                            <p className="text-xs text-gray-400">다운로드</p>
+                            <p className="text-lg font-bold dark:text-white">₩ 0</p>
+                          </div>
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                            <p className="text-xs text-gray-400">기타</p>
+                            <p className="text-lg font-bold dark:text-white">₩ 0</p>
+                          </div>
+                          <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
+                            <p className="text-xs text-blue-500">전체</p>
+                            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">₩ 0</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                        <h2 className="font-bold dark:text-white mb-3">월별 판매 상세</h2>
+                        <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                        <h2 className="font-bold dark:text-white mb-3">정산 상세내역</h2>
+                        <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                      </div>
+                    </>
+                  )}
+
+                  {statsMainTab === 'breakdown' && (
+                    <>
+                      <div className="flex gap-2">
+                        <button onClick={() => setStatsBreakdownTab('album')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsBreakdownTab === 'album' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범/트랙별</button>
+                        <button onClick={() => setStatsBreakdownTab('artist')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsBreakdownTab === 'artist' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>아티스트별</button>
+                      </div>
+                      {statsBreakdownTab === 'album' ? (
+                        <>
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                            <h2 className="font-bold dark:text-white mb-3">Top 5 앨범</h2>
+                            <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                            <h2 className="font-bold dark:text-white mb-3">Top 5 트랙</h2>
+                            <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                            <h2 className="font-bold dark:text-white mb-3">앨범/트랙별 판매 상세</h2>
+                            <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                          <h2 className="font-bold dark:text-white mb-3">아티스트별 판매 상세</h2>
+                          <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {statsMainTab === 'store' && (
+                    <>
+                      <div className="flex gap-2">
+                        <button onClick={() => setStatsStoreTab('store')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsStoreTab === 'store' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>뮤직스토어</button>
+                        <button onClick={() => setStatsStoreTab('country')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsStoreTab === 'country' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>국가</button>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                        <h2 className="font-bold dark:text-white mb-3">Top 5 {statsStoreTab === 'store' ? '뮤직스토어' : '국가'}</h2>
+                        <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                        <h2 className="font-bold dark:text-white mb-3">{statsStoreTab === 'store' ? '뮤직스토어별' : '국가별'} 판매 상세</h2>
+                        <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {subTab === 'withdraw' && (
+                <div className="space-y-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <h2 className="font-bold dark:text-white mb-3">세금 및 지급정보</h2>
+                    <div className="space-y-1 text-sm">
+                      <p className="text-gray-500 dark:text-gray-400">은행명: <span className="text-gray-800 dark:text-white">{userInfo?.bank_name || '-'}</span></p>
+                      <p className="text-gray-500 dark:text-gray-400">예금주: <span className="text-gray-800 dark:text-white">{userInfo?.account_holder || '-'}</span></p>
+                      <p className="text-gray-500 dark:text-gray-400">계좌번호: <span className="text-gray-800 dark:text-white">{userInfo?.account_number || '-'}</span></p>
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <p className="text-xs text-gray-400">잔액</p>
+                    <p className="text-2xl font-bold dark:text-white mb-3">₩ {distributionBalance.toLocaleString()}</p>
+                    <input
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      type="number"
+                      placeholder="출금 금액 입력 (최소 50,000원)"
+                      className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mb-2 dark:bg-gray-700 dark:text-white"
+                    />
+                    <button
+                      disabled={isSubmittingWithdraw}
+                      onClick={handleWithdrawSubmit}
+                      className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50"
+                    >
+                      {isSubmittingWithdraw ? '신청 중...' : '출금 신청하기'}
+                    </button>
+                  </div>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <h2 className="font-bold dark:text-white mb-3">출금 신청 내역</h2>
+                    {withdrawals.length === 0 ? (
+                      <p className="text-xs text-gray-400 text-center py-8">출금 신청 내역이 없어요.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {withdrawals.map((w) => (
+                          <div key={w.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                            <div>
+                              <p className="text-sm font-medium dark:text-white">₩ {w.amount.toLocaleString()}</p>
+                              <p className="text-xs text-gray-400">{new Date(w.requested_at).toLocaleDateString('ko-KR')}</p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full ${w.status === 'APPROVED' ? 'bg-green-100 text-green-700' : w.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                              {w.status === 'APPROVED' ? '완료' : w.status === 'REJECTED' ? '거절' : '대기중'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -528,6 +744,8 @@ export default function DistributionPage() {
         { icon: <User size={20} />, label: '아티스트', onClick: () => setSubTab('artists'), active: subTab === 'artists' },
         { icon: <FileText size={20} />, label: '발매신청', onClick: () => setSubTab('apply'), active: subTab === 'apply' },
         { icon: <Disc3 size={20} />, label: '콘텐츠', onClick: () => setSubTab('content'), active: subTab === 'content' },
+        { icon: <BarChart2 size={20} />, label: '통계', onClick: () => setSubTab('stats'), active: subTab === 'stats' },
+        { icon: <Wallet size={20} />, label: '출금', onClick: () => setSubTab('withdraw'), active: subTab === 'withdraw' },
         { icon: <User size={20} />, label: '마이페이지', href: '/client-mypage' },
       ]} />
     </>
