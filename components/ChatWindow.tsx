@@ -377,6 +377,15 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const URL_REGEX = /(https?:\/\/[^\s]+)/g
 
+  const openCachedFile = async (path: string) => {
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const { Browser } = await import('@capacitor/browser')
+      await Browser.open({ url: path })
+    } else {
+      window.open(path, '_blank')
+    }
+  }
+
   const handleLinkClick = (url: string) => {
     if ((window as any).Capacitor?.isNativePlatform?.()) {
       window.open(url, '_system')
@@ -863,7 +872,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <button
                           key={m.id}
                           disabled={!usable}
-                          onClick={() => cached ? window.open(cached, '_blank') : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
+                          onClick={() => cached ? openCachedFile(cached) : handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'file', m.attachment_type)}
                           className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 disabled:opacity-40 text-left min-w-0"
                         >
                           <FileText size={18} className="shrink-0 text-gray-500" />
