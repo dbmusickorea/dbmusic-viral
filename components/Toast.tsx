@@ -21,7 +21,7 @@ export default function Toast({ message, type = 'success', onClose }: ToastProps
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
       <div className={`px-6 py-4 rounded-2xl text-white text-sm font-medium shadow-xl max-w-xs text-center whitespace-pre-line ${colors[type]}`}>
         {message}
       </div>

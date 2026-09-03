@@ -356,13 +356,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         const { Filesystem, Directory } = await import('@capacitor/filesystem')
         const { Share } = await import('@capacitor/share')
         const written = await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.Cache })
-        alert('공유 호출 직전')
         await Share.share({ files: [written.uri] })
-        alert('공유 완료, 토스트 호출 시도')
         showToast('저장됐어요!')
-        alert('토스트 호출됨')
       } catch (e) {
-        alert('다운로드 실패: ' + JSON.stringify(e))
         showToast('다운로드에 실패했어요.')
       }
     } else {
