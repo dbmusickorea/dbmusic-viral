@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell, CheckCircle, Music, Heart, ThumbsUp, ClipboardList, FileText, AlertTriangle, MessageSquare, BarChart2, Target, Wallet, User, Calendar, Briefcase } from 'lucide-react'
+import ChatWindow from '../../components/ChatWindow'
 import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
@@ -24,6 +25,7 @@ export default function Page2() {
   const [projectVideos, setProjectVideos] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
   const [chatUnreadCount, setChatUnreadCount] = useState(0)
+  const [showChat, setShowChat] = useState(false)
   const [userRole, setUserRole] = useState('')
   const [projectCode, setProjectCode] = useState('')
   const [requirements, setRequirements] = useState('')
@@ -1196,6 +1198,10 @@ useEffect(() => {
                 <button id="tutorial-tab-project-sidebar" onClick={() => { setActiveTab('project'); setShowSidebar(false) }} className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium ${activeTab === 'project' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-300'}`}>프로젝트</button>
                 <button id="tutorial-tab-wallet-sidebar" onClick={() => { router.push('/wallet'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">적립금</button>
                 {userInfo?.is_agency && <button onClick={() => { router.push('/agency-member'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">에이전시</button>}
+                <button onClick={() => { setShowChat(true); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center justify-between">
+                  <span>채팅</span>
+                  {chatUnreadCount > 0 && <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">{chatUnreadCount}</span>}
+                </button>
                 <button id="tutorial-tab-mypage-sidebar" onClick={() => { router.push('/mypage'); setShowSidebar(false) }} className="w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300">마이페이지</button>
               </div>
               <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2">로그아웃</button>
@@ -1815,13 +1821,23 @@ useEffect(() => {
       >
         ↑
       </button>
+      {showChat && userInfo && (
+        <ChatWindow
+          userId={String(userInfo.id)}
+          role="participant"
+          viewerType="user"
+          title="관리자와의 대화"
+          onBack={() => { setShowChat(false); setChatUnreadCount(0) }}
+        />
+      )}
       {/* 하단 탭바 */}
       <BottomNav tabs={[
         { icon: <BarChart2 size={20} />, label: '내 현황', onClick: () => setActiveTab('home'), active: activeTab === 'home', id: 'tutorial-tab-home' },
         { icon: <Target size={20} />, label: '프로젝트', onClick: () => setActiveTab('project'), active: activeTab === 'project', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, id: 'tutorial-tab-project' },
         { icon: <Wallet size={20} />, label: '적립금', href: '/wallet', id: 'tutorial-tab-wallet' },
         ...(userInfo?.is_agency ? [{ icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member' }] : []),
-        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', badge: chatUnreadCount, id: 'tutorial-tab-mypage' },
+        { icon: <MessageSquare size={20} />, label: '채팅', onClick: () => setShowChat(true), badge: chatUnreadCount, id: 'tutorial-tab-chat' },
+        { icon: <User size={20} />, label: '마이페이지', href: '/mypage', id: 'tutorial-tab-mypage' },
       ]} />
       
     </div>

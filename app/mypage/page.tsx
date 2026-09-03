@@ -708,27 +708,7 @@ export default function MyPage() {
           </button>
         </div>
 
-        {/* 관리자와 대화 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <button onClick={() => { window.scrollTo(0, 0); setShowChat(true) }} className="w-full flex justify-between items-center">
-            <h2 className="font-bold dark:text-white flex items-center gap-1">
-              <MessageSquare size={16} /> 관리자와 대화하기
-              {chatUnreadCount > 0 && (
-                <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center ml-1">{chatUnreadCount}</span>
-              )}
-            </h2>
-            <span className="text-xs text-blue-600 dark:text-blue-400">문의사항을 남겨보세요 &gt;</span>
-          </button>
-        </div>
-        {showChat && userInfo && (
-          <ChatWindow
-            userId={String(userInfo.id)}
-            role="participant"
-            viewerType="user"
-            title="관리자와의 대화"
-            onBack={() => { setShowChat(false); setChatUnreadCount(0) }}
-          />
-        )}
+
 
         {/* 화면 모드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
