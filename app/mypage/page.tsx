@@ -98,6 +98,7 @@ export default function MyPage() {
   const [showClientSignup, setShowClientSignup] = useState(false)
   const [clientCompany, setClientCompany] = useState('')
   const [clientArtist, setClientArtist] = useState('')
+  const [isCreatingClient, setIsCreatingClient] = useState(false)
   const [hasClientAccount, setHasClientAccount] = useState(false)
   const { showToast } = useToast()
   const [cacheSizeMB, setCacheSizeMB] = useState<number | null>(null)
@@ -342,7 +343,9 @@ export default function MyPage() {
             </div>
             <div className="flex gap-2 mt-4">
               <button onClick={() => setShowClientSignup(false)} className="flex-1 border dark:border-gray-600 rounded-lg py-2 text-sm text-gray-500 dark:text-gray-400">취소</button>
-              <button onClick={async () => {
+              <button disabled={isCreatingClient} onClick={async () => {
+                if (isCreatingClient) return
+                setIsCreatingClient(true)
                 const info = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
                 // client_id 생성
                 const generateClientId = () => 'DB' + Math.random().toString(36).substr(2, 6).toUpperCase()
@@ -368,20 +371,20 @@ export default function MyPage() {
                     agreed_terms: true
                   })
                 })
-                if (!res.ok) { alert('의뢰인 계정 생성 실패!'); return }
+                if (!res.ok) { alert('의뢰인 계정 생성 실패!'); setIsCreatingClient(false); return }
                 // 생성된 계정 다시 조회
                 const info2 = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
                 const newUserRes = await fetchWithAuth(`/api/users?email=${encodeURIComponent(info2.email)}`)
                 const newUsers = await newUserRes.json()
                 const newUser = newUsers?.[0]
-                if (!newUser) { alert('계정 조회 실패!'); return }
+                if (!newUser) { alert('계정 조회 실패!'); setIsCreatingClient(false); return }
                 setHasClientAccount(true)
                 setShowClientSignup(false)
                 localStorage.setItem('userInfo', JSON.stringify(newUser))
                 localStorage.setItem('userRole', 'client')
                 if ((window as any).Capacitor?.isNativePlatform?.()) await initPushNotifications(String(newUser.id), 'client')
                 router.push('/client')
-              }} className="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm font-medium">의뢰인 계정 생성</button>
+              }} className="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">{isCreatingClient ? '생성 중...' : '의뢰인 계정 생성'}</button>
             </div>
           </div>
         </div>
