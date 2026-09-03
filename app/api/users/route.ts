@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   else if (mobile) query = query.eq('mobile', mobile)
   else if (role) query = query.eq('role', role)
   else if (id) query = query.eq('id', id)
-  else query = query.eq('role', 'client').order('name', { ascending: true })
+  else query = query.eq('role', 'client').order('created_at', { ascending: false })
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
