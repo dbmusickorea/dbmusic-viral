@@ -23,6 +23,10 @@ export default function DistributionPage() {
   const [statsStoreTab, setStatsStoreTab] = useState<'store' | 'country'>('store')
   const [statsPeriodType, setStatsPeriodType] = useState<'settlement' | 'service'>('settlement')
   const [statsRange, setStatsRange] = useState<'1' | '3' | '6' | '12'>('3')
+  const [albumTop5View, setAlbumTop5View] = useState<'ratio' | 'trend'>('ratio')
+  const [trackTop5View, setTrackTop5View] = useState<'ratio' | 'trend'>('ratio')
+  const [storeTop5View, setStoreTop5View] = useState<'ratio' | 'trend'>('ratio')
+  const [countryTop5View, setCountryTop5View] = useState<'ratio' | 'trend'>('ratio')
 
   const fetchWithdrawData = async () => {
     if (!userInfo?.client_id) return
@@ -645,11 +649,25 @@ export default function DistributionPage() {
                       {statsBreakdownTab === 'album' ? (
                         <>
                           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                            <h2 className="font-bold dark:text-white mb-3">Top 5 앨범</h2>
+                            <div className="flex justify-between items-center mb-3">
+                              <h2 className="font-bold dark:text-white">Top 5 앨범</h2>
+                              <div className="flex gap-1 text-xs">
+                                <button onClick={() => setAlbumTop5View('ratio')} className={albumTop5View === 'ratio' ? 'text-blue-600 font-medium underline' : 'text-gray-400'}>판매 비율</button>
+                                <span className="text-gray-300">|</span>
+                                <button onClick={() => setAlbumTop5View('trend')} className={albumTop5View === 'trend' ? 'text-blue-600 font-medium underline' : 'text-gray-400'}>월별 추이</button>
+                              </div>
+                            </div>
                             <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                           </div>
                           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                            <h2 className="font-bold dark:text-white mb-3">Top 5 트랙</h2>
+                            <div className="flex justify-between items-center mb-3">
+                              <h2 className="font-bold dark:text-white">Top 5 트랙</h2>
+                              <div className="flex gap-1 text-xs">
+                                <button onClick={() => setTrackTop5View('ratio')} className={trackTop5View === 'ratio' ? 'text-blue-600 font-medium underline' : 'text-gray-400'}>판매 비율</button>
+                                <span className="text-gray-300">|</span>
+                                <button onClick={() => setTrackTop5View('trend')} className={trackTop5View === 'trend' ? 'text-blue-600 font-medium underline' : 'text-gray-400'}>월별 추이</button>
+                              </div>
+                            </div>
                             <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                           </div>
                           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
@@ -673,7 +691,14 @@ export default function DistributionPage() {
                         <button onClick={() => setStatsStoreTab('country')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsStoreTab === 'country' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>국가</button>
                       </div>
                       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                        <h2 className="font-bold dark:text-white mb-3">Top 5 {statsStoreTab === 'store' ? '뮤직스토어' : '국가'}</h2>
+                        <div className="flex justify-between items-center mb-3">
+                          <h2 className="font-bold dark:text-white">Top 5 {statsStoreTab === 'store' ? '뮤직스토어' : '국가'}</h2>
+                          <div className="flex gap-1 text-xs">
+                            <button onClick={() => statsStoreTab === 'store' ? setStoreTop5View('ratio') : setCountryTop5View('ratio')} className={(statsStoreTab === 'store' ? storeTop5View : countryTop5View) === 'ratio' ? 'text-blue-600 font-medium underline' : 'text-gray-400'}>판매 비율</button>
+                            <span className="text-gray-300">|</span>
+                            <button onClick={() => statsStoreTab === 'store' ? setStoreTop5View('trend') : setCountryTop5View('trend')} className={(statsStoreTab === 'store' ? storeTop5View : countryTop5View) === 'trend' ? 'text-blue-600 font-medium underline' : 'text-gray-400'}>월별 추이</button>
+                          </div>
+                        </div>
                         <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                       </div>
                       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
