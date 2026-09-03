@@ -27,6 +27,16 @@ export default function DistributionPage() {
   const [statsStoreTab, setStatsStoreTab] = useState<'store' | 'country'>('store')
   const [statsPeriodType, setStatsPeriodType] = useState<'settlement' | 'service'>('settlement')
   const [statsRange, setStatsRange] = useState<'1' | '3' | '6' | '12'>('3')
+  const [statsMetric, setStatsMetric] = useState<'amount' | 'count'>('amount')
+  const [withdrawTab, setWithdrawTab] = useState<'requests' | 'transactions'>('requests')
+  const [statsStartDate, setStatsStartDate] = useState(() => {
+    const d = new Date(); d.setMonth(d.getMonth() - 2)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })
+  const [statsEndDate, setStatsEndDate] = useState(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })
   const [albumTop5View, setAlbumTop5View] = useState<'ratio' | 'trend'>('ratio')
   const [trackTop5View, setTrackTop5View] = useState<'ratio' | 'trend'>('ratio')
   const [storeTop5View, setStoreTop5View] = useState<'ratio' | 'trend'>('ratio')
@@ -645,11 +655,16 @@ export default function DistributionPage() {
                         <option value="settlement">정산월</option>
                         <option value="service">서비스월</option>
                       </select>
-                      {(['1', '3', '6', '12'] as const).map((r) => (
-                        <button key={r} onClick={() => setStatsRange(r)} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${statsRange === r ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
-                          {r === '1' ? '이번달' : `${r}개월`}
-                        </button>
-                      ))}
+                      <select value={statsRange} onChange={(e) => setStatsRange(e.target.value as any)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
+                        <option value="1">이번달</option>
+                        <option value="3">3개월</option>
+                        <option value="6">6개월</option>
+                        <option value="12">1년</option>
+                      </select>
+                      <input type="month" value={statsStartDate} onChange={(e) => setStatsStartDate(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white" />
+                      <span className="text-xs text-gray-400">-</span>
+                      <input type="month" value={statsEndDate} onChange={(e) => setStatsEndDate(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white" />
+                      <button className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-600 text-white">🔍 검색</button>
                     </div>
                   </div>
 
@@ -663,7 +678,13 @@ export default function DistributionPage() {
                   {statsMainTab === 'summary' && (
                     <>
                       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                        <h2 className="font-bold dark:text-white mb-3">판매 추이</h2>
+                        <div className="flex justify-between items-center mb-3">
+                          <h2 className="font-bold dark:text-white">판매 추이</h2>
+                          <select value={statsMetric} onChange={(e) => setStatsMetric(e.target.value as any)} className="border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:bg-gray-700 dark:text-white">
+                            <option value="amount">정산금액</option>
+                            <option value="count">건 수</option>
+                          </select>
+                        </div>
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                             <p className="text-xs text-gray-400">스트리밍</p>
@@ -766,12 +787,33 @@ export default function DistributionPage() {
 
               {subTab === 'withdraw' && (
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                    <h2 className="font-bold dark:text-white mb-3">세금 및 지급정보</h2>
-                    <div className="space-y-1 text-sm">
-                      <p className="text-gray-500 dark:text-gray-400">은행명: <span className="text-gray-800 dark:text-white">{userInfo?.bank_name || '-'}</span></p>
-                      <p className="text-gray-500 dark:text-gray-400">예금주: <span className="text-gray-800 dark:text-white">{userInfo?.account_holder || '-'}</span></p>
-                      <p className="text-gray-500 dark:text-gray-400">계좌번호: <span className="text-gray-800 dark:text-white">{userInfo?.account_number || '-'}</span></p>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 flex flex-col md:flex-row gap-4">
+                    <div className="flex-1">
+                      <h2 className="font-bold dark:text-white mb-3">세금 및 지급정보</h2>
+                      <div className="space-y-1 text-sm">
+                        <p className="text-gray-500 dark:text-gray-400">지급방법: <span className="text-gray-800 dark:text-white">계좌이체</span></p>
+                        <p className="text-gray-500 dark:text-gray-400">은행명: <span className="text-gray-800 dark:text-white">{userInfo?.bank_name || '-'}</span></p>
+                        <p className="text-gray-500 dark:text-gray-400">예금주: <span className="text-gray-800 dark:text-white">{userInfo?.account_holder || '-'}</span></p>
+                        <p className="text-gray-500 dark:text-gray-400">계좌번호: <span className="text-gray-800 dark:text-white">{userInfo?.account_number || '-'}</span></p>
+                      </div>
+                    </div>
+                    <div className="flex-1 md:border-l md:dark:border-gray-600 md:pl-4 space-y-2">
+                      {(() => {
+                        const totalWithdrawn = withdrawals.filter((w: any) => w.status === 'APPROVED').reduce((sum: number, w: any) => sum + w.amount, 0)
+                        const totalIncome = distributionBalance + totalWithdrawn
+                        return (
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-500 dark:text-gray-400">누적수입금액</span>
+                              <span className="font-medium dark:text-white">₩ {totalIncome.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-500 dark:text-gray-400">누적출금금액</span>
+                              <span className="font-medium dark:text-white">₩ {totalWithdrawn.toLocaleString()}</span>
+                            </div>
+                          </>
+                        )
+                      })()}
                     </div>
                   </div>
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
@@ -792,24 +834,31 @@ export default function DistributionPage() {
                       {isSubmittingWithdraw ? '신청 중...' : '출금 신청하기'}
                     </button>
                   </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setWithdrawTab('requests')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${withdrawTab === 'requests' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>출금신청내역</button>
+                    <button onClick={() => setWithdrawTab('transactions')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${withdrawTab === 'transactions' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>거래내역</button>
+                  </div>
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                    <h2 className="font-bold dark:text-white mb-3">출금 신청 내역</h2>
-                    {withdrawals.length === 0 ? (
-                      <p className="text-xs text-gray-400 text-center py-8">출금 신청 내역이 없어요.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {withdrawals.map((w) => (
-                          <div key={w.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                            <div>
-                              <p className="text-sm font-medium dark:text-white">₩ {w.amount.toLocaleString()}</p>
-                              <p className="text-xs text-gray-400">{new Date(w.requested_at).toLocaleDateString('ko-KR')}</p>
+                    {withdrawTab === 'requests' ? (
+                      withdrawals.length === 0 ? (
+                        <p className="text-xs text-gray-400 text-center py-8">출금 신청 내역이 없어요.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {withdrawals.map((w) => (
+                            <div key={w.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                              <div>
+                                <p className="text-sm font-medium dark:text-white">₩ {w.amount.toLocaleString()}</p>
+                                <p className="text-xs text-gray-400">{new Date(w.requested_at).toLocaleDateString('ko-KR')}</p>
+                              </div>
+                              <span className={`text-xs px-2 py-1 rounded-full ${w.status === 'APPROVED' ? 'bg-green-100 text-green-700' : w.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                                {w.status === 'APPROVED' ? '완료' : w.status === 'REJECTED' ? '거절' : '대기중'}
+                              </span>
                             </div>
-                            <span className={`text-xs px-2 py-1 rounded-full ${w.status === 'APPROVED' ? 'bg-green-100 text-green-700' : w.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
-                              {w.status === 'APPROVED' ? '완료' : w.status === 'REJECTED' ? '거절' : '대기중'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )
+                    ) : (
+                      <p className="text-xs text-gray-400 text-center py-8">아직 거래 내역이 없어요.</p>
                     )}
                   </div>
                 </div>
