@@ -18,7 +18,16 @@ export default function DistributionPage() {
   const [isPulling, setIsPulling] = useState(false)
   const [pullStartY, setPullStartY] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [subTab, setSubTab] = useState<'albums' | 'artists' | 'apply' | 'content'>('albums')
+  const [subTab, setSubTab] = useState<'albums' | 'artists' | 'apply' | 'content'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('distributionTab')
+      if (saved) {
+        sessionStorage.removeItem('distributionTab')
+        return saved as 'albums' | 'artists' | 'apply' | 'content'
+      }
+    }
+    return 'albums'
+  })
 
   // 앨범 목록
   const [albums, setAlbums] = useState<any[]>([])
