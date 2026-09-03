@@ -513,6 +513,7 @@ export default function LoginPage() {
   const handleSignupParticipant = async () => {
     if (participantSignupLoading) return
     setParticipantSignupLoading(true)
+    try {
     if (!p_name || !p_email || !p_password) { showToast('이름, 이메일, 비밀번호는 필수입니다.'); setParticipantSignupLoading(false); return }
     if (isCoverPossible && !coverVideoUrl) { showToast('커버영상 촬영 가능 선택 시 영상 링크를 입력해주세요.'); setParticipantSignupLoading(false); return }
     if (p_password !== p_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); setParticipantSignupLoading(false); return }
@@ -740,7 +741,12 @@ export default function LoginPage() {
     showToast(`회원가입 완료! 로그인해주세요.\n나의 추천인 코드: ${referralCode}`)
     setShowSignup(false)
     setSignupType('')
-    setParticipantSignupLoading(false)
+    } catch (e) {
+      console.error('체험단 가입 처리 중 오류:', e)
+      showToast('가입 처리 중 문제가 발생했어요. 다시 시도해주세요.')
+    } finally {
+      setParticipantSignupLoading(false)
+    }
   }
 
   const handleSignupClient = async () => {
