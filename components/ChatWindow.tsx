@@ -31,6 +31,19 @@ type Props = {
 }
 
 export default function ChatWindow({ userId, role, viewerType, title, subtitle, onBack }: Props) {
+  // 채팅창이 열려있는 동안 스와이프/뒤로가기 제스처가 로그인 화면 등 엉뚱한 곳까지 가지 않고,
+  // 채팅창만 자연스럽게 닫히도록 브라우저 히스토리에 가상의 한 단계를 추가
+  useEffect(() => {
+    history.pushState({ chatWindowOpen: true }, '')
+    const handlePopState = () => {
+      onBack?.()
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
