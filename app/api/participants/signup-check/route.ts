@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
   }
 
   if (referralCode) {
-    const { data } = await supabaseAdmin.from('participants').select('id, name').eq('referral_code', referralCode).single()
-    return NextResponse.json({ exists: !!data, name: data?.name })
+    const { data } = await supabaseAdmin.from('participants').select('id, name, balance, level').eq('referral_code', referralCode).single()
+    return NextResponse.json({ exists: !!data, name: data?.name, id: data?.id, balance: data?.balance, level: data?.level })
   }
 
   return NextResponse.json({ error: 'invalid params' }, { status: 400 })

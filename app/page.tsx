@@ -606,9 +606,7 @@ export default function LoginPage() {
       const referrerRes = await fetchWithAuth(`/api/participants/signup-check?referral_code=${p_referral}`)
       const referrerCheck = await referrerRes.json()
       if (!referrerCheck?.exists) { showToast('유효하지 않은 추천인 코드입니다.'); setParticipantSignupLoading(false); return }
-      const referrerDataRes = await fetchWithAuth(`/api/participants?referral_code=${p_referral}`)
-      const referrerData = await referrerDataRes.json()
-      const referrer = referrerData?.[0]
+      const referrer = { id: referrerCheck.id, balance: referrerCheck.balance, level: referrerCheck.level }
       
       // 추천인에게 150원 적립 + 레벨 1 상승
       const newBalance = (referrer.balance ?? 0) + 150
