@@ -132,7 +132,7 @@ export default function LoginPage() {
 
       if (userRole === 'admin') router.push('/admin')
       else if (userRole === 'client') {
-        if (parsedUser.has_distribution) router.push('/distribution')
+        if (parsedUser.has_distribution && localStorage.getItem('distributionMode') !== 'false') router.push('/distribution')
         else router.push('/client')
       }
       else router.push('/participant')
@@ -230,7 +230,7 @@ export default function LoginPage() {
       })
       if (pendingRole === 'admin') router.push('/admin')
       else if (pendingRole === 'client') {
-        if (pendingUserInfo?.has_distribution) router.push('/distribution')
+        if (pendingUserInfo?.has_distribution && localStorage.getItem('distributionMode') !== 'false') router.push('/distribution')
         else router.push('/client')
       }
     }
@@ -372,7 +372,7 @@ export default function LoginPage() {
       }
       if (user.role === 'admin') router.push('/admin')
       else if (user.role === 'client') {
-        if (user.has_distribution) router.push('/distribution')
+        if (user.has_distribution && localStorage.getItem('distributionMode') !== 'false') router.push('/distribution')
         else router.push('/client')
       }
       return
@@ -815,7 +815,7 @@ export default function LoginPage() {
                 setShowRoleSelect(false)
                 if (!user.agreed_terms) { setPendingUserInfo(user); setPendingRole(user.role); setShowTermsModal(true); return }
                 if (user.role === 'admin') router.push('/admin')
-                else if (user.has_distribution) router.push('/distribution')
+                else if (user.has_distribution && localStorage.getItem('distributionMode') !== 'false') router.push('/distribution')
                 else router.push('/client')
               }} className="w-full bg-green-600 text-white rounded-xl py-3 font-medium">의뢰인으로 시작</button>
             </div>
