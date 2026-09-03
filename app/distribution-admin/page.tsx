@@ -76,6 +76,7 @@ export default function DistributionAdminPage() {
   const [albumGenre, setAlbumGenre] = useState('')
   const [albumType, setAlbumType] = useState('SINGLE')
   const [albumIntro, setAlbumIntro] = useState('')
+  const [albumStatus, setAlbumStatus] = useState('발매완료')
   const [albumUpcEan, setAlbumUpcEan] = useState('')
   const [albumCoverUrl, setAlbumCoverUrl] = useState('')
   const [albumReleaseDate, setAlbumReleaseDate] = useState('')
@@ -247,6 +248,7 @@ export default function DistributionAdminPage() {
     setAlbumGenre(album.genre ?? '')
     setAlbumType(album.album_type ?? 'SINGLE')
     setAlbumIntro(album.album_intro ?? '')
+    setAlbumStatus(album.status ?? '발매완료')
     setAlbumUpcEan(album.upc_ean ?? '')
     setAlbumCoverUrl(album.cover_image_url ?? '')
     setAlbumReleaseDate(album.release_date ? String(album.release_date).slice(0, 10) : '')
@@ -302,6 +304,7 @@ export default function DistributionAdminPage() {
         upc_ean: albumUpcEan || null,
         cover_image_url: albumCoverUrl || null,
         release_date: albumReleaseDate || null,
+        status: albumStatus,
       })
     })
     alert('앨범 정보가 저장됐어요.')
@@ -575,7 +578,7 @@ export default function DistributionAdminPage() {
                     {clientAlbums.map((album: any) => (
                       <button key={album.id} onClick={() => openAlbum(album)} className={`w-full text-left rounded-lg p-3 ${selectedAlbum?.id === album.id ? 'bg-blue-50 dark:bg-blue-900' : 'bg-gray-50 dark:bg-gray-700'}`}>
                         <p className="text-sm font-medium dark:text-white">{album.album_name}</p>
-                        <p className="text-xs text-gray-400">{album.album_type} · {album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : '발매일 미정'}</p>
+                        <p className="text-xs text-gray-400">{album.album_type} · {album.release_date ? new Date(album.release_date).toLocaleDateString('ko-KR') : '발매일 미정'} · <span className="text-blue-500">{album.status ?? '발매완료'}</span></p>
                       </button>
                     ))}
                   </div>
@@ -713,6 +716,19 @@ export default function DistributionAdminPage() {
                       </label>
                     </div>
                     <textarea value={albumIntro} onChange={(e) => setAlbumIntro(e.target.value)} rows={3} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="앨범소개" />
+                    <div>
+                      <label className="text-xs text-gray-500 dark:text-gray-400">상태</label>
+                      <select value={albumStatus} onChange={(e) => setAlbumStatus(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white">
+                        <option value="임시저장">임시저장</option>
+                        <option value="신청완료">신청완료</option>
+                        <option value="반려">반려</option>
+                        <option value="유통준비중">유통준비중</option>
+                        <option value="유통중단">유통중단</option>
+                        <option value="유통취소">유통취소</option>
+                        <option value="발매완료">발매완료</option>
+                        <option value="유통완료">유통완료</option>
+                      </select>
+                    </div>
                     <button onClick={handleSaveAlbumInfo} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">기본정보 저장</button>
                   </div>
                 </div>
