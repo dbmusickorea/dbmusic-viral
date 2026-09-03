@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { encryptText } from '../lib/crypto'
 import BottomNav from '../../components/BottomNav'
-import { RefreshCw, ArrowDown, BarChart2, Target, Wallet, User, AlertTriangle, Coins, FileText, Briefcase } from 'lucide-react'
+import { RefreshCw, ArrowDown, BarChart2, Target, Wallet, User, AlertTriangle, Coins, FileText, Briefcase, MessageSquare } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 
@@ -26,6 +26,7 @@ const settlementStatusLabel = (status: string) => {
 export default function WalletPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const [balance, setBalance] = useState(0)
   const [availableBalance, setAvailableBalance] = useState(0)
   const [coverReward, setCoverReward] = useState(0)
@@ -65,6 +66,18 @@ export default function WalletPage() {
     setIsRefreshing(false)
     setIsPulling(false)
   }
+
+  useEffect(() => {
+    if (!userInfo?.id) return
+    fetchWithAuth(`/api/chat_messages?user_id=${userInfo.id}&role=participant`)
+      .then(r => r.json())
+      .then(msgs => {
+        if (Array.isArray(msgs)) {
+          setChatUnreadCount(msgs.filter((m: any) => m.sender === 'admin' && !m.read_at).length)
+        }
+      })
+      .catch(() => {})
+  }, [userInfo?.id])
 
   const loadData = async (id: number) => {
     setLoading(true)
@@ -485,6 +498,7 @@ export default function WalletPage() {
         { icon: <Target size={20} />, label: '프로젝트', badge: typeof window !== 'undefined' ? Number(localStorage.getItem('unjoinedCount') ?? 0) : 0, onClick: () => { sessionStorage.setItem('participantTab', 'project'); router.push('/participant') } },
         { icon: <Wallet size={20} />, label: '적립금', href: '/wallet', active: true },
         ...(userInfo?.is_agency ? [{ icon: <Briefcase size={20} />, label: '에이전시', href: '/agency-member' }] : []),
+        { icon: <MessageSquare size={20} />, label: '채팅', badge: chatUnreadCount, onClick: () => { sessionStorage.setItem('openChat', 'true'); router.push('/participant') } },
         { icon: <User size={20} />, label: '마이페이지', href: '/mypage' },
       ]} />
     </div>

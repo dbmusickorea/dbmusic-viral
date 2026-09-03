@@ -103,6 +103,13 @@ export default function Page2() {
     }
     return 'home'
   })
+
+  useEffect(() => {
+    if (sessionStorage.getItem('openChat')) {
+      sessionStorage.removeItem('openChat')
+      setShowChat(true)
+    }
+  }, [])
   const [myPostPage, setMyPostPage] = useState(0)
   const [projectLinks, setProjectLinks] = useState<any[]>([])
   const [coverRequests, setCoverRequests] = useState<any[]>([])
