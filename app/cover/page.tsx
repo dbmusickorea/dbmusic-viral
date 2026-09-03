@@ -45,6 +45,8 @@ export default function CoverPage() {
   const [applyHasCover, setApplyHasCover] = useState(false)
   const [applyCoverCount, setApplyCoverCount] = useState(0)
   const [applyRequirements, setApplyRequirements] = useState('')
+  const [isSubmittingApply, setIsSubmittingApply] = useState(false)
+  const [isSendingRecruitPush, setIsSendingRecruitPush] = useState(false)
   const [genreFilter, setGenreFilter] = useState<string>('전체')
   const [gradeFilter, setGradeFilter] = useState<string>('전체')
   const { showToast } = useToast()
@@ -369,8 +371,10 @@ export default function CoverPage() {
                 <label className="text-sm font-medium dark:text-white">요청사항</label>
                 <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm mt-1" rows={4} placeholder="요청사항 입력" />
               </div>
-              <button onClick={async () => {
+              <button disabled={isSubmittingApply} onClick={async () => {
                 if (!applyArtistName || !applySongTitle) { showToast('가수명과 노래 제목을 입력해주세요.', 'error'); return }
+                if (isSubmittingApply) return
+                setIsSubmittingApply(true)
                 await fetchWithAuth('/api/project_applications', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -394,7 +398,8 @@ export default function CoverPage() {
                 setApplyHasCover(false)
                 setApplyCoverCount(0)
                 setApplyRequirements('')
-              }} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
+                setIsSubmittingApply(false)
+              }} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium disabled:opacity-50">{isSubmittingApply ? '신청 중...' : '신청하기'}</button>
             </div>
           </div>
         </div>
@@ -771,10 +776,12 @@ export default function CoverPage() {
             {userRole === 'admin' && selectedProject && coverRequests.filter(r => r.rejected_count >= 2).length > 0 && (
               <div className="bg-orange-50 rounded-2xl p-4 mb-4">
                 <p className="text-sm font-medium text-orange-700 dark:text-orange-400 mb-2 flex items-center gap-1"><AlertTriangle size={14} /> 거절이 2회 발생했어요.</p>
-                <button onClick={async () => {
+                <button disabled={isSendingRecruitPush} onClick={async () => {
+                  if (isSendingRecruitPush) return
                   const now = new Date()
                   const approvedParticipants = coverParticipants.filter(p => !coverRequests.find(r => r.participant_id === p.id) && (!p.cover_penalty_until || new Date(p.cover_penalty_until) <= now))
                   if (approvedParticipants.length === 0) { showToast('알림 받을 체험단이 없어요.'); return }
+                  setIsSendingRecruitPush(true)
                   const ids = approvedParticipants.map(p => String(p.id))
                   const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${ids.join(',')}`)
                   const tokens = await tokensRes.json()
@@ -792,8 +799,9 @@ export default function CoverPage() {
                     })
                   }
                   showToast('모집 푸시를 보냈어요!')
-                }} className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium">
-                  커버가능 체험단 전체에게 모집 푸시 보내기
+                  setIsSendingRecruitPush(false)
+                }} className="w-full bg-orange-500 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">
+                  {isSendingRecruitPush ? '보내는 중...' : '커버가능 체험단 전체에게 모집 푸시 보내기'}
                 </button>
               </div>
             )}
