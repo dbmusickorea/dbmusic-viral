@@ -78,6 +78,18 @@ export default function Page3() {
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [showScrollTopBtn, setShowScrollTopBtn] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  const [isInDistributionMode, setIsInDistributionMode] = useState(false)
+
+  useEffect(() => {
+    // 유통 모드로 전환되어 있으면, 여기(일반 화면) 대신 유통 화면으로 자동 이동
+    if (localStorage.getItem('distributionMode') === 'true') {
+      router.push('/distribution')
+    }
+  }, [])
+
+  useEffect(() => {
+    setIsInDistributionMode(localStorage.getItem('distributionMode') === 'true')
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setShowScrollTopBtn(window.scrollY > 300)
@@ -497,7 +509,11 @@ export default function Page3() {
             { icon: '', label: '현황', onClick: () => setActiveTab('stats'), active: activeTab === 'stats', id: 'tutorial-stats-btn-sidebar' },
             { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true), id: 'tutorial-apply-btn-sidebar' },
             { icon: '', label: '보고서', onClick: () => router.push('/client-report'), active: activeTab === 'report', id: 'tutorial-report-btn-sidebar' },
-            ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') } }] : []),
+            ...(userInfo?.has_distribution ? [
+          isInDistributionMode
+            ? { icon: '', label: '일반 서비스로 전환', onClick: () => { localStorage.setItem('distributionMode', 'false'); router.push('/client') } }
+            : { icon: '', label: '유통 서비스로 전환', onClick: () => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') } }
+        ] : []),
             { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
           ]}
         />
