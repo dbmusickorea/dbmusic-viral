@@ -540,6 +540,13 @@ export default function ClientMyPage() {
           ) : (
             <button onClick={() => setShowParticipantSignup(true)} className="w-full text-sm text-blue-600 border border-blue-300 rounded-lg py-2 mb-3">체험단으로도 이용하기</button>
           )}
+          {userInfo?.has_distribution && (
+            isInDistributionMode ? (
+              <button onClick={() => { localStorage.setItem('distributionMode', 'false'); router.push('/client') }} className="w-full text-sm text-purple-600 border border-purple-300 rounded-lg py-2 mb-3">일반 서비스로 전환</button>
+            ) : (
+              <button onClick={() => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') }} className="w-full text-sm text-purple-600 border border-purple-300 rounded-lg py-2 mb-3">유통 서비스로 전환</button>
+            )
+          )}
           {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
             <div className="border dark:border-gray-600 rounded-lg p-3 mb-3 bg-gray-50 dark:bg-gray-700">
               <div className="flex justify-between items-center">

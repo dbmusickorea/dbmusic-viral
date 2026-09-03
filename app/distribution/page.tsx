@@ -161,13 +161,11 @@ export default function DistributionPage() {
         onClose={() => setShowSidebar(false)}
         onLogout={handleLogout}
         items={[
-          ...(hasProjects ? [
-            { icon: '', label: '프로젝트', onClick: () => router.push('/client') },
-            { icon: '', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
-            { icon: '', label: '프로젝트 신청', onClick: () => { sessionStorage.setItem('clientTab', 'apply'); router.push('/client') } },
-            { icon: '', label: '보고서', onClick: () => router.push('/client-report') },
-          ] : []),
-          { icon: '', label: '유통 서비스', onClick: () => router.push('/distribution'), active: true },
+          { icon: '', label: '앨범', onClick: () => { setSubTab('albums'); setShowSidebar(false) }, active: subTab === 'albums' },
+          { icon: '', label: '아티스트', onClick: () => { setSubTab('artists'); setShowSidebar(false) }, active: subTab === 'artists' },
+          { icon: '', label: '발매신청', onClick: () => { setSubTab('apply'); setShowSidebar(false) }, active: subTab === 'apply' },
+          { icon: '', label: '콘텐츠', onClick: () => { setSubTab('content'); setShowSidebar(false) }, active: subTab === 'content' },
+          { icon: '', label: '일반 서비스로 전환', onClick: () => { localStorage.setItem('distributionMode', 'false'); router.push('/client') } },
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />

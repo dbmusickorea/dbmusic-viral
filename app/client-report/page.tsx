@@ -80,7 +80,7 @@ export default function ClientReportPage() {
           { icon: '', label: '현황', onClick: () => { sessionStorage.setItem('clientTab', 'stats'); router.push('/client') } },
           { icon: '', label: '프로젝트 신청', onClick: () => setShowApplyModal(true) },
           { icon: '', label: '보고서', onClick: () => {}, active: true },
-          ...(userInfo?.has_distribution ? [{ icon: '', label: '유통 서비스', onClick: () => router.push('/distribution') }] : []),
+          
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
