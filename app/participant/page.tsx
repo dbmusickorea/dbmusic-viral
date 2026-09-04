@@ -35,6 +35,7 @@ export default function Page2() {
   const [commentMissions, setCommentMissions] = useState<any[]>([])
   const [youtubeHandle, setYoutubeHandle] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
+  const [verifyingUnlockVideoId, setVerifyingUnlockVideoId] = useState<string | null>(null)
   const [selectedVideoId, setSelectedVideoId] = useState('')
   const [snsAccount, setSnsAccount] = useState('')
   const [postUrls, setPostUrls] = useState<string[]>([''])
@@ -262,6 +263,7 @@ useEffect(() => {
     if (!youtubeHandle) { showToast('유튜브 계정명을 입력해주세요.'); return }
     
     setIsVerifying(true)
+    setVerifyingUnlockVideoId(videoId)
     try {
       const response = await fetchWithAuth(`/api/comments?videoId=${videoId}&handle=${encodeURIComponent(youtubeHandle.toLowerCase())}`)
       const data = await response.json()
@@ -278,9 +280,9 @@ useEffect(() => {
           if (pData?.is_locked) {
             // 락 해제용 미션 저장 (중복 방지)
             const alreadyUnlock = commentMissions.find(m => m.video_id === videoId && m.project_code === 'UNLOCK')
-            if (alreadyUnlock) { showToast('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
+            if (alreadyUnlock) { showToast('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); setVerifyingUnlockVideoId(null); return }
             
-            await fetchWithAuth('/api/comment_missions', {
+            const insertRes = await fetchWithAuth('/api/comment_missions', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -293,7 +295,13 @@ useEffect(() => {
                 comment_id: data.commentId ?? null
               })
             })
-            fetchCommentMissions(userInfo?.id)
+            if (!insertRes.ok) {
+              showToast('인증 저장에 실패했어요. 다시 시도해주세요.')
+              setIsVerifying(false)
+              setVerifyingUnlockVideoId(null)
+              return
+            }
+            await fetchCommentMissions(userInfo?.id)
             const newCount = (pData.comment_count_for_unlock ?? 0) + 1
             if (newCount >= 10) {
               await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
@@ -332,7 +340,7 @@ useEffect(() => {
         } else {
           // 일반 댓글 미션 - 300원 적립
           const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id && m.project_code === projectCode)
-          if (already) { showToast('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
+          if (already) { showToast('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); setVerifyingUnlockVideoId(null); return }
           
           await fetchWithAuth('/api/comment_missions', {
             method: 'POST',
@@ -374,7 +382,7 @@ useEffect(() => {
       showToast('인증 실패! 다시 시도해주세요.')
     }
     setIsVerifying(false)
-    setYoutubeHandle('')
+    setVerifyingUnlockVideoId(null)
   }
   
   const fetchCommentMissions = async (id: number) => {
@@ -1335,6 +1343,7 @@ useEffect(() => {
               youtubeHandle={youtubeHandle}
               setYoutubeHandle={setYoutubeHandle}
               isVerifying={isVerifying}
+              verifyingUnlockVideoId={verifyingUnlockVideoId}
               commentMissions={commentMissions}
               handleCommentVerify={handleCommentVerify}
             />

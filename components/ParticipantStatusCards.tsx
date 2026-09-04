@@ -13,11 +13,12 @@ type Props = {
   youtubeHandle: string
   setYoutubeHandle: (v: string) => void
   isVerifying: boolean
+  verifyingUnlockVideoId: string | null
   commentMissions: any[]
   handleCommentVerify: (videoId: string, projectCode: string) => Promise<void>
 }
 
-export default function ParticipantStatusCards({ bannedUntil, banReason, coverPenaltyUntil, coverPenaltyReason, isLocked, unlockCommentCount, unlockVideos = [], youtubeHandle, setYoutubeHandle, isVerifying, commentMissions, handleCommentVerify }: Props) {
+export default function ParticipantStatusCards({ bannedUntil, banReason, coverPenaltyUntil, coverPenaltyReason, isLocked, unlockCommentCount, unlockVideos = [], youtubeHandle, setYoutubeHandle, isVerifying, verifyingUnlockVideoId, commentMissions, handleCommentVerify }: Props) {
   const [showUnlockPanel, setShowUnlockPanel] = useState(false)
   return (
     <>
@@ -72,10 +73,10 @@ export default function ParticipantStatusCards({ bannedUntil, banReason, coverPe
                       </a>
                       <button
                         onClick={() => handleCommentVerify(v.video_id, '')}
-                        disabled={isVerifying || done}
+                        disabled={verifyingUnlockVideoId !== null || done}
                         className="w-full text-xs bg-orange-500 text-white rounded-lg py-1.5 font-medium disabled:bg-gray-400"
                       >
-                        {done ? '인증 완료' : isVerifying ? '인증 중...' : '댓글 인증하기'}
+                        {done ? '인증 완료' : verifyingUnlockVideoId === v.video_id ? '인증 중...' : '댓글 인증하기'}
                       </button>
                     </div>
                   )
