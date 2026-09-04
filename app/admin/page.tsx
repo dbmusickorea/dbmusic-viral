@@ -578,6 +578,15 @@ export default function Page1() {
     if (!formData.projectCode) { showToast('프로젝트 코드를 입력해주세요.'); return }
     if (isSaving) return
     setIsSaving(true)
+
+    // 프로젝트 코드 중복 체크
+    const dupCheckRes = await fetchWithAuth(`/api/projects?project_code=${formData.projectCode.toUpperCase()}`)
+    const dupCheckData = await dupCheckRes.json()
+    if (Array.isArray(dupCheckData) && dupCheckData.length > 0) {
+      showToast('이미 사용중인 프로젝트 코드예요. 다른 코드를 입력해주세요.')
+      setIsSaving(false)
+      return
+    }
     
     // 이미지 업로드
     let uploadedImageUrl = ''
