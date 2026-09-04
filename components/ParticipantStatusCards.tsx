@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Ban, Music, Lock, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
+import { Ban, Music, Lock, AlertTriangle, ChevronDown, ChevronUp, Link as LinkIcon } from 'lucide-react'
 
 type Props = {
   bannedUntil: string | null
@@ -68,8 +68,8 @@ export default function ParticipantStatusCards({ bannedUntil, banReason, coverPe
                   const done = commentMissions.some(m => m.video_id === v.video_id && m.project_code === 'UNLOCK')
                   return (
                     <div key={v.id} className="bg-white dark:bg-gray-600 rounded-lg p-2.5 space-y-1.5">
-                      <a href={v.video_url} target="_blank" rel="noopener noreferrer" className="block text-xs text-blue-500 truncate">
-                        🔗 {v.title || '락 해제용 영상'}
+                      <a href={v.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-blue-500 truncate">
+                        <LinkIcon size={12} className="shrink-0" /> {v.title || '락 해제용 영상'}
                       </a>
                       <button
                         onClick={() => handleCommentVerify(v.video_id, '')}
