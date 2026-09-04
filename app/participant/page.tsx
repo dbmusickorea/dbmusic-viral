@@ -277,7 +277,7 @@ useEffect(() => {
           
           if (pData?.is_locked) {
             // 락 해제용 미션 저장 (중복 방지)
-            const alreadyUnlock = commentMissions.find(m => m.video_id === videoId)
+            const alreadyUnlock = commentMissions.find(m => m.video_id === videoId && m.project_code === 'UNLOCK')
             if (alreadyUnlock) { showToast('이미 이 영상으로 인증하셨습니다.'); setIsVerifying(false); return }
             
             await fetchWithAuth('/api/comment_missions', {
@@ -331,7 +331,7 @@ useEffect(() => {
           }
         } else {
           // 일반 댓글 미션 - 300원 적립
-          const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id)
+          const already = commentMissions.find(m => m.video_id === videoId && m.member_id === userInfo?.id && m.project_code === projectCode)
           if (already) { showToast('이미 이 영상으로 보상을 받으셨습니다.'); setIsVerifying(false); return }
           
           await fetchWithAuth('/api/comment_missions', {

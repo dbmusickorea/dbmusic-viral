@@ -48,7 +48,7 @@ export default function ParticipantStatusCards({ bannedUntil, banReason, coverPe
         <div className="bg-orange-50 dark:bg-gray-700 border-l-4 border-orange-400 rounded-2xl p-4 mb-4">
           <p className="text-sm font-bold text-orange-700 dark:text-orange-200 mb-1 flex items-center gap-1"><Lock size={14} /> 계정 잠금 중</p>
           <p className="text-xs text-orange-600 dark:text-orange-200 mb-1">댓글 인증: {unlockCommentCount}/10 완료</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-0.5"><AlertTriangle size={10} /> 아래 영상에 댓글 10회 작성 시 자동으로 해제됩니다.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-0.5"><AlertTriangle size={10} /> 아래 영상에 댓글 10개 작성 시 자동으로 해제됩니다.</p>
 
           <button onClick={() => setShowUnlockPanel(!showUnlockPanel)} className="w-full mt-2 text-xs font-medium text-orange-700 dark:text-orange-200 flex items-center justify-center gap-1 py-1.5">
             {showUnlockPanel ? <>접기 <ChevronUp size={12} /></> : <>펼쳐서 댓글 달기 <ChevronDown size={12} /></>}
@@ -64,7 +64,7 @@ export default function ParticipantStatusCards({ bannedUntil, banReason, coverPe
                 <p className="text-xs text-gray-400 text-center py-2">등록된 영상이 없어요.</p>
               ) : (
                 unlockVideos.map((v) => {
-                  const done = commentMissions.some(m => m.video_id === v.video_id)
+                  const done = commentMissions.some(m => m.video_id === v.video_id && m.project_code === 'UNLOCK')
                   return (
                     <div key={v.id} className="bg-white dark:bg-gray-600 rounded-lg p-2.5 space-y-1.5">
                       <a href={v.video_url} target="_blank" rel="noopener noreferrer" className="block text-xs text-blue-500 truncate">
