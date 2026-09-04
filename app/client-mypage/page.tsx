@@ -12,6 +12,7 @@ import Sidebar from '../../components/Sidebar'
 import ApplyModal from '../../components/ApplyModal'
 import { useSearchParams } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
+import DistributionClientInfo from '../../components/DistributionClientInfo'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -507,6 +508,15 @@ export default function ClientMyPage() {
             </div>
           )}
         </div>
+
+        {isInDistributionMode && (
+          <DistributionClientInfo
+            userInfo={userInfo}
+            fetchWithAuth={fetchWithAuth}
+            showToast={showToast}
+            onSaved={() => window.location.reload()}
+          />
+        )}
 
           </div>
           <div className="w-full md:w-1/2 space-y-4">

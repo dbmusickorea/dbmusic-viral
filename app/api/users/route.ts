@@ -57,6 +57,21 @@ export async function PATCH(request: NextRequest) {
   const email = searchParams.get('email')
   const body = await request.json()
 
+  // 유통정보/세금정보/지급정보(dist_*) 필드 - 한 번 저장되면 잠금, 관리자만 수정 가능
+  const distFields = Object.keys(body).filter(k => k.startsWith('dist_') && k !== 'dist_info_locked' && k !== 'dist_info_submitted_at')
+  if (distFields.length > 0 && id) {
+    const { data: target } = await supabaseAdmin.from('users').select('dist_info_locked').eq('id', id).maybeSingle()
+    if (target?.dist_info_locked) {
+      const { data: requester } = await supabaseAdmin.from('users').select('role').eq('auth_id', auth.user.id).maybeSingle()
+      if (requester?.role !== 'admin') {
+        return NextResponse.json({ error: '이미 등록된 유통/세금/지급 정보는 수정할 수 없어요. 변경이 필요하면 고객센터로 문의해주세요.' }, { status: 403 })
+      }
+    } else {
+      body.dist_info_locked = true
+      body.dist_info_submitted_at = new Date().toISOString()
+    }
+  }
+
   // 이메일 변경 시 Supabase Auth(실제 로그인 계정)도 동기화
   if (body.email && id) {
     const { data: existing } = await supabaseAdmin.from('users').select('auth_id, email').eq('id', id).maybeSingle()
