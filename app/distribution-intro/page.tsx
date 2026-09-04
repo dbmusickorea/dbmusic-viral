@@ -99,6 +99,10 @@ export default function DistributionIntroPage() {
 
       {/* 사업자 정보 */}
       <div className="px-4 md:px-8 py-8 text-center text-xs text-gray-500 border-t border-gray-800 space-y-1">
+        <div className="flex justify-center gap-4 mb-3">
+          <button onClick={() => router.push('/terms')} className="underline hover:text-gray-300">이용약관</button>
+          <button onClick={() => router.push('/privacy')} className="underline hover:text-gray-300">개인정보처리방침</button>
+        </div>
         <p>주식회사 더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
         <p>서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
         <p>고객센터: 070-8065-5811</p>
