@@ -18,7 +18,7 @@ const getPlatformIconKey = (type: string, platform: string) => type === 'shorts'
 
 export default function DistributionAdminPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'requests' | 'artists' | 'albums'>('requests')
+  const [activeTab, setActiveTab] = useState<'requests' | 'artists' | 'albums' | 'withdrawals'>('requests')
 
   // --- 발매 신청 관리 ---
   const [requests, setRequests] = useState<any[]>([])
@@ -50,6 +50,38 @@ export default function DistributionAdminPage() {
       body: JSON.stringify({ status: 'REJECTED' })
     })
     fetchRequests()
+  }
+
+  // --- 출금 관리 ---
+  const [withdrawalRequests, setWithdrawalRequests] = useState<any[]>([])
+  const [withdrawalsLoading, setWithdrawalsLoading] = useState(true)
+
+  const fetchWithdrawals = async () => {
+    setWithdrawalsLoading(true)
+    const res = await fetchWithAuth('/api/distribution-withdrawals')
+    const data = await res.json()
+    setWithdrawalRequests(Array.isArray(data) ? data : [])
+    setWithdrawalsLoading(false)
+  }
+
+  const handleApproveWithdrawal = async (id: number) => {
+    if (!confirm('출금 승인하시겠어요? 승인하면 잔액에서 차감돼요.')) return
+    await fetchWithAuth(`/api/distribution-withdrawals?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'APPROVED' })
+    })
+    fetchWithdrawals()
+  }
+
+  const handleRejectWithdrawal = async (id: number) => {
+    if (!confirm('출금 거절하시겠어요?')) return
+    await fetchWithAuth(`/api/distribution-withdrawals?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'REJECTED' })
+    })
+    fetchWithdrawals()
   }
 
   // --- 의뢰인 목록 / 유통 ON-OFF ---
@@ -120,6 +152,7 @@ export default function DistributionAdminPage() {
     if (role !== 'admin') { router.push('/'); return }
     fetchClients()
     fetchRequests()
+    fetchWithdrawals()
   }, [])
 
   const fetchClients = async () => {
@@ -500,7 +533,46 @@ export default function DistributionAdminPage() {
           <button onClick={() => setActiveTab('albums')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
             앨범/링크 관리
           </button>
+          <button onClick={() => setActiveTab('withdrawals')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'withdrawals' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
+            출금 관리 {withdrawalRequests.filter(w => w.status === 'PENDING').length > 0 && `(${withdrawalRequests.filter(w => w.status === 'PENDING').length})`}
+          </button>
         </div>
+
+        {activeTab === 'withdrawals' && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+            {withdrawalsLoading ? (
+              <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" /></div>
+            ) : withdrawalRequests.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-8">출금 신청 내역이 없어요.</p>
+            ) : (
+              <div className="space-y-2">
+                {withdrawalRequests.map((w: any) => {
+                  const client = clients.find((c: any) => c.client_id === w.client_id)
+                  return (
+                    <div key={w.id} className="border dark:border-gray-600 rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium dark:text-white">{client?.name ?? w.client_id}</p>
+                          <p className="text-xs text-gray-400">₩ {w.amount.toLocaleString()} · {new Date(w.requested_at).toLocaleDateString('ko-KR')}</p>
+                          <p className="text-xs text-gray-400">{w.bank_name} · {w.account_holder} · {w.account_number}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${w.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : w.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {w.status === 'PENDING' ? '대기중' : w.status === 'APPROVED' ? '완료' : '거절됨'}
+                        </span>
+                      </div>
+                      {w.status === 'PENDING' && (
+                        <div className="flex gap-2 mt-2">
+                          <button onClick={() => handleApproveWithdrawal(w.id)} className="flex-1 text-xs bg-blue-600 text-white rounded-lg py-2">승인</button>
+                          <button onClick={() => handleRejectWithdrawal(w.id)} className="flex-1 text-xs border dark:border-gray-600 text-gray-500 rounded-lg py-2">거절</button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {activeTab === 'requests' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
