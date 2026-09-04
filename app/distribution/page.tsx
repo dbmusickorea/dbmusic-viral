@@ -7,6 +7,7 @@ import { LayoutGrid, BarChart2, FileText, User, Disc3, RefreshCw, ArrowDown, Wal
 import { useToast } from '../../components/ToastContext'
 import PlatformIcon from '../../components/PlatformIcon'
 import BottomNav from '../../components/BottomNav'
+import DistributionFooter from '../../components/DistributionFooter'
 import Sidebar from '../../components/Sidebar'
 
 export default function DistributionPage() {
@@ -258,7 +259,7 @@ export default function DistributionPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-0"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-0 flex flex-col"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
           else setPullStartY(0)
@@ -271,7 +272,7 @@ export default function DistributionPage() {
           if (isPulling) handleRefresh()
           setIsPulling(false)
         }}>
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto flex-1 flex flex-col w-full">
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -904,6 +905,9 @@ export default function DistributionPage() {
               )}
             </>
           )}
+        </div>
+        <div className="hidden md:block mt-auto">
+          <DistributionFooter />
         </div>
       </div>
       <BottomNav tabs={[

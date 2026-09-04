@@ -13,6 +13,7 @@ import ApplyModal from '../../components/ApplyModal'
 import { useSearchParams } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
 import DistributionClientInfo from '../../components/DistributionClientInfo'
+import DistributionFooter from '../../components/DistributionFooter'
 
 export default function ClientMyPage() {
   const router = useRouter()
@@ -321,7 +322,7 @@ export default function ClientMyPage() {
           ]
         }
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:pt-0"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:pt-0 flex flex-col"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -377,7 +378,7 @@ export default function ClientMyPage() {
           <h1 className="text-xl font-bold dark:text-white">마이페이지</h1>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto flex-1 flex flex-col w-full">
         <div className="flex flex-col md:flex-row gap-4 items-start">
           <div className="w-full md:w-1/2 space-y-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
@@ -520,6 +521,7 @@ export default function ClientMyPage() {
 
           </div>
           <div className="w-full md:w-1/2 space-y-4">
+            {isInDistributionMode && <div id="dist-payment-slot" className="hidden md:block" />}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-xs text-center text-gray-300 mb-2">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
@@ -627,13 +629,8 @@ export default function ClientMyPage() {
         </div>
           </div>
         </div>
-        {/* 사업자 정보 */}
-        <div className="text-center py-6 border-t border-gray-200 dark:border-gray-700 mt-2">
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">주식회사 더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">고객센터: 070-8065-5811</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">제휴 및 광고 문의: doubleb@doubleb.kr</p>
-          <p className="text-xs text-gray-300 dark:text-gray-600">COPYRIGHT 2026. Double B Music Co.,Ltd. ALL RIGHTS RESERVED.</p>
+        <div className="mt-auto">
+          <DistributionFooter />
         </div>
       </div>
       <BottomNav tabs={

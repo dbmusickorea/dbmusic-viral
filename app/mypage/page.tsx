@@ -401,7 +401,7 @@ export default function MyPage() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/mypage'), active: true },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 flex flex-col"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -442,7 +442,7 @@ export default function MyPage() {
           <h1 className="text-xl font-bold dark:text-white">마이페이지</h1>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto flex-1 flex flex-col w-full">
 
         <div className="flex flex-col md:flex-row gap-4 items-start">
           <div className="w-full md:w-1/2 space-y-4">
@@ -819,7 +819,7 @@ export default function MyPage() {
           )}
         </div>
         {/* 사업자 정보 */}
-        <div className="text-center py-6 border-t border-gray-200 dark:border-gray-700 mt-2">
+        <div className="text-center py-6 border-t border-gray-200 dark:border-gray-700 mt-auto">
           <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">주식회사 더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">고객센터: 070-8065-5811</p>

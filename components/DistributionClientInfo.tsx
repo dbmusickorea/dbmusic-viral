@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Lock, AlertTriangle, Upload, FileText } from 'lucide-react'
 import { supabase } from '../app/lib/supabase'
 
@@ -84,6 +85,11 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
   const [saving, setSaving] = useState(false)
   const [certUrl, setCertUrl] = useState<string>(userInfo?.dist_business_cert_url ?? '')
   const [uploadingCert, setUploadingCert] = useState(false)
+  const [paymentSlot, setPaymentSlot] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    setPaymentSlot(document.getElementById('dist-payment-slot'))
+  }, [])
 
   const handleFileUpload = async (file: File) => {
     setUploadingCert(true)
@@ -119,15 +125,8 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
     onSaved()
   }
 
-  return (
+  const rightColumnSection = (
     <>
-      {locked && (
-        <div className="bg-orange-50 dark:bg-gray-700 border-l-4 border-orange-400 rounded-2xl p-4 mb-4">
-          <p className="text-sm font-bold text-orange-700 dark:text-orange-200 flex items-center gap-1"><Lock size={14} /> 정보가 등록되어 잠겨있어요</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-0.5"><AlertTriangle size={10} /> 변경이 필요하면 고객센터로 문의해주세요.</p>
-        </div>
-      )}
-      <FormSection title="유통정보" fields={DIST_FIELDS} form={form} setForm={setForm} locked={locked} />
       <FormSection title="세금정보" fields={TAX_FIELDS} form={form} setForm={setForm} locked={locked} extra={
         <div className="mt-3">
           <label className="text-sm font-medium dark:text-white">사업자등록증</label>
@@ -152,6 +151,24 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
           {saving ? '저장 중...' : '저장하기'}
         </button>
       )}
+    </>
+  )
+
+  return (
+    <>
+      {locked && (
+        <div className="bg-orange-50 dark:bg-gray-700 border-l-4 border-orange-400 rounded-2xl p-4 mb-4">
+          <p className="text-sm font-bold text-orange-700 dark:text-orange-200 flex items-center gap-1"><Lock size={14} /> 정보가 등록되어 잠겨있어요</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-0.5"><AlertTriangle size={10} /> 변경이 필요하면 고객센터로 문의해주세요.</p>
+        </div>
+      )}
+      <FormSection title="유통정보" fields={DIST_FIELDS} form={form} setForm={setForm} locked={locked} />
+      {/* 모바일: 자연스러운 순서로 표시 */}
+      <div className="md:hidden">
+        {rightColumnSection}
+      </div>
+      {/* 데스크탑: 오른쪽 칼럼 슬롯으로 이동 */}
+      {paymentSlot && createPortal(rightColumnSection, paymentSlot)}
     </>
   )
 }
