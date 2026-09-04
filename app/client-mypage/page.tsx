@@ -274,6 +274,25 @@ export default function ClientMyPage() {
     router.push('/')
   }
 
+  const navChars = (text: string, active: boolean = false) => {
+    const count = text.length
+    return (
+      <span className={`nav-char-wrap${active ? ' active' : ''}`}>
+        {text.split('').map((ch, i) => {
+          const c = ch === ' ' ? '\u00A0' : ch
+          return (
+            <span key={i} className="nav-char" style={{ '--char-i': i, '--char-count': count } as React.CSSProperties}>
+              <span className="nav-char-top">{c}</span>
+              <span className="nav-char-bottom">{c}</span>
+            </span>
+          )
+        })}
+      </span>
+    )
+  }
+
+  const goDistTab = (tab: string) => { sessionStorage.setItem('distributionTab', tab); router.push('/distribution') }
+
   return (
     <>
     <ApplyModal show={showApplyModal} onClose={() => setShowApplyModal(false)} userInfo={userInfo} />
@@ -301,7 +320,7 @@ export default function ClientMyPage() {
           ]
         }
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:pt-0"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -329,11 +348,26 @@ export default function ClientMyPage() {
             )}
           </div>
         )}
-        <div className="flex justify-center mb-2">
-          <img src={isInDistributionMode ? '/DBMUSIC_DISTRIBUTION_HEADER.svg' : '/DBMUSIC_HEADER.svg'} alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push(isInDistributionMode ? '/distribution' : '/client')} />
-        </div>
-        <div className="max-w-7xl mx-auto flex items-center gap-3">
-          
+        {isInDistributionMode ? (
+          <div className="md:mx-[calc(50%-50vw)] border-b border-gray-200 dark:border-gray-800 mb-2 md:mb-4">
+            <div className="max-w-7xl mx-auto md:px-8 flex items-center justify-center md:justify-between pb-3 md:py-5">
+              <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC" className="h-7 dark:invert cursor-pointer" onClick={() => router.push('/distribution')} />
+              <div className="hidden md:flex items-center gap-[30px] text-[15px]" style={{ fontFamily: "'S-CoreDream', sans-serif", fontWeight: 300 }}>
+                <button onClick={() => goDistTab('albums')}>{navChars('앨범')}</button>
+                <button onClick={() => goDistTab('artists')}>{navChars('아티스트')}</button>
+                <button onClick={() => goDistTab('content')}>{navChars('콘텐츠')}</button>
+                <button onClick={() => goDistTab('stats')}>{navChars('통계')}</button>
+                <button onClick={() => goDistTab('withdraw')}>{navChars('출금')}</button>
+                <button onClick={() => router.push('/client-mypage')}>{navChars('마이페이지', true)}</button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center mb-2">
+            <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/client')} />
+          </div>
+        )}
+        <div className={`max-w-7xl mx-auto flex items-center gap-3${isInDistributionMode ? ' md:hidden' : ''}`}>
           <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600 dark:text-gray-300">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

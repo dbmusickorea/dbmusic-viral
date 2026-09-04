@@ -258,7 +258,7 @@ export default function DistributionPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-4"
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-0"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
           else setPullStartY(0)
@@ -281,15 +281,17 @@ export default function DistributionPage() {
               )}
             </div>
           )}
-          <div className="flex items-center justify-center md:justify-between mb-4 md:mb-6 pb-3 md:py-5 md:-mx-4 md:px-4 border-b border-gray-200 dark:border-gray-800">
-            <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC" className="h-7 dark:invert cursor-pointer" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
-            <div className="hidden md:flex items-center gap-[30px] text-[15px] text-gray-500 dark:text-gray-300" style={{ fontFamily: "'S-CoreDream', sans-serif", fontWeight: 300 }}>
-              <button onClick={() => setSubTab('albums')}>{navChars('앨범', subTab === 'albums')}</button>
-              <button onClick={() => setSubTab('artists')}>{navChars('아티스트', subTab === 'artists')}</button>
-              <button onClick={() => setSubTab('content')}>{navChars('콘텐츠', subTab === 'content')}</button>
-              <button onClick={() => setSubTab('stats')}>{navChars('통계', subTab === 'stats')}</button>
-              <button onClick={() => setSubTab('withdraw')}>{navChars('출금', subTab === 'withdraw')}</button>
-              <button onClick={() => router.push('/client-mypage')}>{navChars('마이페이지')}</button>
+          <div className="md:mx-[calc(50%-50vw)] border-b border-gray-200 dark:border-gray-800 mb-4 md:mb-6">
+            <div className="max-w-7xl mx-auto md:px-8 flex items-center justify-center md:justify-between pb-3 md:py-5">
+              <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC" className="h-7 dark:invert cursor-pointer" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+              <div className="hidden md:flex items-center gap-[30px] text-[15px] text-gray-500 dark:text-gray-300" style={{ fontFamily: "'S-CoreDream', sans-serif", fontWeight: 300 }}>
+                <button onClick={() => setSubTab('albums')}>{navChars('앨범', subTab === 'albums')}</button>
+                <button onClick={() => setSubTab('artists')}>{navChars('아티스트', subTab === 'artists')}</button>
+                <button onClick={() => setSubTab('content')}>{navChars('콘텐츠', subTab === 'content')}</button>
+                <button onClick={() => setSubTab('stats')}>{navChars('통계', subTab === 'stats')}</button>
+                <button onClick={() => setSubTab('withdraw')}>{navChars('출금', subTab === 'withdraw')}</button>
+                <button onClick={() => router.push('/client-mypage')}>{navChars('마이페이지')}</button>
+              </div>
             </div>
           </div>
           <div className="flex justify-between items-center mb-4 md:hidden">
