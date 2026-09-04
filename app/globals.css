@@ -32,6 +32,18 @@
 .nav-char-wrap:hover {
   color: #18307f !important;
 }
+.dark .nav-char-wrap {
+  color: #9ca3af !important;
+}
+.dark .nav-char-wrap.active {
+  color: #60a5fa !important;
+}
+.dark .nav-char-wrap:hover {
+  color: #60a5fa !important;
+}
+.dark .nav-char::before {
+  color: #60a5fa;
+}
 .nav-char {
   position: relative !important;
   display: inline-block !important;
