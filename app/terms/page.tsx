@@ -23,6 +23,8 @@ export default function TermsPage() {
             <li>"의뢰인"이란 서비스를 통해 바이럴 마케팅을 의뢰하는 개인 또는 법인을 말합니다.</li>
             <li>"체험단"이란 서비스를 통해 바이럴 미션을 수행하고 보상을 받는 개인을 말합니다.</li>
             <li>"포인트"란 체험단이 미션 수행 후 지급받는 가상의 보상 단위를 말합니다.</li>
+            <li>"유통 서비스"란 회사가 의뢰인이 제공한 음원을 국내외 뮤직스토어에 등록·유통하는 서비스를 말합니다.</li>
+            <li>"유통 의뢰인"이란 유통 서비스를 이용하는 의뢰인을 말합니다.</li>
           </ul>
         </section>
 
@@ -68,19 +70,44 @@ export default function TermsPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">제7조 (금지 행위)</h2>
+          <h2 className="font-bold mb-2 dark:text-white">제7조 (유통 서비스 이용)</h2>
+          <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
+            <li>유통 의뢰인은 본인이 저작권 또는 이에 준하는 이용허락을 보유한 음원만 유통 신청할 수 있습니다.</li>
+            <li>제출된 음원 및 관련 자료는 회사의 심사를 거쳐 유통 여부가 결정되며, 회사는 합리적인 사유로 유통을 거절할 수 있습니다.</li>
+            <li>유통이 승인된 음원은 회사와 제휴한 국내외 뮤직스토어(멜론, 지니, 벅스, 유튜브뮤직, 스포티파이 등)에 순차적으로 등록됩니다.</li>
+            <li>유통 수수료 및 정산 비율은 회사가 정하는 기준에 따르며, 관련 내용은 서비스 화면을 통해 안내됩니다.</li>
+            <li>정산은 회사가 정한 주기 및 절차에 따라 진행되며, 최소 출금 금액에 미달하는 경우 다음 정산 시기로 이월될 수 있습니다.</li>
+            <li>유통 의뢰인의 요청 또는 계약 위반 등의 사유로 유통이 중단 또는 취소될 수 있으며, 이 경우 사전에 안내합니다.</li>
+            <li>제출된 음원 및 관련 자료(아티스트명, 앨범 이미지 등 포함)는 유통 및 홍보 목적의 범위 내에서 제휴 뮤직스토어 등에 노출·활용될 수 있습니다.</li>
+            <li>제3자의 저작권 등 권리를 침해하여 분쟁이나 클레임이 발생하는 경우, 유통 의뢰인은 자신의 책임과 비용으로 이를 해결해야 하며, 이로 인해 회사에 손해(소송비용, 배상금 등 포함)가 발생한 경우 이를 전액 배상해야 합니다.</li>
+          </ul>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="font-bold mb-2 dark:text-white">제8조 (저작권 등 침해 신고 및 처리)</h2>
+          <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
+            <li>제3자는 유통 중인 음원이 자신의 저작권 등 권리를 침해한다고 판단하는 경우, 회사에 침해 사실을 신고할 수 있습니다.</li>
+            <li>회사는 신고된 내용을 검토하여 필요한 경우 해당 음원의 유통을 일시 중단할 수 있으며, 이 경우 유통 의뢰인에게 그 사유를 안내합니다.</li>
+            <li>유통 의뢰인은 신고 내용에 이의가 있는 경우, 관련 자료(이용허락 증빙 등)를 제출하여 이의를 제기할 수 있습니다.</li>
+            <li>동일한 유통 의뢰인의 음원에 대해 저작권 등 침해 신고가 2회 이상 접수되는 경우, 회사는 해당 의뢰인의 유통 서비스 이용을 제한할 수 있습니다.</li>
+          </ul>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="font-bold mb-2 dark:text-white">제9조 (금지 행위)</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>타인의 계정을 도용하거나 허위 정보를 등록하는 행위</li>
             <li>게시물을 실제로 업로드하지 않고 허위 제출하는 행위</li>
             <li>자동화 프로그램을 이용한 부정 활동</li>
             <li>다중 계정 생성 및 운영</li>
             <li>음원 유출 및 저작권 침해 행위</li>
+            <li>본인이 저작권을 보유하지 않은 음원을 유통 신청하는 행위</li>
             <li>서비스 운영을 방해하는 일체의 행위</li>
           </ul>
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">제8조 (서비스 중단 및 회원 제재)</h2>
+          <h2 className="font-bold mb-2 dark:text-white">제10조 (서비스 중단 및 회원 제재)</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>회사는 서비스 유지보수, 기술적 문제 등으로 서비스를 일시 중단할 수 있습니다.</li>
             <li>금지 행위 위반 시 서비스 이용 제한 또는 강제 탈퇴 조치가 취해질 수 있습니다.</li>
@@ -89,7 +116,7 @@ export default function TermsPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">제9조 (책임의 한계)</h2>
+          <h2 className="font-bold mb-2 dark:text-white">제11조 (책임의 한계)</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>회사는 천재지변, 불가항력적 사유로 인한 서비스 중단에 대해 책임지지 않습니다.</li>
             <li>이용자의 귀책사유로 발생한 손해에 대해 회사는 책임지지 않습니다.</li>
@@ -98,7 +125,7 @@ export default function TermsPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">제10조 (청약철회 및 환불)</h2>
+          <h2 className="font-bold mb-2 dark:text-white">제12조 (청약철회 및 환불)</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>체험단 회원이 적립한 포인트는 현금으로 환전 신청 후 취소가 불가합니다.</li>
             <li>의뢰인이 프로젝트를 신청한 경우, 미션 시작 전에는 취소 및 환불이 가능합니다.</li>
@@ -109,7 +136,7 @@ export default function TermsPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">제11조 (분쟁 해결)</h2>
+          <h2 className="font-bold mb-2 dark:text-white">제13조 (분쟁 해결)</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">서비스 이용과 관련하여 분쟁이 발생한 경우 회사와 이용자는 상호 협의하여 해결하며, 협의가 이루어지지 않을 경우 관할 법원은 회사 소재지를 관할하는 법원으로 합니다.</p>
         </section>
 

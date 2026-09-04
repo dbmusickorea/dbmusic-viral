@@ -19,6 +19,7 @@ export default function PrivacyPage() {
             <li>필수: 이름, 이메일, 휴대전화번호, 비밀번호</li>
             <li>정산 시: 주민등록번호, 계좌번호, 예금주명, 은행명</li>
             <li>SNS 활동: 인스타그램/유튜브/틱톡 계정 ID, 팔로워수, 게시물 좋아요수/댓글수</li>
+            <li>유통 서비스 이용 시: 회사명, 사업자등록번호, 국적, 아티스트명, 앨범/음원 파일 및 관련 정보</li>
           </ul>
         </section>
 
@@ -26,6 +27,7 @@ export default function PrivacyPage() {
           <h2 className="font-bold mb-2 dark:text-white">2. 개인정보 수집 및 이용 목적</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>바이럴 마케팅 서비스 제공 및 운영</li>
+            <li>음원 유통 서비스 제공 및 정산</li>
             <li>회원 식별 및 본인 확인</li>
             <li>활동 보상금 정산 및 지급</li>
             <li>세금 신고를 위한 원천징수</li>
@@ -48,6 +50,7 @@ export default function PrivacyPage() {
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>이용자가 사전에 동의한 경우</li>
             <li>법령의 규정에 의거하거나 수사기관의 요구가 있는 경우</li>
+            <li>유통 서비스 이용 시, 음원 유통을 위해 필요한 범위 내에서 제휴 뮤직스토어(멜론, 지니, 벅스, 유튜브뮤직, 스포티파이 등)에 아티스트명, 앨범정보, 음원 파일이 제공됩니다.</li>
           </ul>
         </section>
 
