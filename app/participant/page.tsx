@@ -1331,6 +1331,7 @@ useEffect(() => {
               coverPenaltyReason={coverPenaltyReason}
               isLocked={isLocked}
               unlockCommentCount={unlockCommentCount}
+              unlockVideos={unlockVideos}
             />
             {/* 게시물 현황 */}
             <ParticipantPostList

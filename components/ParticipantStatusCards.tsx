@@ -8,9 +8,10 @@ type Props = {
   coverPenaltyReason: string | null
   isLocked: boolean
   unlockCommentCount: number
+  unlockVideos?: { id: number; video_url: string; title: string | null }[]
 }
 
-export default function ParticipantStatusCards({ bannedUntil, banReason, coverPenaltyUntil, coverPenaltyReason, isLocked, unlockCommentCount }: Props) {
+export default function ParticipantStatusCards({ bannedUntil, banReason, coverPenaltyUntil, coverPenaltyReason, isLocked, unlockCommentCount, unlockVideos = [] }: Props) {
   return (
     <>
       {bannedUntil && (
@@ -40,7 +41,16 @@ export default function ParticipantStatusCards({ bannedUntil, banReason, coverPe
         <div className="bg-orange-50 dark:bg-gray-700 border-l-4 border-orange-400 rounded-2xl p-4 mb-4">
           <p className="text-sm font-bold text-orange-700 dark:text-orange-200 mb-1 flex items-center gap-1"><Lock size={14} /> 계정 잠금 중</p>
           <p className="text-xs text-orange-600 dark:text-orange-200 mb-1">댓글 인증: {unlockCommentCount}/10 완료</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-0.5"><AlertTriangle size={10} /> 유튜브 영상에 댓글 10회 작성 시 자동으로 해제됩니다.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-0.5"><AlertTriangle size={10} /> 아래 영상에 댓글 10회 작성 시 자동으로 해제됩니다.</p>
+          {unlockVideos.length > 0 && (
+            <div className="mt-2 space-y-1.5">
+              {unlockVideos.map((v) => (
+                <a key={v.id} href={v.video_url} target="_blank" rel="noopener noreferrer" className="block text-xs bg-white dark:bg-gray-600 text-orange-700 dark:text-orange-200 rounded-lg px-3 py-2 truncate">
+                  🔗 {v.title || '락 해제용 영상'}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </>
