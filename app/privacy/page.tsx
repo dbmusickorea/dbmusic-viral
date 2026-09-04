@@ -19,8 +19,9 @@ export default function PrivacyPage() {
             <li>필수: 이름, 이메일, 휴대전화번호, 비밀번호</li>
             <li>정산 시: 주민등록번호, 계좌번호, 예금주명, 은행명</li>
             <li>SNS 활동: 인스타그램/유튜브/틱톡 계정 ID, 팔로워수, 게시물 좋아요수/댓글수</li>
-            <li>유통 서비스 이용 시: 회사명, 사업자등록번호, 국적, 아티스트명, 앨범/음원 파일 및 관련 정보</li>
+            <li>유통 서비스 이용 시: 국적, 회사명(또는 성명), 전화번호, 거주지/소재지 국가, 지급화폐, 지급방법, 사업자등록번호, 아티스트명, 앨범/음원 파일 및 관련 정보</li>
           </ul>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">정산 관련 정보(계좌번호, 예금주명, 은행명, 주민등록번호, 사업자등록번호 등)는 세금 납부 및 정산금 지급 목적으로만 이용되며, 다른 목적으로 이용되지 않습니다.</p>
         </section>
 
         <section className="mb-6">
@@ -55,7 +56,16 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">5. 개인정보 보호 조치</h2>
+          <h2 className="font-bold mb-2 dark:text-white">5. 개인정보 처리의 위탁</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-300">회사는 서비스 제공을 위해 아래와 같이 개인정보 처리 업무를 외부 업체에 위탁하고 있으며, 위탁계약 시 개인정보가 안전하게 관리될 수 있도록 필요한 사항을 규정하고 있습니다.</p>
+          <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
+            <li>Supabase Inc. — 데이터베이스 저장 및 관리 (위탁기간: 위탁계약 종료 시까지)</li>
+            <li>Vercel Inc. — 서버 호스팅 및 배포 (위탁기간: 위탁계약 종료 시까지)</li>
+          </ul>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="font-bold mb-2 dark:text-white">6. 개인정보 보호 조치</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>계좌번호 및 주민등록번호는 AES-256 암호화하여 저장</li>
             <li>비밀번호는 암호화하여 저장하며 관리자도 확인 불가</li>
@@ -64,7 +74,7 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">6. 이용자의 권리</h2>
+          <h2 className="font-bold mb-2 dark:text-white">7. 이용자의 권리</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">이용자는 언제든지 아래의 권리를 행사할 수 있습니다.</p>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>개인정보 열람 요청</li>
@@ -75,7 +85,7 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">7. 개인정보 처리 담당자</h2>
+          <h2 className="font-bold mb-2 dark:text-white">8. 개인정보 처리 담당자</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1">
             <li>회사명: 더블비뮤직</li>
             <li>성명: 함현철</li>
@@ -89,12 +99,12 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">8. 개인정보처리방침 변경</h2>
+          <h2 className="font-bold mb-2 dark:text-white">9. 개인정보처리방침 변경</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">이 개인정보처리방침은 법령, 정책 또는 보안 기술의 변경에 따라 내용이 변경될 수 있으며, 변경 시 앱 내 공지를 통해 안내합니다.</p>
         </section>
 
         <section className="mb-6">
-          <h2 className="font-bold mb-2 dark:text-white">9. 아동 및 미성년자 보호</h2>
+          <h2 className="font-bold mb-2 dark:text-white">10. 아동 및 미성년자 보호</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">더블비뮤직 서비스는 만 18세 이상만 이용 가능합니다. 만 18세 미만의 경우 서비스 이용이 제한되며, 만 18세 미만으로 확인될 경우 계정이 즉시 삭제될 수 있습니다. 또한 만 14세 미만 아동의 개인정보는 수집하지 않습니다.</p>
         </section>
 
