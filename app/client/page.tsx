@@ -82,8 +82,13 @@ export default function Page3() {
 
   useEffect(() => {
     // 유통 모드로 전환되어 있으면, 여기(일반 화면) 대신 유통 화면으로 자동 이동
-    if (localStorage.getItem('distributionMode') === 'true') {
+    // (distributionMode는 브라우저에 남는 값이라, 실제 유통 권한(has_distribution)이 있는 계정일 때만 이동)
+    const info = localStorage.getItem('userInfo')
+    const parsed = info ? JSON.parse(info) : null
+    if (localStorage.getItem('distributionMode') === 'true' && parsed?.has_distribution) {
       router.push('/distribution')
+    } else if (localStorage.getItem('distributionMode') === 'true' && !parsed?.has_distribution) {
+      localStorage.setItem('distributionMode', 'false')
     }
   }, [])
 
