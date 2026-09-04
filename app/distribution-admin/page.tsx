@@ -514,7 +514,7 @@ export default function DistributionAdminPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-center mb-4">
-          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
+          <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
         </div>
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => router.push('/admin-mypage')} className="text-gray-600 dark:text-gray-300">

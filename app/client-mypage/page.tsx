@@ -330,7 +330,7 @@ export default function ClientMyPage() {
           </div>
         )}
         <div className="flex justify-center mb-2">
-          <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/client')} />
+          <img src={isInDistributionMode ? '/DBMUSIC_DISTRIBUTION_HEADER.svg' : '/DBMUSIC_HEADER.svg'} alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push(isInDistributionMode ? '/distribution' : '/client')} />
         </div>
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           
