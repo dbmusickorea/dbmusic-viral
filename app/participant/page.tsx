@@ -1029,6 +1029,10 @@ useEffect(() => {
       })
     }
 
+    const projectRes = await fetchWithAuth(`/api/projects?project_code=${activeProjectCode}`)
+    const projectList = await projectRes.json()
+    const projectData = projectList?.[0]
+
     // 관리자에게 푸시 알림
     const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
@@ -1043,16 +1047,12 @@ useEffect(() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: activeIsCover ? '🎵 커버영상 신청이 왔어요!' : '📸 새 게시물이 등록됐어요!',
-        body: `${influencerName}님이 ${projectsMap[activeProjectCode?.toUpperCase()]?.artist_name || activeProjectCode} / ${projectsMap[activeProjectCode?.toUpperCase()]?.song_title ?? ''} 프로젝트에 ${activeIsCover ? '커버영상을' : '게시물을'} 등록했어요.`,
+        body: `${influencerName}님이 ${projectData?.artist_name || projectData?.client_name || activeProjectCode} / ${projectData?.song_title ?? ''} 프로젝트에 ${activeIsCover ? '커버영상을' : '게시물을'} 등록했어요.`,
         data: { url: activeIsCover ? '/cover' : '/client' },
         tokens: adminTokens?.map((t: any) => t.token) ?? [],
         userIds: allAdminIds
       })
     })
-
-    const projectRes = await fetchWithAuth(`/api/projects?project_code=${activeProjectCode}`)
-    const projectList = await projectRes.json()
-    const projectData = projectList?.[0]
 
     if (projectData?.reward_per_post) {
       const earnAmount = getLevelAmount(projectData.reward_per_post, level) * validUrls.length
