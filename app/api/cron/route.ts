@@ -473,11 +473,11 @@ export async function GET() {
           // 가입한 지 1개월 미만인 사람은 제외
           if (new Date(p.created_at) > oneMonthAgo) continue
           
-          // 현재 ACTIVE 참여자는 제외
-          const { data: activeParticipation } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
-          if (activeParticipation) continue
-          const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
-          if (!recentPost) {
+          // 현재 ACTIVE 참여자는 제외 (여러 프로젝트에 동시 참여중일 수 있어 limit(1)로 존재 여부만 확인)
+          const { data: activeParticipation } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').limit(1)
+          if (activeParticipation && activeParticipation.length > 0) continue
+          const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).limit(1)
+          if (!recentPost || recentPost.length === 0) {
             await supabase.from('participants').update({ is_locked: true }).eq('id', p.id)
             const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(p.id))
             if (tokens && tokens.length > 0) {
@@ -530,9 +530,9 @@ export async function GET() {
           // 가입 1개월 미만 제외
           if (new Date(p.created_at) > oneMonthAgo) continue
           
-          const { data: recentPostInactive } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).maybeSingle()
-          const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').maybeSingle()
-          if (!recentPostInactive && !currentJoin) inactive.push(p.id)
+          const { data: recentPostInactive } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).limit(1)
+          const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').limit(1)
+          if ((!recentPostInactive || recentPostInactive.length === 0) && (!currentJoin || currentJoin.length === 0)) inactive.push(p.id)
         }
         if (inactive.length > 0) {
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', inactive.map(id => String(id)))
