@@ -22,6 +22,7 @@ export default function DistributionPage() {
   const [albumSearchType, setAlbumSearchType] = useState<'' | 'artist' | 'album'>('')
   const [albumSearchQuery, setAlbumSearchQuery] = useState('')
   const [albumViewMode, setAlbumViewMode] = useState<'grid' | 'list'>('grid')
+  const [artistViewMode, setArtistViewMode] = useState<'grid' | 'list'>('grid')
   const [statsMainTab, setStatsMainTab] = useState<'summary' | 'breakdown' | 'store'>('summary')
   const [statsBreakdownTab, setStatsBreakdownTab] = useState<'album' | 'artist'>('album')
   const [statsStoreTab, setStatsStoreTab] = useState<'store' | 'country'>('store')
@@ -547,17 +548,36 @@ export default function DistributionPage() {
 
               {subTab === 'artists' && !selectedArtist && (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-                  <h2 className="font-bold dark:text-white mb-3">아티스트</h2>
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className="font-bold dark:text-white">아티스트</h2>
+                    <div className="flex gap-1">
+                      <button onClick={() => setArtistViewMode('grid')} className={`px-2 py-1.5 rounded-lg border text-xs ${artistViewMode === 'grid' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 text-gray-500'}`}>▦</button>
+                      <button onClick={() => setArtistViewMode('list')} className={`px-2 py-1.5 rounded-lg border text-xs ${artistViewMode === 'list' ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 text-gray-500'}`}>☰</button>
+                    </div>
+                  </div>
                   {artists.length === 0 ? (
                     <p className="text-xs text-gray-400">등록된 아티스트가 없어요.</p>
+                  ) : artistViewMode === 'grid' ? (
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                      {artists.map((artist: any) => (
+                        <button key={artist.id} onClick={() => setSelectedArtist(artist)} className="text-center">
+                          {artist.profile_image_url ? (
+                            <img src={artist.profile_image_url} className="w-full aspect-square rounded-full object-cover mb-1" />
+                          ) : (
+                            <div className="w-full aspect-square rounded-full bg-gray-200 dark:bg-gray-600 mb-1" />
+                          )}
+                          <p className="text-xs font-medium dark:text-white truncate">{artist.name}</p>
+                        </button>
+                      ))}
+                    </div>
                   ) : (
                     <div className="space-y-2">
                       {artists.map((artist: any) => (
                         <button key={artist.id} onClick={() => setSelectedArtist(artist)} className="w-full flex items-center gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-left">
                           {artist.profile_image_url ? (
-                            <img src={artist.profile_image_url} className="w-12 h-12 rounded-full object-cover shrink-0" />
+                            <img src={artist.profile_image_url} className="w-16 h-16 rounded-full object-cover shrink-0" />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0" />
+                            <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0" />
                           )}
                           <div className="min-w-0">
                             <p className="text-sm font-medium dark:text-white truncate">{artist.name}</p>
