@@ -8,11 +8,13 @@ export default function DistributionIntroPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-gray-800">
-        <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC DISTRIBUTION" className="h-7" />
-        <button onClick={() => router.push('/')} className="text-sm bg-white text-gray-900 rounded-lg px-4 py-2 font-medium">
-          로그인
-        </button>
+      <div className="border-b border-gray-800">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 py-4">
+          <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC DISTRIBUTION" className="h-7 invert" />
+          <button onClick={() => router.push('/')} className="text-sm bg-white text-gray-900 rounded-lg px-4 py-2 font-medium">
+            로그인
+          </button>
+        </div>
       </div>
 
       {/* 히어로 섹션 */}
@@ -30,7 +32,7 @@ export default function DistributionIntroPage() {
       </div>
 
       {/* 특징 카드 */}
-      <div className="px-4 md:px-8 py-12 max-w-5xl mx-auto">
+      <div className="px-4 md:px-8 py-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-gray-800 rounded-2xl p-5 text-center">
             <p className="text-blue-400 font-bold text-lg mb-1">GLOBAL</p>
@@ -52,7 +54,7 @@ export default function DistributionIntroPage() {
       </div>
 
       {/* 서비스 소개 */}
-      <div className="px-4 md:px-8 py-12 max-w-3xl mx-auto space-y-6">
+      <div className="px-4 md:px-8 py-12 max-w-7xl mx-auto space-y-6">
         <div>
           <h2 className="text-lg font-bold mb-2">음원 유통 서비스란?</h2>
           <p className="text-sm text-gray-400 leading-relaxed">
@@ -67,15 +69,40 @@ export default function DistributionIntroPage() {
         </div>
       </div>
 
-      {/* 하단 CTA */}
-      <div className="px-4 md:px-8 py-12 text-center border-t border-gray-800">
-        <button onClick={() => router.push('/')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-8 py-3 font-medium text-sm md:text-base">
-          로그인하고 시작하기
-        </button>
+      {/* 유통 방법 안내 */}
+      <div className="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-gray-800">
+        <h2 className="text-lg font-bold mb-6">유통 방법 안내</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { step: '1', title: '회원가입', desc: '의뢰인으로 가입 후 이용 신청' },
+            { step: '2', title: '발매 신청', desc: '앨범 정보와 음원 파일 등록' },
+            { step: '3', title: '심사/승인', desc: '담당자 검토 후 유통 준비' },
+            { step: '4', title: '유통 시작', desc: '주요 뮤직스토어에 순차 등록' },
+          ].map((s) => (
+            <div key={s.step} className="bg-gray-800 rounded-2xl p-5">
+              <p className="text-blue-400 font-bold text-sm mb-1">STEP {s.step}</p>
+              <p className="font-medium mb-1">{s.title}</p>
+              <p className="text-xs text-gray-400">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 mt-6">
+          유통 서비스 이용 문의는 고객센터(070-8065-5811)로 연락해주세요.
+        </p>
       </div>
 
-      <div className="px-4 md:px-8 py-6 text-center text-xs text-gray-500 border-t border-gray-800">
-        © Double B Music Co.,Ltd. ALL RIGHTS RESERVED.
+      {/* 유통 음원 */}
+      <div className="px-4 md:px-8 py-12 max-w-7xl mx-auto border-t border-gray-800">
+        <h2 className="text-lg font-bold mb-6">유통 음원</h2>
+        <p className="text-xs text-gray-500 text-center py-12">곧 만나보실 수 있어요.</p>
+      </div>
+
+      {/* 사업자 정보 */}
+      <div className="px-4 md:px-8 py-8 text-center text-xs text-gray-500 border-t border-gray-800 space-y-1">
+        <p>주식회사 더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
+        <p>서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
+        <p>고객센터: 070-8065-5811</p>
+        <p className="pt-2">© Double B Music Co.,Ltd. ALL RIGHTS RESERVED.</p>
       </div>
     </div>
   )
