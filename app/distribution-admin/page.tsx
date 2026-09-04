@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { ArrowLeft, Trash2, Pencil, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, Trash2, Pencil, X, ChevronDown, ChevronUp, Search } from 'lucide-react'
 import PlatformIcon from '../../components/PlatformIcon'
+import DistributionClientInfo from '../../components/DistributionClientInfo'
 
 const OPTIONS = [
   { key: 'lyric_video_youtube', type: 'lyric_video', platform: 'youtube', label: '리릭비디오' },
@@ -87,6 +88,14 @@ export default function DistributionAdminPage() {
   // --- 의뢰인 목록 / 유통 ON-OFF ---
   const [clients, setClients] = useState<any[]>([])
   const [selectedClient, setSelectedClient] = useState<any>(null)
+  const [infoModalClient, setInfoModalClient] = useState<any>(null)
+  const [clientSearch, setClientSearch] = useState('')
+
+  const openClientInfo = async (client: any) => {
+    const res = await fetchWithAuth(`/api/users?id=${client.id}`)
+    const data = await res.json()
+    setInfoModalClient(Array.isArray(data) ? data[0] : data)
+  }
   const [loading, setLoading] = useState(true)
 
   // --- 의뢰인 선택 후: 앨범 목록 ---
@@ -619,20 +628,32 @@ export default function DistributionAdminPage() {
           <div className="w-full md:w-1/3 space-y-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
               <h2 className="font-bold dark:text-white mb-3">의뢰인 목록</h2>
+              <div className="relative mb-3">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} placeholder="이름으로 검색" className="w-full border dark:border-gray-600 rounded-lg pl-8 pr-3 py-2 text-sm dark:bg-gray-700 dark:text-white" />
+              </div>
               {clients.length === 0 ? (
                 <p className="text-xs text-gray-400">의뢰인이 없어요.</p>
               ) : (
                 <div className="space-y-2">
-                  {clients.map(client => (
+                  {[...clients]
+                    .filter(c => c.name?.toLowerCase().includes(clientSearch.toLowerCase()))
+                    .sort((a, b) => (b.has_distribution ? 1 : 0) - (a.has_distribution ? 1 : 0))
+                    .map(client => (
                     <div key={client.id} className={`rounded-lg p-3 cursor-pointer ${selectedClient?.id === client.id ? 'bg-blue-50 dark:bg-blue-900' : 'bg-gray-50 dark:bg-gray-700'}`} onClick={() => openClient(client)}>
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="text-sm font-medium dark:text-white">{client.name}</p>
                           <p className="text-xs text-gray-400">{client.email}</p>
                         </div>
-                        <button onClick={(e) => { e.stopPropagation(); toggleDistribution(client) }} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${client.has_distribution ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'}`}>
-                          {client.has_distribution ? '유통 ON' : '유통 OFF'}
-                        </button>
+                        <div className="flex gap-1.5">
+                          <button onClick={(e) => { e.stopPropagation(); openClientInfo(client) }} className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-50 text-blue-600 dark:bg-gray-600 dark:text-blue-300">
+                            정보관리
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); toggleDistribution(client) }} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${client.has_distribution ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'}`}>
+                            {client.has_distribution ? '유통 ON' : '유통 OFF'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -971,6 +992,24 @@ export default function DistributionAdminPage() {
         </div>
         )}
       </div>
+
+      {infoModalClient && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setInfoModalClient(null)}>
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold dark:text-white">{infoModalClient.name} - 유통정보 관리</h2>
+              <button onClick={() => setInfoModalClient(null)} className="text-gray-400"><X size={20} /></button>
+            </div>
+            <DistributionClientInfo
+              userInfo={infoModalClient}
+              fetchWithAuth={fetchWithAuth}
+              showToast={alert}
+              onSaved={() => openClientInfo(infoModalClient)}
+              isAdmin={true}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

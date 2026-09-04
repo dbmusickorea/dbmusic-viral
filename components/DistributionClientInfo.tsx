@@ -9,6 +9,7 @@ type Props = {
   fetchWithAuth: (url: string, options?: any) => Promise<Response>
   showToast: (msg: string) => void
   onSaved: () => void
+  isAdmin?: boolean
 }
 
 const DIST_FIELDS = [
@@ -76,8 +77,9 @@ function FormSection({ title, fields, form, setForm, locked, extra }: any) {
   )
 }
 
-export default function DistributionClientInfo({ userInfo, fetchWithAuth, showToast, onSaved }: Props) {
-  const locked = !!userInfo?.dist_info_locked
+export default function DistributionClientInfo({ userInfo, fetchWithAuth, showToast, onSaved, isAdmin = false }: Props) {
+  const isReallyLocked = !!userInfo?.dist_info_locked
+  const locked = isReallyLocked && !isAdmin
   const allFields = [...DIST_FIELDS, ...TAX_FIELDS, ...PAYMENT_FIELDS]
   const initial: any = {}
   allFields.forEach(f => { initial[f.key] = userInfo?.[f.key] ?? '' })
@@ -108,7 +110,7 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
       showToast(`모든 항목을 입력해주세요. (${emptyRequired[0].label} 등)`)
       return
     }
-    const ok = window.confirm('한 번 저장하면 본인이 직접 수정할 수 없고, 변경 시 고객센터로 문의해야 해요. 저장하시겠어요?')
+    const ok = window.confirm(isAdmin ? '저장하시겠어요?' : '한 번 저장하면 본인이 직접 수정할 수 없고, 변경 시 고객센터로 문의해야 해요. 저장하시겠어요?')
     if (!ok) return
     setSaving(true)
     const body: any = {}
@@ -121,7 +123,7 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
     })
     setSaving(false)
     if (!res.ok) { showToast('저장에 실패했어요. 다시 시도해주세요.'); return }
-    showToast('✅ 저장 완료! 이후 수정은 고객센터로 문의해주세요.')
+    showToast(isAdmin ? '✅ 저장 완료!' : '✅ 저장 완료! 이후 수정은 고객센터로 문의해주세요.')
     onSaved()
   }
 
@@ -162,13 +164,26 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-0.5"><AlertTriangle size={10} /> 변경이 필요하면 고객센터로 문의해주세요.</p>
         </div>
       )}
+      {isAdmin && isReallyLocked && (
+        <div className="bg-blue-50 dark:bg-gray-700 border-l-4 border-blue-400 rounded-2xl p-4 mb-4">
+          <p className="text-sm font-bold text-blue-700 dark:text-blue-200 flex items-center gap-1"><Lock size={14} /> 의뢰인이 등록을 완료한 정보예요</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">관리자는 수정하고 저장할 수 있어요.</p>
+        </div>
+      )}
       <FormSection title="유통정보" fields={DIST_FIELDS} form={form} setForm={setForm} locked={locked} />
-      {/* 모바일: 자연스러운 순서로 표시 */}
-      <div className="md:hidden">
-        {rightColumnSection}
-      </div>
-      {/* 데스크탑: 오른쪽 칼럼 슬롯으로 이동 */}
-      {paymentSlot && createPortal(rightColumnSection, paymentSlot)}
+      {paymentSlot ? (
+        <>
+          {/* 모바일: 자연스러운 순서로 표시 */}
+          <div className="md:hidden">
+            {rightColumnSection}
+          </div>
+          {/* 데스크탑: 오른쪽 칼럼 슬롯으로 이동 */}
+          {createPortal(rightColumnSection, paymentSlot)}
+        </>
+      ) : (
+        // 슬롯이 없는 화면(예: 관리자 화면)에서는 그냥 이어서 표시
+        rightColumnSection
+      )}
     </>
   )
 }
