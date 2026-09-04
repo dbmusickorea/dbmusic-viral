@@ -241,7 +241,7 @@ export default function DistributionPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="dark min-h-screen bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
           else setPullStartY(0)
@@ -265,18 +265,19 @@ export default function DistributionPage() {
               )}
             </div>
           )}
-          <div className="flex justify-center mb-2">
-            <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
-          </div>
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setShowSidebar(true)} className="hidden md:block text-gray-600 dark:text-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <h1 className="text-xl font-bold dark:text-white">{userInfo?.name}님의 유통 서비스</h1>
+          <div className="flex items-center justify-center md:justify-between mb-4 pb-3 border-b border-gray-800">
+            <img src="/DBMUSIC_DISTRIBUTION_HEADER.svg" alt="DBMUSIC" className="h-7 invert cursor-pointer" onClick={() => { if (hasProjects) router.push('/client'); else window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+            <div className="hidden md:flex items-center gap-5 text-sm text-gray-300">
+              <button onClick={() => setSubTab('albums')} className={subTab === 'albums' ? 'text-white font-medium' : 'hover:text-white'}>앨범</button>
+              <button onClick={() => setSubTab('artists')} className={subTab === 'artists' ? 'text-white font-medium' : 'hover:text-white'}>아티스트</button>
+              <button onClick={() => setSubTab('content')} className={subTab === 'content' ? 'text-white font-medium' : 'hover:text-white'}>콘텐츠</button>
+              <button onClick={() => setSubTab('stats')} className={subTab === 'stats' ? 'text-white font-medium' : 'hover:text-white'}>통계</button>
+              <button onClick={() => setSubTab('withdraw')} className={subTab === 'withdraw' ? 'text-white font-medium' : 'hover:text-white'}>출금</button>
+              <button onClick={() => router.push('/client-mypage')} className="hover:text-white">마이페이지</button>
             </div>
+          </div>
+          <div className="flex justify-between items-center mb-4 md:hidden">
+            <h1 className="text-xl font-bold dark:text-white">{userInfo?.name}님의 유통 서비스</h1>
           </div>
 
           {dataLoading ? (
