@@ -1332,6 +1332,11 @@ useEffect(() => {
               isLocked={isLocked}
               unlockCommentCount={unlockCommentCount}
               unlockVideos={unlockVideos}
+              youtubeHandle={youtubeHandle}
+              setYoutubeHandle={setYoutubeHandle}
+              isVerifying={isVerifying}
+              commentMissions={commentMissions}
+              handleCommentVerify={handleCommentVerify}
             />
             {/* 게시물 현황 */}
             <ParticipantPostList
