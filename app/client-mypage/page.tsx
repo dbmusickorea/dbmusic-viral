@@ -322,7 +322,7 @@ export default function ClientMyPage() {
           ]
         }
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:pt-0 flex flex-col"
+      <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 p-4 flex flex-col${isInDistributionMode ? ' md:pt-0' : ''}`}
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
