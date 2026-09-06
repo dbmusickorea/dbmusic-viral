@@ -6,6 +6,7 @@ import {
   fetchRecentMedia,
   createRule,
   toggleRuleActive,
+  updateRule,
 } from "./actions";
 
 type Account = {
@@ -20,6 +21,7 @@ type Account = {
 type Rule = {
   id: string;
   instagram_media_id: string;
+  media_caption: string | null;
   trigger_keyword: string | null;
   dm_template: string;
   is_active: boolean;
@@ -48,6 +50,11 @@ export default function RuleManager({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [newTenantLabel, setNewTenantLabel] = useState("");
+
+  // 인라인 수정 중인 규칙 id와 그 draft 값
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editKeyword, setEditKeyword] = useState("");
+  const [editTemplate, setEditTemplate] = useState("");
 
   function handleConnectAccount() {
     const label = newTenantLabel.trim();
@@ -83,12 +90,14 @@ export default function RuleManager({
       setError("게시물과 DM 내용은 필수입니다");
       return;
     }
+    const selectedMedia = mediaList.find((m) => m.id === selectedMediaId);
     setError("");
     startTransition(async () => {
       try {
         await createRule({
           connectedAccountId: selectedAccountId,
           instagramMediaId: selectedMediaId,
+          mediaCaption: selectedMedia?.caption ?? "",
           triggerKeyword: keyword,
           dmTemplate: template,
         });
@@ -104,6 +113,27 @@ export default function RuleManager({
   function handleToggle(ruleId: string, current: boolean) {
     startTransition(async () => {
       await toggleRuleActive(ruleId, !current);
+      await loadRules(selectedAccountId);
+    });
+  }
+
+  function startEdit(rule: Rule) {
+    setEditingId(rule.id);
+    setEditKeyword(rule.trigger_keyword ?? "");
+    setEditTemplate(rule.dm_template);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  function saveEdit(ruleId: string) {
+    startTransition(async () => {
+      await updateRule(ruleId, {
+        triggerKeyword: editKeyword,
+        dmTemplate: editTemplate,
+      });
+      setEditingId(null);
       await loadRules(selectedAccountId);
     });
   }
@@ -205,7 +235,7 @@ export default function RuleManager({
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="text-left border-b">
-                <th className="py-2">media_id</th>
+                <th className="py-2">게시물</th>
                 <th>키워드</th>
                 <th>DM 내용</th>
                 <th>상태</th>
@@ -213,24 +243,82 @@ export default function RuleManager({
               </tr>
             </thead>
             <tbody>
-              {rules.map((r) => (
-                <tr key={r.id} className="border-b">
-                  <td className="py-2 font-mono text-xs">{r.instagram_media_id}</td>
-                  <td>{r.trigger_keyword ?? "(전체)"}</td>
-                  <td className="max-w-xs truncate">{r.dm_template}</td>
-                  <td>{r.is_active ? "활성" : "비활성"}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="text-blue-600 underline text-xs"
-                      onClick={() => handleToggle(r.id, r.is_active)}
-                      disabled={isPending}
-                    >
-                      {r.is_active ? "끄기" : "켜기"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {rules.map((r) => {
+                const isEditing = editingId === r.id;
+                return (
+                  <tr key={r.id} className="border-b align-top">
+                    <td className="py-2 max-w-[160px]">
+                      <span title={r.instagram_media_id}>
+                        {(r.media_caption ?? r.instagram_media_id).slice(0, 30)}
+                      </span>
+                    </td>
+                    <td>
+                      {isEditing ? (
+                        <input
+                          className="border rounded px-2 py-1 w-full"
+                          value={editKeyword}
+                          onChange={(e) => setEditKeyword(e.target.value)}
+                          placeholder="(전체)"
+                        />
+                      ) : (
+                        r.trigger_keyword ?? "(전체)"
+                      )}
+                    </td>
+                    <td className="max-w-xs">
+                      {isEditing ? (
+                        <textarea
+                          className="border rounded px-2 py-1 w-full"
+                          rows={2}
+                          value={editTemplate}
+                          onChange={(e) => setEditTemplate(e.target.value)}
+                        />
+                      ) : (
+                        <span className="truncate block">{r.dm_template}</span>
+                      )}
+                    </td>
+                    <td>{r.is_active ? "활성" : "비활성"}</td>
+                    <td className="space-x-2 whitespace-nowrap">
+                      {isEditing ? (
+                        <>
+                          <button
+                            type="button"
+                            className="text-green-600 underline text-xs"
+                            onClick={() => saveEdit(r.id)}
+                            disabled={isPending}
+                          >
+                            저장
+                          </button>
+                          <button
+                            type="button"
+                            className="text-gray-500 underline text-xs"
+                            onClick={cancelEdit}
+                          >
+                            취소
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="text-blue-600 underline text-xs"
+                            onClick={() => startEdit(r)}
+                          >
+                            수정
+                          </button>
+                          <button
+                            type="button"
+                            className="text-blue-600 underline text-xs"
+                            onClick={() => handleToggle(r.id, r.is_active)}
+                            disabled={isPending}
+                          >
+                            {r.is_active ? "끄기" : "켜기"}
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

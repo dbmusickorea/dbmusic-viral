@@ -24,7 +24,6 @@ export async function listRules(connectedAccountId: string) {
   return data;
 }
 
-// 계정의 최근 게시물을 불러와서 media_id를 직접 안 외워도 되게 함
 export async function fetchRecentMedia(connectedAccountId: string) {
   const { data: account, error } = await supabaseAdmin
     .from("connected_ig_accounts")
@@ -44,12 +43,14 @@ export async function fetchRecentMedia(connectedAccountId: string) {
 export async function createRule(formData: {
   connectedAccountId: string;
   instagramMediaId: string;
+  mediaCaption: string;
   triggerKeyword: string;
   dmTemplate: string;
 }) {
   const { error } = await supabaseAdmin.from("comment_dm_rules").insert({
     connected_account_id: formData.connectedAccountId,
     instagram_media_id: formData.instagramMediaId,
+    media_caption: formData.mediaCaption || null,
     trigger_keyword: formData.triggerKeyword || null,
     dm_template: formData.dmTemplate,
     is_active: true,
@@ -62,6 +63,21 @@ export async function toggleRuleActive(ruleId: string, isActive: boolean) {
   const { error } = await supabaseAdmin
     .from("comment_dm_rules")
     .update({ is_active: isActive })
+    .eq("id", ruleId);
+  if (error) throw error;
+  revalidatePath("/admin/ig-automation");
+}
+
+export async function updateRule(
+  ruleId: string,
+  updates: { triggerKeyword: string; dmTemplate: string }
+) {
+  const { error } = await supabaseAdmin
+    .from("comment_dm_rules")
+    .update({
+      trigger_keyword: updates.triggerKeyword || null,
+      dm_template: updates.dmTemplate,
+    })
     .eq("id", ruleId);
   if (error) throw error;
   revalidatePath("/admin/ig-automation");
