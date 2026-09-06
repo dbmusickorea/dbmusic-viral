@@ -224,7 +224,7 @@ export default function RuleManager({
   }
 
   return (
-    <div className="max-w-3xl mx-auto pb-16">
+    <div className="w-full mx-auto px-4 sm:px-6 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl pb-16">
       {/* 상단 계정 전환 바 */}
       <div className="flex items-center justify-between px-4 py-4 border-b">
         <button
