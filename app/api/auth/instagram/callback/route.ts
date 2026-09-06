@@ -3,6 +3,7 @@ import {
   exchangeCodeForShortLivedToken,
   exchangeForLongLivedToken,
   getInstagramProfile,
+  enableWebhookSubscription,
 } from "@/lib/instagram";
 import { createClient } from "@supabase/supabase-js";
 
@@ -46,6 +47,9 @@ export async function GET(req: NextRequest) {
     );
 
     if (error) throw error;
+
+    // 이 계정에서 발생하는 댓글 이벤트가 실제로 webhook으로 오도록 활성화
+    await enableWebhookSubscription(longLived.access_token);
 
     return NextResponse.redirect(new URL("/connect/success", req.url));
   } catch (err) {
