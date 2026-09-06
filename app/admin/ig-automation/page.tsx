@@ -1,9 +1,38 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { listConnectedAccounts, listRules } from "./actions";
 import RuleManager from "./RuleManager";
 
-export default async function IgAutomationPage() {
-  const accounts = await listConnectedAccounts();
-  const initialRules = accounts.length > 0 ? await listRules(accounts[0].id) : [];
+export default function IgAutomationPage() {
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [initialRules, setInitialRules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const role = localStorage.getItem("userRole");
+    if (role !== "admin") {
+      router.push("/");
+      return;
+    }
+    setAuthorized(true);
+
+    const loadData = async () => {
+      const accountsData = await listConnectedAccounts();
+      setAccounts(accountsData);
+      if (accountsData.length > 0) {
+        const rulesData = await listRules(accountsData[0].id);
+        setInitialRules(rulesData);
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, [router]);
+
+  if (!authorized || loading) return null;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
