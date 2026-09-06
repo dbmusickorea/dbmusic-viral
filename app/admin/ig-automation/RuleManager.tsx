@@ -235,6 +235,7 @@ export default function RuleManager({
           {selectedAccount ? `@${selectedAccount.ig_username}` : "연결된 계정 없음"}
           <span className="text-sm text-gray-400">⌄</span>
         </button>
+        <span className="text-sm font-medium text-gray-400">인스타 DM 자동화</span>
       </div>
 
       <div className="px-4 pt-4 space-y-4">
