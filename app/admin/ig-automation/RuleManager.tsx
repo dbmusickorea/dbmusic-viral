@@ -47,6 +47,16 @@ export default function RuleManager({
   const [template, setTemplate] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [newTenantLabel, setNewTenantLabel] = useState("");
+
+  function handleConnectAccount() {
+    const label = newTenantLabel.trim();
+    if (!label) {
+      setError("레이블/기획사명을 입력하세요");
+      return;
+    }
+    window.location.href = `/api/auth/instagram?tenant=${encodeURIComponent(label)}`;
+  }
 
   async function loadRules(accountId: string) {
     setSelectedAccountId(accountId);
@@ -100,6 +110,23 @@ export default function RuleManager({
 
   return (
     <div className="space-y-6">
+      <div className="border rounded p-4 space-y-2 bg-gray-50">
+        <h2 className="font-semibold">새 계정 연결</h2>
+        <input
+          className="border rounded px-3 py-2 w-full"
+          placeholder="레이블/기획사명 (예: 오늘의스케줄)"
+          value={newTenantLabel}
+          onChange={(e) => setNewTenantLabel(e.target.value)}
+        />
+        <button
+          type="button"
+          className="bg-blue-600 text-white rounded px-4 py-2"
+          onClick={handleConnectAccount}
+        >
+          인스타그램으로 로그인
+        </button>
+      </div>
+
       <div>
         <label className="block text-sm font-medium mb-1">계정 선택</label>
         <select
