@@ -54,7 +54,7 @@ export async function getInstagramProfile(accessToken: string) {
 // 구독해도 이 특정 계정에서 일어난 일은 webhook으로 안 옴
 export async function enableWebhookSubscription(accessToken: string) {
   const params = new URLSearchParams({
-    subscribed_fields: "comments",
+    subscribed_fields: "comments,messages",
     access_token: accessToken,
   });
   const res = await fetch(
@@ -85,4 +85,65 @@ export async function sendPrivateReply(
   const data = await res.json();
   if (!res.ok) throw new Error(`DM 발송 실패: ${JSON.stringify(data)}`);
   return data;
+}
+
+
+export async function sendFollowGatePrivateReply(
+  accessToken: string,
+  commentId: string,
+  promptText: string
+) {
+  const res = await fetch(
+    `https://graph.instagram.com/${GRAPH_VERSION}/me/messages?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipient: { comment_id: commentId },
+        message: {
+          text: promptText,
+          quick_replies: [
+            { content_type: "text", title: "팔로우 확인", payload: "FOLLOW_CHECK" },
+          ],
+        },
+      }),
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(`팔로우 확인 DM 발송 실패: ${JSON.stringify(data)}`);
+  return data;
+}
+
+export async function sendDirectMessage(
+  accessToken: string,
+  igsid: string,
+  text: string,
+  withFollowButton = false
+) {
+  const message: any = { text };
+  if (withFollowButton) {
+    message.quick_replies = [
+      { content_type: "text", title: "팔로우 확인", payload: "FOLLOW_CHECK" },
+    ];
+  }
+  const res = await fetch(
+    `https://graph.instagram.com/${GRAPH_VERSION}/me/messages?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recipient: { id: igsid }, message }),
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(`DM 발송 실패: ${JSON.stringify(data)}`);
+  return data;
+}
+
+export async function checkUserFollowsBusiness(accessToken: string, igsid: string) {
+  const res = await fetch(
+    `https://graph.instagram.com/${GRAPH_VERSION}/${igsid}?fields=is_user_follow_business&access_token=${accessToken}`
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(`팔로우 상태 조회 실패: ${JSON.stringify(data)}`);
+  return data.is_user_follow_business === true;
 }

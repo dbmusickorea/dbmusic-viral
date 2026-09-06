@@ -57,6 +57,7 @@ export async function createRule(formData: {
   mediaTimestamp: string;
   triggerKeyword: string;
   dmTemplate: string;
+  requireFollowCheck: boolean;
 }) {
   const { error } = await supabaseAdmin.from("comment_dm_rules").insert({
     connected_account_id: formData.connectedAccountId,
@@ -65,6 +66,7 @@ export async function createRule(formData: {
     media_timestamp: formData.mediaTimestamp || null,
     trigger_keyword: formData.triggerKeyword || null,
     dm_template: formData.dmTemplate,
+    require_follow_check: formData.requireFollowCheck,
     is_active: true,
   });
   if (error) throw error;

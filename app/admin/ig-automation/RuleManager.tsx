@@ -105,6 +105,7 @@ export default function RuleManager({
   const [selectedMediaId, setSelectedMediaId] = useState("");
   const [keyword, setKeyword] = useState("");
   const [template, setTemplate] = useState("");
+  const [requireFollowCheck, setRequireFollowCheck] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editKeyword, setEditKeyword] = useState("");
@@ -189,11 +190,13 @@ export default function RuleManager({
           mediaTimestamp: media?.timestamp ?? "",
           triggerKeyword: keyword,
           dmTemplate: template,
+          requireFollowCheck: requireFollowCheck,
         });
         setTemplate("");
         setKeyword("");
         setSelectedMediaId("");
         setMediaList([]);
+        setRequireFollowCheck(false);
         setShowAddModal(false);
         await loadRules(selectedAccountId);
       } catch (e: any) {
@@ -470,6 +473,15 @@ export default function RuleManager({
               value={template}
               onChange={(e) => setTemplate(e.target.value)}
             />
+
+            <label className="flex items-center gap-2 text-sm text-gray-600">
+              <input
+                type="checkbox"
+                checked={requireFollowCheck}
+                onChange={(e) => setRequireFollowCheck(e.target.checked)}
+              />
+              팔로우 안 했으면 팔로우 요청 후 DM 발송
+            </label>
 
             <button
               type="button"
