@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function ConnectErrorPage() {
+function ErrorContent() {
   const params = useSearchParams();
   const reason = params.get("reason");
 
@@ -22,5 +23,13 @@ export default function ConnectErrorPage() {
         자동화 관리로 돌아가기
       </Link>
     </div>
+  );
+}
+
+export default function ConnectErrorPage() {
+  return (
+    <Suspense fallback={null}>
+      <ErrorContent />
+    </Suspense>
   );
 }
