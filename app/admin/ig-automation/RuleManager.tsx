@@ -29,6 +29,7 @@ type Rule = {
   trigger_keyword: string | null;
   dm_template: string;
   is_active: boolean;
+  require_follow_check: boolean;
 };
 
 type Media = {
@@ -110,6 +111,7 @@ export default function RuleManager({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editKeyword, setEditKeyword] = useState("");
   const [editTemplate, setEditTemplate] = useState("");
+  const [editRequireFollowCheck, setEditRequireFollowCheck] = useState(false);
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -216,11 +218,16 @@ export default function RuleManager({
     setEditingId(rule.id);
     setEditKeyword(rule.trigger_keyword ?? "");
     setEditTemplate(rule.dm_template);
+    setEditRequireFollowCheck(rule.require_follow_check);
   }
 
   function saveEdit(ruleId: string) {
     startTransition(async () => {
-      await updateRule(ruleId, { triggerKeyword: editKeyword, dmTemplate: editTemplate });
+      await updateRule(ruleId, {
+        triggerKeyword: editKeyword,
+        dmTemplate: editTemplate,
+        requireFollowCheck: editRequireFollowCheck,
+      });
       setEditingId(null);
       await loadRules(selectedAccountId);
     });
@@ -307,6 +314,9 @@ export default function RuleManager({
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate max-w-[70%]" title={r.instagram_media_id}>
                       {r.media_caption ?? r.instagram_media_id}
+                      {r.require_follow_check && (
+                        <span className="ml-2 text-xs text-gray-400">· 팔로우 확인</span>
+                      )}
                     </span>
                     <Toggle on={r.is_active} onClick={() => handleToggle(r.id, r.is_active)} />
                   </div>
@@ -325,6 +335,14 @@ export default function RuleManager({
                         value={editTemplate}
                         onChange={(e) => setEditTemplate(e.target.value)}
                       />
+                      <label className="flex items-center gap-2 text-xs text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={editRequireFollowCheck}
+                          onChange={(e) => setEditRequireFollowCheck(e.target.checked)}
+                        />
+                        팔로우 안 했으면 팔로우 요청 후 DM 발송
+                      </label>
                       <div className="flex gap-3 text-sm">
                         <button
                           type="button"
