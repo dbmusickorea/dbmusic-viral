@@ -403,6 +403,9 @@ export default function RuleManager({
 
             <div className="border-t pt-3 space-y-2">
               <p className="text-sm font-medium">새 계정 연결</p>
+              <p className="text-xs text-gray-400">
+                인스타그램 아이디가 아니라, 내부에서 구분할 이름표예요. 실제 로그인은 다음 화면에서 진행돼요.
+              </p>
               <input
                 className="border rounded px-3 py-2 w-full text-sm"
                 placeholder="레이블/기획사명 (예: 오늘의스케줄)"
