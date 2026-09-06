@@ -84,13 +84,14 @@ export async function toggleRuleActive(ruleId: string, isActive: boolean) {
 
 export async function updateRule(
   ruleId: string,
-  updates: { triggerKeyword: string; dmTemplate: string }
+  updates: { triggerKeyword: string; dmTemplate: string; requireFollowCheck: boolean }
 ) {
   const { error } = await supabaseAdmin
     .from("comment_dm_rules")
     .update({
       trigger_keyword: updates.triggerKeyword || null,
       dm_template: updates.dmTemplate,
+      require_follow_check: updates.requireFollowCheck,
     })
     .eq("id", ruleId);
   if (error) throw error;
