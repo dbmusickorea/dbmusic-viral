@@ -14,6 +14,16 @@ export async function listConnectedAccounts() {
   return data;
 }
 
+export async function deleteConnectedAccount(accountId: string) {
+  // FK가 on delete cascade라 이 계정에 딸린 규칙들도 같이 삭제됨
+  const { error } = await supabaseAdmin
+    .from("connected_ig_accounts")
+    .delete()
+    .eq("id", accountId);
+  if (error) throw error;
+  revalidatePath("/admin/ig-automation");
+}
+
 export async function listRules(connectedAccountId: string) {
   const { data, error } = await supabaseAdmin
     .from("comment_dm_rules")
@@ -44,6 +54,7 @@ export async function createRule(formData: {
   connectedAccountId: string;
   instagramMediaId: string;
   mediaCaption: string;
+  mediaTimestamp: string;
   triggerKeyword: string;
   dmTemplate: string;
 }) {
@@ -51,6 +62,7 @@ export async function createRule(formData: {
     connected_account_id: formData.connectedAccountId,
     instagram_media_id: formData.instagramMediaId,
     media_caption: formData.mediaCaption || null,
+    media_timestamp: formData.mediaTimestamp || null,
     trigger_keyword: formData.triggerKeyword || null,
     dm_template: formData.dmTemplate,
     is_active: true,

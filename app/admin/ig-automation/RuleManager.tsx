@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import {
   listRules,
   fetchRecentMedia,
   createRule,
   toggleRuleActive,
   updateRule,
+  deleteConnectedAccount,
 } from "./actions";
+
+const ACCENT = "#F0472F";
 
 type Account = {
   id: string;
@@ -22,6 +25,7 @@ type Rule = {
   id: string;
   instagram_media_id: string;
   media_caption: string | null;
+  media_timestamp: string | null;
   trigger_keyword: string | null;
   dm_template: string;
   is_active: boolean;
@@ -34,27 +38,100 @@ type Media = {
   timestamp: string;
 };
 
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto p-6">
+        <h2 className="text-lg font-bold mb-4">{title}</h2>
+        {children}
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-6 w-full py-3 rounded-lg bg-gray-100 text-gray-700 font-medium"
+        >
+          닫기
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-10 h-6 rounded-full relative transition-colors ${
+        on ? "" : "bg-gray-300"
+      }`}
+      style={on ? { backgroundColor: ACCENT } : undefined}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+          on ? "translate-x-4" : ""
+        }`}
+      />
+    </button>
+  );
+}
+
 export default function RuleManager({
-  accounts,
+  initialAccounts,
   initialRules,
 }: {
-  accounts: Account[];
+  initialAccounts: Account[];
   initialRules: Rule[];
 }) {
-  const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? "");
+  const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
+  const [selectedAccountId, setSelectedAccountId] = useState(
+    initialAccounts[0]?.id ?? ""
+  );
   const [rules, setRules] = useState<Rule[]>(initialRules);
+  const [sortMode, setSortMode] = useState<"latest" | "post">("latest");
+
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTenantLabel, setNewTenantLabel] = useState("");
+
   const [mediaList, setMediaList] = useState<Media[]>([]);
   const [selectedMediaId, setSelectedMediaId] = useState("");
   const [keyword, setKeyword] = useState("");
   const [template, setTemplate] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [newTenantLabel, setNewTenantLabel] = useState("");
 
-  // 인라인 수정 중인 규칙 id와 그 draft 값
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editKeyword, setEditKeyword] = useState("");
   const [editTemplate, setEditTemplate] = useState("");
+
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState("");
+
+  const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
+
+  const sortedRules = useMemo(() => {
+    const copy = [...rules];
+    if (sortMode === "post") {
+      copy.sort((a, b) => {
+        const ta = a.media_timestamp ? new Date(a.media_timestamp).getTime() : 0;
+        const tb = b.media_timestamp ? new Date(b.media_timestamp).getTime() : 0;
+        return tb - ta;
+      });
+    }
+    return copy;
+  }, [rules, sortMode]);
+
+  async function loadRules(accountId: string) {
+    setSelectedAccountId(accountId);
+    const data = await listRules(accountId);
+    setRules(data as Rule[]);
+  }
 
   function handleConnectAccount() {
     const label = newTenantLabel.trim();
@@ -65,12 +142,23 @@ export default function RuleManager({
     window.location.href = `/api/auth/instagram?tenant=${encodeURIComponent(label)}`;
   }
 
-  async function loadRules(accountId: string) {
-    setSelectedAccountId(accountId);
-    const data = await listRules(accountId);
-    setRules(data as Rule[]);
-    setMediaList([]);
-    setSelectedMediaId("");
+  function handleReconnect(tenantLabel: string) {
+    window.location.href = `/api/auth/instagram?tenant=${encodeURIComponent(tenantLabel)}`;
+  }
+
+  function handleDeleteAccount(accountId: string) {
+    if (!confirm("이 계정 연동을 삭제하시겠어요? 등록된 자동화 규칙도 함께 삭제됩니다.")) return;
+    startTransition(async () => {
+      await deleteConnectedAccount(accountId);
+      const remaining = accounts.filter((a) => a.id !== accountId);
+      setAccounts(remaining);
+      if (remaining.length > 0) {
+        await loadRules(remaining[0].id);
+      } else {
+        setRules([]);
+        setSelectedAccountId("");
+      }
+    });
   }
 
   function handleLoadMedia() {
@@ -90,19 +178,23 @@ export default function RuleManager({
       setError("게시물과 DM 내용은 필수입니다");
       return;
     }
-    const selectedMedia = mediaList.find((m) => m.id === selectedMediaId);
+    const media = mediaList.find((m) => m.id === selectedMediaId);
     setError("");
     startTransition(async () => {
       try {
         await createRule({
           connectedAccountId: selectedAccountId,
           instagramMediaId: selectedMediaId,
-          mediaCaption: selectedMedia?.caption ?? "",
+          mediaCaption: media?.caption ?? "",
+          mediaTimestamp: media?.timestamp ?? "",
           triggerKeyword: keyword,
           dmTemplate: template,
         });
         setTemplate("");
         setKeyword("");
+        setSelectedMediaId("");
+        setMediaList([]);
+        setShowAddModal(false);
         await loadRules(selectedAccountId);
       } catch (e: any) {
         setError(e.message);
@@ -123,206 +215,270 @@ export default function RuleManager({
     setEditTemplate(rule.dm_template);
   }
 
-  function cancelEdit() {
-    setEditingId(null);
-  }
-
   function saveEdit(ruleId: string) {
     startTransition(async () => {
-      await updateRule(ruleId, {
-        triggerKeyword: editKeyword,
-        dmTemplate: editTemplate,
-      });
+      await updateRule(ruleId, { triggerKeyword: editKeyword, dmTemplate: editTemplate });
       setEditingId(null);
       await loadRules(selectedAccountId);
     });
   }
 
   return (
-    <div className="space-y-6">
-      <div className="border rounded p-4 space-y-2 bg-gray-50">
-        <h2 className="font-semibold">새 계정 연결</h2>
-        <input
-          className="border rounded px-3 py-2 w-full"
-          placeholder="레이블/기획사명 (예: 오늘의스케줄)"
-          value={newTenantLabel}
-          onChange={(e) => setNewTenantLabel(e.target.value)}
-        />
+    <div className="max-w-xl mx-auto pb-16">
+      {/* 상단 계정 전환 바 */}
+      <div className="flex items-center justify-between px-4 py-4 border-b">
         <button
           type="button"
-          className="bg-blue-600 text-white rounded px-4 py-2"
-          onClick={handleConnectAccount}
+          onClick={() => setShowAccountModal(true)}
+          className="flex items-center gap-1 font-bold text-lg"
         >
-          인스타그램으로 로그인
+          {selectedAccount ? `@${selectedAccount.ig_username}` : "연결된 계정 없음"}
+          <span className="text-sm text-gray-400">⌄</span>
         </button>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">계정 선택</label>
-        <select
-          className="border rounded px-3 py-2 w-full"
-          value={selectedAccountId}
-          onChange={(e) => loadRules(e.target.value)}
-        >
-          {accounts.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.tenant_label} ({a.ig_username})
-            </option>
-          ))}
-        </select>
-      </div>
+      <div className="px-4 pt-4 space-y-4">
+        {/* 안내 배너 */}
+        <div className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-600">
+          게시물에 댓글이 달리면 자동으로 DM을 보내드려요
+        </div>
 
-      <div className="border rounded p-4 space-y-3">
-        <h2 className="font-semibold">새 규칙 추가</h2>
-
-        <button
-          type="button"
-          className="text-sm text-blue-600 underline"
-          onClick={handleLoadMedia}
-          disabled={isPending}
-        >
-          최근 게시물 불러오기
-        </button>
-
-        {mediaList.length > 0 && (
-          <select
-            className="border rounded px-3 py-2 w-full"
-            value={selectedMediaId}
-            onChange={(e) => setSelectedMediaId(e.target.value)}
+        {/* 탭 */}
+        <div className="bg-gray-100 rounded-lg p-1 flex text-sm">
+          <div
+            className="flex-1 text-center py-2 rounded-md bg-white font-semibold"
+            style={{ color: ACCENT }}
           >
-            <option value="">게시물 선택</option>
-            {mediaList.map((m) => (
-              <option key={m.id} value={m.id}>
-                {(m.caption ?? "(캡션 없음)").slice(0, 40)} —{" "}
-                {new Date(m.timestamp).toLocaleDateString()}
-              </option>
-            ))}
-          </select>
-        )}
+            DM 자동화
+          </div>
+          <div className="flex-1 text-center py-2 text-gray-400">이벤트 추첨</div>
+        </div>
 
-        <input
-          className="border rounded px-3 py-2 w-full"
-          placeholder="트리거 키워드 (비우면 모든 댓글에 반응)"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
+        {/* 개수 + 추가 버튼 */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-500">총 {rules.length}개</span>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            disabled={!selectedAccountId}
+            className="text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-40"
+            style={{ backgroundColor: ACCENT }}
+          >
+            + 자동화 추가하기
+          </button>
+        </div>
 
-        <textarea
-          className="border rounded px-3 py-2 w-full"
-          placeholder="보낼 DM 내용"
-          rows={3}
-          value={template}
-          onChange={(e) => setTemplate(e.target.value)}
-        />
+        {/* 정렬 */}
+        <div className="flex gap-4 text-sm">
+          <button
+            type="button"
+            onClick={() => setSortMode("post")}
+            className={sortMode === "post" ? "font-bold" : "text-gray-400"}
+          >
+            게시물 순
+          </button>
+          <button
+            type="button"
+            onClick={() => setSortMode("latest")}
+            className={sortMode === "latest" ? "font-bold" : "text-gray-400"}
+          >
+            최신 순
+          </button>
+        </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        <button
-          type="button"
-          className="bg-black text-white rounded px-4 py-2 disabled:opacity-50"
-          onClick={handleCreateRule}
-          disabled={isPending}
-        >
-          규칙 저장
-        </button>
-      </div>
-
-      <div>
-        <h2 className="font-semibold mb-2">등록된 규칙</h2>
-        {rules.length === 0 ? (
-          <p className="text-gray-500 text-sm">등록된 규칙이 없습니다</p>
+        {/* 목록 */}
+        {sortedRules.length === 0 ? (
+          <div className="py-20 text-center text-gray-400 text-sm">
+            아직 자동화된 게시물이 없어요
+            <div className="mt-1">댓글에 자동으로 DM을 보내 팔로워를 고객으로 전환해보세요</div>
+          </div>
         ) : (
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="py-2">게시물</th>
-                <th>키워드</th>
-                <th>DM 내용</th>
-                <th>상태</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules.map((r) => {
-                const isEditing = editingId === r.id;
-                return (
-                  <tr key={r.id} className="border-b align-top">
-                    <td className="py-2 max-w-[160px]">
-                      <span title={r.instagram_media_id}>
-                        {(r.media_caption ?? r.instagram_media_id).slice(0, 30)}
+          <div className="space-y-3">
+            {sortedRules.map((r) => {
+              const isEditing = editingId === r.id;
+              return (
+                <div key={r.id} className="border rounded-xl p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-sm truncate max-w-[70%]" title={r.instagram_media_id}>
+                      {r.media_caption ?? r.instagram_media_id}
+                    </span>
+                    <Toggle on={r.is_active} onClick={() => handleToggle(r.id, r.is_active)} />
+                  </div>
+
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <input
+                        className="border rounded px-3 py-2 w-full text-sm"
+                        value={editKeyword}
+                        onChange={(e) => setEditKeyword(e.target.value)}
+                        placeholder="키워드 (비우면 전체 댓글)"
+                      />
+                      <textarea
+                        className="border rounded px-3 py-2 w-full text-sm"
+                        rows={2}
+                        value={editTemplate}
+                        onChange={(e) => setEditTemplate(e.target.value)}
+                      />
+                      <div className="flex gap-3 text-sm">
+                        <button
+                          type="button"
+                          className="font-semibold"
+                          style={{ color: ACCENT }}
+                          onClick={() => saveEdit(r.id)}
+                        >
+                          저장
+                        </button>
+                        <button
+                          type="button"
+                          className="text-gray-400"
+                          onClick={() => setEditingId(null)}
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span className="truncate max-w-[75%]">
+                        {r.trigger_keyword ? `"${r.trigger_keyword}" → ` : "전체 댓글 → "}
+                        {r.dm_template}
                       </span>
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <input
-                          className="border rounded px-2 py-1 w-full"
-                          value={editKeyword}
-                          onChange={(e) => setEditKeyword(e.target.value)}
-                          placeholder="(전체)"
-                        />
-                      ) : (
-                        r.trigger_keyword ?? "(전체)"
-                      )}
-                    </td>
-                    <td className="max-w-xs">
-                      {isEditing ? (
-                        <textarea
-                          className="border rounded px-2 py-1 w-full"
-                          rows={2}
-                          value={editTemplate}
-                          onChange={(e) => setEditTemplate(e.target.value)}
-                        />
-                      ) : (
-                        <span className="truncate block">{r.dm_template}</span>
-                      )}
-                    </td>
-                    <td>{r.is_active ? "활성" : "비활성"}</td>
-                    <td className="space-x-2 whitespace-nowrap">
-                      {isEditing ? (
-                        <>
-                          <button
-                            type="button"
-                            className="text-green-600 underline text-xs"
-                            onClick={() => saveEdit(r.id)}
-                            disabled={isPending}
-                          >
-                            저장
-                          </button>
-                          <button
-                            type="button"
-                            className="text-gray-500 underline text-xs"
-                            onClick={cancelEdit}
-                          >
-                            취소
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            className="text-blue-600 underline text-xs"
-                            onClick={() => startEdit(r)}
-                          >
-                            수정
-                          </button>
-                          <button
-                            type="button"
-                            className="text-blue-600 underline text-xs"
-                            onClick={() => handleToggle(r.id, r.is_active)}
-                            disabled={isPending}
-                          >
-                            {r.is_active ? "끄기" : "켜기"}
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <button
+                        type="button"
+                        className="text-xs font-medium"
+                        style={{ color: ACCENT }}
+                        onClick={() => startEdit(r)}
+                      >
+                        수정
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
+
+      {/* 계정 관리 모달 */}
+      {showAccountModal && (
+        <Modal title="인스타그램 연동 관리" onClose={() => setShowAccountModal(false)}>
+          <div className="space-y-3">
+            {accounts.map((a) => (
+              <div key={a.id} className="border rounded-xl p-3">
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    className="font-medium text-left"
+                    onClick={() => {
+                      loadRules(a.id);
+                      setShowAccountModal(false);
+                    }}
+                  >
+                    @{a.ig_username}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAccount(a.id)}
+                    className="text-gray-400 hover:text-red-600 text-sm"
+                  >
+                    삭제
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  기능이 정상 동작하지 않으면 다시 연동할 수 있어요
+                </p>
+                <button
+                  type="button"
+                  className="text-xs font-semibold mt-1"
+                  style={{ color: ACCENT }}
+                  onClick={() => handleReconnect(a.tenant_label)}
+                >
+                  다시 연동하기
+                </button>
+              </div>
+            ))}
+
+            <div className="border-t pt-3 space-y-2">
+              <p className="text-sm font-medium">새 계정 연결</p>
+              <input
+                className="border rounded px-3 py-2 w-full text-sm"
+                placeholder="레이블/기획사명 (예: 오늘의스케줄)"
+                value={newTenantLabel}
+                onChange={(e) => setNewTenantLabel(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={handleConnectAccount}
+                className="w-full py-2 rounded-lg text-white text-sm font-semibold"
+                style={{ backgroundColor: ACCENT }}
+              >
+                인스타그램으로 로그인
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* 자동화 추가 모달 */}
+      {showAddModal && (
+        <Modal title="자동화 추가하기" onClose={() => setShowAddModal(false)}>
+          <div className="space-y-3">
+            <button
+              type="button"
+              className="text-sm font-medium"
+              style={{ color: ACCENT }}
+              onClick={handleLoadMedia}
+              disabled={isPending}
+            >
+              최근 게시물 불러오기
+            </button>
+
+            {mediaList.length > 0 && (
+              <select
+                className="border rounded px-3 py-2 w-full text-sm"
+                value={selectedMediaId}
+                onChange={(e) => setSelectedMediaId(e.target.value)}
+              >
+                <option value="">게시물 선택</option>
+                {mediaList.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {(m.caption ?? "(캡션 없음)").slice(0, 40)} —{" "}
+                    {new Date(m.timestamp).toLocaleDateString()}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <input
+              className="border rounded px-3 py-2 w-full text-sm"
+              placeholder="트리거 키워드 (비우면 모든 댓글에 반응)"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+
+            <textarea
+              className="border rounded px-3 py-2 w-full text-sm"
+              placeholder="보낼 DM 내용"
+              rows={3}
+              value={template}
+              onChange={(e) => setTemplate(e.target.value)}
+            />
+
+            <button
+              type="button"
+              onClick={handleCreateRule}
+              disabled={isPending}
+              className="w-full py-3 rounded-lg text-white font-semibold disabled:opacity-40"
+              style={{ backgroundColor: ACCENT }}
+            >
+              저장
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
