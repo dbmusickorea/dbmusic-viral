@@ -1413,7 +1413,7 @@ useEffect(() => {
                               {myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
                                 <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"><Music size={10} /> COVER</span>
                               )}
-                              {(p.projects?.cover_video_count ?? 0) > 0 && myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
+                              {(p.projects?.cover_video_count ?? 0) > 0 && p.projects?.cover_contest_enabled && myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
                                 <button onClick={(e) => { e.stopPropagation(); router.push(`/cover-contest?project_code=${p.project_code}`) }} className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 ml-1">
                                   <Trophy size={10} /> 컨테스트 순위 보기
                                 </button>

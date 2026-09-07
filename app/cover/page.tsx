@@ -554,9 +554,14 @@ export default function CoverPage() {
                           <p className="text-xs text-gray-500 mt-1">{p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
                         </div>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full shrink-0 ml-2 ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
-                        {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '종료'}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        {p.cover_contest_enabled && (
+                          <button onClick={(e) => { e.stopPropagation(); router.push(`/cover-contest?project_code=${p.project_code}`) }} className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-0.5">🏆 컨테스트</button>
+                        )}
+                        <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '종료'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}

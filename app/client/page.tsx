@@ -782,7 +782,14 @@ export default function Page3() {
             {projectInfo && (
               <>
                 {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
-                  <button onClick={() => router.push('/cover')} className="w-full text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 mb-3 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
+                  projectInfo?.cover_contest_enabled ? (
+                    <div className="flex gap-2 mb-3">
+                      <button onClick={() => router.push('/cover')} className="flex-1 text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
+                      <button onClick={() => router.push(`/cover-contest?project_code=${projectInfo.project_code}`)} className="flex-1 text-xs border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200 rounded px-3 py-2 flex items-center justify-center gap-1"><Trophy size={12} /> 컨테스트 페이지</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => router.push('/cover')} className="w-full text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 mb-3 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
+                  )
                 )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 h-full flex flex-col">

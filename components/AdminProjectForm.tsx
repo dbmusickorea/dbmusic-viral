@@ -350,6 +350,10 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                         <input type="file" accept="audio/wav,audio/mpeg" onChange={(e) => setCoverMrFile(e.target.files?.[0] ?? null)} className={inputClass} />
                         {coverMrFile && <p className="text-xs text-green-600 mt-1">{coverMrFile.name}</p>}
                       </div>
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" id="coverContestEnabled" checked={!!formData.coverContestEnabled} onChange={(e) => setFormData((prev: any) => ({...prev, coverContestEnabled: e.target.checked}))} />
+                        <label htmlFor="coverContestEnabled" className="text-sm font-medium dark:text-gray-200">🏆 커버 컨테스트 진행 (좋아요순위 + 의뢰인 채점으로 순위 산정)</label>
+                      </div>
                     </>
                     )}
                     <div>

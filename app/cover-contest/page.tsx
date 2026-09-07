@@ -146,6 +146,8 @@ export default function CoverContestPage() {
 
         {loading ? (
           <p className="text-center text-gray-400 py-10">불러오는 중...</p>
+        ) : !isAdmin && project && !project.cover_contest_enabled ? (
+          <p className="text-center text-gray-400 py-10">이 프로젝트는 컨테스트가 진행되지 않아요.</p>
         ) : finalRows.length === 0 ? (
           <p className="text-center text-gray-400 py-10">등록된 커버 게시물이 없어요.</p>
         ) : (
