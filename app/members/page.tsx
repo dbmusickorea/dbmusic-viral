@@ -853,10 +853,15 @@ export default function Page4() {
 
   // SNS 변경 요청 대기중 이거나, 커버가능자 승인 대기중인 회원은 목록 맨 위로 (처리되면 원래 위치로 복귀)
   const hasPendingAction = (p: any) =>
-    allPendingSnsRequests.some((r: any) => r.member_id === p.id) || (p.is_cover_possible && !p.cover_approved)
+    allPendingSnsRequests.some((r: any) => r.member_id === p.id) ||
+    (p.is_cover_possible && !p.cover_approved) ||
+    bannedMemberIds.includes(p.id) ||
+    !!p.is_locked ||
+    (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date())
 
   const filteredParticipants = participants
     .filter(p => {
+      if (coverFilter === 'pending') return hasPendingAction(p)
       if (coverFilter === 'cover') return p.is_cover_possible
       if (coverFilter === 'normal') return !p.is_cover_possible && !p.is_agency
       if (coverFilter === 'agency') return p.is_agency || participants.find((a: any) => a.is_agency && a.referral_code === p.referred_by)
@@ -1029,6 +1034,7 @@ export default function Page4() {
                   <h2 className="font-bold dark:text-white">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
                   <div className="flex gap-1">
                     <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>전체</button>
+                    <button onClick={() => setCoverFilter('pending')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'pending' ? 'bg-red-600 text-white border-red-600' : 'dark:text-gray-300'}`}>확인필요</button>
                     <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : 'dark:text-gray-300'}`}>커버가능</button>
                     <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : 'dark:text-gray-300'}`}>일반회원</button>
                     <button onClick={() => setCoverFilter('agency')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'agency' ? 'bg-yellow-600 text-white border-yellow-600' : 'dark:text-gray-300'}`}>에이전시</button>
