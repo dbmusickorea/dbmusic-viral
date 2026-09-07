@@ -164,7 +164,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0 })
+                      body: JSON.stringify({ is_locked: false, comment_count_for_unlock: 0, last_unlocked_at: new Date().toISOString() })
                     })
                     const tokenRes = await fetchWithAuth(`/api/push_tokens?user_id=${memberId}`)
                     const tokens = await tokenRes.json()

@@ -467,11 +467,12 @@ export async function GET() {
         .limit(1)
       const hadOpportunity = (recentOpenProjects?.length ?? 0) > 0
 
-      const { data: allParticipants } = await supabase.from('participants').select('id, created_at').eq('is_locked', false)
+      const { data: allParticipants } = await supabase.from('participants').select('id, created_at, last_unlocked_at').eq('is_locked', false)
       if (allParticipants && hadOpportunity) {
         for (const p of allParticipants) {
-          // 가입한 지 1개월 미만인 사람은 제외
-          if (new Date(p.created_at) > oneMonthAgo) continue
+          // 가입한 지 1개월 미만인 사람은 제외 (관리자가 수동으로 잠금 해제했다면 그 시점부터 1개월 기준)
+          const graceBaseline = p.last_unlocked_at ? new Date(p.last_unlocked_at) : new Date(p.created_at)
+          if (graceBaseline > oneMonthAgo) continue
           
           // 현재 ACTIVE 참여자는 제외 (여러 프로젝트에 동시 참여중일 수 있어 limit(1)로 존재 여부만 확인)
           const { data: activeParticipation } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').limit(1)
