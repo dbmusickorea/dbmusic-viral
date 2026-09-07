@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { fetchWithAuth } from '../app/lib/fetchWithAuth'
+import { Trophy } from 'lucide-react'
 
 type Props = {
   formData: any
@@ -352,7 +353,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </div>
                       <div className="flex items-center gap-2">
                         <input type="checkbox" id="coverContestEnabled" checked={!!formData.coverContestEnabled} onChange={(e) => setFormData((prev: any) => ({...prev, coverContestEnabled: e.target.checked}))} />
-                        <label htmlFor="coverContestEnabled" className="text-sm font-medium dark:text-gray-200">🏆 커버 컨테스트 진행 (좋아요순위 + 의뢰인 채점으로 순위 산정)</label>
+                        <label htmlFor="coverContestEnabled" className="text-sm font-medium dark:text-gray-200 flex items-center gap-1"><Trophy size={14} /> 커버 컨테스트 진행 (좋아요순위 + 의뢰인 채점으로 순위 산정)</label>
                       </div>
                     </>
                     )}

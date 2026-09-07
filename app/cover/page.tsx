@@ -4,7 +4,7 @@ import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, LayoutGrid, BarChart2, FileText, User, RefreshCw, ArrowDown, Megaphone, Music, Mic, AlertTriangle, CheckCircle, ListChecks } from 'lucide-react'
+import { Bell, LayoutGrid, BarChart2, FileText, User, RefreshCw, ArrowDown, Megaphone, Music, Mic, AlertTriangle, CheckCircle, ListChecks, Trophy } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
@@ -556,7 +556,7 @@ export default function CoverPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0 ml-2">
                         {p.cover_contest_enabled && (
-                          <button onClick={(e) => { e.stopPropagation(); router.push(`/cover-contest?project_code=${p.project_code}`) }} className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-0.5">🏆 컨테스트</button>
+                          <button onClick={(e) => { e.stopPropagation(); router.push(`/cover-contest?project_code=${p.project_code}`) }} className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-0.5"><Trophy size={10} /> 컨테스트</button>
                         )}
                         <span className={`text-xs px-2 py-1 rounded-full ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
                           {p.status === 'ONGOING' ? '진행중' : p.status === 'PENDING' ? '대기중' : '종료'}
