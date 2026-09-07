@@ -51,17 +51,34 @@ function CoverContestPageInner() {
     const members = await membersRes.json()
     const memberMap = new Map((Array.isArray(members) ? members : []).map((m: any) => [m.id, m]))
 
-    // 좋아요순 정렬 + 동순위 처리 + 순위점수 산정
-    const sorted = [...posts].sort((a: any, b: any) => (b.likes_count ?? 0) - (a.likes_count ?? 0))
-    let rank = 0
-    let prevLikes: number | null = null
-    const withRankScore = sorted.map((p: any, idx: number) => {
-      if (prevLikes === null || (p.likes_count ?? 0) !== prevLikes) {
-        rank = idx + 1
-        prevLikes = p.likes_count ?? 0
+    // 좋아요순 정렬 + 동순위 처리 + 순위점수 산정 (체험단 채널)
+    const rankBy = (list: any[], field: string, rankKey: string, scoreKey: string) => {
+      const sorted = [...list].sort((a: any, b: any) => (b[field] ?? 0) - (a[field] ?? 0))
+      let rank = 0
+      let prev: number | null = null
+      const map = new Map<number, { rank: number; score: number }>()
+      sorted.forEach((p: any, idx: number) => {
+        if (prev === null || (p[field] ?? 0) !== prev) {
+          rank = idx + 1
+          prev = p[field] ?? 0
+        }
+        map.set(p.id, { rank, score: Math.max(11 - rank, 0) })
+      })
+      return map
+    }
+
+    const likeRankMap = rankBy(posts, 'likes_count', 'likeRank', 'rankScore')
+    const adminRankMap = rankBy(posts, 'admin_channel_likes', 'adminLikeRank', 'adminRankScore')
+
+    const withRankScore = posts.map((p: any) => {
+      const likeInfo = likeRankMap.get(p.id) ?? { rank: 0, score: 0 }
+      const adminInfo = adminRankMap.get(p.id) ?? { rank: 0, score: 0 }
+      return {
+        ...p,
+        likeRank: likeInfo.rank, rankScore: likeInfo.score,
+        adminLikeRank: adminInfo.rank, adminRankScore: adminInfo.score,
+        member: memberMap.get(p.member_id)
       }
-      const rankScore = Math.max(11 - rank, 0)
-      return { ...p, likeRank: rank, rankScore, member: memberMap.get(p.member_id) }
     })
 
     setRows(withRankScore)
@@ -70,7 +87,7 @@ function CoverContestPageInner() {
 
   // 최종점수 계산 + 동점 처리된 최종순위
   const computeFinalRanking = (list: any[]) => {
-    const withFinal = list.map(r => ({ ...r, finalScore: r.rankScore + (r.contest_score ?? 0) }))
+    const withFinal = list.map(r => ({ ...r, finalScore: r.rankScore + r.adminRankScore + (r.contest_score ?? 0) }))
     const sorted = [...withFinal].sort((a, b) => b.finalScore - a.finalScore)
     let rank = 0
     let prevScore: number | null = null
@@ -99,6 +116,21 @@ function CoverContestPageInner() {
     })
     setSaving(null)
     showToast('점수가 저장됐어요.')
+  }
+
+  const handleAdminUrlChange = (postId: number, value: string) => {
+    setRows(prev => prev.map(r => r.id === postId ? { ...r, admin_channel_url: value } : r))
+  }
+
+  const handleAdminUrlSave = async (postId: number, value: string) => {
+    setSaving(postId)
+    await fetchWithAuth(`/api/posts?id=${postId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_channel_url: value || null })
+    })
+    setSaving(null)
+    showToast('더블비뮤직 채널 링크가 저장됐어요. 다음 좋아요 집계 때 반영돼요.')
   }
 
   const handleClose = async () => {
@@ -161,18 +193,34 @@ function CoverContestPageInner() {
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className={`text-lg font-bold w-8 text-center ${r.finalRank === 1 ? 'text-yellow-500' : 'text-gray-400'}`}>{r.finalRank}</span>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium dark:text-white">{r.member?.name ?? '알 수 없음'}</p>
                       <a href={r.post_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 break-all">{r.post_url}</a>
+                      {isAdmin ? (
+                        <input
+                          type="text" placeholder="더블비뮤직 채널 링크 입력 (유튜브/인스타/틱톡)"
+                          defaultValue={r.admin_channel_url ?? ''}
+                          onBlur={(e) => { if (e.target.value !== (r.admin_channel_url ?? '')) { handleAdminUrlChange(r.id, e.target.value); handleAdminUrlSave(r.id, e.target.value) } }}
+                          disabled={saving === r.id}
+                          className="text-xs w-full mt-1 border dark:border-gray-600 rounded px-2 py-1 dark:bg-gray-700 dark:text-white"
+                        />
+                      ) : r.admin_channel_url ? (
+                        <a href={r.admin_channel_url} target="_blank" rel="noopener noreferrer" className="text-xs text-yellow-600 break-all block mt-0.5">🎵 더블비뮤직 채널: {r.admin_channel_url}</a>
+                      ) : null}
                     </div>
                   </div>
                   <p className="text-sm font-bold text-blue-600 shrink-0">{r.finalScore}점</p>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center border-t border-gray-100 dark:border-gray-700 pt-2 mt-2">
+                <div className="grid grid-cols-4 gap-2 text-center border-t border-gray-100 dark:border-gray-700 pt-2 mt-2">
                   <div>
-                    <p className="text-[10px] text-gray-400">좋아요</p>
+                    <p className="text-[10px] text-gray-400">체험단 좋아요</p>
                     <p className="text-sm font-medium dark:text-white">{r.likes_count?.toLocaleString() ?? 0}</p>
                     <p className="text-[10px] text-gray-400">({r.likeRank}위 · {r.rankScore}점)</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400">더블비뮤직 좋아요</p>
+                    <p className="text-sm font-medium dark:text-white">{r.admin_channel_url ? (r.admin_channel_likes?.toLocaleString() ?? 0) : '-'}</p>
+                    <p className="text-[10px] text-gray-400">{r.admin_channel_url ? `(${r.adminLikeRank}위 · ${r.adminRankScore}점)` : ''}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400">의뢰인 점수</p>

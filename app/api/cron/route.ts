@@ -139,8 +139,55 @@ async function updatePostStats(posts: any[]) {
   return updated
 }
 
+async function updateAdminChannelLikes() {
+  const { data: posts } = await supabase.from('posts').select('id, admin_channel_url').not('admin_channel_url', 'is', null).neq('admin_channel_url', '')
+  if (!posts) return
+  for (const post of posts) {
+    try {
+      const url = post.admin_channel_url as string
+      let likes = 0
+
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
+        if (!videoId) continue
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=statistics&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+        const data = await res.json()
+        likes = Number(data.items?.[0]?.statistics?.likeCount ?? 0)
+
+      } else if (url.includes('instagram.com')) {
+        const shortcode = (url.split('/p/')[1]?.split('/')[0] ?? url.split('/reel/')[1]?.split('/')[0])?.split('?')[0]
+        if (!shortcode) continue
+        const res = await fetch(
+          `https://instagram-api-fast-reliable-data-scraper.p.rapidapi.com/post?shortcode=${shortcode}`,
+          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'instagram-api-fast-reliable-data-scraper.p.rapidapi.com' } }
+        )
+        const data = await res.json()
+        likes = data.like_count ?? 0
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+      } else if (url.includes('tiktok.com')) {
+        const ttVideoIdMatch = url.match(/video\/(\d+)/)
+        const ttVideoId = ttVideoIdMatch ? ttVideoIdMatch[1] : null
+        if (ttVideoId) {
+          const res = await fetch(
+            `https://tiktok-api23.p.rapidapi.com/api/post/detail?videoId=${ttVideoId}`,
+            { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com' } }
+          )
+          const data = await res.json()
+          likes = data?.itemInfo?.itemStruct?.stats?.diggCount ?? 0
+        }
+      } else {
+        continue
+      }
+
+      await supabase.from('posts').update({ admin_channel_likes: likes }).eq('id', post.id)
+    } catch { continue }
+  }
+}
+
 export async function GET() {
   try {
+    await updateAdminChannelLikes()
     const now = new Date()
     const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000)
     const currentHour = kstNow.getUTCHours()
