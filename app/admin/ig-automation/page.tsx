@@ -13,7 +13,8 @@ export default function IgAutomationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "더블비뮤직 인스타DM";
+    const t = setTimeout(() => { document.title = "더블비뮤직 인스타DM"; }, 100);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {

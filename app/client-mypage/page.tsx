@@ -25,7 +25,8 @@ export default function ClientMyPage() {
   }, [])
 
   useEffect(() => {
-    document.title = isInDistributionMode ? '더블비뮤직 유통' : '더블비뮤직 바이럴'
+    const t = setTimeout(() => { document.title = isInDistributionMode ? '더블비뮤직 유통' : '더블비뮤직 바이럴' }, 100)
+    return () => clearTimeout(t)
   }, [isInDistributionMode])
   const [hasProjects, setHasProjects] = useState(true)
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')

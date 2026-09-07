@@ -157,7 +157,8 @@ export default function DistributionAdminPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
 
   useEffect(() => {
-    document.title = '더블비뮤직 유통 (관리자)'
+    const t = setTimeout(() => { document.title = '더블비뮤직 유통 (관리자)' }, 100)
+    return () => clearTimeout(t)
   }, [])
 
   useEffect(() => {

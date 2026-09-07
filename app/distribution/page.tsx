@@ -99,7 +99,8 @@ export default function DistributionPage() {
   })
 
   useEffect(() => {
-    document.title = '더블비뮤직 유통'
+    const t = setTimeout(() => { document.title = '더블비뮤직 유통' }, 100)
+    return () => clearTimeout(t)
   }, [])
 
   useEffect(() => {
