@@ -14,14 +14,13 @@ export default function IgAutomationPage() {
 
   useEffect(() => {
     const desired = "더블비뮤직 인스타DM";
-    document.title = desired;
-    const titleEl = document.querySelector("title");
-    if (!titleEl) return;
-    const observer = new MutationObserver(() => {
+    let count = 0;
+    const interval = setInterval(() => {
       if (document.title !== desired) document.title = desired;
-    });
-    observer.observe(titleEl, { childList: true });
-    return () => observer.disconnect();
+      count += 1;
+      if (count > 25) clearInterval(interval);
+    }, 200);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
