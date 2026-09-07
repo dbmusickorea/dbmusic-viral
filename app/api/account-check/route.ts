@@ -27,7 +27,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const cleanAccountNumber = accountNumber.replace(/[^0-9]/g, '')
 
   return new Promise<NextResponse>((resolve) => {
-    accountCheckService.CheckAccountHolder(
+    accountCheckService.checkAccountInfo(
       '6598703644',
       bankCode,
       cleanAccountNumber,
