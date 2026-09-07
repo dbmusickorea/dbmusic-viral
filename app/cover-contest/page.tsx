@@ -1,11 +1,11 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 import { useToast } from '../../components/ToastContext'
 import { ArrowLeft, Trophy, Lock } from 'lucide-react'
 
-export default function CoverContestPage() {
+function CoverContestPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const projectCode = searchParams.get('project_code')
@@ -205,5 +205,13 @@ export default function CoverContestPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CoverContestPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900" />}>
+      <CoverContestPageInner />
+    </Suspense>
   )
 }
