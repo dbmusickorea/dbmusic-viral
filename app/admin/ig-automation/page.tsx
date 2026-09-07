@@ -13,6 +13,10 @@ export default function IgAutomationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = "더블비뮤직 인스타DM";
+  }, []);
+
+  useEffect(() => {
     const role = localStorage.getItem("userRole");
     if (role !== "admin") {
       router.push("/");

@@ -99,6 +99,10 @@ export default function DistributionPage() {
   })
 
   useEffect(() => {
+    document.title = '더블비뮤직 유통'
+  }, [])
+
+  useEffect(() => {
     if (subTab === 'withdraw') fetchWithdrawData()
   }, [subTab, userInfo?.client_id])
 

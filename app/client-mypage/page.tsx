@@ -23,6 +23,10 @@ export default function ClientMyPage() {
   useEffect(() => {
     setIsInDistributionMode(localStorage.getItem('distributionMode') === 'true')
   }, [])
+
+  useEffect(() => {
+    document.title = isInDistributionMode ? '더블비뮤직 유통' : '더블비뮤직 바이럴'
+  }, [isInDistributionMode])
   const [hasProjects, setHasProjects] = useState(true)
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 

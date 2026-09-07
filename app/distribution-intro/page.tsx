@@ -1,9 +1,14 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function DistributionIntroPage() {
   const router = useRouter()
+
+  useEffect(() => {
+    document.title = '더블비뮤직 유통'
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
