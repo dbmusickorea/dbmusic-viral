@@ -13,8 +13,15 @@ export default function IgAutomationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => { document.title = "더블비뮤직 인스타DM"; }, 100);
-    return () => clearTimeout(t);
+    const desired = "더블비뮤직 인스타DM";
+    document.title = desired;
+    const titleEl = document.querySelector("title");
+    if (!titleEl) return;
+    const observer = new MutationObserver(() => {
+      if (document.title !== desired) document.title = desired;
+    });
+    observer.observe(titleEl, { childList: true });
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
