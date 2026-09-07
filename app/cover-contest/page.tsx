@@ -29,7 +29,9 @@ function CoverContestPageInner() {
   }, [])
 
   useEffect(() => {
-    if (userRole && projectCode) fetchData()
+    if (!userRole) return
+    if (!projectCode) { setLoading(false); return }
+    fetchData()
   }, [userRole, projectCode])
 
   const fetchData = async () => {
@@ -144,7 +146,9 @@ function CoverContestPageInner() {
           </button>
         )}
 
-        {loading ? (
+        {!projectCode ? (
+          <p className="text-center text-gray-400 py-10">프로젝트 정보가 없어요.</p>
+        ) : loading ? (
           <p className="text-center text-gray-400 py-10">불러오는 중...</p>
         ) : !isAdmin && project && !project.cover_contest_enabled ? (
           <p className="text-center text-gray-400 py-10">이 프로젝트는 컨테스트가 진행되지 않아요.</p>
