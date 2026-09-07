@@ -6,7 +6,7 @@ import { logCompleteRegistration } from '../lib/fbEvents'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, CheckCircle, Music, Heart, ThumbsUp, ClipboardList, FileText, AlertTriangle, MessageSquare, BarChart2, Target, Wallet, User, Calendar, Briefcase } from 'lucide-react'
+import { Bell, CheckCircle, Music, Heart, ThumbsUp, ClipboardList, FileText, AlertTriangle, MessageSquare, BarChart2, Target, Wallet, User, Calendar, Briefcase, Trophy } from 'lucide-react'
 import ChatWindow from '../../components/ChatWindow'
 import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
@@ -1412,6 +1412,11 @@ useEffect(() => {
                               <p className="text-xs text-gray-400 dark:text-gray-500">프로젝트 코드: {p.project_code}</p>
                               {myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
                                 <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"><Music size={10} /> COVER</span>
+                              )}
+                              {(p.projects?.cover_video_count ?? 0) > 0 && myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
+                                <button onClick={(e) => { e.stopPropagation(); router.push(`/cover-contest?project_code=${p.project_code}`) }} className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 ml-1">
+                                  <Trophy size={10} /> 컨테스트 순위 보기
+                                </button>
                               )}
                               <p className="text-xs text-gray-500 dark:text-gray-400">미션일: {p.projects?.start_date ?? '미정'}</p>
                               {p.projects?.end_date && (
