@@ -427,7 +427,7 @@ export async function GET() {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   title: '⏰ 게시물 업로드 잊지 않으셨나요?',
-                  body: `${project.artist_name || project.client_name} - ${project.song_title} 게시물 업로드 마감까지 24시간 남았어요!`,
+                  body: `${project.artist_name || project.client_name} - ${project.song_title} 게시물 업로드 마감까지 24시간 남았어요! 참여신청 후 48시간 이내 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
                   tokens: tokens.map((t: any) => t.token), userIds: [String(jp.member_id)], data: { url: '/participant' }
                 })
               })

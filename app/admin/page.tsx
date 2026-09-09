@@ -326,7 +326,7 @@ export default function Page1() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: '⏰ 게시물 업로드를 잊지 않으셨나요?',
-          body: `${selectedProject?.artist_name || selectedProject?.client_name} - ${selectedProject?.song_title} 게시물 업로드가 아직 확인되지 않았어요!`,
+          body: `${selectedProject?.artist_name || selectedProject?.client_name} - ${selectedProject?.song_title} 게시물 업로드가 아직 확인되지 않았어요! 참여신청 후 48시간 이내 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
           tokens: tokens.map((t: any) => t.token), userIds: memberIds, data: { url: '/participant' }
         })
       })
