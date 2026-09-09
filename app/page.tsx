@@ -177,6 +177,7 @@ export default function LoginPage() {
   const [p_tiktok, setPTiktok] = useState('')
   const [snsInputPlatform, setSnsInputPlatform] = useState('')
   const [snsInputId, setSnsInputId] = useState('')
+  const [snsCheckLoading, setSnsCheckLoading] = useState(false)
   const [p_referral, setPReferral] = useState('')
   const [p_verifyCode, setPVerifyCode] = useState('')
   const [p_sentCode, setPSentCode] = useState('')
@@ -1053,13 +1054,57 @@ export default function LoginPage() {
                       </select>
                       <input value={snsInputId} onChange={(e) => setSnsInputId(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="@아이디" />
                     </div>
-                    <button type="button" onClick={() => {
+                    <button type="button" disabled={snsCheckLoading} onClick={async () => {
                       if (!snsInputId) return
-                      if (snsInputPlatform === 'instagram') setPInstagram(snsInputId)
-                      else if (snsInputPlatform === 'youtube') setPYoutube(snsInputId)
-                      else if (snsInputPlatform === 'tiktok') setPTiktok(snsInputId)
-                      setSnsInputId('')
-                    }} className="w-full text-sm bg-blue-600 text-white rounded-lg px-3 py-2">{(!p_instagram && !p_youtube && !p_tiktok) ? '등록' : '추가'}</button>
+                      setSnsCheckLoading(true)
+                      const cleanId = snsInputId.replace('@', '')
+
+                      if (snsInputPlatform === 'instagram') {
+                        const igRes = await fetchWithAuth(`/api/instagram-user?username=${cleanId}`)
+                        const igData = await igRes.json()
+                        setPInstagram(snsInputId)
+                        setSnsInputId('')
+                        if (igData.isPrivate) {
+                          showToast(`비공개 계정이에요 (팔로워 ${(igData.followers ?? 0).toLocaleString()}명). 공개로 전환해주세요.`, 'error')
+                        } else {
+                          showToast(`팔로워 ${(igData.followers ?? 0).toLocaleString()}명 · 공개 계정 확인됐어요.`)
+                        }
+                      } else if (snsInputPlatform === 'youtube') {
+                        const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${cleanId}`)
+                        const ytData = await ytRes.json()
+                        setPYoutube(snsInputId)
+                        setSnsInputId('')
+                        showToast(`구독자 ${(ytData.subscriberCount ?? 0).toLocaleString()}명 확인됐어요.`)
+                      } else if (snsInputPlatform === 'tiktok') {
+                        let ttFollowers = 0
+                        let ttPrivate = false
+                        try {
+                          const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${cleanId}`, {
+                            headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' }
+                          })
+                          const ttData = await ttRes.json()
+                          ttPrivate = !!ttData?.data?.user?.privateAccount
+                          ttFollowers = ttData?.data?.stats?.followerCount ?? 0
+                        } catch {}
+                        if (!ttFollowers) {
+                          try {
+                            const ttRes2 = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${cleanId}`, {
+                              headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com' }
+                            })
+                            const ttData2 = await ttRes2.json()
+                            ttFollowers = ttData2?.userInfo?.stats?.followerCount ?? 0
+                          } catch {}
+                        }
+                        setPTiktok(snsInputId)
+                        setSnsInputId('')
+                        if (ttPrivate) {
+                          showToast(`비공개 계정이에요 (팔로워 ${ttFollowers.toLocaleString()}명). 공개로 전환해주세요.`, 'error')
+                        } else {
+                          showToast(`팔로워 ${ttFollowers.toLocaleString()}명 확인됐어요.`)
+                        }
+                      }
+                      setSnsCheckLoading(false)
+                    }} className="w-full text-sm bg-blue-600 text-white rounded-lg px-3 py-2 disabled:bg-gray-400">{snsCheckLoading ? '확인 중...' : (!p_instagram && !p_youtube && !p_tiktok) ? '등록' : '추가'}</button>
                   </div>
                   <div className="space-y-1">
                     {p_instagram && (
