@@ -623,7 +623,7 @@ export async function GET() {
           const { data: currentJoin } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').limit(1)
           if ((!recentPostInactive || recentPostInactive.length === 0) && (!currentJoin || currentJoin.length === 0)) inactive.push(p.id)
         }
-        if (inactive.length > 0) {
+        if (inactive.length > 0 && currentHour === 10) {
           const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').in('user_id', inactive.map(id => String(id)))
           if (tokens && tokens.length > 0) {
             await fetch(`https://app.doubleb.kr/api/push`, {
