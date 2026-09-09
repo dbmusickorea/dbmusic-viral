@@ -178,6 +178,9 @@ export default function LoginPage() {
   const [snsInputPlatform, setSnsInputPlatform] = useState('')
   const [snsInputId, setSnsInputId] = useState('')
   const [snsCheckLoading, setSnsCheckLoading] = useState(false)
+  const [igChecked, setIgChecked] = useState<{ id: string; followers: number; isPrivate: boolean; profileImage: string } | null>(null)
+  const [ytChecked, setYtChecked] = useState<{ id: string; subscribers: number; profileImage: string } | null>(null)
+  const [ttChecked, setTtChecked] = useState<{ id: string; followers: number; isPrivate: boolean; profileImage: string } | null>(null)
   const [p_referral, setPReferral] = useState('')
   const [p_verifyCode, setPVerifyCode] = useState('')
   const [p_sentCode, setPSentCode] = useState('')
@@ -545,55 +548,81 @@ export default function LoginPage() {
     let ttProfileImage = ''
     
     if (p_instagram) {
-      const igRes = await fetchWithAuth(`/api/instagram-user?username=${p_instagram}`)
-      const igData = await igRes.json()
-      if (igData.isPrivate) {
-        showToast('인스타그램 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
-        setParticipantSignupLoading(false)
-        return
+      // "추가" 버튼 클릭 시 이미 확인한 아이디와 같으면 재조회 없이 그대로 재사용 (API 비용 절감)
+      if (igChecked && igChecked.id === p_instagram) {
+        if (igChecked.isPrivate) {
+          showToast('인스타그램 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
+          setParticipantSignupLoading(false)
+          return
+        }
+        igFollowers = igChecked.followers
+        igProfileImage = igChecked.profileImage
+      } else {
+        const igRes = await fetchWithAuth(`/api/instagram-user?username=${p_instagram}`)
+        const igData = await igRes.json()
+        if (igData.isPrivate) {
+          showToast('인스타그램 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
+          setParticipantSignupLoading(false)
+          return
+        }
+        igFollowers = igData.followers ?? 0
+        igProfileImage = igData.thumbnail ?? ''
       }
-      igFollowers = igData.followers ?? 0
-      igProfileImage = igData.thumbnail ?? ''
       if (igFollowers >= 100) hasEnoughFollowers = true
     }
     if (p_youtube) {
-      const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${p_youtube}`)
-      const ytData = await ytRes.json()
-      ytSubscribers = ytData.subscriberCount ?? 0
-      ytProfileImage = ytData.thumbnail ?? ''
+      if (ytChecked && ytChecked.id === p_youtube) {
+        ytSubscribers = ytChecked.subscribers
+        ytProfileImage = ytChecked.profileImage
+      } else {
+        const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${p_youtube}`)
+        const ytData = await ytRes.json()
+        ytSubscribers = ytData.subscriberCount ?? 0
+        ytProfileImage = ytData.thumbnail ?? ''
+      }
       if (ytSubscribers >= 100) hasEnoughFollowers = true
     }
     if (p_tiktok) {
-      try {
-        const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p_tiktok.replace('@','')}`, {
-          headers: {
-            'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
-            'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
-          }
-        })
-        const ttData = await ttRes.json()
-        if (ttData?.data?.user?.privateAccount) {
+      if (ttChecked && ttChecked.id === p_tiktok) {
+        if (ttChecked.isPrivate) {
           showToast('틱톡 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
           setParticipantSignupLoading(false)
           return
         }
-        ttFollowers = ttData?.data?.stats?.followerCount ?? 0
-        ttProfileImage = ttData?.data?.user?.avatarLarger ?? ''
-      } catch {
-        // fallback to tiktok-api23
-      }
-      if (!ttFollowers) {
+        ttFollowers = ttChecked.followers
+        ttProfileImage = ttChecked.profileImage
+      } else {
         try {
-          const ttRes2 = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${p_tiktok.replace('@','')}`, {
+          const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${p_tiktok.replace('@','')}`, {
             headers: {
               'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
-              'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com'
+              'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com'
             }
           })
-          const ttData2 = await ttRes2.json()
-          ttFollowers = ttData2?.userInfo?.stats?.followerCount ?? 0
-          ttProfileImage = ttData2?.userInfo?.user?.avatarLarger ?? ''
-        } catch {}
+          const ttData = await ttRes.json()
+          if (ttData?.data?.user?.privateAccount) {
+            showToast('틱톡 계정이 비공개 상태예요. 공개 계정으로 전환 후 다시 시도해주세요.', 'error')
+            setParticipantSignupLoading(false)
+            return
+          }
+          ttFollowers = ttData?.data?.stats?.followerCount ?? 0
+          ttProfileImage = ttData?.data?.user?.avatarLarger ?? ''
+        } catch {
+          // fallback to tiktok-api23
+        }
+        if (!ttFollowers) {
+          try {
+            const ttRes2 = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${p_tiktok.replace('@','')}`, {
+              headers: {
+                'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992',
+                'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com'
+              }
+            })
+            const ttData2 = await ttRes2.json()
+            ttFollowers = ttData2?.userInfo?.stats?.followerCount ?? 0
+            ttProfileImage = ttData2?.userInfo?.user?.avatarLarger ?? ''
+          } catch {}
+        }
       }
       if (ttFollowers >= 100) hasEnoughFollowers = true
     }
@@ -1063,6 +1092,7 @@ export default function LoginPage() {
                         const igRes = await fetchWithAuth(`/api/instagram-user?username=${cleanId}`)
                         const igData = await igRes.json()
                         setPInstagram(snsInputId)
+                        setIgChecked({ id: snsInputId, followers: igData.followers ?? 0, isPrivate: !!igData.isPrivate, profileImage: igData.thumbnail ?? '' })
                         setSnsInputId('')
                         if (igData.isPrivate) {
                           showToast(`비공개 계정이에요 (팔로워 ${(igData.followers ?? 0).toLocaleString()}명). 공개로 전환해주세요.`, 'error')
@@ -1073,6 +1103,7 @@ export default function LoginPage() {
                         const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${cleanId}`)
                         const ytData = await ytRes.json()
                         setPYoutube(snsInputId)
+                        setYtChecked({ id: snsInputId, subscribers: ytData.subscriberCount ?? 0, profileImage: ytData.thumbnail ?? '' })
                         setSnsInputId('')
                         showToast(`구독자 ${(ytData.subscriberCount ?? 0).toLocaleString()}명 확인됐어요.`)
                       } else if (snsInputPlatform === 'tiktok') {
@@ -1096,6 +1127,7 @@ export default function LoginPage() {
                           } catch {}
                         }
                         setPTiktok(snsInputId)
+                        setTtChecked({ id: snsInputId, followers: ttFollowers, isPrivate: ttPrivate, profileImage: '' })
                         setSnsInputId('')
                         if (ttPrivate) {
                           showToast(`비공개 계정이에요 (팔로워 ${ttFollowers.toLocaleString()}명). 공개로 전환해주세요.`, 'error')
