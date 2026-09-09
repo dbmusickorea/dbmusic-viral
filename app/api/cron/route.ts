@@ -90,6 +90,7 @@ async function updatePostStats(posts: any[]) {
           { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'instagram-api-fast-reliable-data-scraper.p.rapidapi.com' } }
         )
         const data = await res.json()
+        if (data.like_count === undefined) continue // API 실패 시 0으로 덮어쓰지 않고 건너뜀
         likes = data.like_count ?? 0
         comments = data.comment_count ?? 0
         views = data.view_count ?? data.video_view_count ?? data.play_count ?? 0
@@ -239,7 +240,7 @@ export async function GET() {
       }
     }
 
-    // 기본 갱신 - 낮 12시(UTC 3시)에만 실행
+    // 기본 갱신 - 한국시간 새벽 3시에만 실행
     let updated = 0
     if (currentHour === 3) {
       // ONGOING 프로젝트 게시물 갱신
@@ -1128,6 +1129,115 @@ export async function GET() {
         }
       }
     }
+    // 인스타그램 비공개 전환 체크 (하루 1회 - 한국시간 오전 10시)
+    // 전날 새벽 3시 체크에서 저장된 sns_is_private 값을 그대로 사용 (추가 API 호출 없음)
+    if (currentHour === 10) {
+      const { data: ongoingProjectsForPrivacy } = await supabase.from('projects').select('project_code, reward_per_post, artist_name, song_title').eq('status', 'ONGOING')
+      if (ongoingProjectsForPrivacy && ongoingProjectsForPrivacy.length > 0) {
+        const projectMap = new Map(ongoingProjectsForPrivacy.map((p: any) => [p.project_code, p]))
+        const { data: privacyPosts } = await supabase
+          .from('posts')
+          .select('id, member_id, project_code, is_cover, sns_is_private, private_warning_sent, private_penalty_applied, private_penalty_amount')
+          .eq('platform', 'instagram')
+          .in('project_code', ongoingProjectsForPrivacy.map((p: any) => p.project_code))
+
+        if (privacyPosts) {
+          for (const post of privacyPosts) {
+            try {
+              const project = projectMap.get(post.project_code)
+              if (!project) continue
+
+              if (!post.sns_is_private && post.private_penalty_applied) {
+                const { data: participant } = await supabase.from('participants').select('balance, cover_penalty_reason').eq('id', post.member_id).maybeSingle()
+                if (participant) {
+                  const newBalance = (participant.balance ?? 0) + (post.private_penalty_amount ?? 0)
+                  await supabase.from('participants').update({ balance: newBalance }).eq('id', post.member_id)
+                  await supabase.from('point_history').insert({
+                    member_id: post.member_id, amount: post.private_penalty_amount ?? 0,
+                    memo: `비공개 페널티 취소 (공개 전환 확인) (${project.artist_name} / ${project.song_title ?? ''})`,
+                    project_code: post.project_code
+                  })
+                  if (post.is_cover && participant.cover_penalty_reason === 'private') {
+                    await supabase.from('participants').update({ cover_penalty_until: null, cover_penalty_reason: null }).eq('id', post.member_id)
+                  }
+                }
+                await supabase.from('posts').update({ private_warning_sent: false, private_penalty_applied: false, private_penalty_amount: 0 }).eq('id', post.id)
+
+                const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
+                if (tokens && tokens.length > 0) {
+                  await fetch('https://app.doubleb.kr/api/push', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      title: '✅ 계정 공개 확인, 페널티 취소됐어요',
+                      body: '인스타그램 계정이 다시 공개로 확인되어 적용됐던 페널티가 취소됐어요.',
+                      tokens: tokens.map((t: any) => t.token), userIds: [String(post.member_id)], data: { url: '/participant' }
+                    })
+                  })
+                }
+                continue
+              }
+
+              if (!post.sns_is_private && post.private_warning_sent && !post.private_penalty_applied) {
+                await supabase.from('posts').update({ private_warning_sent: false }).eq('id', post.id)
+                continue
+              }
+
+              if (post.sns_is_private && !post.private_warning_sent && !post.private_penalty_applied) {
+                await supabase.from('posts').update({ private_warning_sent: true }).eq('id', post.id)
+                const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
+                if (tokens && tokens.length > 0) {
+                  await fetch('https://app.doubleb.kr/api/push', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      title: '⚠️ 인스타그램 계정이 비공개예요',
+                      body: '오늘 자정까지 공개로 전환하지 않으면 적립금 회수 및 페널티가 적용돼요.',
+                      tokens: tokens.map((t: any) => t.token), userIds: [String(post.member_id)], data: { url: '/participant' }
+                    })
+                  })
+                }
+                continue
+              }
+
+              if (post.sns_is_private && post.private_warning_sent && !post.private_penalty_applied) {
+                const { data: participant } = await supabase.from('participants').select('balance, level, cover_reward').eq('id', post.member_id).maybeSingle()
+                let deductAmount = 0
+                if (participant) {
+                  const baseAmount = project.reward_per_post ?? 0
+                  const level = participant.level ?? 1
+                  const earnAmount = level === 50 ? 10000 : Math.min(2500 + (level - 1) * 150, 10000)
+                  deductAmount = post.is_cover ? Math.min(baseAmount, earnAmount) + (participant.cover_reward ?? 0) : Math.min(baseAmount, earnAmount)
+                  const newBalance = Math.max(0, (participant.balance ?? 0) - deductAmount)
+                  await supabase.from('participants').update({ balance: newBalance }).eq('id', post.member_id)
+                  await supabase.from('point_history').insert({
+                    member_id: post.member_id, amount: -deductAmount,
+                    memo: `비공개 계정 페널티 (${project.artist_name} / ${project.song_title ?? ''})`,
+                    project_code: post.project_code
+                  })
+                }
+                if (post.is_cover) {
+                  const penaltyUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                  await supabase.from('participants').update({ cover_penalty_until: penaltyUntil, cover_penalty_reason: 'private' }).eq('id', post.member_id)
+                }
+                await supabase.from('posts').update({ private_penalty_applied: true, private_penalty_amount: deductAmount }).eq('id', post.id)
+
+                const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
+                if (tokens && tokens.length > 0) {
+                  await fetch('https://app.doubleb.kr/api/push', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      title: '⚠️ 비공개 미전환으로 페널티가 적용됐어요',
+                      body: post.is_cover ? '적립금 회수 및 3개월 커버 페널티가 적용됐어요. 공개로 전환하면 취소돼요.' : '적립금이 회수됐어요. 공개로 전환하면 취소돼요.',
+                      tokens: tokens.map((t: any) => t.token), userIds: [String(post.member_id)], data: { url: '/wallet' }
+                    })
+                  })
+                }
+              }
+            } catch { continue }
+          }
+        }
+      }
+    }
+
     // 게시물 유효성 체크 (하루 1회 - 한국시간 새벽 3시)
     if (currentHour === 3) {
       const { data: ongoingPosts } = await supabase
@@ -1151,6 +1261,8 @@ export async function GET() {
                 )
                 const data = await res.json()
                 if (!data || data.error || data.status === 'error') isValid = false
+                // 같은 응답에 포함된 계정 비공개 여부도 함께 저장 (추가 API 호출 없이)
+                if (isValid) await supabase.from('posts').update({ sns_is_private: !!data.user?.is_private }).eq('id', post.id)
                 await new Promise(resolve => setTimeout(resolve, 1000))
               }
             } else if (post.platform === 'youtube') {
