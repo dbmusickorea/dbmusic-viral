@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Bell, LayoutGrid, FolderOpen, Settings, FilePlus, FileEdit } from 'lucide-react'
 import { RefreshCw, ArrowDown } from 'lucide-react'
-import { Heart, ThumbsUp, MessageCircle, PlayCircle } from 'lucide-react'
+import { Heart, ThumbsUp, MessageCircle, PlayCircle, Clock } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
@@ -311,6 +311,27 @@ export default function Page1() {
     } else {
       setParticipants([])
     }
+  }
+
+  const handleSendReminderToUnsubmitted = async () => {
+    const unsubmitted = participants.filter((p: any) => !p.is_cover && !posts.some((post: any) => post.member_id === p.member_id))
+    if (unsubmitted.length === 0) { showToast('미제출자가 없어요.'); return }
+    if (!confirm(`미제출자 ${unsubmitted.length}명에게 알림을 보낼까요?`)) return
+
+    const memberIds = unsubmitted.map((p: any) => String(p.member_id))
+    const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${memberIds.join(',')}`)
+    const tokens = await tokensRes.json()
+    if (tokens && tokens.length > 0) {
+      await fetch('/api/push', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '⏰ 게시물 업로드를 잊지 않으셨나요?',
+          body: `${selectedProject?.artist_name || selectedProject?.client_name} - ${selectedProject?.song_title} 게시물 업로드가 아직 확인되지 않았어요!`,
+          tokens: tokens.map((t: any) => t.token), userIds: memberIds, data: { url: '/participant' }
+        })
+      })
+    }
+    showToast(`${unsubmitted.length}명에게 알림을 보냈어요.`)
   }
 
   const handleCancelParticipation = async (participantId: number, name: string, memberId: number) => {
@@ -1366,6 +1387,9 @@ export default function Page1() {
 
             {selectedProject && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <button onClick={handleSendReminderToUnsubmitted} className="w-full text-xs bg-orange-100 text-orange-700 rounded-lg px-3 py-2 mb-3 flex items-center justify-center gap-1">
+                  <Clock size={12} /> 미제출자에게 업로드 독려 알림 보내기
+                </button>
                 <AdminParticipantList
                   participants={participants}
                   selectedParticipantId={selectedParticipantId}

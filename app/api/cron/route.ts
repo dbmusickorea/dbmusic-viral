@@ -396,6 +396,46 @@ export async function GET() {
         }
       }
 
+      // 24시간 리마인드 체크 (마감 24시간 전까지 미업로드 시 독려 알림, 하루 1번만)
+      const { data: reminderProjects } = await supabase.from('projects').select('*').eq('status', 'ONGOING').not('start_date', 'is', null)
+      if (reminderProjects && reminderProjects.length > 0) {
+        for (const project of reminderProjects) {
+          if (!project.mission_time) continue
+
+          const { data: joinedParticipantsForReminder } = await supabase.from('project_participants').select('id, member_id, is_cover, status, joined_at, reminder_sent').ilike('project_code', project.project_code)
+          if (!joinedParticipantsForReminder) continue
+
+          for (const jp of joinedParticipantsForReminder) {
+            if (jp.is_cover) continue
+            if (jp.status !== 'ACTIVE') continue
+            if (jp.reminder_sent) continue
+            if (!jp.joined_at) continue
+
+            const joinedTime = new Date(jp.joined_at).getTime()
+            const twentyFourHoursAfterJoin = joinedTime + 24 * 60 * 60 * 1000
+            const fortyEightHoursAfterJoin = joinedTime + 48 * 60 * 60 * 1000
+            if (now.getTime() < twentyFourHoursAfterJoin || now.getTime() >= fortyEightHoursAfterJoin) continue
+
+            const { data: post } = await supabase.from('posts').select('id').ilike('project_code', project.project_code).eq('member_id', jp.member_id).maybeSingle()
+            if (post) continue
+
+            await supabase.from('project_participants').update({ reminder_sent: true }).eq('id', jp.id)
+
+            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(jp.member_id))
+            if (tokens && tokens.length > 0) {
+              await fetch('https://app.doubleb.kr/api/push', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  title: '⏰ 게시물 업로드 잊지 않으셨나요?',
+                  body: `${project.artist_name || project.client_name} - ${project.song_title} 게시물 업로드 마감까지 24시간 남았어요!`,
+                  tokens: tokens.map((t: any) => t.token), userIds: [String(jp.member_id)], data: { url: '/participant' }
+                })
+              })
+            }
+          }
+        }
+      }
+
       // 미션 불이행 체크
       const { data: missionDayProjects } = await supabase.from('projects').select('*').eq('status', 'ONGOING').not('start_date', 'is', null)
       if (missionDayProjects && missionDayProjects.length > 0) {
