@@ -14,6 +14,5 @@ class MyBridgeViewController: CAPBridgeViewController {
         // 확대 배율 범위를 네이티브 쪽에서도 직접 강제 지정 (웹 viewport 설정만으로 부족한 경우 대비)
         webView?.scrollView.minimumZoomScale = 1.0
         webView?.scrollView.maximumZoomScale = 5.0
-        webView?.configuration.ignoresViewportScaleLimits = true
     }
 }
