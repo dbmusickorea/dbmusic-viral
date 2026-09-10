@@ -27,6 +27,35 @@ export async function GET(req: NextRequest) {
 
     await supabase.from('projects').update({ tiktok_audio_count: count }).eq('project_code', projectCode)
 
+    const now = new Date()
+    const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000)
+    const today = kstNow.toISOString().split('T')[0]
+    const currentHour = kstNow.getUTCHours()
+    const snapshotKey = `${today}_${currentHour}`
+
+    const { data: existingAudio } = await supabase
+      .from('post_stats_history')
+      .select('id')
+      .eq('project_code', projectCode)
+      .eq('recorded_at', snapshotKey)
+      .eq('platform', 'audio')
+      .maybeSingle()
+
+    if (existingAudio) {
+      await supabase.from('post_stats_history').update({ tt_audio_count: count }).eq('id', existingAudio.id)
+    } else {
+      await supabase.from('post_stats_history').insert({
+        post_id: 0,
+        project_code: projectCode,
+        platform: 'audio',
+        recorded_at: snapshotKey,
+        tt_audio_count: count,
+        likes_count: 0,
+        comments_count: 0,
+        views_count: 0,
+      })
+    }
+
     return NextResponse.json({
       project_code: projectCode,
       raw_tiktok_audio_id: project.tiktok_audio_id,
@@ -34,7 +63,7 @@ export async function GET(req: NextRequest) {
       http_status: status,
       computed_count: count,
       updated_in_db: true,
-      raw_response: data
+      snapshot_key: snapshotKey
     })
   } catch (e: any) {
     return NextResponse.json({ error: '호출 실패', detail: String(e) }, { status: 500 })
