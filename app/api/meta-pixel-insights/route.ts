@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-let cached: { data: any; timestamp: number } = { data: null, timestamp: 0 }
+const cache: Record<string, { data: any; timestamp: number }> = {}
 const CACHE_TTL = 5 * 60 * 1000
-const CLIENT_AD_CAMPAIGN_ID = '120256554001520715' // 의뢰인용 광고 캠페인
+const CAMPAIGN_IDS: Record<string, string> = {
+  client: '120256554001520715',      // 의뢰인용 광고 캠페인
+  participant: '120256722749830715', // 체험단용 광고 캠페인
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const forceRefresh = searchParams.get('refresh') === '1'
+  const target = searchParams.get('target') === 'participant' ? 'participant' : 'client'
+  const campaignId = CAMPAIGN_IDS[target]
   const now = Date.now()
 
-  if (!forceRefresh && cached.data && now - cached.timestamp < CACHE_TTL) {
-    return NextResponse.json({ ...cached.data, cached: true })
+  if (!forceRefresh && cache[target]?.data && now - cache[target].timestamp < CACHE_TTL) {
+    return NextResponse.json({ ...cache[target].data, cached: true })
   }
 
   const token = process.env.META_ACCESS_TOKEN
@@ -23,7 +28,7 @@ export async function GET(req: NextRequest) {
   })
 
   try {
-    const res = await fetch(`https://graph.facebook.com/v19.0/${CLIENT_AD_CAMPAIGN_ID}/insights?${params}`, { cache: 'no-store' })
+    const res = await fetch(`https://graph.facebook.com/v19.0/${campaignId}/insights?${params}`, { cache: 'no-store' })
     const json = await res.json()
 
     if (json.error) return NextResponse.json({ error: json.error.message }, { status: 502 })
@@ -32,13 +37,13 @@ export async function GET(req: NextRequest) {
     const pageViews = Number(actions.find((a: any) => a.action_type === 'landing_page_view')?.value ?? 0)
 
     const result = {
-      campaign_id: CLIENT_AD_CAMPAIGN_ID,
+      campaign_id: campaignId,
       period_days: 30,
       page_views: pageViews,
       fetched_at: new Date().toISOString(),
     }
 
-    cached = { data: result, timestamp: now }
+    cache[target] = { data: result, timestamp: now }
     return NextResponse.json(result)
   } catch (e) {
     return NextResponse.json({ error: '메타 API 호출 실패' }, { status: 503 })
