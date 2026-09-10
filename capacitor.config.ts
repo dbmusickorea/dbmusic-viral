@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appId: 'com.dbmusic.viral',
   appName: '더블비뮤직',
   webDir: 'out',
+  zoomEnabled: true,
   server: {
     url: 'https://app.doubleb.kr',
     cleartext: true
