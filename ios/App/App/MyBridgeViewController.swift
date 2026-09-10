@@ -11,5 +11,9 @@ class MyBridgeViewController: CAPBridgeViewController {
         // 손가락 핀치 확대/축소 제스처 명시적으로 활성화 (기본값이 꺼져있는 경우 대비)
         webView?.scrollView.pinchGestureRecognizer?.isEnabled = true
         webView?.scrollView.bouncesZoom = true
+        // 확대 배율 범위를 네이티브 쪽에서도 직접 강제 지정 (웹 viewport 설정만으로 부족한 경우 대비)
+        webView?.scrollView.minimumZoomScale = 1.0
+        webView?.scrollView.maximumZoomScale = 5.0
+        webView?.configuration.ignoresViewportScaleLimits = true
     }
 }
