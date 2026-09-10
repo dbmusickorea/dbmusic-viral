@@ -111,6 +111,13 @@ export default function LoginPage() {
               const role = localStorage.getItem('userRole')
               await initPushNotifications(String(parsed.id), role ?? 'participant')
               await saveWidgetUserInfo(role ?? 'participant', String(parsed.id))
+              if ((role ?? 'participant') === 'participant') {
+                fetchWithAuth(`/api/participants?id=${parsed.id}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ last_login_at: new Date().toISOString() })
+                })
+              }
             }
           }
         })
@@ -129,6 +136,13 @@ export default function LoginPage() {
 
       const parsedUser = JSON.parse(userInfo)
       await saveWidgetUserInfo(userRole, String(parsedUser.id))
+      if (userRole === 'participant') {
+        fetchWithAuth(`/api/participants?id=${parsedUser.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ last_login_at: new Date().toISOString() })
+        })
+      }
 
       if (userRole === 'admin') router.push('/admin')
       else if (userRole === 'client') {
@@ -321,6 +335,11 @@ export default function LoginPage() {
 
       localStorage.setItem('userInfo', JSON.stringify(participant))
       localStorage.setItem('userRole', 'participant')
+      fetchWithAuth(`/api/participants?id=${participant.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_login_at: new Date().toISOString() })
+      })
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(participant.id), 'participant')
         await saveWidgetUserInfo('participant', String(participant.id))
