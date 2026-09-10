@@ -111,13 +111,12 @@ export default function LoginPage() {
               const role = localStorage.getItem('userRole')
               await initPushNotifications(String(parsed.id), role ?? 'participant')
               await saveWidgetUserInfo(role ?? 'participant', String(parsed.id))
-              if ((role ?? 'participant') === 'participant') {
-                fetchWithAuth(`/api/participants?id=${parsed.id}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ last_login_at: new Date().toISOString() })
-                })
-              }
+              const lastLoginTable = (role ?? 'participant') === 'participant' ? 'participants' : 'users'
+              fetchWithAuth(`/api/${lastLoginTable}?id=${parsed.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ last_login_at: new Date().toISOString() })
+              })
             }
           }
         })
@@ -136,13 +135,12 @@ export default function LoginPage() {
 
       const parsedUser = JSON.parse(userInfo)
       await saveWidgetUserInfo(userRole, String(parsedUser.id))
-      if (userRole === 'participant') {
-        fetchWithAuth(`/api/participants?id=${parsedUser.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ last_login_at: new Date().toISOString() })
-        })
-      }
+      const lastLoginTable = userRole === 'participant' ? 'participants' : 'users'
+      fetchWithAuth(`/api/${lastLoginTable}?id=${parsedUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_login_at: new Date().toISOString() })
+      })
 
       if (userRole === 'admin') router.push('/admin')
       else if (userRole === 'client') {
@@ -382,6 +380,11 @@ export default function LoginPage() {
       }
       localStorage.setItem('userInfo', JSON.stringify(user))
       localStorage.setItem('userRole', user.role)
+      fetchWithAuth(`/api/users?id=${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_login_at: new Date().toISOString() })
+      })
       if (Capacitor.isNativePlatform()) {
         await initPushNotifications(String(user.id), user.role)
         await saveWidgetUserInfo(user.role, String(user.id))

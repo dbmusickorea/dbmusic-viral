@@ -41,16 +41,17 @@ export async function GET() {
   const clientIds = threads.filter(t => t.role === 'client').map(t => t.user_id)
 
   const [participantsRes, usersRes] = await Promise.all([
-    participantIds.length > 0 ? supabaseAdmin.from('participants').select('id, name').in('id', participantIds) : Promise.resolve({ data: [] }),
-    clientIds.length > 0 ? supabaseAdmin.from('users').select('id, name').in('id', clientIds) : Promise.resolve({ data: [] }),
+    participantIds.length > 0 ? supabaseAdmin.from('participants').select('id, name, last_login_at').in('id', participantIds) : Promise.resolve({ data: [] }),
+    clientIds.length > 0 ? supabaseAdmin.from('users').select('id, name, last_login_at').in('id', clientIds) : Promise.resolve({ data: [] }),
   ])
 
   const nameMap: Record<string, string> = {}
-  for (const p of (participantsRes.data ?? [])) nameMap[`participant_${p.id}`] = p.name
-  for (const u of (usersRes.data ?? [])) nameMap[`client_${u.id}`] = u.name
+  const lastLoginMap: Record<string, string | null> = {}
+  for (const p of (participantsRes.data ?? [])) { nameMap[`participant_${p.id}`] = p.name; lastLoginMap[`participant_${p.id}`] = p.last_login_at ?? null }
+  for (const u of (usersRes.data ?? [])) { nameMap[`client_${u.id}`] = u.name; lastLoginMap[`client_${u.id}`] = u.last_login_at ?? null }
 
   const result = threads
-    .map(t => ({ ...t, name: nameMap[`${t.role}_${t.user_id}`] ?? '(알 수 없음)' }))
+    .map(t => ({ ...t, name: nameMap[`${t.role}_${t.user_id}`] ?? '(알 수 없음)', last_login_at: lastLoginMap[`${t.role}_${t.user_id}`] ?? null }))
     .sort((a, b) => new Date(b.last_created_at).getTime() - new Date(a.last_created_at).getTime())
 
   return NextResponse.json(result)

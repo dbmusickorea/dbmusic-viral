@@ -1149,6 +1149,7 @@ export default function Page4() {
                             <div className="text-right">
                               {c.client_id && <span className="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">{c.client_id}</span>}
                               {c.project_code && <p className="text-xs text-gray-500 mt-1">{c.project_code}</p>}
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">최근접속: {c.last_login_at ? new Date(c.last_login_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '기록 없음'}</p>
                             </div>
                           </div>
                         </div>

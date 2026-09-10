@@ -15,6 +15,7 @@ type Thread = {
   last_sender: string
   last_created_at: string
   unread_count: number
+  last_login_at?: string | null
 }
 
 function AdminChatContent() {
@@ -189,6 +190,9 @@ function AdminChatContent() {
                   </div>
                   <p className="text-xs text-gray-400 truncate mt-0.5">
                     {t.last_sender === 'admin' ? '나: ' : ''}{t.last_message}
+                  </p>
+                  <p className="text-[10px] text-gray-300 mt-0.5">
+                    최근접속: {t.last_login_at ? new Date(t.last_login_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '기록 없음'}
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
