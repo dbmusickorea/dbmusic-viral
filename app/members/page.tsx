@@ -1087,7 +1087,10 @@ export default function Page4() {
                           </div>
                           {expandedCard === p.id && (
                             <div className="px-3 pb-3 border-t dark:border-gray-600 pt-2 space-y-1">
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{p.email}</p>
+                              <div className="flex justify-between items-start">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{p.email}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 shrink-0 ml-2">최근접속: {p.last_login_at ? new Date(p.last_login_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '기록 없음'}</p>
+                              </div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">{p.mobile}</p>
                               {p.instagram_id && <a href={`https://www.instagram.com/${p.instagram_id.replace('@','')}`} target="_blank" onClick={(e) => e.stopPropagation()} className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                 <PlatformIcon platform="instagram" size={12} />{p.instagram_id} ({p.instagram_followers?.toLocaleString() ?? '-'}명)
