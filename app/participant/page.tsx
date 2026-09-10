@@ -130,6 +130,7 @@ export default function Page2() {
   const [isSubmittingCover, setIsSubmittingCover] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
   const missionRef = useRef<HTMLDivElement>(null)
+  const submitClickGuard = useRef(false) // handleSubmit 연타(중복 제출) 방지용
   const PAGE_SIZE = 5
   const router = useRouter()
 
@@ -889,6 +890,9 @@ useEffect(() => {
   }
 
   const handleSubmit = async (overrideProjectCode?: string, overrideUrls?: string[], overrideIsCover?: boolean) => {
+    if (submitClickGuard.current) return // 연타 방지: 이미 처리 중이면 무시
+    submitClickGuard.current = true
+    try {
     const activeProjectCode = overrideProjectCode ?? projectCode
     const activeUrls = overrideUrls ?? postUrls
     const activeIsCover = overrideIsCover ?? isCover
@@ -1095,6 +1099,9 @@ useEffect(() => {
     setProjectCode(''); setInfluencerName(''); setSnsAccount(''); setPostUrls([''])
     setPlatform('instagram'); setRequirements(''); setProjectStatus(''); setProjectInfo(null); setIsJoined(false)
     fetchMyPostsAndProjects(userInfo?.id)
+    } finally {
+      submitClickGuard.current = false
+    }
   }
 
   const loadMyInfo = async () => {
