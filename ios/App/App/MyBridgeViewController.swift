@@ -1,4 +1,5 @@
 import UIKit
+import WebKit
 import Capacitor
 
 @objc(MyBridgeViewController)
@@ -8,10 +9,19 @@ class MyBridgeViewController: CAPBridgeViewController {
         bridge?.registerPluginInstance(WidgetDataPlugin())
         // 아이폰 가장자리 스와이프로 뒤로가기/앞으로가기 제스처 활성화
         webView?.allowsBackForwardNavigationGestures = true
-        // 손가락 핀치 확대/축소 제스처 명시적으로 활성화 (기본값이 꺼져있는 경우 대비)
+        applyZoomSettings()
+    }
+
+    override open func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        super.webView(webView, didFinish: navigation)
+        // 웹페이지 로딩이 끝날 때마다 확대 설정을 다시 강제 적용
+        // (페이지 자체 viewport 처리로 인해 값이 초기화될 수 있어서 매 로딩 후 재적용)
+        applyZoomSettings()
+    }
+
+    private func applyZoomSettings() {
         webView?.scrollView.pinchGestureRecognizer?.isEnabled = true
         webView?.scrollView.bouncesZoom = true
-        // 확대 배율 범위를 네이티브 쪽에서도 직접 강제 지정 (웹 viewport 설정만으로 부족한 경우 대비)
         webView?.scrollView.minimumZoomScale = 1.0
         webView?.scrollView.maximumZoomScale = 5.0
     }
