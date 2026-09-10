@@ -1408,7 +1408,10 @@ export async function GET() {
                 const data = await res.json()
                 const videos = data?.data?.aweme_list ?? {}
                 updates.tiktok_audio_count = Object.keys(videos).length
-              } catch { }
+                console.log(`[음원사용-틱톡] ${project.project_code} clipId=${tiktokId} count=${updates.tiktok_audio_count} raw=${JSON.stringify(data).slice(0, 500)}`)
+              } catch (e) {
+                console.error(`[음원사용-틱톡 실패] ${project.project_code}`, e)
+              }
             }
 
             if (project.youtube_audio_id) {
