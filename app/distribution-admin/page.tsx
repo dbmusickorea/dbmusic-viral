@@ -537,18 +537,22 @@ export default function DistributionAdminPage() {
           <h1 className="text-xl font-bold dark:text-white">유통 서비스 관리</h1>
         </div>
 
-        <div className="flex gap-2 mb-4">
-          <button onClick={() => setActiveTab('requests')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'requests' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
-            발매 신청 관리 {requests.filter(r => r.status === 'PENDING').length > 0 && `(${requests.filter(r => r.status === 'PENDING').length})`}
+        <div className="relative flex mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div
+            className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+            style={{ width: 'calc((100% - 8px) / 4)', transform: `translateX(${['requests', 'artists', 'albums', 'withdrawals'].indexOf(activeTab) * 100}%)` }}
+          />
+          <button onClick={() => setActiveTab('requests')} className={`relative z-10 flex-1 py-2 text-xs font-medium rounded-md whitespace-nowrap px-1 ${activeTab === 'requests' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+            발매신청 {requests.filter(r => r.status === 'PENDING').length > 0 && `(${requests.filter(r => r.status === 'PENDING').length})`}
           </button>
-          <button onClick={() => setActiveTab('artists')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'artists' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
-            아티스트 관리
+          <button onClick={() => setActiveTab('artists')} className={`relative z-10 flex-1 py-2 text-xs font-medium rounded-md whitespace-nowrap px-1 ${activeTab === 'artists' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+            아티스트
           </button>
-          <button onClick={() => setActiveTab('albums')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'albums' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
-            앨범/링크 관리
+          <button onClick={() => setActiveTab('albums')} className={`relative z-10 flex-1 py-2 text-xs font-medium rounded-md whitespace-nowrap px-1 ${activeTab === 'albums' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+            앨범/링크
           </button>
-          <button onClick={() => setActiveTab('withdrawals')} className={`flex-1 py-2 text-sm rounded-lg font-medium ${activeTab === 'withdrawals' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>
-            출금 관리 {withdrawalRequests.filter(w => w.status === 'PENDING').length > 0 && `(${withdrawalRequests.filter(w => w.status === 'PENDING').length})`}
+          <button onClick={() => setActiveTab('withdrawals')} className={`relative z-10 flex-1 py-2 text-xs font-medium rounded-md whitespace-nowrap px-1 ${activeTab === 'withdrawals' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+            출금 {withdrawalRequests.filter(w => w.status === 'PENDING').length > 0 && `(${withdrawalRequests.filter(w => w.status === 'PENDING').length})`}
           </button>
         </div>
 
