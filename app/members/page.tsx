@@ -1219,13 +1219,17 @@ export default function Page4() {
                       })
                       showToast('메모 저장 완료!')
                       fetchParticipants()
-                    }} className="w-full mt-1 border border-gray-300 dark:border-gray-600 rounded-lg py-1.5 text-xs text-gray-600 dark:text-gray-300">메모 저장</button>
+                    }} className="w-full mt-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg py-1.5 text-xs text-gray-600 dark:text-gray-300">메모 저장</button>
                   </div>
                 )}
                 {selected && (
-                  <div className="flex gap-2 mb-3">
-                    <button onClick={() => setMemberDetailTab('activity')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'activity' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>활동 내역</button>
-                    <button onClick={() => setMemberDetailTab('info')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${memberDetailTab === 'info' ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>정보 수정</button>                    
+                  <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <div
+                      className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+                      style={{ width: 'calc((100% - 8px) / 2)', transform: `translateX(${memberDetailTab === 'activity' ? 0 : 100}%)` }}
+                    />
+                    <button onClick={() => setMemberDetailTab('activity')} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${memberDetailTab === 'activity' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>활동 내역</button>
+                    <button onClick={() => setMemberDetailTab('info')} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${memberDetailTab === 'info' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>정보 수정</button>
                   </div>
                 )}
                 {(selected || showParticipantInsert) && (memberDetailTab === 'info' || !selected) && (
