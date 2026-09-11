@@ -404,7 +404,7 @@ export default function CoverPage() {
           </div>
         </div>
       )}
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -458,7 +458,7 @@ export default function CoverPage() {
       />
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
           </div>
@@ -495,7 +495,7 @@ export default function CoverPage() {
 
         {/* 커버 체험단 직접 추가 (관리자 전용) */}
         {userRole === 'admin' && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mb-4">
             <button onClick={() => setShowAddCoverModal(true)} className="w-full flex items-center justify-center gap-1 text-sm font-medium text-purple-600 dark:text-purple-400 py-1">
               <Mic size={16} /> 커버 체험단 추가
             </button>
@@ -532,7 +532,7 @@ export default function CoverPage() {
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 - 프로젝트 선택 */}
           <div>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
               <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ListChecks size={16} /> 프로젝트 선택</h2>
               <div className="space-y-2">
                 {projects.map(p => (
@@ -568,7 +568,7 @@ export default function CoverPage() {
               </div>
             </div>
             {selectedProject && userRole === 'admin' && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Music size={16} /> 커버영상 승인 목록</h2>
                 
                 {coverPosts.filter(p => p.project_code === selectedProject.project_code).length === 0 ? (
@@ -609,7 +609,7 @@ export default function CoverPage() {
           {/* 오른쪽 - 커버 가능 체험단 */}
           <div>
             {selectedProject && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Mic size={16} /> 커버 가능 체험단</h2>
                 {selectedProject.cover_audio_path && (
                   <div className="mb-3">
@@ -812,7 +812,7 @@ export default function CoverPage() {
             )}
             {/* 커버 대시보드 */}
             {selectedProject && coverRequests.filter(r => r.status === 'APPROVED').length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 커버 대시보드</h2>
                 <p className="text-xs text-gray-400 mb-3">
                   {selectedProject.start_date} ~ {selectedProject.end_date ? 
