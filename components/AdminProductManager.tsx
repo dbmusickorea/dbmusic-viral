@@ -19,7 +19,7 @@ export default function AdminProductManager({ products, newProduct, setNewProduc
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-bold dark:text-white flex items-center gap-1"><Package size={16} /> 상품 사전 등록</h2>
-        <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showProductManager ? '닫기' : '관리'}</button>
+        <button onClick={() => setShowProductManager(!showProductManager)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">{showProductManager ? '닫기' : '관리'}</button>
       </div>
       {showProductManager && (
         <div className="space-y-3">
@@ -31,9 +31,9 @@ export default function AdminProductManager({ products, newProduct, setNewProduc
           {products.length === 0 ? (
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">등록된 상품이 없습니다.</p>
           ) : (
-            <div className="space-y-1">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
               {products.map((p) => (
-                <div key={p.id} className="flex justify-between items-center border dark:border-gray-600 rounded-lg px-3 py-2 dark:bg-gray-700">
+                <div key={p.id} className="flex justify-between items-center px-3 py-2">
                   <p className="text-sm dark:text-white">{p.name}</p>
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-blue-600">{p.price?.toLocaleString()}P</p>
