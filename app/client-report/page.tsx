@@ -142,13 +142,11 @@ export default function ClientReportPage() {
                         </span>
                       </div>
                       {p.status === 'COMPLETED' ? (
-                        <button onClick={async () => {
-                          const url = `https://app.doubleb.kr/report?project_code=${p.project_code}`
+                        <button onClick={() => {
                           if ((window as any).Capacitor?.isNativePlatform?.()) {
-                            const { Browser } = await import('@capacitor/browser')
-                            await Browser.open({ url })
+                            router.push(`/report?project_code=${p.project_code}`)
                           } else {
-                            window.open(url, '_blank')
+                            window.open(`/report?project_code=${p.project_code}`, '_blank')
                           }
                         }} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg shrink-0">
                           결과보고서 받기

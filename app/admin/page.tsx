@@ -1333,13 +1333,11 @@ export default function Page1() {
                 <h2 className="font-bold dark:text-white flex items-center gap-1">{selectedProject ? <><FileEdit size={16} /> 프로젝트 수정</> : <><FilePlus size={16} /> 프로젝트 등록</>}</h2>
                 <div className="flex gap-2">
                   {selectedProject && (
-                    <button onClick={async () => {
-                      const url = `https://app.doubleb.kr/report?project_code=${selectedProject.project_code}`
+                    <button onClick={() => {
                       if ((window as any).Capacitor?.isNativePlatform?.()) {
-                        const { Browser } = await import('@capacitor/browser')
-                        await Browser.open({ url })
+                        router.push(`/report?project_code=${selectedProject.project_code}`)
                       } else {
-                        window.open(url, '_blank')
+                        window.open(`/report?project_code=${selectedProject.project_code}`, '_blank')
                       }
                     }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-1.5 flex items-center gap-1">
                       <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="white" strokeWidth="2">
