@@ -696,7 +696,7 @@ export default function Page3() {
             {/* 관리자 - 프로젝트 목록 */}
             {!isClient && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">프로젝트 목록</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><LayoutGrid size={16} /> 프로젝트 목록</h2>
                 <input value={clientCode} onChange={(e) => handleCodeChange(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mb-3 dark:bg-gray-700 dark:text-white" placeholder="프로젝트 코드 검색 (예: A_1)" />
                 <div className="flex gap-2 mb-3">
                   <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:bg-gray-700 dark:text-white">
@@ -1074,7 +1074,7 @@ export default function Page3() {
             {/* 게시물 목록 */}
             {projectInfo && (
               <div ref={postsRef} className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">게시물 목록</h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><FileText size={16} /> 게시물 목록</h2>
                 {posts.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
                 ) : (
