@@ -9,6 +9,7 @@ import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, Headi
 export default function ReportPage() {
   const router = useRouter()
   const [isNativeApp, setIsNativeApp] = useState(false)
+  const [downloadingType, setDownloadingType] = useState<string | null>(null)
   const [project, setProject] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
   const [history, setHistory] = useState<any[]>([])
@@ -102,6 +103,8 @@ export default function ReportPage() {
       return
     }
     if (!reportContentRef.current) return
+    setDownloadingType('pdf')
+    try {
     const { jsPDF } = await import('jspdf')
     const doc = new jsPDF({ unit: 'pt', format: 'a4' })
     await doc.html(reportContentRef.current, {
@@ -117,9 +120,14 @@ export default function ReportPage() {
     const { Share } = await import('@capacitor/share')
     const result = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
     await Share.share({ title: fileName, url: result.uri })
+    } finally {
+      setDownloadingType(null)
+    }
   }
 
   const handleDownloadWord = async () => {
+    setDownloadingType('word')
+    try {
     const instaImg = posts.some((p: any) => p.platform === 'instagram') ? await captureChart(instaChartRef) : null
     const youtubeImg = posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) ? await captureChart(youtubeChartRef) : null
     const tiktokImg = posts.some((p: any) => p.platform === 'tiktok') ? await captureChart(tiktokChartRef) : null
@@ -301,6 +309,9 @@ export default function ReportPage() {
       a.click()
       URL.revokeObjectURL(url)
     }
+    } finally {
+      setDownloadingType(null)
+    }
   }
 
   if (loading) return <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">로딩중...</div>
@@ -324,23 +335,29 @@ export default function ReportPage() {
         )}
         <div className="flex gap-2 flex-wrap">
         {/* PDF - 빨간색 */}
-        <button onClick={handleDownloadPDF} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
+        <button onClick={handleDownloadPDF} disabled={downloadingType !== null} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 disabled:opacity-50">
+          {downloadingType === 'pdf' ? (
+            <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/><path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> 다운로드 중...</>
+          ) : (
+            <><svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
             <path d="M14 2v6h6"/>
             <text x="5" y="19" fontSize="7" fill="white" fontWeight="bold">PDF</text>
           </svg>
-          PDF
+          PDF</>
+          )}
         </button>
         {/* 워드 - 파란색 */}
-        <button onClick={handleDownloadWord} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+        <button onClick={handleDownloadWord} disabled={downloadingType !== null} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 disabled:opacity-50">
           <svg viewBox="0 0 470.586 470.586" className="w-4 h-4" fill="white">
             <path d="M327.081,0H90.234c-15.9,0-28.854,12.959-28.854,28.859v412.863c0,15.924,12.953,28.863,28.854,28.863H380.35c15.917,0,28.855-12.939,28.855-28.863V89.234L327.081,0z M333.891,43.184l35.996,39.121h-35.996V43.184z M384.972,441.723c0,2.542-2.081,4.629-4.634,4.629H90.234c-2.551,0-4.62-2.087-4.62-4.629V28.859c0-2.548,2.069-4.613,4.62-4.613h219.41v70.181c0,6.682,5.444,12.099,12.129,12.099h63.198V441.723z M131.858,161.048l-25.29-99.674h18.371l11.688,49.795c1.646,6.954,3.23,14.005,4.592,20.516c1.555-6.682,3.425-13.774,5.272-20.723l13.122-49.583h16.863l11.969,49.929c1.552,6.517,3.094,13.243,4.395,19.742c1.339-5.784,2.823-11.718,4.348-17.83l0.562-2.217l12.989-49.618h17.996l-28.248,99.673h-16.834l-12.395-51.173c-1.531-6.289-2.87-12.052-3.975-17.693c-1.292,5.618-2.799,11.366-4.643,17.794l-13.964,51.072h-16.819V161.048z M242.607,139.863h108.448c5.013,0,9.079,4.069,9.079,9.079c0,5.012-4.066,9.079-9.079,9.079H242.607c-5.012,0-9.079-4.067-9.079-9.079C233.529,143.933,237.596,139.863,242.607,139.863z M360.135,209.566c0,5.012-4.066,9.079-9.079,9.079H125.338c-5.012,0-9.079-4.067-9.079-9.079c0-5.013,4.066-9.079,9.079-9.079h225.718C356.068,200.487,360.135,204.554,360.135,209.566z M360.135,263.283c0,5.012-4.066,9.079-9.079,9.079H125.338c-5.012,0-9.079-4.067-9.079-9.079c0-5.013,4.066-9.079,9.079-9.079h225.718C356.068,254.204,360.135,258.271,360.135,263.283z M360.135,317c0,5.013-4.066,9.079-9.079,9.079H125.338c-5.012,0-9.079-4.079-9.079-9.079c0-5.012,4.066-9.079,9.079-9.079h225.718C356.068,307.921,360.135,311.988,360.135,317z M360.135,371.474c0,5.013-4.066,9.079-9.079,9.079H125.338c-5.012,0-9.079-4.066-9.079-9.079s4.066-9.079,9.079-9.079h225.718C356.068,362.395,360.135,366.461,360.135,371.474z"/>
           </svg>
-          Word
+          {downloadingType === 'word' ? '다운로드 중...' : 'Word'}
         </button>
         {/* 엑셀 - 녹색 */}
         <button onClick={async () => {
+          setDownloadingType('excel')
+          try {
           const params = new URLSearchParams(window.location.search)
           const projectCode = params.get('project_code')
           if ((window as any).Capacitor?.isNativePlatform?.()) {
@@ -360,11 +377,14 @@ export default function ReportPage() {
           } else {
             window.open(`/api/report?project_code=${projectCode}`, '_blank')
           }
-        }} className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+          } finally {
+            setDownloadingType(null)
+          }
+        }} disabled={downloadingType !== null} className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 disabled:opacity-50">
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
             <path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/>
           </svg>
-          Excel
+          {downloadingType === 'excel' ? '다운로드 중...' : 'Excel'}
         </button>
         </div>
         </div>
