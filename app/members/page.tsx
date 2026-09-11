@@ -1055,9 +1055,9 @@ export default function Page4() {
                   <p className="text-sm text-gray-400 text-center py-4">회원이 없습니다.</p>
                 ) : (
                   <>
-                    <div className="space-y-2">
+                    <div className="divide-y divide-gray-100 dark:divide-gray-800">
                       {filteredParticipants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
-                        <div key={p.id} className={`border dark:border-gray-600 rounded-lg cursor-pointer ${selected?.id === p.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
+                        <div key={p.id} className={`cursor-pointer transition-colors ${selected?.id === p.id ? 'bg-blue-50 dark:bg-blue-900 rounded-lg' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}>
                           <div className="p-3" onClick={() => {
                             if (expandedCard !== p.id) clearForm()
                             setExpandedCard(expandedCard === p.id ? null : p.id)
@@ -1114,13 +1114,13 @@ export default function Page4() {
                     </div>
                     {filteredParticipants.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
-                        <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
+                        <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
                           {Array.from({length: Math.ceil(filteredParticipants.length / PAGE_SIZE)}, (_, i) => (
-                            <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${participantPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
+                            <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs w-6 h-6 rounded-full ${participantPage === i ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(filteredParticipants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= filteredParticipants.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(filteredParticipants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= filteredParticipants.length} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
@@ -1141,9 +1141,9 @@ export default function Page4() {
                   <p className="text-sm text-gray-400 text-center py-4">의뢰인이 없습니다.</p>
                 ) : (
                   <>
-                    <div className="space-y-2">
+                    <div className="divide-y divide-gray-100 dark:divide-gray-800">
                       {filteredClients.slice(clientPage * PAGE_SIZE, (clientPage + 1) * PAGE_SIZE).map((c) => (
-                        <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedClient?.id === c.id ? 'border-green-500 bg-green-50 dark:bg-green-900' : 'dark:bg-gray-700'}`}>
+                        <div key={c.id} onClick={() => selectedClient?.id === c.id ? clearClientForm() : handleSelectClient(c)} className={`p-3 cursor-pointer transition-colors ${selectedClient?.id === c.id ? 'bg-green-50 dark:bg-green-900 rounded-lg' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}>
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="font-medium text-sm dark:text-white">{c.name}</p>
@@ -1161,13 +1161,13 @@ export default function Page4() {
                     </div>
                     {filteredClients.length > PAGE_SIZE && (
                       <div className="flex justify-between items-center mt-3">
-                        <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
+                        <button onClick={() => setClientPage(p => Math.max(0, p - 1))} disabled={clientPage === 0} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">이전</button>
                         <div className="flex gap-1">
                           {Array.from({length: Math.ceil(filteredClients.length / PAGE_SIZE)}, (_, i) => (
-                            <button key={i} onClick={() => setClientPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${clientPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
+                            <button key={i} onClick={() => setClientPage(i)} className={`text-xs w-6 h-6 rounded-full ${clientPage === i ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{i + 1}</button>
                           ))}
                         </div>
-                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(filteredClients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= filteredClients.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
+                        <button onClick={() => setClientPage(p => Math.min(Math.ceil(filteredClients.length / PAGE_SIZE) - 1, p + 1))} disabled={(clientPage + 1) * PAGE_SIZE >= filteredClients.length} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">다음</button>
                       </div>
                     )}
                   </>
