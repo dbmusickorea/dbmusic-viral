@@ -73,7 +73,7 @@ export default function AgencyPage() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
           else setPullStartY(0)
@@ -88,7 +88,7 @@ export default function AgencyPage() {
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
             {(isPulling || isRefreshing) && (
               <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
                 {isRefreshing ? <><RefreshCw size={14} className="animate-spin" /> 새로고침 중...</> : <><ArrowDown size={14} /> 놓으면 새로고침</>}
@@ -117,20 +117,20 @@ export default function AgencyPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
             </div>
           ) : agencies.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 text-center text-gray-400">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 text-center text-gray-400">
               등록된 에이전시가 없어요.
             </div>
           ) : (
             <div className="flex flex-col md:flex-row gap-4">
               {/* 왼쪽: 에이전시 목록 */}
-              <div className="w-full md:w-1/2 space-y-3">
+              <div className="w-full md:w-1/2 divide-y divide-gray-100 dark:divide-gray-800">
                 {agencies.map(agency => {
                   const agencyMembers = getAgencyMembers(agency)
                   const isSelected = selected?.id === agency.id
                   return (
                     <div
                       key={agency.id}
-                      className={`bg-white dark:bg-gray-800 rounded-2xl shadow p-4 cursor-pointer border-2 ${isSelected ? 'border-blue-500' : 'border-transparent'}`}
+                      className={`p-4 cursor-pointer transition-colors ${isSelected ? 'bg-blue-50 dark:bg-blue-900 rounded-lg' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}
                       onClick={() => setSelected(isSelected ? null : agency)}
                     >
                       <div className="flex items-center gap-2 mb-1">
@@ -151,7 +151,7 @@ export default function AgencyPage() {
               {/* 오른쪽: 소속 체험단 */}
               <div className="hidden md:block w-1/2">
                 {selected ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 sticky top-24">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 sticky top-24">
                     <p className="font-bold dark:text-white mb-1">{selected.agency_name ?? selected.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">소속 체험단 ({selectedMembers.length}명)</p>
                     {selectedMembers.length === 0 ? (
@@ -174,7 +174,7 @@ export default function AgencyPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 text-center text-gray-400 sticky top-24">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 text-center text-gray-400 sticky top-24">
                     <p className="text-sm">에이전시를 선택하면 소속 체험단을 볼 수 있어요.</p>
                   </div>
                 )}
@@ -183,7 +183,7 @@ export default function AgencyPage() {
               {/* 모바일: 선택된 에이전시 소속 체험단 */}
               {selected && (
                 <div className="md:hidden w-full">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-4">
                     <p className="font-bold dark:text-white mb-1">{selected.agency_name ?? selected.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">소속 체험단 ({selectedMembers.length}명)</p>
                     {selectedMembers.length === 0 ? (
