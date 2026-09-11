@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   const { data: posts } = await supabase.from('posts').select('*').ilike('project_code', projectCode).order('created_at', { ascending: true })
   const { data: history } = await supabase.from('post_stats_history').select('*').ilike('project_code', projectCode).order('recorded_at', { ascending: true })
   const { data: commentMissions } = await supabase.from('comment_missions').select('*').ilike('project_code', projectCode).eq('status', 'APPROVED')
+  const { data: projectLinks } = await supabase.from('project_links').select('*').ilike('project_code', projectCode)
 
   const workbook = new ExcelJS.Workbook()
   const headerFill: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F4E79' } }
@@ -69,8 +70,8 @@ export async function GET(request: NextRequest) {
   summarySheet.mergeCells(statsTitle.number, 1, statsTitle.number, 2)
   statsTitle.getCell(1).alignment = { horizontal: 'center' }
 
-  const totalLikes = posts?.reduce((sum, p) => sum + (p.likes_count ?? 0), 0) ?? 0
-  const totalComments = posts?.reduce((sum, p) => sum + (p.comments_count ?? 0), 0) ?? 0
+  const totalLikes = (posts?.reduce((sum, p) => sum + (p.likes_count ?? 0), 0) ?? 0) + (projectLinks?.reduce((sum, l) => sum + (l.likes_count ?? 0), 0) ?? 0)
+  const totalComments = (posts?.reduce((sum, p) => sum + (p.comments_count ?? 0), 0) ?? 0) + (projectLinks?.reduce((sum, l) => sum + (l.comments_count ?? 0), 0) ?? 0)
 
   const statsRows: [string, number][] = [
     ['총 게시물 수', posts?.length ?? 0],
@@ -119,6 +120,28 @@ export async function GET(request: NextRequest) {
     ;[4, 5, 6].forEach(col => { row.getCell(col).numFmt = '#,##0' })
     row.eachCell(cell => { cell.border = border })
   })
+
+  // 시트 2.5: 기타 등록 링크
+  if (projectLinks && projectLinks.length > 0) {
+    const linksSheet = workbook.addWorksheet('기타 등록 링크')
+    linksSheet.columns = [
+      { header: '플랫폼', width: 15 },
+      { header: '좋아요', width: 12 },
+      { header: '댓글', width: 12 },
+      { header: '조회수', width: 12 }
+    ]
+    const linksHeader = linksSheet.getRow(1)
+    linksHeader.font = headerFont
+    linksHeader.eachCell(cell => { cell.fill = headerFill; cell.alignment = { horizontal: 'center' }; cell.border = border })
+
+    projectLinks.forEach(l => {
+      const row = linksSheet.addRow([
+        l.platform, l.likes_count ?? 0, l.comments_count ?? 0, l.views_count ?? 0
+      ])
+      ;[2, 3, 4].forEach(col => { row.getCell(col).numFmt = '#,##0' })
+      row.eachCell(cell => { cell.border = border })
+    })
+  }
 
   // 시트 3: 커버영상 목록
   const coverPosts = posts?.filter(p => p.is_cover) ?? []

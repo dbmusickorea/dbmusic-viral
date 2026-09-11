@@ -224,6 +224,27 @@ export default function ReportPage() {
       ]
     }))
 
+    if (projectLinks.length > 0) {
+      sections.push(new Paragraph({ text: '기타 등록 링크', heading: HeadingLevel.HEADING_2, spacing: { before: 300, after: 120 } }))
+      sections.push(new Paragraph({ text: '체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.', spacing: { after: 120 } }))
+      sections.push(new Table({
+        width: { size: PAGE_WIDTH, type: WidthType.DXA },
+        columnWidths: [2258, 2256, 2256, 2256],
+        borders: tableBorders,
+        rows: [
+          new TableRow({ children: [
+            headerCell('플랫폼', 2258), headerCell('좋아요', 2256), headerCell('댓글', 2256), headerCell('조회수', 2256),
+          ]}),
+          ...projectLinks.map((l: any, i: number) => new TableRow({ children: [
+            dataCell(l.platform ?? '', 2258, AlignmentType.LEFT, i % 2 ? 'F7F9FC' : undefined),
+            dataCell((l.likes_count ?? 0).toLocaleString(), 2256, AlignmentType.RIGHT, i % 2 ? 'F7F9FC' : undefined),
+            dataCell((l.comments_count ?? 0).toLocaleString(), 2256, AlignmentType.RIGHT, i % 2 ? 'F7F9FC' : undefined),
+            dataCell((l.views_count ?? 0).toLocaleString(), 2256, AlignmentType.RIGHT, i % 2 ? 'F7F9FC' : undefined),
+          ]}))
+        ]
+      }))
+    }
+
     const doc = new Document({ sections: [{ children: sections }] })
     const blob = await Packer.toBlob(doc)
     const url = URL.createObjectURL(blob)
