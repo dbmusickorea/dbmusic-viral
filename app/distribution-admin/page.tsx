@@ -589,15 +589,15 @@ export default function DistributionAdminPage() {
         )}
 
         {activeTab === 'requests' && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4">
             {requestsLoading ? (
               <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" /></div>
             ) : requests.length === 0 ? (
               <p className="text-xs text-gray-400 text-center py-8">발매 신청 내역이 없어요.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {requests.map((r: any) => (
-                  <div key={r.id} className="border dark:border-gray-600 rounded-lg p-3">
+                  <div key={r.id} className="p-3">
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="text-sm font-bold dark:text-white">{r.album_name}</p>
