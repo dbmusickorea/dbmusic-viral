@@ -776,7 +776,7 @@ export default function Page3() {
           </div>
 
           {/* 오른쪽 컬럼 */}
-          <div id="tutorial-stats-tab" className={`${activeTab === 'stats' ? 'block' : 'hidden'} md:block`}>
+          <div id="tutorial-stats-tab" className={`${activeTab === 'stats' ? 'block' : 'hidden'} md:block md:border-l md:border-gray-100 md:dark:border-gray-800 md:pl-6`}>
             {projectInfo?.meta_campaign_id && <MetaInsightsDashboard campaignId={projectInfo.meta_campaign_id} />}
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
