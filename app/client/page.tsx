@@ -519,7 +519,7 @@ export default function Page3() {
           ]}
         />
       )}
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -537,7 +537,7 @@ export default function Page3() {
         setIsPulling(false)
       }}
     >
-      <div className="sticky top-0 z-30 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      <div className="sticky top-0 z-30 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         {(isPulling || isRefreshing) && (
           <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
             {isRefreshing ? (
@@ -625,7 +625,7 @@ export default function Page3() {
           <div className={`${activeTab === 'project' ? 'block' : 'hidden'} md:block`}>
             {/* 의뢰인 - 내 프로젝트 목록 */}
             {isClient && (
-              <div id="tutorial-project-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-project-card" className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-sm font-medium dark:text-white">안녕하세요, <span className="text-blue-600 font-bold">{userInfo?.name}</span>님!</p>
                 </div>
@@ -695,7 +695,7 @@ export default function Page3() {
 
             {/* 관리자 - 프로젝트 목록 */}
             {!isClient && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white">프로젝트 목록</h2>
                 <input value={clientCode} onChange={(e) => handleCodeChange(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mb-3 dark:bg-gray-700 dark:text-white" placeholder="프로젝트 코드 검색 (예: A_1)" />
                 <div className="flex gap-2 mb-3">
@@ -752,7 +752,7 @@ export default function Page3() {
 
             {/* 관리자와 대화 */}
             {isClient && (
-              <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div id="tutorial-inquiry-card" className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <button onClick={() => setShowChat(true)} className="w-full flex justify-between items-center">
                   <h2 className="font-bold dark:text-white flex items-center gap-1">
                     <MessageSquare size={16} /> 관리자와 대화하기
@@ -792,7 +792,7 @@ export default function Page3() {
                   )
                 )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 h-full flex flex-col">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 h-full flex flex-col">
                     <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Calendar size={12} /> 프로젝트 기간</p>
                     <p className="text-sm dark:text-gray-300">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
@@ -851,7 +851,7 @@ export default function Page3() {
                     )}
                     </div>                  
                   </div>
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-3">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Package size={12} /> 프로젝트 정보</p>
                     <p className="text-sm dark:text-gray-300">의뢰인: {projectInfo.client_name ?? '-'}</p>
                     {projectInfo.artist_name && <p className="text-sm dark:text-gray-300">가수명: {projectInfo.artist_name}</p>}
@@ -865,7 +865,7 @@ export default function Page3() {
                   </div>
                 </div>
                 {projectInfo.requirements && (
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 mb-4">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 mb-4">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ClipboardList size={12} /> 의뢰인 요청사항</p>
                     <p className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-300">{projectInfo.requirements}</p>
                   </div>
@@ -885,7 +885,7 @@ export default function Page3() {
 
             {/* 총 통계 */}
             {posts.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 전체 통계</h2>
                 <div className={`grid gap-3 ${topRanker ? 'grid-cols-2' : 'grid-cols-3'}`}>
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center">
@@ -935,7 +935,7 @@ export default function Page3() {
 
             {/* SNS별 통계 */}
             {posts.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Share2 size={16} /> SNS별 통계</h2>
                 <div className="space-y-2">
                   {snsList.map(({ label, posts: snsPosts, links: snsLinks, icon }) => (
@@ -987,7 +987,7 @@ export default function Page3() {
 
             {/* 댓글 미션 현황 */}
             {commentMissionData && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><MessageSquare size={16} /> 댓글 부스팅 현황</h2>
                 <div className="text-center mb-4">
                   <p className="text-xs text-gray-500 mb-1">누적 댓글 부스팅 현황</p>
@@ -1017,7 +1017,7 @@ export default function Page3() {
 
             {/* 커버 신청 목록 */}
             {coverRequests.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Music size={16} /> 커버 신청</h2>
                 <div className="space-y-2">
                   {coverRequests.map((req: any) => (
@@ -1049,7 +1049,7 @@ export default function Page3() {
 
             {/* 인스타/틱톡 링크 */}
             {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Link size={16} /> 관리자 SNS 링크</h2>
                 <div className="space-y-2">
                   {projectLinks.filter(l => ['instagram', 'tiktok'].includes(l.platform)).map(link => (
@@ -1071,7 +1071,7 @@ export default function Page3() {
 
             {/* 게시물 목록 */}
             {projectInfo && (
-              <div ref={postsRef} className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div ref={postsRef} className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white">게시물 목록</h2>
                 {posts.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
@@ -1166,7 +1166,7 @@ export default function Page3() {
         </div>
         {/* 보고서 탭 */}
         <div id="tutorial-report-tab" className={`${activeTab === 'report' ? 'block' : 'hidden'}`}>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-4 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 결과보고서</h2>
             <div className="space-y-3">
               {myProjects?.map((p: any) => (
@@ -1191,7 +1191,7 @@ export default function Page3() {
         </div>
         {/* 프로젝트 신청 탭 */}
         <div className={`${activeTab === 'apply' ? 'block md:hidden' : 'hidden'}`}>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
             <button onClick={() => setShowApplyModal(true)} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">+ 프로젝트 신청</button>
           </div>
         </div>
