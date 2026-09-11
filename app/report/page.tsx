@@ -2,10 +2,13 @@
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import StatsChart from '../../components/StatsChart'
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel, ImageRun, WidthType, AlignmentType, BorderStyle } from 'docx'
 
 export default function ReportPage() {
+  const router = useRouter()
+  const [isNativeApp, setIsNativeApp] = useState(false)
   const [project, setProject] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
   const [history, setHistory] = useState<any[]>([])
@@ -16,6 +19,10 @@ export default function ReportPage() {
   const youtubeChartRef = useRef<HTMLDivElement>(null)
   const tiktokChartRef = useRef<HTMLDivElement>(null)
   const reportContentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setIsNativeApp(!!(window as any).Capacitor?.isNativePlatform?.())
+  }, [])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -305,9 +312,17 @@ export default function ReportPage() {
   const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.views_count ?? 0), 0)
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen" style={{paddingTop: 'env(safe-area-inset-top)'}}>
       <div className="max-w-4xl mx-auto p-8">
-        <div className="print:hidden flex gap-2 justify-end mb-6 flex-wrap">
+        <div className="print:hidden flex items-center justify-between mb-6 gap-2 flex-wrap">
+        {isNativeApp && (
+          <button onClick={() => router.back()} className="text-gray-500 p-2 -ml-2" aria-label="닫기">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+        <div className="flex gap-2 flex-wrap">
         {/* PDF - 빨간색 */}
         <button onClick={handleDownloadPDF} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
@@ -351,6 +366,7 @@ export default function ReportPage() {
           </svg>
           Excel
         </button>
+        </div>
         </div>
         <div ref={reportContentRef}>
         <div className="text-center mb-8 border-b pb-6">
