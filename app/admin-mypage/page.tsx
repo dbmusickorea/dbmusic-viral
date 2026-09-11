@@ -216,7 +216,7 @@ export default function AdminMypagePage() {
         ]}
         onLogout={handleLogout}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
@@ -240,7 +240,7 @@ export default function AdminMypagePage() {
           </div>
         )}
         <div className="max-w-7xl mx-auto">
-          <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+          <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
             <div className="flex justify-center mb-2">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
             </div>
