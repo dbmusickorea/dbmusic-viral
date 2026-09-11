@@ -24,10 +24,14 @@ export default function AdminPushSection({ pushTarget, setPushTarget, pushTitle,
         <div className="space-y-3">
           <div>
             <label className="text-sm font-medium dark:text-white">발송 대상</label>
-            <div className="flex gap-2 mt-1">
-              <button onClick={() => setPushTarget('all')} className={`flex-1 text-xs py-2 rounded-lg border dark:border-gray-600 ${pushTarget === 'all' ? 'bg-purple-600 text-white border-purple-600' : 'dark:text-gray-300'}`}>전체</button>
-              <button onClick={() => setPushTarget('participant')} className={`flex-1 text-xs py-2 rounded-lg border dark:border-gray-600 ${pushTarget === 'participant' ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>체험단</button>
-              <button onClick={() => setPushTarget('client')} className={`flex-1 text-xs py-2 rounded-lg border dark:border-gray-600 ${pushTarget === 'client' ? 'bg-green-600 text-white border-green-600' : 'dark:text-gray-300'}`}>의뢰인</button>
+            <div className="relative flex mt-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+              <div
+                className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${pushTarget === 'all' ? 'bg-purple-600' : pushTarget === 'participant' ? 'bg-blue-600' : 'bg-green-600'}`}
+                style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(pushTarget === 'all' ? 0 : pushTarget === 'participant' ? 1 : 2) * 100}%)` }}
+              />
+              <button onClick={() => setPushTarget('all')} className={`relative z-10 flex-1 text-xs py-1.5 rounded-md transition-colors ${pushTarget === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>전체</button>
+              <button onClick={() => setPushTarget('participant')} className={`relative z-10 flex-1 text-xs py-1.5 rounded-md transition-colors ${pushTarget === 'participant' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>체험단</button>
+              <button onClick={() => setPushTarget('client')} className={`relative z-10 flex-1 text-xs py-1.5 rounded-md transition-colors ${pushTarget === 'client' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>의뢰인</button>
             </div>
           </div>
           <div>
