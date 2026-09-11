@@ -879,7 +879,15 @@ export default function Page3() {
             {projectInfo && projectInfo.status === 'COMPLETED' && (
               <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-2xl p-3 mb-4">
                 <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1"><BarChart2 size={16} /> 프로젝트 결과보고서</p>
-                <button onClick={() => window.open(`/report?project_code=${projectInfo.project_code}`, '_blank')} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
+                <button onClick={async () => {
+                  const url = `https://app.doubleb.kr/report?project_code=${projectInfo.project_code}`
+                  if ((window as any).Capacitor?.isNativePlatform?.()) {
+                    const { Browser } = await import('@capacitor/browser')
+                    await Browser.open({ url })
+                  } else {
+                    window.open(url, '_blank')
+                  }
+                }} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium cursor-pointer transition-colors">
                   결과보고서 받기
                 </button>
               </div>
@@ -1179,7 +1187,15 @@ export default function Page3() {
                       <p className="text-xs text-gray-400 mt-1">{p.start_date} ~ {p.end_date}</p>
                     </div>
                     {p.status === 'COMPLETED' ? (
-                      <button onClick={() => window.open(`/report?project_code=${p.project_code}`, '_blank')} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg">
+                      <button onClick={async () => {
+                        const url = `https://app.doubleb.kr/report?project_code=${p.project_code}`
+                        if ((window as any).Capacitor?.isNativePlatform?.()) {
+                          const { Browser } = await import('@capacitor/browser')
+                          await Browser.open({ url })
+                        } else {
+                          window.open(url, '_blank')
+                        }
+                      }} className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg">
                         결과보고서 받기
                       </button>
                     ) : (
