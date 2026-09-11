@@ -205,8 +205,8 @@ export async function GET() {
       for (const project of intervalProjects) {
         if (project.end_date) {
           const endDate = new Date(project.end_date)
-          const monitoringDays = project.monitoring_extension ?? 0
-          const monitoringEnd = new Date(endDate.getTime() + monitoringDays * 24 * 60 * 60 * 1000)
+          // end_date 자체에 이미 (기본 15일 + 모니터링 연장일수)가 반영되어 저장되므로 여기서 추가로 더하지 않음
+          const monitoringEnd = endDate
           
           // 커버 옵션 선택한 프로젝트만 추가 15일 연장
           const hasCover = (project.cover_video_count ?? 0) > 0
@@ -258,7 +258,8 @@ export async function GET() {
       if (monitoringProjects) {
         for (const project of monitoringProjects) {
           if (project.end_date) {
-            const monitoringEndDate = new Date(new Date(project.end_date).getTime() + project.monitoring_extension * 24 * 60 * 60 * 1000)
+            // end_date 자체에 이미 모니터링 연장일수가 반영되어 저장되므로 여기서 추가로 더하지 않음
+            const monitoringEndDate = new Date(project.end_date)
             if (new Date() <= monitoringEndDate) {
               const { data: monitoringPosts } = await supabase.from('posts').select('*').ilike('project_code', project.project_code)
               if (monitoringPosts) await updatePostStats(monitoringPosts)
@@ -653,9 +654,8 @@ export async function GET() {
       for (const project of ongoingProjectsForSnapshot) {
         // 종료일 + 모니터링 연장 + 커버 연장 계산
         if (project.end_date) {
-          const endDate = new Date(project.end_date)
-          const monitoringDays = project.monitoring_extension ?? 0
-          const monitoringEnd = new Date(endDate.getTime() + monitoringDays * 24 * 60 * 60 * 1000)
+          // end_date 자체에 이미 (기본 15일 + 모니터링 연장일수)가 반영되어 저장되므로 여기서 추가로 더하지 않음
+          const monitoringEnd = new Date(project.end_date)
           const hasCover = (project.cover_video_count ?? 0) > 0
           const extendedEnd = hasCover
             ? new Date(monitoringEnd.getTime() + 15 * 24 * 60 * 60 * 1000)
@@ -664,7 +664,7 @@ export async function GET() {
         }
 
         const inCoverExtension = project.end_date && (project.cover_video_count ?? 0) > 0 &&
-          new Date() > new Date(new Date(project.end_date).getTime() + (project.monitoring_extension ?? 0) * 24 * 60 * 60 * 1000)
+          new Date() > new Date(project.end_date)
         const interval = inCoverExtension
           ? (project.base_refresh_interval ?? 12)
           : (project.refresh_interval ?? 12)
