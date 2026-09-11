@@ -186,7 +186,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                       })
                     }
                     showToast('잠금 해제 완료!')
-                  }} className="text-xs bg-green-600 text-white rounded px-2 py-1">잠금 해제</button>
+                  }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-1.5">잠금 해제</button>
                 )}
               </div>
             </div>
@@ -228,7 +228,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     if (tokens?.length > 0) {
                       await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
                     }
-                  }} className="text-xs bg-green-600 text-white rounded px-2 py-1">해제+재참여</button>
+                  }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-1.5">해제+재참여</button>
                   <button onClick={async () => {
                     await fetchWithAuth(`/api/participants?id=${memberId}`, {
                       method: 'PATCH',
@@ -246,7 +246,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
                     if (tokens?.length > 0) {
                       await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' }, body: '다시 미션에 참여할 수 있어요.', tokens: tokens.map((t: any) => t.token), userIds: [String(memberId)] }) })
                     }
-                  }} className="text-xs bg-red-600 text-white rounded px-2 py-1">해제+제외</button>
+                  }} className="text-xs bg-red-600 text-white rounded-lg px-3 py-1.5">해제+제외</button>
                 </div>
               </div>
             </div>
