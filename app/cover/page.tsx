@@ -534,13 +534,13 @@ export default function CoverPage() {
           <div>
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
               <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ListChecks size={16} /> 프로젝트 선택</h2>
-              <div className="space-y-2">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {projects.map(p => (
                   <div key={p.id} onClick={() => { 
                     if (selectedProject?.id === p.id) { setSelectedProject(null) } 
                     else { setSelectedProject(p); loadCoverRequests(p.project_code) }
                   }}
-                    className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedProject?.id === p.id ? 'border-purple-500 bg-purple-50 dark:bg-purple-900' : 'dark:bg-gray-700'}`}>
+                    className={`p-3 cursor-pointer transition-colors ${selectedProject?.id === p.id ? 'bg-purple-50 dark:bg-purple-900 rounded-lg' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}>
                     <div className="flex justify-between items-center gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         {p.cover_image_url && (
@@ -632,7 +632,7 @@ export default function CoverPage() {
                 {/* 등급 필터 */}
                 <div className="flex gap-1 flex-wrap mb-2">
                   {['전체', '일반', '프리미엄'].map(grade => (
-                    <button key={grade} onClick={() => setGradeFilter(grade)} className={`text-xs px-2 py-1 rounded-full border ${gradeFilter === grade ? 'bg-yellow-500 text-white border-yellow-500' : 'text-gray-500'}`}>
+                    <button key={grade} onClick={() => setGradeFilter(grade)} className={`text-xs px-2 py-1 rounded-full ${gradeFilter === grade ? 'bg-yellow-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
                       {grade}
                     </button>
                   ))}
@@ -640,7 +640,7 @@ export default function CoverPage() {
                 {/* 장르 필터 */}
                 <div className="flex gap-1 flex-wrap mb-3">
                   {['전체', '발라드', '댄스/팝', 'R&B', '힙합', '트로트', '록/밴드', '인디', '기타'].map(genre => (
-                    <button key={genre} onClick={() => setGenreFilter(genre)} className={`text-xs px-2 py-1 rounded-full border ${genreFilter === genre ? 'bg-purple-600 text-white border-purple-600' : 'text-gray-500'}`}>
+                    <button key={genre} onClick={() => setGenreFilter(genre)} className={`text-xs px-2 py-1 rounded-full ${genreFilter === genre ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
                       {genre}
                     </button>
                   ))}
@@ -648,12 +648,12 @@ export default function CoverPage() {
                 {coverParticipants.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">승인된 커버가능 체험단이 없습니다.</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
                     {coverParticipants.filter(p => (genreFilter === '전체' || (p.genres && p.genres.includes(genreFilter))) && (gradeFilter === '전체' || (gradeFilter === '프리미엄' ? p.cover_grade === 'premium' : p.cover_grade !== 'premium'))).map(p => {
                       const request = coverRequests.find(r => r.participant_id === p.id)
                       const coverPost = coverPosts.find(post => post.member_id === p.id && request?.project_code === post.project_code)
                       return (
-                        <div key={p.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                        <div key={p.id} className="p-3">
                           <div className="flex justify-between items-center">
                             <div className="flex gap-3 flex-1 min-w-0">
                               {/* 프로필사진 */}
