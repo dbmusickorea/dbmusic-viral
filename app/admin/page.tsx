@@ -1328,7 +1328,7 @@ export default function Page1() {
 
           {/* 오른쪽 컬럼 */}
           <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block`}>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold dark:text-white flex items-center gap-1">{selectedProject ? <><FileEdit size={16} /> 프로젝트 수정</> : <><FilePlus size={16} /> 프로젝트 등록</>}</h2>
                 <div className="flex gap-2">
@@ -1386,7 +1386,7 @@ export default function Page1() {
             </div>
 
             {selectedProject && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <button onClick={handleSendReminderToUnsubmitted} className="w-full text-xs bg-orange-100 text-orange-700 rounded-lg px-3 py-2 mb-3 flex items-center justify-center gap-1">
                   <Clock size={12} /> 미제출자에게 업로드 독려 알림 보내기
                 </button>
@@ -1403,7 +1403,7 @@ export default function Page1() {
             )}
 
             {selectedProject && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <AdminPostList
                   posts={posts}
                   selectedParticipantId={selectedParticipantId}
