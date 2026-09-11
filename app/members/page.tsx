@@ -949,7 +949,7 @@ export default function Page4() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold">회원 관리</h1>
+              <h1 className="text-xl font-bold dark:text-white">회원 관리</h1>
             </div>
           </div>
         </div>

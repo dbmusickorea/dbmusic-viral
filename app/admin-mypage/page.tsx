@@ -250,7 +250,7 @@ export default function AdminMypagePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold">관리자 마이페이지</h1>
+              <h1 className="text-xl font-bold dark:text-white">관리자 마이페이지</h1>
             </div>
           </div>
 

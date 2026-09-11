@@ -784,20 +784,20 @@ export default function Page3() {
                 {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
                   projectInfo?.cover_contest_enabled ? (
                     <div className="flex gap-2 mb-3">
-                      <button onClick={() => router.push('/cover')} className="flex-1 text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
-                      <button onClick={() => router.push(`/cover-contest?project_code=${projectInfo.project_code}`)} className="flex-1 text-xs border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200 rounded px-3 py-2 flex items-center justify-center gap-1"><Trophy size={12} /> 컨테스트 페이지</button>
+                      <button onClick={() => router.push('/cover')} className="flex-1 text-sm border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
+                      <button onClick={() => router.push(`/cover-contest?project_code=${projectInfo.project_code}`)} className="flex-1 text-sm border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200 rounded px-3 py-2 flex items-center justify-center gap-1"><Trophy size={12} /> 컨테스트 페이지</button>
                     </div>
                   ) : (
-                    <button onClick={() => router.push('/cover')} className="w-full text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 mb-3 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
+                    <button onClick={() => router.push('/cover')} className="w-full text-sm border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 mb-3 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
                   )
                 )}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 h-full flex flex-col">
                     <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Calendar size={12} /> 프로젝트 기간</p>
-                    <p className="text-xs dark:text-gray-300">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
-                    <p className="text-xs dark:text-gray-300">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
-                    <p className="text-xs dark:text-gray-300">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Calendar size={12} /> 프로젝트 기간</p>
+                    <p className="text-sm dark:text-gray-300">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
+                    <p className="text-sm dark:text-gray-300">종료일: {projectInfo.end_date ? new Date(projectInfo.end_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.end_time ? ` ${projectInfo.end_time}` : ''}</p>
+                    <p className="text-sm dark:text-gray-300">진행일수: {projectInfo.start_date ? Math.floor((new Date().getTime() - new Date(projectInfo.start_date).getTime()) / (1000 * 60 * 60 * 24)) + '일째' : '미정'}</p>
                     </div>
                     <div className="mt-auto">
                     {projectInfo.document_id && typeof window !== 'undefined' && (!(window as any).Capacitor?.isNativePlatform?.() || appVersion >= '1.2') && (
@@ -852,22 +852,22 @@ export default function Page3() {
                     </div>                  
                   </div>
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Package size={12} /> 프로젝트 정보</p>
-                    <p className="text-xs dark:text-gray-300">의뢰인: {projectInfo.client_name ?? '-'}</p>
-                    {projectInfo.artist_name && <p className="text-xs dark:text-gray-300">가수명: {projectInfo.artist_name}</p>}
-                    {projectInfo.song_title && <p className="text-xs dark:text-gray-300">노래제목: {projectInfo.song_title}</p>}
-                    <p className="text-xs dark:text-gray-300">상품: {projectInfo.product_content ?? '-'}</p>
-                    <p className="text-xs dark:text-gray-300">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
-                    <p className="text-xs dark:text-gray-300">모집인원: {projectInfo.max_participants ?? '-'}명</p>
-                    {projectInfo.monitoring_extension > 0 && <p className="text-xs dark:text-gray-300">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
-                    {projectInfo.refresh_interval && <p className="text-xs dark:text-gray-300">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
-                    {projectInfo.cover_video_count > 0 && <p className="text-xs dark:text-gray-300">{projectInfo.cover_type === 'premium' ? `프리미엄 커버: 3명` : `일반 커버: ${projectInfo.cover_video_count}명`}</p>}
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Package size={12} /> 프로젝트 정보</p>
+                    <p className="text-sm dark:text-gray-300">의뢰인: {projectInfo.client_name ?? '-'}</p>
+                    {projectInfo.artist_name && <p className="text-sm dark:text-gray-300">가수명: {projectInfo.artist_name}</p>}
+                    {projectInfo.song_title && <p className="text-sm dark:text-gray-300">노래제목: {projectInfo.song_title}</p>}
+                    <p className="text-sm dark:text-gray-300">상품: {projectInfo.product_content ?? '-'}</p>
+                    <p className="text-sm dark:text-gray-300">요청 게시물: {projectInfo.required_posts ?? 1}개</p>
+                    <p className="text-sm dark:text-gray-300">모집인원: {projectInfo.max_participants ?? '-'}명</p>
+                    {projectInfo.monitoring_extension > 0 && <p className="text-sm dark:text-gray-300">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
+                    {projectInfo.refresh_interval && <p className="text-sm dark:text-gray-300">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
+                    {projectInfo.cover_video_count > 0 && <p className="text-sm dark:text-gray-300">{projectInfo.cover_type === 'premium' ? `프리미엄 커버: 3명` : `일반 커버: ${projectInfo.cover_video_count}명`}</p>}
                   </div>
                 </div>
                 {projectInfo.requirements && (
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-3 mb-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ClipboardList size={12} /> 의뢰인 요청사항</p>
-                    <p className="text-xs whitespace-pre-wrap text-gray-700 dark:text-gray-300">{projectInfo.requirements}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ClipboardList size={12} /> 의뢰인 요청사항</p>
+                    <p className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-300">{projectInfo.requirements}</p>
                   </div>
                 )}
               </>
