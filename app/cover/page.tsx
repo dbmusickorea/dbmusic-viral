@@ -819,12 +819,12 @@ export default function CoverPage() {
                     new Date(new Date(selectedProject.end_date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
                     : '미정'}
                 </p>
-                <div className="space-y-2">
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
                   {coverRequests.filter(r => r.status === 'APPROVED').map(r => {
                     const participant = coverParticipants.find(p => p.id === r.participant_id)
                     const coverPost = coverPosts.find(post => post.member_id === r.participant_id && post.project_code === r.project_code)
                     return (
-                      <div key={r.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                      <div key={r.id} className="p-3">
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-sm font-medium dark:text-white">{participant?.name ?? '-'}</p>
