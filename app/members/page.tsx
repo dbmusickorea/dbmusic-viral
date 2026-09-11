@@ -1194,7 +1194,7 @@ export default function Page4() {
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white flex items-center gap-1"><UserPlus size={16} /> {selected ? '체험단 수정' : '체험단 등록'}</h2>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2">
                     {selected && <button onClick={() => router.push(`/admin-chat?open_user_id=${selected.id}&open_role=participant&open_name=${encodeURIComponent(selected.name)}`)} className="text-xs text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg px-2.5 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>}
                     {selected && <button onClick={clearForm} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">새 등록</button>}
                     {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">
