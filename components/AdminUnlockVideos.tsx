@@ -22,9 +22,9 @@ export default function AdminUnlockVideos({ unlockVideos, newUnlockUrl, setNewUn
         {unlockVideos.length === 0 ? (
           <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">등록된 영상이 없습니다.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {unlockVideos.map((v) => (
-              <div key={v.id} className="flex justify-between items-center border dark:border-gray-600 rounded-lg p-2 dark:bg-gray-700">
+              <div key={v.id} className="flex justify-between items-center px-1 py-2">
                 <a href={v.video_url} target="_blank" className="text-xs text-blue-500 truncate flex-1 flex items-center gap-1"><PlatformIcon platform="youtube" size={12} /> {v.video_url}</a>
                 <button onClick={() => onDelete(v.id)} className="text-xs text-red-500 ml-2">삭제</button>
               </div>
