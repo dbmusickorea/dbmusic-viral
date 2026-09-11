@@ -15,6 +15,7 @@ export default function ReportPage() {
   const instaChartRef = useRef<HTMLDivElement>(null)
   const youtubeChartRef = useRef<HTMLDivElement>(null)
   const tiktokChartRef = useRef<HTMLDivElement>(null)
+  const reportContentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -86,6 +87,29 @@ export default function ReportPage() {
     const blob = await domtoimage.toBlob(ref.current, { bgcolor: '#ffffff' })
     const arrayBuffer = await blob.arrayBuffer()
     return new Uint8Array(arrayBuffer)
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!(window as any).Capacitor?.isNativePlatform?.()) {
+      window.print()
+      return
+    }
+    if (!reportContentRef.current) return
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+    await doc.html(reportContentRef.current, {
+      html2canvas: { scale: 0.55 },
+      autoPaging: 'text',
+      margin: [20, 20, 20, 20],
+      width: 555,
+      windowWidth: reportContentRef.current.scrollWidth,
+    })
+    const base64 = doc.output('datauristring').split(',')[1]
+    const fileName = `더블비뮤직_${project.artist_name ?? project.client_name}_${project.song_title ?? project.product_content}_보고서.pdf`
+    const { Filesystem, Directory } = await import('@capacitor/filesystem')
+    const { Share } = await import('@capacitor/share')
+    const result = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
+    await Share.share({ title: fileName, url: result.uri })
   }
 
   const handleDownloadWord = async () => {
@@ -285,7 +309,7 @@ export default function ReportPage() {
       <div className="max-w-4xl mx-auto p-8">
         <div className="print:hidden flex gap-2 justify-end mb-6 flex-wrap">
         {/* PDF - 빨간색 */}
-        <button onClick={() => window.print()} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
+        <button onClick={handleDownloadPDF} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
             <path d="M14 2v6h6"/>
@@ -328,6 +352,7 @@ export default function ReportPage() {
           Excel
         </button>
         </div>
+        <div ref={reportContentRef}>
         <div className="text-center mb-8 border-b pb-6">
           <h1 className="text-2xl font-bold text-blue-900">더블비뮤직 바이럴 결과보고서</h1>
           <p className="text-gray-500 mt-1">{project.artist_name} / {project.song_title}</p>
@@ -472,6 +497,7 @@ export default function ReportPage() {
 
         <div className="text-center text-xs text-gray-400 border-t pt-4">
           더블비뮤직 바이럴 마케팅 결과보고서 | {new Date().toLocaleDateString('ko-KR')}
+        </div>
         </div>
       </div>
 
