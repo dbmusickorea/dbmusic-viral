@@ -56,21 +56,25 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
 
   return (
     <div>
-      <div className="flex gap-2 mb-3">
+      <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div
+          className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+          style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${['missions', 'points', 'penalty'].indexOf(activityTab) * 100}%)` }}
+        />
         {(['missions', 'points', 'penalty'] as const).map(t => (
-          <button key={t} onClick={() => setActivityTab(t)} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${activityTab === t ? 'bg-blue-600 text-white' : 'border text-gray-500'}`}>
+          <button key={t} onClick={() => setActivityTab(t)} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${activityTab === t ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
             {t === 'missions' ? '미션현황' : t === 'points' ? '포인트' : '페널티'}
           </button>
         ))}
       </div>
 
       {activityTab === 'missions' && (
-        <div className="space-y-2">
+        <div className="divide-y divide-gray-100 dark:divide-gray-800">
           {participations.length === 0 ? <p className="text-sm text-gray-400 text-center py-2">참여 내역 없음</p> : 
           participations.map(p => {
             const projectPosts = posts.filter(post => post.project_code?.toLowerCase() === p.project_code?.toLowerCase())
             return (
-              <div key={p.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+              <div key={p.id} className="p-3">
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-sm font-medium dark:text-white">
@@ -110,13 +114,13 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
           </div>
           <div className="flex gap-1 flex-wrap mb-2">
             {['all', 'post', 'comment', 'cover', 'referral', 'admin', 'deduct', 'exchange'].map(f => (
-              <button key={f} onClick={() => setPointFilter(f)} className={`text-xs px-2 py-1 rounded-full border ${pointFilter === f ? 'bg-blue-600 text-white border-blue-600' : 'dark:border-gray-600 dark:text-gray-300'}`}>
+              <button key={f} onClick={() => setPointFilter(f)} className={`text-xs px-2 py-1 rounded-full ${pointFilter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
                 {f === 'all' ? '전체' : f === 'post' ? '게시물' : f === 'comment' ? '댓글미션' : f === 'cover' ? '커버' : f === 'referral' ? '추천인' : f === 'admin' ? '관리자지급' : f === 'deduct' ? '차감' : '환전'}
               </button>
             ))}
           </div>
           {pointFilter !== 'exchange' && (pointFilter === 'all' ? settlements : []).map(s => (
-            <div key={s.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
+            <div key={s.id} className="bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">환전 신청</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(s.requested_at).toLocaleDateString('ko-KR')}</p>
@@ -139,7 +143,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
             if (pointFilter === 'exchange') return false
             return true
           }).map(ph => (
-            <div key={ph.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
+            <div key={ph.id} className="bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">{ph.memo || '관리자 지급'}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(ph.created_at).toLocaleDateString('ko-KR')}</p>
