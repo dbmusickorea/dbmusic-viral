@@ -84,7 +84,7 @@ export default function ClientReportPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
           else setPullStartY(0)
@@ -118,7 +118,7 @@ export default function ClientReportPage() {
               </svg>
             </button>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-4 dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 결과보고서</h2>
             {dataLoading ? (
               <div className="flex justify-center py-12">
@@ -127,11 +127,14 @@ export default function ClientReportPage() {
             ) : myProjects.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-8">프로젝트가 없어요</p>
             ) : (
-              <div className="space-y-3">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {myProjects.map((p: any) => (
-                  <div key={p.project_code} className="border dark:border-gray-600 dark:bg-gray-700 rounded-xl p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
+                  <div key={p.project_code} className="py-4">
+                    <div className="flex justify-between items-center gap-3">
+                      {p.cover_image_url && (
+                        <img src={p.cover_image_url} className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm dark:text-white">{p.artist_name ?? p.client_name} / {p.song_title ?? p.product_content}</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{p.start_date} ~ {p.end_date}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${p.status === 'ONGOING' ? 'bg-green-100 text-green-700' : p.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700'}`}>
@@ -140,7 +143,7 @@ export default function ClientReportPage() {
                       </div>
                       {p.status === 'COMPLETED' ? (
                         <button onClick={async () => {
-                          const url = `${window.location.origin}/report?project_code=${p.project_code}`
+                          const url = `https://app.doubleb.kr/report?project_code=${p.project_code}`
                           if ((window as any).Capacitor?.isNativePlatform?.()) {
                             const { Browser } = await import('@capacitor/browser')
                             await Browser.open({ url })
