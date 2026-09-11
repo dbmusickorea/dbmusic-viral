@@ -78,7 +78,7 @@ function AdminChatContent() {
     .filter(t => filter === 'all' || t.role === filter)
     .filter(t => t.name.toLowerCase().includes(listSearchQuery.toLowerCase()))
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
+  if (loading) return <div className="flex justify-center items-center min-h-screen bg-white dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>
 
   const newChatList = (newChatRole === 'participant' ? allParticipants : allClients)
     .filter((u: any) => (u.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()))
@@ -96,7 +96,7 @@ function AdminChatContent() {
 
   const newChatModal = showNewChat && (
     <div className="fixed inset-0 z-50 md:bg-black/40 md:flex md:items-center md:justify-center" style={{paddingTop: 'max(0px, env(safe-area-inset-top))'}}>
-      <div className="h-full md:h-[70vh] md:w-full md:max-w-md bg-gray-50 dark:bg-gray-900 md:rounded-2xl md:shadow-2xl flex flex-col overflow-hidden">
+      <div className="h-full md:h-[70vh] md:w-full md:max-w-md bg-white dark:bg-gray-900 md:rounded-2xl md:shadow-2xl flex flex-col overflow-hidden">
         <div className="w-full bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 shrink-0 md:rounded-t-2xl">
           <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-3">
             <button onClick={() => setShowNewChat(false)} className="text-gray-600 dark:text-gray-300">
@@ -152,10 +152,14 @@ function AdminChatContent() {
           </div>
         </div>
 
-        <div className="flex gap-2 mb-3">
-          <button onClick={() => setFilter('all')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'all' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>전체</button>
-          <button onClick={() => setFilter('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>의뢰인</button>
-          <button onClick={() => setFilter('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>체험단</button>
+        <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div
+            className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${filter === 'all' ? 'bg-blue-600' : filter === 'client' ? 'bg-purple-600' : 'bg-green-600'}`}
+            style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(filter === 'all' ? 0 : filter === 'client' ? 1 : 2) * 100}%)` }}
+          />
+          <button onClick={() => setFilter('all')} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${filter === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>전체</button>
+          <button onClick={() => setFilter('client')} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${filter === 'client' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>의뢰인</button>
+          <button onClick={() => setFilter('participant')} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${filter === 'participant' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>체험단</button>
         </div>
 
         {showListSearch && (
@@ -174,12 +178,12 @@ function AdminChatContent() {
         {filtered.length === 0 ? (
           <p className="text-center text-sm text-gray-400 py-12">대화 내역이 없어요.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {filtered.map(t => (
               <button
                 key={`${t.role}_${t.user_id}`}
                 onClick={() => setSelected(t)}
-                className={`w-full rounded-2xl shadow p-4 flex items-center gap-3 text-left ${selected?.user_id === t.user_id && selected?.role === t.role ? 'bg-blue-50 dark:bg-gray-700 ring-1 ring-blue-300 dark:ring-blue-500' : 'bg-white dark:bg-gray-800'}`}
+                className={`w-full p-4 flex items-center gap-3 text-left transition-colors ${selected?.user_id === t.user_id && selected?.role === t.role ? 'bg-blue-50 dark:bg-gray-700 rounded-2xl' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -215,7 +219,7 @@ function AdminChatContent() {
   )
 
   return (
-    <div className="min-h-screen md:h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen md:h-screen bg-white dark:bg-gray-900">
       <div className="md:max-w-7xl md:w-full md:mx-auto md:h-full md:flex md:overflow-hidden">
         {listColumn}
 
@@ -248,7 +252,7 @@ function AdminChatContent() {
 
 export default function AdminChatPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>}>
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen bg-white dark:bg-gray-900"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>}>
       <AdminChatContent />
     </Suspense>
   )
