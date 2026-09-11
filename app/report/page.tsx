@@ -246,13 +246,22 @@ export default function ReportPage() {
     }
 
     const doc = new Document({ sections: [{ children: sections }] })
-    const blob = await Packer.toBlob(doc)
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `더블비뮤직_${project.artist_name ?? ''}_${project.song_title ?? ''}_보고서.docx`
-    a.click()
-    URL.revokeObjectURL(url)
+    const fileName = `더블비뮤직_${project.artist_name ?? ''}_${project.song_title ?? ''}_보고서.docx`
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      const base64 = await Packer.toBase64String(doc)
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Share } = await import('@capacitor/share')
+      const result = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
+      await Share.share({ title: fileName, url: result.uri })
+    } else {
+      const blob = await Packer.toBlob(doc)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileName
+      a.click()
+      URL.revokeObjectURL(url)
+    }
   }
 
   if (loading) return <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">로딩중...</div>
@@ -284,10 +293,26 @@ export default function ReportPage() {
           Word
         </button>
         {/* 엑셀 - 녹색 */}
-        <button onClick={() => {
+        <button onClick={async () => {
           const params = new URLSearchParams(window.location.search)
           const projectCode = params.get('project_code')
-          window.open(`/api/report?project_code=${projectCode}`, '_blank')
+          if ((window as any).Capacitor?.isNativePlatform?.()) {
+            const res = await fetch(`https://app.doubleb.kr/api/report?project_code=${projectCode}`)
+            const blob = await res.blob()
+            const base64: string = await new Promise((resolve, reject) => {
+              const reader = new FileReader()
+              reader.onload = () => resolve((reader.result as string).split(',')[1])
+              reader.onerror = reject
+              reader.readAsDataURL(blob)
+            })
+            const fileName = `더블비뮤직_${project.artist_name ?? project.client_name}_${project.song_title ?? project.product_content}_보고서.xlsx`
+            const { Filesystem, Directory } = await import('@capacitor/filesystem')
+            const { Share } = await import('@capacitor/share')
+            const result = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
+            await Share.share({ title: fileName, url: result.uri })
+          } else {
+            window.open(`/api/report?project_code=${projectCode}`, '_blank')
+          }
         }} className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1">
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white">
             <path d="M21.17 3.25H13.5V1.67A.67.67 0 0 0 12.83 1H2.67A.67.67 0 0 0 2 1.67v20.66c0 .37.3.67.67.67h10.16a.67.67 0 0 0 .67-.67v-1.58h7.67c.46 0 .83-.37.83-.83V4.08c0-.46-.37-.83-.83-.83zM13.5 20.33v-1.08H21v1.08H13.5zm7.5-2.41H13.5V5.08H21v12.84zM5.5 15.17l2.17-3.33-2-3.09h1.75l1.08 1.92 1.08-1.92h1.75l-2 3.09 2.17 3.33h-1.83l-1.17-2.08-1.17 2.08H5.5z"/>
