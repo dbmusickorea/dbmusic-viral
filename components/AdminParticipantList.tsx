@@ -35,7 +35,7 @@ export default function AdminParticipantList({ participants, selectedParticipant
                 {p.participants?.tiktok_id && <p className="text-xs text-gray-500 dark:text-gray-400"><PlatformIcon platform="tiktok" size={12} className="inline mr-1" /> <a href={`https://www.tiktok.com/@${p.participants.tiktok_id.replace("@","")}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-600 underline hover:text-blue-800">{p.participants?.tiktok_id}</a>{p.participants?.tiktok_followers > 0 && ` (${p.participants.tiktok_followers.toLocaleString()}명)`}</p>}
                 <div className="flex justify-between items-center mt-1">
                   <p className="text-xs text-gray-400 dark:text-gray-500">참여일: {new Date(p.joined_at).toLocaleDateString('ko-KR')}</p>
-                  <button onClick={(e) => { e.stopPropagation(); onCancelParticipation(p.id, p.participants?.name, p.member_id) }} className="text-xs text-red-500 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50">참여취소</button>
+                  <button onClick={(e) => { e.stopPropagation(); onCancelParticipation(p.id, p.participants?.name, p.member_id) }} className="text-xs text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg px-2.5 py-1">참여취소</button>
                 </div>
               </div>
             ))}

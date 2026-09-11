@@ -37,12 +37,12 @@ export default function AdminPostList({ posts, selectedParticipantId, adminPostP
         <p className="text-sm text-gray-400 text-center py-4">게시물이 없습니다.</p>
       ) : (
         <>
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {pagedPosts.map((post, index) => {
               const rank = adminPostPage * PAGE_SIZE + index + 1
               const isEligible = (post.likes_count ?? 0) >= 1000
               return (
-                <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                <div key={post.id} className="p-3">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex gap-2 min-w-0 flex-1">
                       {(post.platform === 'instagram' ? post.participant?.instagram_profile_image :
@@ -87,13 +87,13 @@ export default function AdminPostList({ posts, selectedParticipantId, adminPostP
                         {!isEligible && <p className="text-xs text-red-400">⚠️ 좋아요 1,000건 미만 시상 제외</p>}
                       </div>
                     </div>
-                    <button onClick={() => onUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded px-2 py-1 disabled:bg-gray-400 cursor-pointer shrink-0">
+                    <button onClick={() => onUpdateSingleLike(post)} disabled={updatingPostId === post.id} className="text-xs bg-orange-500 text-white rounded-lg px-3 py-1.5 disabled:bg-gray-400 cursor-pointer shrink-0">
                       {updatingPostId === post.id ? '...' : '갱신'}
                     </button>
                     {!post.is_cover && (
-                      <button onClick={() => onConvertCover(post.id)} className="text-xs bg-purple-500 text-white rounded px-2 py-1 shrink-0">커버전환</button>
+                      <button onClick={() => onConvertCover(post.id)} className="text-xs bg-purple-500 text-white rounded-lg px-3 py-1.5 shrink-0">커버전환</button>
                     )}
-                    <button onClick={() => onDeletePost(post)} className="text-xs bg-red-500 text-white rounded px-2 py-1 shrink-0">삭제</button>
+                    <button onClick={() => onDeletePost(post)} className="text-xs bg-red-500 text-white rounded-lg px-3 py-1.5 shrink-0">삭제</button>
                   </div>
                 </div>
               )
@@ -101,13 +101,13 @@ export default function AdminPostList({ posts, selectedParticipantId, adminPostP
           </div>
           {filteredPosts.length > PAGE_SIZE && (
             <div className="flex justify-between items-center mt-3">
-              <button onClick={() => setAdminPostPage(p => Math.max(0, p - 1))} disabled={adminPostPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
+              <button onClick={() => setAdminPostPage(p => Math.max(0, p - 1))} disabled={adminPostPage === 0} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">이전</button>
               <div className="flex gap-1">
                 {Array.from({length: Math.ceil(filteredPosts.length / PAGE_SIZE)}, (_, i) => (
-                  <button key={i} onClick={() => setAdminPostPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${adminPostPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
+                  <button key={i} onClick={() => setAdminPostPage(i)} className={`text-xs w-6 h-6 rounded-full ${adminPostPage === i ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{i + 1}</button>
                 ))}
               </div>
-              <button onClick={() => setAdminPostPage(p => Math.min(Math.ceil(filteredPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(adminPostPage + 1) * PAGE_SIZE >= filteredPosts.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
+              <button onClick={() => setAdminPostPage(p => Math.min(Math.ceil(filteredPosts.length / PAGE_SIZE) - 1, p + 1))} disabled={(adminPostPage + 1) * PAGE_SIZE >= filteredPosts.length} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">다음</button>
             </div>
           )}
         </>
