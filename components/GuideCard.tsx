@@ -22,7 +22,7 @@ export default function GuideCard() {
   ]
 
   return (
-    <div id="tutorial-guide-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow mb-4 overflow-hidden">
+    <div id="tutorial-guide-card" className="bg-white dark:bg-gray-900 rounded-2xl mb-4 overflow-hidden">
       <button onClick={() => setOpen(o => !o)} className="w-full flex justify-between items-center p-4">
         <div>
           <p className="font-bold text-sm text-left dark:text-white flex items-center gap-1"><BookOpen size={14} /> 더블비뮤직 앱 사용 가이드</p>
@@ -37,7 +37,7 @@ export default function GuideCard() {
         <div className="px-4 pb-4 border-t dark:border-gray-700 pt-3">
           <div className="space-y-2 mb-4">
             {guides.map((g, i) => (
-              <div key={i} className="border dark:border-gray-600 rounded-xl overflow-hidden">
+              <div key={i} className="bg-gray-50 dark:bg-gray-800/60 rounded-xl overflow-hidden">
                 <button onClick={() => setOpenItem(openItem === i ? null : i)} className="w-full flex justify-between items-center p-3">
                   <p className="text-sm font-medium text-left dark:text-white">{i + 1}. {g.title}</p>
                   <svg viewBox="0 0 24 24" className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${openItem === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2">
@@ -52,7 +52,7 @@ export default function GuideCard() {
           <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1"><Pin size={12} /> 주요 안내사항</p>
           <div className="space-y-2">
             {notices.map((n, i) => (
-              <div key={i} className="border dark:border-gray-600 rounded-xl overflow-hidden">
+              <div key={i} className="bg-gray-50 dark:bg-gray-800/60 rounded-xl overflow-hidden">
                 <button onClick={() => setOpenItem(openItem === i + 10 ? null : i + 10)} className="w-full flex justify-between items-center p-3">
                   <p className="text-sm font-medium text-left dark:text-white">{n.title}</p>
                   <svg viewBox="0 0 24 24" className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${openItem === i + 10 ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2">
