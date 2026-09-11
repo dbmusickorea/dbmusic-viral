@@ -18,16 +18,16 @@ export default function AdminParticipantList({ participants, selectedParticipant
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-bold dark:text-white flex items-center gap-1"><Users size={16} /> 참여자 목록 ({participants.length}명)</h2>
         {selectedParticipantId && (
-          <button onClick={() => setSelectedParticipantId(null)} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">전체보기</button>
+          <button onClick={() => setSelectedParticipantId(null)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">전체보기</button>
         )}
       </div>
       {participants.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-2">참여자가 없습니다.</p>
       ) : (
         <>
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {participants.slice(participantPage * PAGE_SIZE, (participantPage + 1) * PAGE_SIZE).map((p) => (
-              <div key={p.id} onClick={() => setSelectedParticipantId(selectedParticipantId === p.member_id ? null : p.member_id)} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedParticipantId === p.member_id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
+              <div key={p.id} onClick={() => setSelectedParticipantId(selectedParticipantId === p.member_id ? null : p.member_id)} className={`p-3 cursor-pointer transition-colors ${selectedParticipantId === p.member_id ? 'bg-blue-50 dark:bg-blue-900 rounded-lg' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}>
                 <p className="text-sm font-medium dark:text-white">{p.participants?.name}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"><Smartphone size={12} /> {p.participants?.mobile}</p>
                 {p.participants?.instagram_id && <p className="text-xs text-gray-500 dark:text-gray-400"><PlatformIcon platform="instagram" size={12} className="inline mr-1" /> <a href={`https://www.instagram.com/${p.participants.instagram_id.replace("@","")}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-600 underline hover:text-blue-800">{p.participants?.instagram_id}</a>{p.participants?.instagram_followers > 0 && ` (${p.participants.instagram_followers.toLocaleString()}명)`}</p>}
@@ -42,13 +42,13 @@ export default function AdminParticipantList({ participants, selectedParticipant
           </div>
           {participants.length > PAGE_SIZE && (
             <div className="flex justify-between items-center mt-3">
-              <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
+              <button onClick={() => setParticipantPage(p => Math.max(0, p - 1))} disabled={participantPage === 0} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">이전</button>
               <div className="flex gap-1">
                 {Array.from({length: Math.ceil(participants.length / PAGE_SIZE)}, (_, i) => (
-                  <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${participantPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
+                  <button key={i} onClick={() => setParticipantPage(i)} className={`text-xs w-6 h-6 rounded-full ${participantPage === i ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{i + 1}</button>
                 ))}
               </div>
-              <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(participants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= participants.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
+              <button onClick={() => setParticipantPage(p => Math.min(Math.ceil(participants.length / PAGE_SIZE) - 1, p + 1))} disabled={(participantPage + 1) * PAGE_SIZE >= participants.length} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">다음</button>
             </div>
           )}
         </>

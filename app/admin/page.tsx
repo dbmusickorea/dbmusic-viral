@@ -1341,7 +1341,7 @@ export default function Page1() {
                       } else {
                         window.open(url, '_blank')
                       }
-                    }} className="text-xs bg-green-600 text-white border rounded px-2 py-1 flex items-center gap-1">
+                    }} className="text-xs bg-green-600 text-white rounded-lg px-3 py-1.5 flex items-center gap-1">
                       <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="white" strokeWidth="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
@@ -1350,8 +1350,8 @@ export default function Page1() {
                       보고서
                     </button>
                   )}
-                  {selectedProject && <button onClick={clearForm} className="text-xs text-gray-500 border rounded px-2 py-1">새 등록</button>}
-                  <button onClick={() => setShowProjectForm(!showProjectForm)} className="text-xs text-gray-500 border rounded px-2 py-1">
+                  {selectedProject && <button onClick={clearForm} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">새 등록</button>}
+                  <button onClick={() => setShowProjectForm(!showProjectForm)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">
                     {showProjectForm ? '접기 ▲' : '펼치기 ▼'}
                   </button>
                 </div>
