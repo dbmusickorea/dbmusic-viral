@@ -232,7 +232,7 @@ export default function Page5() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -251,7 +251,7 @@ export default function Page5() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -287,11 +287,11 @@ export default function Page5() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4">
             <p className="text-xs text-gray-500 dark:text-gray-400">체험단 총 적립금</p>
             <p className="text-xl font-bold text-blue-600">{totalBalance.toLocaleString()}P</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4">
             <p className="text-xs text-gray-500 dark:text-gray-400">환전 가능 금액</p>
             <p className="text-xl font-bold text-green-600">{totalAvailable.toLocaleString()}P</p>
           </div>
@@ -299,7 +299,7 @@ export default function Page5() {
         <div className="md:grid md:grid-cols-2 md:gap-4">
           {/* 왼쪽 - 환전 신청 목록 */}
           <div>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mb-4">
               <h2 className="font-bold mb-3 dark:text-white">환전 신청 목록</h2>
               {settlements.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-4">신청 내역이 없습니다.</p>
@@ -340,7 +340,7 @@ export default function Page5() {
           {/* 오른쪽 - 상세 정보 */}
           <div>
             {selected && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청 상세</h2>
                 <div className="space-y-2 text-sm">
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
@@ -372,7 +372,7 @@ export default function Page5() {
             )}
 
             {memberPosts.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 체험단 게시물 내역</h2>
                 <div className="space-y-2">
                   {memberPosts.slice(memberPostPage * PAGE_SIZE, (memberPostPage + 1) * PAGE_SIZE).map((post) => (
