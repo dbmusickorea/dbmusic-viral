@@ -25,9 +25,9 @@ export default function AdminProjectList({ projects, selectedProject, projectPag
         <p className="text-sm text-gray-400 text-center py-4">프로젝트가 없습니다.</p>
       ) : (
         <>
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {projects.slice(projectPage * PAGE_SIZE, (projectPage + 1) * PAGE_SIZE).map((project) => (
-              <div key={project.id} onClick={() => onSelectProject(project)} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`}>
+              <div key={project.id} onClick={() => onSelectProject(project)} className={`p-3 cursor-pointer transition-colors ${selectedProject?.id === project.id ? 'bg-blue-50 dark:bg-blue-900 rounded-lg' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}>
                 <div className="flex justify-between items-center gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     {project.cover_image_url && (
@@ -50,13 +50,13 @@ export default function AdminProjectList({ projects, selectedProject, projectPag
             ))}
           </div>
           <div className="flex justify-between items-center mt-3">
-            <button onClick={() => setProjectPage(p => Math.max(0, p - 1))} disabled={projectPage === 0} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">이전</button>
+            <button onClick={() => setProjectPage(p => Math.max(0, p - 1))} disabled={projectPage === 0} className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30">이전</button>
             <div className="flex gap-1">
               {Array.from({length: Math.ceil(projects.length / PAGE_SIZE)}, (_, i) => (
-                <button key={i} onClick={() => setProjectPage(i)} className={`text-xs px-2 py-1 border dark:border-gray-600 rounded ${projectPage === i ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>{i + 1}</button>
+                <button key={i} onClick={() => setProjectPage(i)} className={`text-xs w-6 h-6 rounded-full ${projectPage === i ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{i + 1}</button>
               ))}
             </div>
-            <button onClick={() => setProjectPage(p => Math.min(Math.ceil(projects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectPage + 1) * PAGE_SIZE >= projects.length} className="text-xs px-3 py-1 border dark:border-gray-600 dark:text-gray-300 rounded disabled:opacity-30">다음</button>
+            <button onClick={() => setProjectPage(p => Math.min(Math.ceil(projects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectPage + 1) * PAGE_SIZE >= projects.length} className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30">다음</button>
           </div>
         </>
       )}
