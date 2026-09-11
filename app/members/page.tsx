@@ -954,9 +954,13 @@ export default function Page4() {
           </div>
         </div>
 
-        <div className="flex gap-2 mb-4">
-          <button onClick={() => { setTab('participant'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'participant' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 border dark:border-gray-600 dark:text-gray-300'}`}>체험단</button>
-          <button onClick={() => { setTab('client'); clearForm(); clearClientForm() }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${tab === 'client' ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-700 border dark:border-gray-600 dark:text-gray-300'}`}>의뢰인</button>
+        <div className="relative flex mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div
+            className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${tab === 'participant' ? 'bg-blue-600' : 'bg-green-600'}`}
+            style={{ width: 'calc((100% - 8px) / 2)', transform: `translateX(${tab === 'participant' ? 0 : 100}%)` }}
+          />
+          <button onClick={() => { setTab('participant'); clearForm(); clearClientForm() }} className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-md ${tab === 'participant' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>체험단</button>
+          <button onClick={() => { setTab('client'); clearForm(); clearClientForm() }} className={`relative z-10 flex-1 py-2 text-sm font-medium rounded-md ${tab === 'client' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>의뢰인</button>
         </div>
 
         <div className="md:grid md:grid-cols-2 md:gap-4">
