@@ -791,8 +791,9 @@ export default function Page3() {
                     <button onClick={() => router.push('/cover')} className="w-full text-sm border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 mb-3 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
                   )
                 )}
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 h-full flex flex-col">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl mb-4">
+                <div className="grid grid-cols-2">
+                  <div className="p-3 h-full flex flex-col">
                     <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Calendar size={12} /> 프로젝트 기간</p>
                     <p className="text-sm dark:text-gray-300">시작일: {projectInfo.start_date ? new Date(projectInfo.start_date).toLocaleDateString('ko-KR') : '미정'}{projectInfo.start_time ? ` ${projectInfo.start_time}` : ''}</p>
@@ -851,7 +852,7 @@ export default function Page3() {
                     )}
                     </div>                  
                   </div>
-                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-3">
+                  <div className="p-3 border-l border-gray-100 dark:border-gray-800">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Package size={12} /> 프로젝트 정보</p>
                     <p className="text-sm dark:text-gray-300">의뢰인: {projectInfo.client_name ?? '-'}</p>
                     {projectInfo.artist_name && <p className="text-sm dark:text-gray-300">가수명: {projectInfo.artist_name}</p>}
@@ -865,11 +866,12 @@ export default function Page3() {
                   </div>
                 </div>
                 {projectInfo.requirements && (
-                  <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 mb-4">
+                  <div className="p-3 border-t border-gray-100 dark:border-gray-800">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ClipboardList size={12} /> 의뢰인 요청사항</p>
                     <p className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-300">{projectInfo.requirements}</p>
                   </div>
                 )}
+                </div>
               </>
             )}
 
@@ -937,9 +939,9 @@ export default function Page3() {
             {posts.length > 0 && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Share2 size={16} /> SNS별 통계</h2>
-                <div className="space-y-2">
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
                   {snsList.map(({ label, posts: snsPosts, links: snsLinks, icon }) => (
-                    <div key={label} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                    <div key={label} className="p-3">
                       <p className="text-sm font-medium mb-2 flex items-center gap-1 dark:text-white">{icon} {label}</p>
                       <div className="grid grid-cols-4 gap-2">
                         <div className="text-center">
@@ -962,17 +964,17 @@ export default function Page3() {
                             {label === '유튜브' ? '정책상 목록 직접 확인 필요' : ''}
                           </p>                          
                           {label === '인스타그램' && projectInfo?.instagram_audio_id && (
-                            <a href={`https://www.instagram.com/reels/audio/${projectInfo.instagram_audio_id}/`} target="_blank" className="text-xs text-pink-500 border border-pink-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                            <a href={`https://www.instagram.com/reels/audio/${projectInfo.instagram_audio_id}/`} target="_blank" className="text-xs text-pink-600 dark:text-pink-300 bg-pink-50 dark:bg-pink-900/30 rounded-lg px-3 py-1.5 mt-2 block text-center">
                               재사용 현황
                             </a>
                           )}
                           {label === '틱톡' && projectInfo?.tiktok_audio_id && (
-                            <a href={projectInfo.tiktok_audio_id} target="_blank" className="text-xs text-black dark:text-gray-300 border border-gray-300 dark:border-gray-500 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                            <a href={projectInfo.tiktok_audio_id} target="_blank" className="text-xs text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-1.5 mt-2 block text-center">
                               재사용 현황
                             </a>
                           )}
                           {label === '유튜브' && projectInfo?.youtube_audio_id && (
-                            <a href={`https://www.youtube.com/source/${projectInfo.youtube_audio_id}/shorts`} target="_blank" className="text-xs text-red-500 border border-red-300 rounded-lg px-3 py-1.5 mt-2 block text-center">
+                            <a href={`https://www.youtube.com/source/${projectInfo.youtube_audio_id}/shorts`} target="_blank" className="text-xs text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-1.5 mt-2 block text-center">
                               재사용 현황
                             </a>
                           )}
