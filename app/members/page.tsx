@@ -2,7 +2,7 @@
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 import PlatformIcon from '../../components/PlatformIcon'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
@@ -485,6 +485,14 @@ export default function Page4() {
   const [participantPage, setParticipantPage] = useState(0)
   const [clientPage, setClientPage] = useState(0)
   const [coverFilter, setCoverFilter] = useState('all')
+  const [filterIndicatorStyle, setFilterIndicatorStyle] = useState({ left: 0, width: 0 })
+  const filterBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const filterOrder = ['all', 'pending', 'cover', 'normal', 'agency']
+  useEffect(() => {
+    const idx = filterOrder.indexOf(coverFilter)
+    const btn = filterBtnRefs.current[idx]
+    if (btn) setFilterIndicatorStyle({ left: btn.offsetLeft, width: btn.offsetWidth })
+  }, [coverFilter])
   const [artistList, setArtistList] = useState<any[]>([])
   const [newArtistName, setNewArtistName] = useState('')
   const [isAddingArtist, setIsAddingArtist] = useState(false)
@@ -974,7 +982,7 @@ export default function Page4() {
                     <button onClick={() => {
                       if (rewardSelected.length === filteredParticipants.length) setRewardSelected([])
                       else setRewardSelected(filteredParticipants.map((p: any) => p.id))
-                    }} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
+                    }} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">
                       {rewardSelected.length === filteredParticipants.length ? '전체 해제' : '전체 선택'}
                     </button>
                     <span className="text-xs text-gray-500 self-center">{rewardSelected.length}명 선택</span>
@@ -1036,12 +1044,16 @@ export default function Page4() {
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white flex items-center gap-1"><Users size={16} /> 체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
-                  <div className="flex gap-1">
-                    <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>전체</button>
-                    <button onClick={() => setCoverFilter('pending')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'pending' ? 'bg-red-600 text-white border-red-600' : 'dark:text-gray-300'}`}>확인필요</button>
-                    <button onClick={() => setCoverFilter('cover')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'cover' ? 'bg-purple-600 text-white border-purple-600' : 'dark:text-gray-300'}`}>커버가능</button>
-                    <button onClick={() => setCoverFilter('normal')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'normal' ? 'bg-gray-600 text-white border-gray-600' : 'dark:text-gray-300'}`}>일반회원</button>
-                    <button onClick={() => setCoverFilter('agency')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'agency' ? 'bg-yellow-600 text-white border-yellow-600' : 'dark:text-gray-300'}`}>에이전시</button>
+                  <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <div
+                      className={`absolute top-1 bottom-1 rounded-md transition-all duration-200 ease-out ${coverFilter === 'all' ? 'bg-blue-600' : coverFilter === 'pending' ? 'bg-red-600' : coverFilter === 'cover' ? 'bg-purple-600' : coverFilter === 'normal' ? 'bg-gray-600' : 'bg-yellow-600'}`}
+                      style={{ left: filterIndicatorStyle.left, width: filterIndicatorStyle.width }}
+                    />
+                    <button ref={el => { filterBtnRefs.current[0] = el }} onClick={() => setCoverFilter('all')} className={`relative z-10 flex-1 text-[10px] px-4 py-1 rounded-md whitespace-nowrap ${coverFilter === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>전체</button>
+                    <button ref={el => { filterBtnRefs.current[1] = el }} onClick={() => setCoverFilter('pending')} className={`relative z-10 flex-1 text-[10px] px-1 py-1 rounded-md whitespace-nowrap ${coverFilter === 'pending' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>확인필요</button>
+                    <button ref={el => { filterBtnRefs.current[2] = el }} onClick={() => setCoverFilter('cover')} className={`relative z-10 flex-1 text-[10px] px-1 py-1 rounded-md whitespace-nowrap ${coverFilter === 'cover' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>커버가능</button>
+                    <button ref={el => { filterBtnRefs.current[3] = el }} onClick={() => setCoverFilter('normal')} className={`relative z-10 flex-1 text-[10px] px-1 py-1 rounded-md whitespace-nowrap ${coverFilter === 'normal' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>일반회원</button>
+                    <button ref={el => { filterBtnRefs.current[4] = el }} onClick={() => setCoverFilter('agency')} className={`relative z-10 flex-1 text-[10px] px-1 py-1 rounded-md whitespace-nowrap ${coverFilter === 'agency' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>에이전시</button>
                   </div>
                 </div>
                 <input 
@@ -1183,9 +1195,9 @@ export default function Page4() {
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white flex items-center gap-1"><UserPlus size={16} /> {selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2 mt-3">
-                    {selected && <button onClick={() => router.push(`/admin-chat?open_user_id=${selected.id}&open_role=participant&open_name=${encodeURIComponent(selected.name)}`)} className="text-xs text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-700 rounded px-2 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>}
-                    {selected && <button onClick={clearForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">새 등록</button>}
-                    {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
+                    {selected && <button onClick={() => router.push(`/admin-chat?open_user_id=${selected.id}&open_role=participant&open_name=${encodeURIComponent(selected.name)}`)} className="text-xs text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg px-2.5 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>}
+                    {selected && <button onClick={clearForm} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">새 등록</button>}
+                    {!selected && <button onClick={() => setShowParticipantInsert(!showParticipantInsert)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">
                       {showParticipantInsert ? '접기 ▲' : '펼치기 ▼'}
                     </button>}
                   </div>
@@ -1496,7 +1508,7 @@ export default function Page4() {
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white flex items-center gap-1"><UserPlus size={16} /> 의뢰인 등록</h2>
-                  <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
+                  <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">
                     {showClientInsert ? '접기 ▲' : '펼치기 ▼'}
                   </button>
                 </div>
