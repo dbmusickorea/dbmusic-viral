@@ -910,7 +910,7 @@ export default function Page4() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -929,7 +929,7 @@ export default function Page4() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -963,7 +963,7 @@ export default function Page4() {
           {/* 왼쪽 - 목록 */}
           <div>
             {tab === 'participant' && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Coins size={16} /> 적립금 지급</h2>
                 <div className="space-y-3">
                   <div className="flex gap-2 mt-3">
@@ -1029,7 +1029,7 @@ export default function Page4() {
               </div>
             )}
             {tab === 'participant' && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
                   <div className="flex gap-1">
@@ -1125,7 +1125,7 @@ export default function Page4() {
             )}
 
             {tab === 'client' && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <h2 className="font-bold mb-3 dark:text-white">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({filteredClients.length}명)</span></h2>
                 <input 
                   value={clientSearch} 
@@ -1175,7 +1175,7 @@ export default function Page4() {
           {/* 오른쪽 - 등록/수정 */}
           <div id="member-detail-panel">
             {tab === 'participant' && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white">{selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2 mt-3">
@@ -1489,7 +1489,7 @@ export default function Page4() {
 
 
             {tab === 'client' && !selectedClient && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white">의뢰인 등록</h2>
                   <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
@@ -1519,7 +1519,7 @@ export default function Page4() {
             )}
 
             {tab === 'client' && selectedClient && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="font-bold dark:text-white">의뢰인 수정</h2>
                   <div className="flex gap-2">
