@@ -79,6 +79,23 @@
   --safe-top: env(safe-area-inset-top);
 }
 
+html {
+  /* 전체 앱 글씨 크기를 한 단계 키움 (기본 16px -> 17px, rem 기준 모든 텍스트가 비례해서 커짐) */
+  font-size: 17px;
+}
+
+/* 다크모드일 때 회색 팔레트를 채도 없는 진한 검정 계열로 재정의 (기존 Tailwind 기본 회색은 푸른빛이 도는 남색톤이라 멜론 앱처럼 순수 검정에 가깝게 변경) */
+.dark {
+  --color-gray-900: #0a0a0a;
+  --color-gray-800: #171717;
+  --color-gray-700: #262626;
+  --color-gray-600: #333333;
+  --color-gray-500: #8a8a8a;
+  --color-gray-400: #a3a3a3;
+  --color-gray-300: #d4d4d4;
+  --color-gray-200: #e5e5e5;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
