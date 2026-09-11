@@ -10,6 +10,7 @@ export default function ReportPage() {
   const [posts, setPosts] = useState<any[]>([])
   const [history, setHistory] = useState<any[]>([])
   const [commentMissions, setCommentMissions] = useState<any[]>([])
+  const [projectLinks, setProjectLinks] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const instaChartRef = useRef<HTMLDivElement>(null)
   const youtubeChartRef = useRef<HTMLDivElement>(null)
@@ -20,17 +21,19 @@ export default function ReportPage() {
     const projectCode = params.get('project_code')
     if (!projectCode) return
     const load = async () => {
-      const [projectRes, postsRes, historyRes, cmRes] = await Promise.all([
+      const [projectRes, postsRes, historyRes, cmRes, linksRes] = await Promise.all([
         fetchWithAuth(`/api/projects?project_code=${projectCode}`),
         fetchWithAuth(`/api/posts?project_code=${projectCode}`),
         fetchWithAuth(`/api/post_stats_history?project_code=${projectCode}`),
-        fetchWithAuth(`/api/comment_missions?project_code=${projectCode}`)
+        fetchWithAuth(`/api/comment_missions?project_code=${projectCode}`),
+        fetchWithAuth(`/api/project_links?project_code=${projectCode}`)
       ])
       const projectData = await projectRes.json()
       setProject(Array.isArray(projectData) ? projectData[0] : projectData)
       setPosts(await postsRes.json() ?? [])
       setHistory(await historyRes.json() ?? [])
       setCommentMissions(await cmRes.json() ?? [])
+      setProjectLinks(await linksRes.json() ?? [])
       setLoading(false)
     }
     load()
@@ -90,9 +93,9 @@ export default function ReportPage() {
     const youtubeImg = posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) ? await captureChart(youtubeChartRef) : null
     const tiktokImg = posts.some((p: any) => p.platform === 'tiktok') ? await captureChart(tiktokChartRef) : null
 
-    const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0)
-    const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0)
-    const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0)
+    const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.likes_count ?? 0), 0)
+    const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.comments_count ?? 0), 0)
+    const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.views_count ?? 0), 0)
     
     const PAGE_WIDTH = 9026
     const thinBorder = { style: 'single' as const, size: 4, color: 'D9E2EC' }
@@ -235,9 +238,9 @@ export default function ReportPage() {
   if (!project) return <div className="flex items-center justify-center h-screen">프로젝트를 찾을 수 없어요</div>
 
   const dailyStats = getDailyStats()
-  const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0)
-  const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0)
-  const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0)
+  const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.likes_count ?? 0), 0)
+  const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.comments_count ?? 0), 0)
+  const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.views_count ?? 0), 0)
 
   return (
     <div className="bg-white min-h-screen">
@@ -370,6 +373,33 @@ export default function ReportPage() {
             </tbody>
           </table>
         </div>
+
+        {projectLinks.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">🔗 기타 등록 링크</h2>
+            <p className="text-xs text-gray-400 mb-2">체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.</p>
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="bg-blue-900 text-white">
+                  <th className="p-2 text-left border">플랫폼</th>
+                  <th className="p-2 text-right border">좋아요</th>
+                  <th className="p-2 text-right border">댓글</th>
+                  <th className="p-2 text-right border">조회수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectLinks.map((l: any) => (
+                  <tr key={l.id} className="border-b hover:bg-gray-50">
+                    <td className="p-2 border">{l.platform}</td>
+                    <td className="p-2 border text-right">{(l.likes_count ?? 0).toLocaleString()}</td>
+                    <td className="p-2 border text-right">{(l.comments_count ?? 0).toLocaleString()}</td>
+                    <td className="p-2 border text-right">{(l.views_count ?? 0).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <div className="text-center text-xs text-gray-400 border-t pt-4">
           더블비뮤직 바이럴 마케팅 결과보고서 | {new Date().toLocaleDateString('ko-KR')}
