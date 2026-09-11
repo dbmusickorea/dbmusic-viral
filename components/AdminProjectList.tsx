@@ -12,7 +12,7 @@ type Props = {
 
 export default function AdminProjectList({ projects, selectedProject, projectPage, setProjectPage, PAGE_SIZE, onSelectProject }: Props) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-bold dark:text-white flex items-center gap-1"><FolderOpen size={16} /> 프로젝트 목록</h2>
         <div className="flex gap-2 text-xs">
@@ -50,13 +50,13 @@ export default function AdminProjectList({ projects, selectedProject, projectPag
             ))}
           </div>
           <div className="flex justify-between items-center mt-3">
-            <button onClick={() => setProjectPage(p => Math.max(0, p - 1))} disabled={projectPage === 0} className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30">이전</button>
+            <button onClick={() => setProjectPage(p => Math.max(0, p - 1))} disabled={projectPage === 0} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">이전</button>
             <div className="flex gap-1">
               {Array.from({length: Math.ceil(projects.length / PAGE_SIZE)}, (_, i) => (
                 <button key={i} onClick={() => setProjectPage(i)} className={`text-xs w-6 h-6 rounded-full ${projectPage === i ? 'bg-blue-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{i + 1}</button>
               ))}
             </div>
-            <button onClick={() => setProjectPage(p => Math.min(Math.ceil(projects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectPage + 1) * PAGE_SIZE >= projects.length} className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30">다음</button>
+            <button onClick={() => setProjectPage(p => Math.min(Math.ceil(projects.length / PAGE_SIZE) - 1, p + 1))} disabled={(projectPage + 1) * PAGE_SIZE >= projects.length} className="text-xs px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-30">다음</button>
           </div>
         </>
       )}

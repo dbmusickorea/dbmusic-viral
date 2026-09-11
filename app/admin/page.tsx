@@ -1149,7 +1149,7 @@ export default function Page1() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/admin-mypage') },
         ]}
       />     
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
       onTouchStart={(e) => {
         if (document.documentElement.scrollTop === 0) {
           setPullStartY(e.touches[0].clientY)
@@ -1167,7 +1167,7 @@ export default function Page1() {
         setIsPulling(false)
       }}
     >
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
