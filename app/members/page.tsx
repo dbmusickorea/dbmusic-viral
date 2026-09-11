@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { decryptText, encryptText } from '../lib/crypto'
-import { RefreshCw, ArrowDown, Coins, MessageSquare, Music, Smartphone, CheckCircle, Ban, AlertTriangle, Clock, Lock, Users } from 'lucide-react'
+import { RefreshCw, ArrowDown, Coins, MessageSquare, Music, Smartphone, CheckCircle, Ban, AlertTriangle, Clock, Lock, Users, UserPlus, Building2 } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 import Sidebar from '../../components/Sidebar'
 import AdminBottomNav from '../../components/AdminBottomNav'
@@ -1035,7 +1035,7 @@ export default function Page4() {
             {tab === 'participant' && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold dark:text-white">체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
+                  <h2 className="font-bold dark:text-white flex items-center gap-1"><Users size={16} /> 체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
                   <div className="flex gap-1">
                     <button onClick={() => setCoverFilter('all')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'dark:text-gray-300'}`}>전체</button>
                     <button onClick={() => setCoverFilter('pending')} className={`text-xs px-2 py-1 rounded border dark:border-gray-600 ${coverFilter === 'pending' ? 'bg-red-600 text-white border-red-600' : 'dark:text-gray-300'}`}>확인필요</button>
@@ -1130,7 +1130,7 @@ export default function Page4() {
 
             {tab === 'client' && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
-                <h2 className="font-bold mb-3 dark:text-white">의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({filteredClients.length}명)</span></h2>
+                <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Building2 size={16} /> 의뢰인 목록 <span className="text-sm text-gray-500 font-normal">({filteredClients.length}명)</span></h2>
                 <input 
                   value={clientSearch} 
                   onChange={(e) => { setClientSearch(e.target.value) }} 
@@ -1181,7 +1181,7 @@ export default function Page4() {
             {tab === 'participant' && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold dark:text-white">{selected ? '체험단 수정' : '체험단 등록'}</h2>
+                  <h2 className="font-bold dark:text-white flex items-center gap-1"><UserPlus size={16} /> {selected ? '체험단 수정' : '체험단 등록'}</h2>
                   <div className="flex gap-2 mt-3">
                     {selected && <button onClick={() => router.push(`/admin-chat?open_user_id=${selected.id}&open_role=participant&open_name=${encodeURIComponent(selected.name)}`)} className="text-xs text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-700 rounded px-2 py-1 flex items-center gap-1"><MessageSquare size={12} /> 메시지</button>}
                     {selected && <button onClick={clearForm} className="text-xs text-gray-500 dark:text-gray-400 border dark:border-gray-600 rounded px-2 py-1">새 등록</button>}
@@ -1495,7 +1495,7 @@ export default function Page4() {
             {tab === 'client' && !selectedClient && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-bold dark:text-white">의뢰인 등록</h2>
+                  <h2 className="font-bold dark:text-white flex items-center gap-1"><UserPlus size={16} /> 의뢰인 등록</h2>
                   <button onClick={() => setShowClientInsert(!showClientInsert)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">
                     {showClientInsert ? '접기 ▲' : '펼치기 ▼'}
                   </button>
