@@ -17,9 +17,9 @@ export default function AdminProjectApplications({ projectApplications, onApprov
       {projectApplications.length === 0 ? (
         <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">신청 내역이 없습니다.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="divide-y divide-gray-100 dark:divide-gray-800">
           {projectApplications.map(app => (
-            <div key={app.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+            <div key={app.id} className="p-3">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium dark:text-white">{app.artist_name} / {app.song_title}</p>
