@@ -50,13 +50,11 @@ export default function ReportPage() {
 
   const getDailyStats = () => {
     if (!history.length) return []
-    const dates = [...new Set(history.map((h: any) => h.recorded_at.split('_')[0]))].sort()
-    const platformMap: any = {}
-    posts.forEach((p: any) => { platformMap[p.id] = p.platform })
+    const dates = [...new Set(history.map((h: any) => h.recorded_at.includes('_') ? h.recorded_at.split('_')[0] : h.recorded_at))].sort()
     const getLatest = (data: any[]) => {
       const map = new Map()
-      data.forEach(h => {
-        const key = h.post_id ?? h.link_id
+      data.forEach((h: any) => {
+        const key = h.link_id ? `link_${h.link_id}` : `post_${h.post_id}`
         const hour = parseInt(h.recorded_at.split('_')[1] ?? '0')
         const existing = map.get(key)
         const existingHour = existing ? parseInt(existing.recorded_at.split('_')[1] ?? '0') : -1
@@ -65,12 +63,10 @@ export default function ReportPage() {
       return Array.from(map.values())
     }
     return dates.map((date: any) => {
-      const dayData = history.filter((h: any) => h.recorded_at.startsWith(date))
-      const latest = getLatest(dayData)
-      const filter = (key: string) => latest.filter((h: any) => {
-        const platform = platformMap[h.post_id] ?? h.platform
-        return platform === key || (key === 'youtube' && ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(platform))
-      })
+      const dayData = history.filter((h: any) => h.recorded_at === date || h.recorded_at.startsWith(date + '_'))
+      const filter = (key: string) => getLatest(dayData.filter((h: any) => {
+        return h.platform === key || (key === 'youtube' && ['youtube', 'youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(h.platform))
+      }))
       const insta = filter('instagram')
       const youtube = filter('youtube')
       const tiktok = filter('tiktok')
