@@ -70,17 +70,26 @@ export default function ReportPage() {
       const insta = filter('instagram')
       const youtube = filter('youtube')
       const tiktok = filter('tiktok')
+      const audioData = dayData.filter((h: any) => h.platform === 'audio')
+      const latestAudio = audioData.sort((a: any, b: any) => {
+        const aHour = parseInt(a.recorded_at.split('_')[1] ?? '0')
+        const bHour = parseInt(b.recorded_at.split('_')[1] ?? '0')
+        return bHour - aHour
+      })[0]
       return {
         date,
         인스타_좋아요: insta.reduce((s: number, h: any) => s + (h.likes_count ?? 0), 0),
         인스타_댓글: insta.reduce((s: number, h: any) => s + (h.comments_count ?? 0), 0),
         인스타_조회수: insta.reduce((s: number, h: any) => s + (h.views_count ?? 0), 0),
+        인스타_오디오: latestAudio?.ig_audio_count ?? null,
         유튜브_좋아요: youtube.reduce((s: number, h: any) => s + (h.likes_count ?? 0), 0),
         유튜브_댓글: youtube.reduce((s: number, h: any) => s + (h.comments_count ?? 0), 0),
         유튜브_조회수: youtube.reduce((s: number, h: any) => s + (h.views_count ?? 0), 0),
+        유튜브_오디오: latestAudio?.yt_audio_count ?? null,
         틱톡_좋아요: tiktok.reduce((s: number, h: any) => s + (h.likes_count ?? 0), 0),
         틱톡_댓글: tiktok.reduce((s: number, h: any) => s + (h.comments_count ?? 0), 0),
         틱톡_조회수: tiktok.reduce((s: number, h: any) => s + (h.views_count ?? 0), 0),
+        틱톡_오디오: latestAudio?.tt_audio_count ?? null,
       }
     })
   }
@@ -458,14 +467,14 @@ export default function ReportPage() {
         {dailyStats.length > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
-            {posts.some((p: any) => p.platform === 'instagram') && (
-              <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" containerRef={instaChartRef} />
+            {(posts.some((p: any) => p.platform === 'instagram') || projectLinks.some((l: any) => l.platform === 'instagram')) && (
+              <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" audioKey="인스타_오디오" containerRef={instaChartRef} />
             )}
-            {posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) && (
-              <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" containerRef={youtubeChartRef} />
+            {(posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) || projectLinks.some((l: any) => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform))) && (
+              <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" audioKey="유튜브_오디오" containerRef={youtubeChartRef} />
             )}
-            {posts.some((p: any) => p.platform === 'tiktok') && (
-              <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" containerRef={tiktokChartRef} />
+            {(posts.some((p: any) => p.platform === 'tiktok') || projectLinks.some((l: any) => l.platform === 'tiktok')) && (
+              <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" audioKey="틱톡_오디오" containerRef={tiktokChartRef} />
             )}
           </div>
         )}
