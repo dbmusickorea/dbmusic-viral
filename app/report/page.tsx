@@ -357,12 +357,15 @@ export default function ReportPage() {
     const noBorder = { style: 'none' as const, size: 0, color: 'FFFFFF' }
     const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideHorizontal: noBorder, insideVertical: noBorder }
 
-    const labelCell = (text: string, width: number) => new TableCell({
-      width: { size: width, type: WidthType.DXA },
-      shading: { fill: 'EAF1FB' },
-      margins: { top: 100, bottom: 100, left: 120, right: 120 },
-      children: [new Paragraph({ children: [new TextRun({ text, bold: true, size: 18, color: '1F4E79' })] })],
-    })
+    const labelCell = (text: string, width: number) => {
+      const parts = text.split('\n')
+      return new TableCell({
+        width: { size: width, type: WidthType.DXA },
+        shading: { fill: 'EAF1FB' },
+        margins: { top: 100, bottom: 100, left: 120, right: 120 },
+        children: [new Paragraph({ children: parts.map((part, i) => new TextRun({ text: part, bold: true, size: 18, color: '1F4E79', break: i > 0 ? 1 : undefined })) })],
+      })
+    }
     const valueCell = (text: string, width: number, span = 1) => new TableCell({
       width: { size: width, type: WidthType.DXA },
       columnSpan: span,
@@ -424,7 +427,7 @@ export default function ReportPage() {
         rows: [
           ...infoRows.slice(0, 4).map(([l1, v1, l2, v2]) => new TableRow({ children: [labelCell(l1, 1500), valueCell(v1, 3013), labelCell(l2, 1500), valueCell(v2, 3013)] })),
           new TableRow({ children: [labelCell('옵션사항', 1500), valueCell(optionsList, 7526, 3)] }),
-          ...(finalDateStr ? [new TableRow({ children: [labelCell('데이터 갱신 마감일', 1500), valueCell(`${finalDateStr} (이 날짜 이후 수치 업데이트 중단)`, 7526, 3)] })] : []),
+          ...(finalDateStr ? [new TableRow({ children: [labelCell('데이터 갱신\n마감일', 1500), valueCell(`${finalDateStr} (이 날짜 이후 수치 업데이트 중단)`, 7526, 3)] })] : []),
           new TableRow({ children: [labelCell('요청사항', 1500), valueCell(project.requirements ?? '-', 7526, 3)] }),
         ],
       }),
