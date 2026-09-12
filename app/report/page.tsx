@@ -22,6 +22,14 @@ export default function ReportPage() {
   const youtubeChartRef = useRef<HTMLDivElement>(null)
   const tiktokChartRef = useRef<HTMLDivElement>(null)
   const reportContentRef = useRef<HTMLDivElement>(null)
+  const pdfHeaderRef = useRef<HTMLDivElement>(null)
+  const pdfProjectInfoRef = useRef<HTMLDivElement>(null)
+  const pdfStatsRef = useRef<HTMLDivElement>(null)
+  const pdfChart1Ref = useRef<HTMLDivElement>(null)
+  const pdfChart2Ref = useRef<HTMLDivElement>(null)
+  const pdfChart3Ref = useRef<HTMLDivElement>(null)
+  const pdfPostsRef = useRef<HTMLDivElement>(null)
+  const pdfLinksRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setIsNativeApp(!!(window as any).Capacitor?.isNativePlatform?.())
@@ -118,54 +126,58 @@ export default function ReportPage() {
       window.print()
       return
     }
-    if (!reportContentRef.current) return
     setDownloadingType('pdf')
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
       const domtoimage = (await import('dom-to-image')).default
-      const node = reportContentRef.current
-      const originalWidth = node.style.width
-      const originalMaxWidth = node.style.maxWidth
-      node.style.width = '800px'
-      node.style.maxWidth = '800px'
-      await new Promise(resolve => setTimeout(resolve, 100))
-      const w = node.offsetWidth
-      const h = node.offsetHeight
-      const scale = 2
-      const blob = await domtoimage.toBlob(node, {
-        bgcolor: '#ffffff',
-        width: w * scale,
-        height: h * scale,
-        style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
-      })
-      node.style.width = originalWidth
-      node.style.maxWidth = originalMaxWidth
-      const imgBase64: string = await new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(blob)
-      })
-
       const doc = new jsPDF({ unit: 'pt', format: 'a4' })
-      const pageMargin = 24
+      const pageMargin = 40
       const pageWidth = doc.internal.pageSize.getWidth()
       const pageHeight = doc.internal.pageSize.getHeight()
-      const usableHeight = pageHeight - pageMargin * 2
-      const imgWidth = pageWidth - pageMargin * 2
-      const imgHeight = (h / w) * imgWidth
-      let heightLeft = imgHeight
-      let position = pageMargin
+      const usableWidth = pageWidth - pageMargin * 2
+      let y = pageMargin
+      let isFirstSection = true
 
-      doc.addImage(imgBase64, 'PNG', pageMargin, position, imgWidth, imgHeight)
-      heightLeft -= usableHeight
-
-      while (heightLeft > 0) {
-        position -= usableHeight
-        doc.addPage()
-        doc.addImage(imgBase64, 'PNG', pageMargin, position, imgWidth, imgHeight)
-        heightLeft -= usableHeight
+      const captureSection = async (ref: React.RefObject<HTMLDivElement | null>) => {
+        if (!ref.current) return null
+        const node = ref.current
+        const w = node.offsetWidth
+        const h = node.offsetHeight
+        if (w === 0 || h === 0) return null
+        const blob = await domtoimage.toBlob(node, { bgcolor: '#ffffff' })
+        const base64: string = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(blob)
+        })
+        return { base64, width: w, height: h }
       }
+
+      const addSection = async (ref: React.RefObject<HTMLDivElement | null>, gap = 16) => {
+        const captured = await captureSection(ref)
+        if (!captured) return
+        const imgWidth = usableWidth
+        const imgHeight = (captured.height / captured.width) * imgWidth
+        const maxSectionHeight = pageHeight - pageMargin * 2
+
+        if (!isFirstSection && (y + imgHeight > pageHeight - pageMargin) && imgHeight <= maxSectionHeight) {
+          doc.addPage()
+          y = pageMargin
+        }
+        doc.addImage(captured.base64, 'PNG', pageMargin, y, imgWidth, imgHeight)
+        y += imgHeight + gap
+        isFirstSection = false
+      }
+
+      await addSection(pdfHeaderRef, 20)
+      await addSection(pdfProjectInfoRef)
+      await addSection(pdfStatsRef)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      await addSection(pdfChart1Ref)
+      await addSection(pdfChart2Ref)
+      await addSection(pdfChart3Ref)
+      await addSection(pdfPostsRef)
+      await addSection(pdfLinksRef)
 
       const base64 = doc.output('datauristring').split(',')[1]
       const fileName = `더블비뮤직_${project.artist_name ?? project.client_name}_${project.song_title ?? project.product_content}_보고서.pdf`
@@ -445,13 +457,13 @@ export default function ReportPage() {
         </div>
         </div>
         <div ref={reportContentRef}>
-        <div className="text-center mb-8 border-b pb-6">
+        <div ref={pdfHeaderRef} className="text-center mb-8 border-b pb-6">
           <h1 className="text-2xl font-bold text-blue-900">더블비뮤직 바이럴 결과보고서</h1>
           <p className="text-gray-500 mt-1">{project.artist_name} / {project.song_title}</p>
           <p className="text-gray-400 text-sm mt-1">{project.start_date} ~ {project.end_date}</p>
         </div>
 
-        <div className="mb-8">
+        <div ref={pdfProjectInfoRef} className="mb-8">
           <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📋 프로젝트 정보</h2>
           <div className="grid grid-cols-2 gap-2">
             {[
@@ -493,7 +505,7 @@ export default function ReportPage() {
           )}
         </div>
 
-        <div className="mb-8">
+        <div ref={pdfStatsRef} className="mb-8">
           <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📊 성과 요약</h2>
           <div className="grid grid-cols-3 gap-3">
             {[
@@ -517,26 +529,26 @@ export default function ReportPage() {
 
         {dailyStats.length > 0 && (
           <div className="mb-8">
-            <div style={{ breakInside: 'avoid' }}>
+            <div ref={pdfChart1Ref} style={{ breakInside: 'avoid' }}>
               <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
               {dailyStats.some((d: any) => d.인스타_좋아요 || d.인스타_댓글 || d.인스타_조회수 || d.인스타_오디오) && (
                 <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" audioKey="인스타_오디오" containerRef={instaChartRef} />
               )}
             </div>
             {dailyStats.some((d: any) => d.유튜브_좋아요 || d.유튜브_댓글 || d.유튜브_조회수 || d.유튜브_오디오) && (
-              <div style={{ breakInside: 'avoid' }}>
+              <div ref={pdfChart2Ref} style={{ breakInside: 'avoid' }}>
                 <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" audioKey="유튜브_오디오" containerRef={youtubeChartRef} />
               </div>
             )}
             {dailyStats.some((d: any) => d.틱톡_좋아요 || d.틱톡_댓글 || d.틱톡_조회수 || d.틱톡_오디오) && (
-              <div style={{ breakInside: 'avoid' }}>
+              <div ref={pdfChart3Ref} style={{ breakInside: 'avoid' }}>
                 <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" audioKey="틱톡_오디오" containerRef={tiktokChartRef} />
               </div>
             )}
           </div>
         )}
 
-        <div className="mb-8">
+        <div ref={pdfPostsRef} className="mb-8">
           <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📝 게시물 목록</h2>
           <table className="w-full text-xs border-collapse">
             <thead>
@@ -567,7 +579,7 @@ export default function ReportPage() {
         </div>
 
         {projectLinks.length > 0 && (
-          <div className="mb-8">
+          <div ref={pdfLinksRef} className="mb-8">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">🔗 기타 등록 링크</h2>
             <p className="text-xs text-gray-400 mb-2">체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.</p>
             <table className="w-full text-xs border-collapse">
