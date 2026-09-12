@@ -118,214 +118,44 @@ export default function ReportPage() {
       window.print()
       return
     }
+    if (!reportContentRef.current) return
     setDownloadingType('pdf')
     try {
-      const fontRes = await fetch('/fonts/NotoSansKR-Regular.ttf')
-      const fontBlob = await fontRes.blob()
-      const fontBase64: string = await new Promise((resolve, reject) => {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      const domtoimage = (await import('dom-to-image')).default
+      const node = reportContentRef.current
+      const w = node.offsetWidth
+      const h = node.offsetHeight
+      const scale = 2
+      const blob = await domtoimage.toBlob(node, {
+        bgcolor: '#ffffff',
+        width: w * scale,
+        height: h * scale,
+        style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+      })
+      const imgBase64: string = await new Promise((resolve, reject) => {
         const reader = new FileReader()
-        reader.onload = () => resolve((reader.result as string).split(',')[1])
+        reader.onload = () => resolve(reader.result as string)
         reader.onerror = reject
-        reader.readAsDataURL(fontBlob)
+        reader.readAsDataURL(blob)
       })
 
       const doc = new jsPDF({ unit: 'pt', format: 'a4' })
-      doc.addFileToVFS('NotoSansKR-Regular.ttf', fontBase64)
-      doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal')
-      doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'bold')
-      doc.setFont('NotoSansKR')
-
       const pageWidth = doc.internal.pageSize.getWidth()
       const pageHeight = doc.internal.pageSize.getHeight()
-      const margin = 40
-      let y = 50
-      const blue900: [number, number, number] = [30, 58, 138]
+      const imgWidth = pageWidth
+      const imgHeight = (h / w) * imgWidth
+      let heightLeft = imgHeight
+      let position = 0
 
-      const sectionHeading = (text: string, yPos: number) => {
-        doc.setFontSize(13)
-        doc.setTextColor(...blue900)
-        doc.text(text, margin, yPos)
-        doc.setTextColor(0)
-        doc.setDrawColor(230, 230, 230)
-        doc.line(margin, yPos + 4, pageWidth - margin, yPos + 4)
-      }
+      doc.addImage(imgBase64, 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
 
-      doc.setFontSize(20)
-      doc.setTextColor(...blue900)
-      doc.text('더블비뮤직 바이럴 결과보고서', pageWidth / 2, y, { align: 'center' })
-      y += 22
-      doc.setFontSize(11)
-      doc.setTextColor(140)
-      doc.text(`${project.artist_name ?? ''} / ${project.song_title ?? ''}`, pageWidth / 2, y, { align: 'center' })
-      y += 30
-      doc.setTextColor(0)
-
-      const optionsList = [
-        project.monitoring_extension > 0 ? `모니터링 연장 ${project.monitoring_extension}일` : null,
-        project.cover_video_count > 0 ? `커버영상 ${project.cover_video_count}개` : null,
-        project.refresh_interval && project.refresh_interval !== '0' && project.refresh_interval !== '12' ? `트래픽 부스터 (${project.refresh_interval}시간)` : null,
-        project.required_posts > 1 ? `게시물 ${project.required_posts}개` : null,
-      ].filter(Boolean).join(', ') || '없음'
-
-      let finalDateStr = ''
-      if (project.end_date && (project.monitoring_extension > 0 || project.cover_video_count > 0)) {
-        const finalDate = new Date(project.end_date)
-        if (project.cover_video_count > 0) finalDate.setDate(finalDate.getDate() + 15)
-        finalDateStr = finalDate.toISOString().split('T')[0]
-      }
-
-      sectionHeading('프로젝트 정보', y)
-      y += 16
-
-      const infoRows: any[] = [
-        ['의뢰인', project.client_name ?? '-'],
-        ['가수명', project.artist_name ?? '-'],
-        ['노래제목', project.song_title ?? '-'],
-        ['상품명', project.product_content ?? '-'],
-        ['계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
-        ['모집인원', `${project.max_participants ?? '-'}명`],
-        ['시작일', project.start_date ?? '-'],
-        ['종료일', project.end_date ?? '-'],
-        ['옵션사항', optionsList],
-      ]
-      if (finalDateStr) infoRows.push(['데이터 갱신 마감일', `${finalDateStr} (이 날짜 이후 수치 업데이트 중단)`])
-      infoRows.push(['요청사항', project.requirements ?? '-'])
-
-      autoTable(doc, {
-        startY: y,
-        margin: { left: margin, right: margin },
-        theme: 'grid',
-        styles: { font: 'NotoSansKR', fontSize: 10, cellPadding: 5 },
-        body: infoRows,
-        columnStyles: { 0: { fontStyle: 'bold', fillColor: [214, 228, 240], cellWidth: 100 } },
-      })
-      y = (doc as any).lastAutoTable.finalY + 25
-
-      const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.likes_count ?? 0), 0)
-      const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.comments_count ?? 0), 0)
-      const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.views_count ?? 0), 0)
-
-      const statPairs: [string, string][] = [
-        ['총 게시물', `${posts.length}개`],
-        ['총 좋아요', totalLikes.toLocaleString()],
-        ['총 댓글', totalComments.toLocaleString()],
-        ['총 조회수', totalViews.toLocaleString()],
-        ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
-        ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
-        ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
-        ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
-        ['댓글미션', `${commentMissions.filter((m: any) => m.project_code !== 'UNLOCK').length}개`],
-      ]
-
-      if (y > pageHeight - 150) { doc.addPage(); y = 50 }
-      sectionHeading('성과 요약', y)
-      y += 16
-
-      const statRows: any[] = []
-      for (let i = 0; i < statPairs.length; i += 3) {
-        const chunk = statPairs.slice(i, i + 3)
-        const row: any[] = []
-        chunk.forEach(([l, v]) => { row.push(l); row.push(v) })
-        while (row.length < 6) row.push('')
-        statRows.push(row)
-      }
-      autoTable(doc, {
-        startY: y,
-        margin: { left: margin, right: margin },
-        theme: 'plain',
-        styles: { font: 'NotoSansKR', fontSize: 9, halign: 'center', cellPadding: 6, fillColor: [235, 244, 255] },
-        body: statRows,
-        didParseCell: (data: any) => {
-          if (data.column.index % 2 === 1) {
-            data.cell.styles.fontStyle = 'bold'
-            data.cell.styles.textColor = blue900
-            data.cell.styles.fontSize = 11
-          } else {
-            data.cell.styles.textColor = [130, 130, 130]
-            data.cell.styles.fontSize = 8
-          }
-        },
-      })
-      y = (doc as any).lastAutoTable.finalY + 25
-
-      if (dailyStats.length > 0) {
-        const chartConfigs = [
-          { ref: instaChartRef, hasData: dailyStats.some((d: any) => d.인스타_좋아요 || d.인스타_댓글 || d.인스타_조회수 || d.인스타_오디오) },
-          { ref: youtubeChartRef, hasData: dailyStats.some((d: any) => d.유튜브_좋아요 || d.유튜브_댓글 || d.유튜브_조회수 || d.유튜브_오디오) },
-          { ref: tiktokChartRef, hasData: dailyStats.some((d: any) => d.틱톡_좋아요 || d.틱톡_댓글 || d.틱톡_조회수 || d.틱톡_오디오) },
-        ]
-        const chartsToRender = chartConfigs.filter(c => c.hasData)
-        if (chartsToRender.length > 0) {
-          if (y > pageHeight - 120) { doc.addPage(); y = 50 }
-          sectionHeading('일별 통계', y)
-          y += 20
-          for (const { ref } of chartsToRender) {
-            const captured = await captureChart(ref)
-            if (captured) {
-              const imgWidth = pageWidth - margin * 2
-              const imgHeight = imgWidth * (captured.height / captured.width)
-              if (y + imgHeight > pageHeight - 40) { doc.addPage(); y = 50 }
-              const blob = new Blob([captured.data as BlobPart], { type: 'image/png' })
-              const imgBase64: string = await new Promise((resolve, reject) => {
-                const reader = new FileReader()
-                reader.onload = () => resolve(reader.result as string)
-                reader.onerror = reject
-                reader.readAsDataURL(blob)
-              })
-              doc.addImage(imgBase64, 'PNG', margin, y, imgWidth, imgHeight)
-              y += imgHeight + 15
-            }
-          }
-        }
-      }
-
-      if (posts.length > 0) {
-        if (y > pageHeight - 100) { doc.addPage(); y = 50 }
-        sectionHeading('게시물 목록', y)
-        y += 16
-        autoTable(doc, {
-          startY: y,
-          margin: { left: margin, right: margin },
-          theme: 'grid',
-          styles: { font: 'NotoSansKR', fontSize: 8, cellPadding: 4 },
-          headStyles: { fillColor: [31, 78, 121], textColor: 255, font: 'NotoSansKR' },
-          head: [['참여자', '플랫폼', '좋아요', '댓글', '조회수', '커버', '등록일']],
-          body: posts.map((p: any) => [
-            p.influencer_name ?? '',
-            p.platform ?? '',
-            (p.likes_count ?? 0).toLocaleString(),
-            (p.comments_count ?? 0).toLocaleString(),
-            (p.views_count ?? 0).toLocaleString(),
-            p.is_cover ? 'O' : '',
-            new Date(p.created_at).toLocaleDateString('ko-KR'),
-          ]),
-        })
-        y = (doc as any).lastAutoTable.finalY + 25
-      }
-
-      if (projectLinks.length > 0) {
-        if (y > pageHeight - 100) { doc.addPage(); y = 50 }
-        sectionHeading('기타 등록 링크', y)
-        y += 20
-        doc.setFontSize(8)
-        doc.setTextColor(150)
-        doc.text('체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.', margin, y)
-        doc.setTextColor(0)
-        y += 12
-        autoTable(doc, {
-          startY: y,
-          margin: { left: margin, right: margin },
-          theme: 'grid',
-          styles: { font: 'NotoSansKR', fontSize: 8, cellPadding: 4 },
-          headStyles: { fillColor: [31, 78, 121], textColor: 255, font: 'NotoSansKR' },
-          head: [['플랫폼', '좋아요', '댓글', '조회수']],
-          body: projectLinks.map((l: any) => [
-            l.platform ?? '',
-            (l.likes_count ?? 0).toLocaleString(),
-            (l.comments_count ?? 0).toLocaleString(),
-            (l.views_count ?? 0).toLocaleString(),
-          ]),
-        })
+      while (heightLeft > 0) {
+        position -= pageHeight
+        doc.addPage()
+        doc.addImage(imgBase64, 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
       }
 
       const base64 = doc.output('datauristring').split(',')[1]
@@ -338,7 +168,6 @@ export default function ReportPage() {
       setDownloadingType(null)
     }
   }
-
   const handleDownloadWord = async () => {
     setDownloadingType('word')
     try {
