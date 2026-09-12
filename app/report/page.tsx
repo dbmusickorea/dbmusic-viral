@@ -128,7 +128,15 @@ export default function ReportPage() {
     }
     setDownloadingType('pdf')
     try {
+      if (!reportContentRef.current) return
       const domtoimage = (await import('dom-to-image')).default
+      const wrapperNode = reportContentRef.current
+      const originalWidth = wrapperNode.style.width
+      const originalMaxWidth = wrapperNode.style.maxWidth
+      wrapperNode.style.width = '800px'
+      wrapperNode.style.maxWidth = '800px'
+      await new Promise(resolve => setTimeout(resolve, 100))
+
       const doc = new jsPDF({ unit: 'pt', format: 'a4' })
       const pageMargin = 40
       const pageWidth = doc.internal.pageSize.getWidth()
@@ -178,6 +186,9 @@ export default function ReportPage() {
       await addSection(pdfChart3Ref)
       await addSection(pdfPostsRef)
       await addSection(pdfLinksRef)
+
+      wrapperNode.style.width = originalWidth
+      wrapperNode.style.maxWidth = originalMaxWidth
 
       const base64 = doc.output('datauristring').split(',')[1]
       const fileName = `더블비뮤직_${project.artist_name ?? project.client_name}_${project.song_title ?? project.product_content}_보고서.pdf`
