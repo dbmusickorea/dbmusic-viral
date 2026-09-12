@@ -1329,7 +1329,7 @@ export default function Page1() {
           {/* 오른쪽 컬럼 */}
           <div className={`${activeTab === 'right' ? 'block' : 'hidden'} md:block md:border-l md:border-gray-100 md:dark:border-gray-800 md:pl-6`}>
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
-              <div className="flex justify-between items-center mb-3">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 mb-3">
                 <h2 className="font-bold dark:text-white flex items-center gap-1">{selectedProject ? <><FileEdit size={16} /> 프로젝트 수정</> : <><FilePlus size={16} /> 프로젝트 등록</>}</h2>
                 <div className="flex gap-2">
                   {selectedProject && (
