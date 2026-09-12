@@ -96,12 +96,21 @@ export default function ReportPage() {
     })
   }
 
-  const captureChart = async (ref: React.RefObject<HTMLDivElement | null>): Promise<Uint8Array | null> => {
+  const captureChart = async (ref: React.RefObject<HTMLDivElement | null>): Promise<{ data: Uint8Array, width: number, height: number } | null> => {
     if (!ref.current) return null
+    await new Promise(resolve => setTimeout(resolve, 400))
     const domtoimage = (await import('dom-to-image')).default
-    const blob = await domtoimage.toBlob(ref.current, { bgcolor: '#ffffff' })
+    const w = ref.current.offsetWidth
+    const h = ref.current.offsetHeight
+    const scale = 2
+    const blob = await domtoimage.toBlob(ref.current, {
+      bgcolor: '#ffffff',
+      width: w * scale,
+      height: h * scale,
+      style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+    })
     const arrayBuffer = await blob.arrayBuffer()
-    return new Uint8Array(arrayBuffer)
+    return { data: new Uint8Array(arrayBuffer), width: w, height: h }
   }
 
   const handleDownloadPDF = async () => {
@@ -251,12 +260,12 @@ export default function ReportPage() {
           sectionHeading('일별 통계', y)
           y += 20
           for (const { ref } of chartsToRender) {
-            const imgData = await captureChart(ref)
-            if (imgData) {
+            const captured = await captureChart(ref)
+            if (captured) {
               const imgWidth = pageWidth - margin * 2
-              const imgHeight = imgWidth * 0.35
+              const imgHeight = imgWidth * (captured.height / captured.width)
               if (y + imgHeight > pageHeight - 40) { doc.addPage(); y = 50 }
-              const blob = new Blob([imgData as BlobPart], { type: 'image/png' })
+              const blob = new Blob([captured.data as BlobPart], { type: 'image/png' })
               const imgBase64: string = await new Promise((resolve, reject) => {
                 const reader = new FileReader()
                 reader.onload = () => resolve(reader.result as string)
@@ -333,9 +342,10 @@ export default function ReportPage() {
   const handleDownloadWord = async () => {
     setDownloadingType('word')
     try {
-    const instaImg = posts.some((p: any) => p.platform === 'instagram') ? await captureChart(instaChartRef) : null
-    const youtubeImg = posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) ? await captureChart(youtubeChartRef) : null
-    const tiktokImg = posts.some((p: any) => p.platform === 'tiktok') ? await captureChart(tiktokChartRef) : null
+    const wordDailyStats = getDailyStats()
+    const instaImg = wordDailyStats.some((d: any) => d.인스타_좋아요 || d.인스타_댓글 || d.인스타_조회수 || d.인스타_오디오) ? await captureChart(instaChartRef) : null
+    const youtubeImg = wordDailyStats.some((d: any) => d.유튜브_좋아요 || d.유튜브_댓글 || d.유튜브_조회수 || d.유튜브_오디오) ? await captureChart(youtubeChartRef) : null
+    const tiktokImg = wordDailyStats.some((d: any) => d.틱톡_좋아요 || d.틱톡_댓글 || d.틱톡_조회수 || d.틱톡_오디오) ? await captureChart(tiktokChartRef) : null
 
     const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.likes_count ?? 0), 0)
     const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.comments_count ?? 0), 0)
@@ -445,13 +455,13 @@ export default function ReportPage() {
     ]
 
     if (instaImg) {
-      sections.push(new Paragraph({ children: [new ImageRun({ data: instaImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
+      sections.push(new Paragraph({ children: [new ImageRun({ data: instaImg.data, transformation: { width: 600, height: Math.round(600 * (instaImg.height / instaImg.width)) }, type: 'png' })] }))
     }
     if (youtubeImg) {
-      sections.push(new Paragraph({ children: [new ImageRun({ data: youtubeImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
+      sections.push(new Paragraph({ children: [new ImageRun({ data: youtubeImg.data, transformation: { width: 600, height: Math.round(600 * (youtubeImg.height / youtubeImg.width)) }, type: 'png' })] }))
     }
     if (tiktokImg) {
-      sections.push(new Paragraph({ children: [new ImageRun({ data: tiktokImg, transformation: { width: 600, height: 200 }, type: 'png' })] }))
+      sections.push(new Paragraph({ children: [new ImageRun({ data: tiktokImg.data, transformation: { width: 600, height: Math.round(600 * (tiktokImg.height / tiktokImg.width)) }, type: 'png' })] }))
     }
 
     sections.push(new Paragraph({ text: '게시물 목록', heading: HeadingLevel.HEADING_2, spacing: { before: 300, after: 120 } }))
