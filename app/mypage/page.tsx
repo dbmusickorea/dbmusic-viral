@@ -723,7 +723,8 @@ export default function MyPage() {
 
           </div>
           <div className="w-full md:w-1/2 space-y-4">
-        {/* 알림 설정 */}
+        {/* 알림 설정 (네이티브 앱에서만) */}
+        {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-sm font-medium dark:text-white mb-3">알림 설정</p>
           <div className="space-y-3">
@@ -746,6 +747,7 @@ export default function MyPage() {
             ))}
           </div>
         </div>
+        )}
         {/* 화면 모드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
