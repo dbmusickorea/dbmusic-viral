@@ -467,13 +467,13 @@ export default function ReportPage() {
         {dailyStats.length > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
-            {(posts.some((p: any) => p.platform === 'instagram') || projectLinks.some((l: any) => l.platform === 'instagram')) && (
+            {dailyStats.some((d: any) => d.인스타_좋아요 || d.인스타_댓글 || d.인스타_조회수 || d.인스타_오디오) && (
               <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" audioKey="인스타_오디오" containerRef={instaChartRef} />
             )}
-            {(posts.some((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)) || projectLinks.some((l: any) => ['youtube_shorts', 'youtube_long', 'youtube_lyric', 'playlist'].includes(l.platform))) && (
+            {dailyStats.some((d: any) => d.유튜브_좋아요 || d.유튜브_댓글 || d.유튜브_조회수 || d.유튜브_오디오) && (
               <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" audioKey="유튜브_오디오" containerRef={youtubeChartRef} />
             )}
-            {(posts.some((p: any) => p.platform === 'tiktok') || projectLinks.some((l: any) => l.platform === 'tiktok')) && (
+            {dailyStats.some((d: any) => d.틱톡_좋아요 || d.틱톡_댓글 || d.틱톡_조회수 || d.틱톡_오디오) && (
               <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" audioKey="틱톡_오디오" containerRef={tiktokChartRef} />
             )}
           </div>
