@@ -5,6 +5,8 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import StatsChart from '../../components/StatsChart'
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel, ImageRun, WidthType, AlignmentType, BorderStyle } from 'docx'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 export default function ReportPage() {
   const router = useRouter()
@@ -107,24 +109,173 @@ export default function ReportPage() {
       window.print()
       return
     }
-    if (!reportContentRef.current) return
     setDownloadingType('pdf')
     try {
-    const { jsPDF } = await import('jspdf')
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' })
-    await doc.html(reportContentRef.current, {
-      html2canvas: { scale: 0.55 },
-      autoPaging: 'text',
-      margin: [20, 20, 20, 20],
-      width: 555,
-      windowWidth: reportContentRef.current.scrollWidth,
-    })
-    const base64 = doc.output('datauristring').split(',')[1]
-    const fileName = `더블비뮤직_${project.artist_name ?? project.client_name}_${project.song_title ?? project.product_content}_보고서.pdf`
-    const { Filesystem, Directory } = await import('@capacitor/filesystem')
-    const { Share } = await import('@capacitor/share')
-    const result = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
-    await Share.share({ title: fileName, url: result.uri })
+      const fontRes = await fetch('/fonts/NotoSansKR-Regular.ttf')
+      const fontBlob = await fontRes.blob()
+      const fontBase64: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(fontBlob)
+      })
+
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+      doc.addFileToVFS('NotoSansKR-Regular.ttf', fontBase64)
+      doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal')
+      doc.setFont('NotoSansKR')
+
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const pageHeight = doc.internal.pageSize.getHeight()
+      const margin = 40
+      let y = 50
+
+      doc.setFontSize(18)
+      doc.text('더블비뮤직 바이럴 결과보고서', pageWidth / 2, y, { align: 'center' })
+      y += 22
+      doc.setFontSize(11)
+      doc.setTextColor(120)
+      doc.text(`${project.artist_name ?? ''} / ${project.song_title ?? ''}`, pageWidth / 2, y, { align: 'center' })
+      y += 30
+      doc.setTextColor(0)
+
+      const optionsList = [
+        project.monitoring_extension > 0 ? `모니터링 연장 ${project.monitoring_extension}일` : null,
+        project.cover_video_count > 0 ? `커버영상 ${project.cover_video_count}개` : null,
+        project.refresh_interval && project.refresh_interval !== '0' && project.refresh_interval !== '12' ? `트래픽 부스터 (${project.refresh_interval}시간)` : null,
+        project.required_posts > 1 ? `게시물 ${project.required_posts}개` : null,
+      ].filter(Boolean).join(', ') || '없음'
+
+      let finalDateStr = ''
+      if (project.end_date && (project.monitoring_extension > 0 || project.cover_video_count > 0)) {
+        const finalDate = new Date(project.end_date)
+        if (project.cover_video_count > 0) finalDate.setDate(finalDate.getDate() + 15)
+        finalDateStr = finalDate.toISOString().split('T')[0]
+      }
+
+      doc.setFontSize(13)
+      doc.text('프로젝트 정보', margin, y)
+      y += 10
+
+      const infoRows: any[] = [
+        ['의뢰인', project.client_name ?? '-'],
+        ['가수명', project.artist_name ?? '-'],
+        ['노래제목', project.song_title ?? '-'],
+        ['상품명', project.product_content ?? '-'],
+        ['계약금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
+        ['모집인원', `${project.max_participants ?? '-'}명`],
+        ['시작일', project.start_date ?? '-'],
+        ['종료일', project.end_date ?? '-'],
+        ['옵션사항', optionsList],
+      ]
+      if (finalDateStr) infoRows.push(['데이터 갱신 마감일', `${finalDateStr} (이 날짜 이후 수치 업데이트 중단)`])
+      infoRows.push(['요청사항', project.requirements ?? '-'])
+
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        theme: 'grid',
+        styles: { font: 'NotoSansKR', fontSize: 10, cellPadding: 5 },
+        body: infoRows,
+        columnStyles: { 0: { fontStyle: 'bold', fillColor: [214, 228, 240], cellWidth: 100 } },
+      })
+      y = (doc as any).lastAutoTable.finalY + 25
+
+      const totalLikes = posts.reduce((s: number, p: any) => s + (p.likes_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.likes_count ?? 0), 0)
+      const totalComments = posts.reduce((s: number, p: any) => s + (p.comments_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.comments_count ?? 0), 0)
+      const totalViews = posts.reduce((s: number, p: any) => s + (p.views_count ?? 0), 0) + projectLinks.reduce((s: number, l: any) => s + (l.views_count ?? 0), 0)
+
+      const statPairs: [string, string][] = [
+        ['총 게시물', `${posts.length}개`],
+        ['총 좋아요', totalLikes.toLocaleString()],
+        ['총 댓글', totalComments.toLocaleString()],
+        ['총 조회수', totalViews.toLocaleString()],
+        ['인스타그램', `${posts.filter((p: any) => p.platform === 'instagram').length}개`],
+        ['유튜브', `${posts.filter((p: any) => ['youtube','youtube_shorts','youtube_long'].includes(p.platform)).length}개`],
+        ['틱톡', `${posts.filter((p: any) => p.platform === 'tiktok').length}개`],
+        ['커버영상', `${posts.filter((p: any) => p.is_cover).length}개`],
+        ['댓글미션', `${commentMissions.filter((m: any) => m.project_code !== 'UNLOCK').length}개`],
+      ]
+
+      if (y > pageHeight - 150) { doc.addPage(); y = 50 }
+      doc.setFontSize(13)
+      doc.text('성과 요약', margin, y)
+      y += 10
+
+      const statRows: any[] = []
+      for (let i = 0; i < statPairs.length; i += 3) {
+        const chunk = statPairs.slice(i, i + 3)
+        const row: any[] = []
+        chunk.forEach(([l, v]) => { row.push(l); row.push(v) })
+        while (row.length < 6) row.push('')
+        statRows.push(row)
+      }
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        theme: 'plain',
+        styles: { font: 'NotoSansKR', fontSize: 9, halign: 'center', cellPadding: 6, fillColor: [235, 244, 255] },
+        body: statRows,
+      })
+      y = (doc as any).lastAutoTable.finalY + 25
+
+      if (posts.length > 0) {
+        if (y > pageHeight - 100) { doc.addPage(); y = 50 }
+        doc.setFontSize(13)
+        doc.text('게시물 목록', margin, y)
+        y += 10
+        autoTable(doc, {
+          startY: y,
+          margin: { left: margin, right: margin },
+          theme: 'grid',
+          styles: { font: 'NotoSansKR', fontSize: 8, cellPadding: 4 },
+          headStyles: { fillColor: [31, 78, 121], textColor: 255, font: 'NotoSansKR' },
+          head: [['참여자', '플랫폼', '좋아요', '댓글', '조회수', '커버', '등록일']],
+          body: posts.map((p: any) => [
+            p.influencer_name ?? '',
+            p.platform ?? '',
+            (p.likes_count ?? 0).toLocaleString(),
+            (p.comments_count ?? 0).toLocaleString(),
+            (p.views_count ?? 0).toLocaleString(),
+            p.is_cover ? 'O' : '',
+            new Date(p.created_at).toLocaleDateString('ko-KR'),
+          ]),
+        })
+        y = (doc as any).lastAutoTable.finalY + 25
+      }
+
+      if (projectLinks.length > 0) {
+        if (y > pageHeight - 100) { doc.addPage(); y = 50 }
+        doc.setFontSize(13)
+        doc.text('기타 등록 링크', margin, y)
+        y += 6
+        doc.setFontSize(8)
+        doc.setTextColor(150)
+        doc.text('체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.', margin, y)
+        doc.setTextColor(0)
+        y += 8
+        autoTable(doc, {
+          startY: y,
+          margin: { left: margin, right: margin },
+          theme: 'grid',
+          styles: { font: 'NotoSansKR', fontSize: 8, cellPadding: 4 },
+          headStyles: { fillColor: [31, 78, 121], textColor: 255, font: 'NotoSansKR' },
+          head: [['플랫폼', '좋아요', '댓글', '조회수']],
+          body: projectLinks.map((l: any) => [
+            l.platform ?? '',
+            (l.likes_count ?? 0).toLocaleString(),
+            (l.comments_count ?? 0).toLocaleString(),
+            (l.views_count ?? 0).toLocaleString(),
+          ]),
+        })
+      }
+
+      const base64 = doc.output('datauristring').split(',')[1]
+      const fileName = `더블비뮤직_${project.artist_name ?? project.client_name}_${project.song_title ?? project.product_content}_보고서.pdf`
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Share } = await import('@capacitor/share')
+      const result = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
+      await Share.share({ title: fileName, url: result.uri })
     } finally {
       setDownloadingType(null)
     }
@@ -468,13 +619,19 @@ export default function ReportPage() {
           <div className="mb-8">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📈 일별 통계</h2>
             {dailyStats.some((d: any) => d.인스타_좋아요 || d.인스타_댓글 || d.인스타_조회수 || d.인스타_오디오) && (
-              <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" audioKey="인스타_오디오" containerRef={instaChartRef} />
+              <div style={{ breakInside: 'avoid' }}>
+                <StatsChart data={dailyStats} platform="instagram" likesKey="인스타_좋아요" commentsKey="인스타_댓글" viewsKey="인스타_조회수" audioKey="인스타_오디오" containerRef={instaChartRef} />
+              </div>
             )}
             {dailyStats.some((d: any) => d.유튜브_좋아요 || d.유튜브_댓글 || d.유튜브_조회수 || d.유튜브_오디오) && (
-              <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" audioKey="유튜브_오디오" containerRef={youtubeChartRef} />
+              <div style={{ breakInside: 'avoid' }}>
+                <StatsChart data={dailyStats} platform="youtube" likesKey="유튜브_좋아요" commentsKey="유튜브_댓글" viewsKey="유튜브_조회수" audioKey="유튜브_오디오" containerRef={youtubeChartRef} />
+              </div>
             )}
             {dailyStats.some((d: any) => d.틱톡_좋아요 || d.틱톡_댓글 || d.틱톡_조회수 || d.틱톡_오디오) && (
-              <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" audioKey="틱톡_오디오" containerRef={tiktokChartRef} />
+              <div style={{ breakInside: 'avoid' }}>
+                <StatsChart data={dailyStats} platform="tiktok" likesKey="틱톡_좋아요" commentsKey="틱톡_댓글" viewsKey="틱톡_조회수" audioKey="틱톡_오디오" containerRef={tiktokChartRef} />
+              </div>
             )}
           </div>
         )}
