@@ -148,21 +148,23 @@ export default function ReportPage() {
       })
 
       const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+      const pageMargin = 24
       const pageWidth = doc.internal.pageSize.getWidth()
       const pageHeight = doc.internal.pageSize.getHeight()
-      const imgWidth = pageWidth
+      const usableHeight = pageHeight - pageMargin * 2
+      const imgWidth = pageWidth - pageMargin * 2
       const imgHeight = (h / w) * imgWidth
       let heightLeft = imgHeight
-      let position = 0
+      let position = pageMargin
 
-      doc.addImage(imgBase64, 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
+      doc.addImage(imgBase64, 'PNG', pageMargin, position, imgWidth, imgHeight)
+      heightLeft -= usableHeight
 
       while (heightLeft > 0) {
-        position -= pageHeight
+        position -= usableHeight
         doc.addPage()
-        doc.addImage(imgBase64, 'PNG', 0, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight
+        doc.addImage(imgBase64, 'PNG', pageMargin, position, imgWidth, imgHeight)
+        heightLeft -= usableHeight
       }
 
       const base64 = doc.output('datauristring').split(',')[1]
