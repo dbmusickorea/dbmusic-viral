@@ -617,7 +617,6 @@ useEffect(() => {
             body: `${p.projects?.artist_name || p.projects?.client_name} - ${p.projects?.song_title} 프로젝트에 공석이 생겼어요. 지금 바로 참여하세요!`,
             tokens: filteredTokens.map((t: any) => t.token),
             userIds: filteredTokens.map((t: any) => t.user_id),
-            saveToRole: 'participant'
           })
         })
       }

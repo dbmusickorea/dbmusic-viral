@@ -446,7 +446,7 @@ export async function GET() {
           const twentyFourHoursAfter = new Date(missionDateTime.getTime() + 48 * 60 * 60 * 1000)
           if (now < twentyFourHoursAfter) continue
 
-          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id, is_cover, status, ban_exempt, joined_at').ilike('project_code', project.project_code)
+          const { data: joinedParticipants } = await supabase.from('project_participants').select('member_id, is_cover, status, ban_exempt, joined_at').ilike('project_code', project.project_code).eq('status', 'ACTIVE')
           if (!joinedParticipants) continue
 
           for (const jp of joinedParticipants) {
