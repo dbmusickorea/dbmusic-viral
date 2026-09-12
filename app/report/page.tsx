@@ -123,18 +123,30 @@ export default function ReportPage() {
       const doc = new jsPDF({ unit: 'pt', format: 'a4' })
       doc.addFileToVFS('NotoSansKR-Regular.ttf', fontBase64)
       doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal')
+      doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'bold')
       doc.setFont('NotoSansKR')
 
       const pageWidth = doc.internal.pageSize.getWidth()
       const pageHeight = doc.internal.pageSize.getHeight()
       const margin = 40
       let y = 50
+      const blue900: [number, number, number] = [30, 58, 138]
 
-      doc.setFontSize(18)
+      const sectionHeading = (text: string, yPos: number) => {
+        doc.setFontSize(13)
+        doc.setTextColor(...blue900)
+        doc.text(text, margin, yPos)
+        doc.setTextColor(0)
+        doc.setDrawColor(230, 230, 230)
+        doc.line(margin, yPos + 4, pageWidth - margin, yPos + 4)
+      }
+
+      doc.setFontSize(20)
+      doc.setTextColor(...blue900)
       doc.text('더블비뮤직 바이럴 결과보고서', pageWidth / 2, y, { align: 'center' })
       y += 22
       doc.setFontSize(11)
-      doc.setTextColor(120)
+      doc.setTextColor(140)
       doc.text(`${project.artist_name ?? ''} / ${project.song_title ?? ''}`, pageWidth / 2, y, { align: 'center' })
       y += 30
       doc.setTextColor(0)
@@ -153,9 +165,8 @@ export default function ReportPage() {
         finalDateStr = finalDate.toISOString().split('T')[0]
       }
 
-      doc.setFontSize(13)
-      doc.text('프로젝트 정보', margin, y)
-      y += 10
+      sectionHeading('프로젝트 정보', y)
+      y += 16
 
       const infoRows: any[] = [
         ['의뢰인', project.client_name ?? '-'],
@@ -198,9 +209,8 @@ export default function ReportPage() {
       ]
 
       if (y > pageHeight - 150) { doc.addPage(); y = 50 }
-      doc.setFontSize(13)
-      doc.text('성과 요약', margin, y)
-      y += 10
+      sectionHeading('성과 요약', y)
+      y += 16
 
       const statRows: any[] = []
       for (let i = 0; i < statPairs.length; i += 3) {
@@ -216,14 +226,54 @@ export default function ReportPage() {
         theme: 'plain',
         styles: { font: 'NotoSansKR', fontSize: 9, halign: 'center', cellPadding: 6, fillColor: [235, 244, 255] },
         body: statRows,
+        didParseCell: (data: any) => {
+          if (data.column.index % 2 === 1) {
+            data.cell.styles.fontStyle = 'bold'
+            data.cell.styles.textColor = blue900
+            data.cell.styles.fontSize = 11
+          } else {
+            data.cell.styles.textColor = [130, 130, 130]
+            data.cell.styles.fontSize = 8
+          }
+        },
       })
       y = (doc as any).lastAutoTable.finalY + 25
 
+      if (dailyStats.length > 0) {
+        const chartConfigs = [
+          { ref: instaChartRef, hasData: dailyStats.some((d: any) => d.인스타_좋아요 || d.인스타_댓글 || d.인스타_조회수 || d.인스타_오디오) },
+          { ref: youtubeChartRef, hasData: dailyStats.some((d: any) => d.유튜브_좋아요 || d.유튜브_댓글 || d.유튜브_조회수 || d.유튜브_오디오) },
+          { ref: tiktokChartRef, hasData: dailyStats.some((d: any) => d.틱톡_좋아요 || d.틱톡_댓글 || d.틱톡_조회수 || d.틱톡_오디오) },
+        ]
+        const chartsToRender = chartConfigs.filter(c => c.hasData)
+        if (chartsToRender.length > 0) {
+          if (y > pageHeight - 120) { doc.addPage(); y = 50 }
+          sectionHeading('일별 통계', y)
+          y += 20
+          for (const { ref } of chartsToRender) {
+            const imgData = await captureChart(ref)
+            if (imgData) {
+              const imgWidth = pageWidth - margin * 2
+              const imgHeight = imgWidth * 0.35
+              if (y + imgHeight > pageHeight - 40) { doc.addPage(); y = 50 }
+              const blob = new Blob([imgData as BlobPart], { type: 'image/png' })
+              const imgBase64: string = await new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onload = () => resolve(reader.result as string)
+                reader.onerror = reject
+                reader.readAsDataURL(blob)
+              })
+              doc.addImage(imgBase64, 'PNG', margin, y, imgWidth, imgHeight)
+              y += imgHeight + 15
+            }
+          }
+        }
+      }
+
       if (posts.length > 0) {
         if (y > pageHeight - 100) { doc.addPage(); y = 50 }
-        doc.setFontSize(13)
-        doc.text('게시물 목록', margin, y)
-        y += 10
+        sectionHeading('게시물 목록', y)
+        y += 16
         autoTable(doc, {
           startY: y,
           margin: { left: margin, right: margin },
@@ -246,14 +296,13 @@ export default function ReportPage() {
 
       if (projectLinks.length > 0) {
         if (y > pageHeight - 100) { doc.addPage(); y = 50 }
-        doc.setFontSize(13)
-        doc.text('기타 등록 링크', margin, y)
-        y += 6
+        sectionHeading('기타 등록 링크', y)
+        y += 20
         doc.setFontSize(8)
         doc.setTextColor(150)
         doc.text('체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.', margin, y)
         doc.setTextColor(0)
-        y += 8
+        y += 12
         autoTable(doc, {
           startY: y,
           margin: { left: margin, right: margin },
