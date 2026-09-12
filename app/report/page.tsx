@@ -124,9 +124,22 @@ export default function ReportPage() {
       await new Promise(resolve => setTimeout(resolve, 300))
       const domtoimage = (await import('dom-to-image')).default
       const node = reportContentRef.current
+      const originalWidth = node.style.width
+      const originalMaxWidth = node.style.maxWidth
+      node.style.width = '800px'
+      node.style.maxWidth = '800px'
+      await new Promise(resolve => setTimeout(resolve, 100))
       const w = node.offsetWidth
       const h = node.offsetHeight
-      const blob = await domtoimage.toBlob(node, { bgcolor: '#ffffff' })
+      const scale = 2
+      const blob = await domtoimage.toBlob(node, {
+        bgcolor: '#ffffff',
+        width: w * scale,
+        height: h * scale,
+        style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+      })
+      node.style.width = originalWidth
+      node.style.maxWidth = originalMaxWidth
       const imgBase64: string = await new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = () => resolve(reader.result as string)
