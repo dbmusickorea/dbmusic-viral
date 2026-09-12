@@ -5,6 +5,16 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+// 참여자별 알림 설정(notification_prefs)에서 해당 종류를 꺼놓은 사람은 토큰 목록에서 제외
+async function filterTokensByNotifPref(tokens: any[], prefKey: string) {
+  if (!tokens || tokens.length === 0) return tokens
+  const userIds = [...new Set(tokens.map((t: any) => t.user_id))]
+  const { data: prefs } = await supabase.from('participants').select('id, notification_prefs').in('id', userIds)
+  const offIds = new Set((prefs ?? []).filter((p: any) => p.notification_prefs?.[prefKey] === false).map((p: any) => String(p.id)))
+  return tokens.filter((t: any) => !offIds.has(String(t.user_id)))
+}
+
 async function updateProjectLinkStats(links: any[]) {
   for (const link of links) {
     try {
@@ -284,7 +294,8 @@ export async function GET() {
     // 모집 시작일 푸시 (mission_date + mission_time 기준)
     const { data: recruitProjects } = await supabase.from('projects').select('*').eq('mission_date', today).in('status', ['ONGOING', 'PENDING']).eq('recruit_push_sent', false)
     if (recruitProjects && recruitProjects.length > 0) {
-      const { data: participantTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
+      const { data: rawParticipantTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_role', 'participant')
+      const participantTokens = await filterTokensByNotifPref(rawParticipantTokens ?? [], 'recruit')
       if (participantTokens && participantTokens.length > 0) {
         for (const project of recruitProjects) {
           if (project.mission_time) {
@@ -422,7 +433,8 @@ export async function GET() {
 
             await supabase.from('project_participants').update({ reminder_sent: true }).eq('id', jp.id)
 
-            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(jp.member_id))
+            const { data: rawTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(jp.member_id))
+            const tokens = await filterTokensByNotifPref(rawTokens ?? [], 'reminder')
             if (tokens && tokens.length > 0) {
               await fetch('https://app.doubleb.kr/api/push', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -464,7 +476,8 @@ export async function GET() {
                 await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', project.project_code).eq('member_id', participant.id)
                 
                 // 해당 체험단에게 레벨 하락 푸시
-                const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
+                const { data: rawMemberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
+                const memberTokens = await filterTokensByNotifPref(rawMemberTokens ?? [], 'ban')
                 await fetch(`https://app.doubleb.kr/api/push`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -483,7 +496,8 @@ export async function GET() {
                 // 이미 참여중인 사람 제외 (최신 데이터로 재조회)
                 const { data: latestJoined } = await supabase.from('project_participants').select('member_id, status').ilike('project_code', project.project_code)
                 const joinedMemberIds = (latestJoined ?? []).filter((jp: any) => jp.status === 'ACTIVE' || jp.status === 'BANNED').map((jp: any) => String(jp.member_id))
-                const filteredTokens = allTokens?.filter((t: any) => !joinedMemberIds.includes(String(t.user_id))) ?? []
+                const vacancyCandidates = allTokens?.filter((t: any) => !joinedMemberIds.includes(String(t.user_id))) ?? []
+                const filteredTokens = await filterTokensByNotifPref(vacancyCandidates, 'vacancy')
                 if (filteredTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
                     method: 'POST',
@@ -525,7 +539,8 @@ export async function GET() {
                 await supabase.from('participants').update({ level: newLevel, banned_until: bannedUntil.toISOString(), ban_reason: `${project.artist_name || project.client_name} / ${project.song_title ?? ''} - 2차 게시물 미업로드` }).eq('id', participant.id)
                 await supabase.from('project_participants').update({ status: 'BANNED' }).ilike('project_code', project.project_code).eq('member_id', participant.id)
                 
-                const { data: memberTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
+                const { data: rawMemberTokens2 } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(participant.id))
+                const memberTokens = await filterTokensByNotifPref(rawMemberTokens2 ?? [], 'ban')
                 if (memberTokens && memberTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
                     method: 'POST',

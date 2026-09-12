@@ -607,7 +607,16 @@ useEffect(() => {
       const joinedRes = await fetchWithAuth(`/api/project_participants?project_code=${p.project_code}`)
       const joinedData = await joinedRes.json()
       const joinedIds = new Set((joinedData ?? []).filter((j: any) => j.status === 'ACTIVE').map((j: any) => String(j.member_id)))
-      const filteredTokens = tokens?.filter((t: any) => !joinedIds.has(String(t.user_id))) ?? []
+      const vacancyCandidates = tokens?.filter((t: any) => !joinedIds.has(String(t.user_id))) ?? []
+      // 공석 알림을 꺼놓은 참여자는 제외
+      const candidateIds = [...new Set(vacancyCandidates.map((t: any) => t.user_id))]
+      let filteredTokens = vacancyCandidates
+      if (candidateIds.length > 0) {
+        const prefsRes = await fetchWithAuth(`/api/participants?ids=${candidateIds.join(',')}`)
+        const prefsData = await prefsRes.json()
+        const offIds = new Set((prefsData ?? []).filter((pp: any) => pp.notification_prefs?.vacancy === false).map((pp: any) => String(pp.id)))
+        filteredTokens = vacancyCandidates.filter((t: any) => !offIds.has(String(t.user_id)))
+      }
       if (filteredTokens.length > 0) {
         await fetch('/api/push', {
           method: 'POST',
