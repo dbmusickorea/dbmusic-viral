@@ -151,7 +151,7 @@ export default function ReportPage() {
         const w = node.offsetWidth
         const h = node.offsetHeight
         if (w === 0 || h === 0) return null
-        const scale = 2
+        const scale = 3
         const blob = await domtoimage.toBlob(node, {
           bgcolor: '#ffffff',
           width: w * scale,
