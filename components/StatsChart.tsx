@@ -57,10 +57,10 @@ export default function StatsChart({ data, platform, likesKey, commentsKey, view
               </div>
             )}
           />
-          <Line type="monotone" dataKey={likesKey} stroke="#FF4B6E" name={likeLabel} dot={false} />
-          <Line type="monotone" dataKey={commentsKey} stroke="#4CAF50" name="댓글" dot={false} strokeDasharray="5 5" />
-          <Line type="monotone" dataKey={viewsKey} stroke="#4B9EFF" name="조회수" dot={false} strokeDasharray="3 3" />
-          {showAudio && <Line type="monotone" dataKey={audioKey} stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" />}
+          <Line type="monotone" dataKey={likesKey} stroke="#FF4B6E" name={likeLabel} dot={false} isAnimationActive={false} />
+          <Line type="monotone" dataKey={commentsKey} stroke="#4CAF50" name="댓글" dot={false} strokeDasharray="5 5" isAnimationActive={false} />
+          <Line type="monotone" dataKey={viewsKey} stroke="#4B9EFF" name="조회수" dot={false} strokeDasharray="3 3" isAnimationActive={false} />
+          {showAudio && <Line type="monotone" dataKey={audioKey} stroke="#9333EA" name="음원사용" dot={true} connectNulls={false} strokeDasharray="2 2" isAnimationActive={false} />}
         </LineChart>
       </ResponsiveContainer>
       {platform === 'youtube' && (
