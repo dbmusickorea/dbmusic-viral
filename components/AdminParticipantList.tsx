@@ -1,6 +1,6 @@
 'use client'
 import PlatformIcon from './PlatformIcon'
-import { Users, Smartphone } from 'lucide-react'
+import { Users, Smartphone, Clock } from 'lucide-react'
 
 type Props = {
   participants: any[]
@@ -10,9 +10,10 @@ type Props = {
   setParticipantPage: (page: number | ((p: number) => number)) => void
   PAGE_SIZE: number
   onCancelParticipation: (id: number, name: string, memberId: number) => void
+  onSendReminder?: () => void
 }
 
-export default function AdminParticipantList({ participants, selectedParticipantId, setSelectedParticipantId, participantPage, setParticipantPage, PAGE_SIZE, onCancelParticipation }: Props) {
+export default function AdminParticipantList({ participants, selectedParticipantId, setSelectedParticipantId, participantPage, setParticipantPage, PAGE_SIZE, onCancelParticipation, onSendReminder }: Props) {
   return (
     <div>
       <div className="flex justify-between items-center mb-3">
@@ -21,6 +22,11 @@ export default function AdminParticipantList({ participants, selectedParticipant
           <button onClick={() => setSelectedParticipantId(null)} className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg px-3 py-1.5">전체보기</button>
         )}
       </div>
+      {onSendReminder && (
+        <button onClick={onSendReminder} className="w-full text-xs bg-orange-100 text-orange-700 rounded-lg px-3 py-2 mb-3 flex items-center justify-center gap-1">
+          <Clock size={12} /> 미제출자에게 업로드 독려 알림 보내기
+        </button>
+      )}
       {participants.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-2">참여자가 없습니다.</p>
       ) : (

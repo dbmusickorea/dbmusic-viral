@@ -1385,9 +1385,6 @@ export default function Page1() {
 
             {selectedProject && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
-                <button onClick={handleSendReminderToUnsubmitted} className="w-full text-xs bg-orange-100 text-orange-700 rounded-lg px-3 py-2 mb-3 flex items-center justify-center gap-1">
-                  <Clock size={12} /> 미제출자에게 업로드 독려 알림 보내기
-                </button>
                 <AdminParticipantList
                   participants={participants}
                   selectedParticipantId={selectedParticipantId}
@@ -1396,6 +1393,7 @@ export default function Page1() {
                   setParticipantPage={setParticipantPage}
                   PAGE_SIZE={PAGE_SIZE}
                   onCancelParticipation={handleCancelParticipation}
+                  onSendReminder={handleSendReminderToUnsubmitted}
                 />
               </div>
             )}
