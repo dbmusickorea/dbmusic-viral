@@ -16,6 +16,7 @@ import { useToast } from '../../components/ToastContext'
 export default function MyPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [notificationPrefs, setNotificationPrefs] = useState<any>({ recruit: true, vacancy: true, reminder: true, ban: true, chat: true })
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
 
   useEffect(() => {
@@ -171,6 +172,16 @@ export default function MyPage() {
     loadMyInfo(parsed.id)
   }, [])
 
+  const handleToggleNotif = async (key: string) => {
+    const updated = { ...notificationPrefs, [key]: !notificationPrefs[key] }
+    setNotificationPrefs(updated)
+    await fetchWithAuth(`/api/participants?id=${userInfo?.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notification_prefs: updated })
+    })
+  }
+
   const loadMyInfo = async (id: number) => {
     const res = await fetchWithAuth(`/api/participants?id=${id}`)
     const data = await res.json()
@@ -198,6 +209,7 @@ export default function MyPage() {
       setMyAccountNumber(p.account_number ?? '')
       setMyInstagram(p.instagram_id ?? '')
       setMyYoutube(p.youtube_id ?? '')
+      setNotificationPrefs({ recruit: true, vacancy: true, reminder: true, ban: true, chat: true, ...(p.notification_prefs ?? {}) })
       setMyTiktok(p.tiktok_id ?? '')
       setBalance(p.balance ?? 0)
       setReferralCode(p.referral_code ?? '')
@@ -711,6 +723,29 @@ export default function MyPage() {
 
           </div>
           <div className="w-full md:w-1/2 space-y-4">
+        {/* 알림 설정 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <p className="text-sm font-medium dark:text-white mb-3">알림 설정</p>
+          <div className="space-y-3">
+            {[
+              ['recruit', '모집 알림', '새 프로젝트 모집 시작 안내'],
+              ['vacancy', '공석 알림', '참여 가능한 자리가 생겼을 때'],
+              ['reminder', '미션 리마인더', '게시물 등록 독려 알림'],
+              ['ban', '활동 제한 알림', '활동 제한/해제 안내'],
+              ['chat', '채팅 알림', '관리자와의 채팅 메시지'],
+            ].map(([key, label, desc]) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm dark:text-white">{label}</p>
+                  <p className="text-xs text-gray-400">{desc}</p>
+                </div>
+                <button onClick={() => handleToggleNotif(key)} className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${notificationPrefs[key] ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notificationPrefs[key] ? 'translate-x-5' : ''}`} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* 화면 모드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
