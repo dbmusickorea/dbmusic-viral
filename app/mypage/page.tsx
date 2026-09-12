@@ -444,6 +444,14 @@ export default function MyPage() {
       </div>
       <div className="max-w-7xl mx-auto flex-1 flex flex-col w-full">
 
+        {/* 사용 가이드 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <button onClick={() => router.push('/guide')} className="w-full flex justify-between items-center">
+            <span className="font-medium text-sm dark:text-white flex items-center gap-1"><BookOpen size={14} /> 크리에이터 사용 가이드</span>
+            <span className="text-gray-400 dark:text-gray-300">→</span>
+          </button>
+        </div>
+
         <div className="flex flex-col md:flex-row gap-4 items-start">
           <div className="w-full md:w-1/2 space-y-4">
         {/* 추천인 코드 */}
@@ -703,16 +711,6 @@ export default function MyPage() {
 
           </div>
           <div className="w-full md:w-1/2 space-y-4">
-        {/* 사용 가이드 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <button onClick={() => router.push('/guide')} className="w-full flex justify-between items-center">
-            <span className="font-medium text-sm dark:text-white flex items-center gap-1"><BookOpen size={14} /> 크리에이터 사용 가이드</span>
-            <span className="text-gray-400 dark:text-gray-300">→</span>
-          </button>
-        </div>
-
-
-
         {/* 화면 모드 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
