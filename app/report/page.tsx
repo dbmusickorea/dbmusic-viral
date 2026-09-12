@@ -559,7 +559,7 @@ export default function ReportPage() {
           </div>
         )}
 
-        <div ref={pdfPostsRef} className="mb-8">
+        <div ref={pdfPostsRef} className="mb-8 pb-1">
           <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">📝 게시물 목록</h2>
           <table className="w-full text-xs border-collapse">
             <thead>
@@ -590,7 +590,7 @@ export default function ReportPage() {
         </div>
 
         {projectLinks.length > 0 && (
-          <div ref={pdfLinksRef} className="mb-8">
+          <div ref={pdfLinksRef} className="mb-8 pb-1">
             <h2 className="text-lg font-bold text-blue-900 mb-3 border-b pb-2">🔗 기타 등록 링크</h2>
             <p className="text-xs text-gray-400 mb-2">체험단 참여자가 아닌, 별도로 등록된 게시물/링크입니다.</p>
             <table className="w-full text-xs border-collapse">
