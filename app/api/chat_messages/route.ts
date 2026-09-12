@@ -51,7 +51,12 @@ export async function POST(request: NextRequest) {
   try {
     if (sender === 'admin') {
       // 관리자 -> 체험단/의뢰인
-      const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token').eq('user_id', String(user_id))
+      let chatNotifOff = false
+      if (role === 'participant') {
+        const { data: pref } = await supabaseAdmin.from('participants').select('notification_prefs').eq('id', user_id).maybeSingle()
+        chatNotifOff = pref?.notification_prefs?.chat === false
+      }
+      const { data: tokens } = chatNotifOff ? { data: [] } : await supabaseAdmin.from('push_tokens').select('token').eq('user_id', String(user_id))
       if (tokens && tokens.length > 0) {
         await fetch('https://app.doubleb.kr/api/push', {
           method: 'POST',
