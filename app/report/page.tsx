@@ -151,7 +151,13 @@ export default function ReportPage() {
         const w = node.offsetWidth
         const h = node.offsetHeight
         if (w === 0 || h === 0) return null
-        const blob = await domtoimage.toBlob(node, { bgcolor: '#ffffff' })
+        const scale = 2
+        const blob = await domtoimage.toBlob(node, {
+          bgcolor: '#ffffff',
+          width: w * scale,
+          height: h * scale,
+          style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+        })
         const base64: string = await new Promise((resolve, reject) => {
           const reader = new FileReader()
           reader.onload = () => resolve(reader.result as string)
