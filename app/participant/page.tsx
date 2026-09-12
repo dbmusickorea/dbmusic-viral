@@ -908,6 +908,7 @@ useEffect(() => {
       setIsSubmitting(false)
       return
     }
+    if (!platform) { showToast('플랫폼을 선택해주세요.'); return }
     if (!activeProjectCode || activeUrls.every(u => !u)) { showToast('프로젝트 코드와 미션 링크를 입력해주세요.'); return }
     
     // 링크 유효성 검사
