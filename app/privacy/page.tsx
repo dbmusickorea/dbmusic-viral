@@ -5,8 +5,8 @@ export default function PrivacyPage() {
   const router = useRouter()
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
-      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl p-6">
         <button onClick={() => router.back()} className="text-sm text-blue-600 mb-4 block">← 뒤로가기</button>
         <h1 className="text-xl font-bold mb-6 dark:text-white">개인정보 처리방침</h1>
         
@@ -87,8 +87,8 @@ export default function PrivacyPage() {
         <section className="mb-6">
           <h2 className="font-bold mb-2 dark:text-white">8. 개인정보 처리 담당자</h2>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1">
-            <li>회사명: 더블비뮤직</li>
-            <li>성명: 함현철</li>
+            <li>회사명: 주식회사 더블비뮤직</li>
+            <li>성명: 최병민</li>
             <li>직책: 개인정보 보호책임자</li>
             <li>사업자등록번호: 659-87-03644</li>
             <li>주소: 서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</li>

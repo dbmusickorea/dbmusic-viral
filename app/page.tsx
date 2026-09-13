@@ -3,6 +3,7 @@ import BankSelect from '../components/BankSelect'
 import { fetchWithAuth } from './lib/fetchWithAuth'
 
 import PlatformIcon from '../components/PlatformIcon'
+import DistributionFooter from '../components/DistributionFooter'
 
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
@@ -894,7 +895,7 @@ export default function LoginPage() {
           </div>
         </div>   
       )}
-    <div className={`min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 ${(showSignup && signupType) || showForgotPassword || showFindEmail ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+    <div className={`min-h-screen flex flex-col items-center bg-white dark:bg-gray-900 ${(showSignup && signupType) || showForgotPassword || showFindEmail ? '' : 'justify-center'}`} style={{padding: '1rem', paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
       
       {/* 개인정보 동의 모달 */}
       {showTermsModal && (
@@ -921,12 +922,12 @@ export default function LoginPage() {
       )}
 
       {(showSignup || showForgotPassword || showFindEmail) && (
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         </div>
       )}
       <div className="w-full max-w-sm">
         {!showSignup && !showForgotPassword && !showFindEmail ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
             <div className="flex justify-center mb-6">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
             </div>
@@ -962,16 +963,11 @@ export default function LoginPage() {
               <a href="/privacy" className="block text-xs text-gray-400 text-center mt-2" onClick={(e) => { e.preventDefault(); router.push('/privacy') }}>개인정보처리방침</a>
               <a href="/terms" className="block text-xs text-gray-400 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/terms') }}>이용약관</a>
               <a href="/about" className="block text-xs text-blue-500 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/about') }}>서비스 소개</a>
-              <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">주식회사 더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">고객센터: 070-8065-5811</p>
-                <p className="text-xs text-gray-300 dark:text-gray-500 text-center">COPYRIGHT 2026. Double B Music Co.,Ltd. ALL RIGHTS RESERVED.</p>
-              </div>
+              <DistributionFooter fullBleed={false} />
             </div>
           </div>
         ) : showFindEmail ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
             <h1 className="text-xl font-bold text-center mb-4 dark:text-white">이메일 찾기</h1>
             {findEmailResult === null ? (
               <div className="space-y-4">
@@ -1022,7 +1018,7 @@ export default function LoginPage() {
             )}
           </div>
         ) : showForgotPassword ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
             <h1 className="text-xl font-bold text-center mb-4 dark:text-white">비밀번호 찾기</h1>
             {!forgotSent ? (
               <div className="space-y-4">
@@ -1044,7 +1040,7 @@ export default function LoginPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
             <div className="flex justify-center mb-4">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
             </div>

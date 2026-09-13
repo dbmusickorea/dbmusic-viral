@@ -6,8 +6,8 @@ export default function AboutPage() {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
+      <div className="max-w-7xl mx-auto">
         <button onClick={() => router.back()} className="text-sm text-blue-600 mb-4 block">← 뒤로가기</button>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 mb-4 text-center">

@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import BackButton from './BackButton'
 import { FileText, BarChart2, Users, Pin } from 'lucide-react'
+import DistributionFooter from '../../components/DistributionFooter'
 
 export const metadata: Metadata = {
   title: '더블비뮤직 의뢰인 이용안내',
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function ClientGuidePage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4" style={{wordBreak: "keep-all"}}>
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4" style={{wordBreak: "keep-all"}}>
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           <div className="flex items-center gap-3">
             <BackButton />
             <h1 className="text-xl font-bold dark:text-white">의뢰인 공식 이용안내</h1>
@@ -18,13 +19,13 @@ export default function ClientGuidePage() {
         </div>
 
         {/* 1. 서비스 개요 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-2">1. 서비스 개요</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">더블비뮤직은 레이블·아티스트의 신곡을 수백 명의 체험단이 인스타그램, 유튜브, 틱톡에 자연스럽게 소개하도록 연결하고, 게시물 현황과 조회수·좋아요 통계를 실시간으로 확인할 수 있는 음악 마케팅 플랫폼입니다.</p>
         </div>
 
         {/* 2. 가입 방법 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">2. 가입 방법</h2>
           <div className="space-y-3">
             <div>
@@ -35,7 +36,7 @@ export default function ClientGuidePage() {
         </div>
 
         {/* 3. 프로젝트 신청 방법 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">3. 프로젝트 신청 방법</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">앱 내 [프로젝트 신청] 버튼을 눌러 아래 정보를 입력하면, 검토 후 담당자가 연락드립니다.</p>
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 space-y-1.5">
@@ -48,7 +49,7 @@ export default function ClientGuidePage() {
         </div>
 
         {/* 4. 프로젝트 진행 및 확인 방법 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">4. 프로젝트 진행 및 확인 방법</h2>
           <div className="space-y-3">
             <div>
@@ -71,7 +72,7 @@ export default function ClientGuidePage() {
         </div>
 
         {/* 5. 커버 옵션 안내 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-purple-600 dark:text-purple-400 mb-3">5. 커버 옵션 안내</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">커버를 옵션으로 선택하신 경우, 커버 체험단을 직접 선택하고 커버영상을 통해 프로젝트를 홍보할 수 있습니다.</p>
           <div className="space-y-2">
@@ -87,7 +88,7 @@ export default function ClientGuidePage() {
         </div>
 
         {/* 6. 주요 안내사항 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-1"><Pin size={16} /> 6. 주요 안내사항</h2>
           <div className="space-y-3">
             <div>
@@ -109,7 +110,7 @@ export default function ClientGuidePage() {
         </div>
 
         {/* Q&A */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">자주 묻는 질문 (Q&A)</h2>
           <div className="space-y-4">
             {[
@@ -138,13 +139,7 @@ export default function ClientGuidePage() {
           </div>
         </div>
 
-        {/* 사업자 정보 */}
-        <div className="text-center py-6 border-t border-gray-200 dark:border-gray-700 mt-2">
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">주식회사 더블비뮤직 · 대표: 최병민 · 사업자등록번호: 659-87-03644</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">고객센터: 070-8065-5811</p>
-          <p className="text-xs text-gray-300 dark:text-gray-600">COPYRIGHT 2026. Double B Music Co.,Ltd. ALL RIGHTS RESERVED.</p>
-        </div>
+        <DistributionFooter />
       </div>
     </div>
   )
