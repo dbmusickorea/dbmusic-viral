@@ -1,6 +1,5 @@
 import { PushNotifications } from '@capacitor/push-notifications'
-import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings'
-import { Capacitor } from '@capacitor/core'
+import { SettingsLauncher } from '@capawesome/capacitor-settings-launcher'
 
 let currentUserId = ''
 let currentUserRole = ''
@@ -94,7 +93,12 @@ export const requestPushPermissionOrOpenSettings = async (): Promise<string> => 
     }
 
     // 이미 거부됐던 경우 -> OS 재요청 다이얼로그가 뜨지 않으므로 설정 화면으로 이동
-    await NativeSettings.open({ optionIOS: IOSSettings.App, optionAndroid: AndroidSettings.AppNotification })
+    try {
+      await SettingsLauncher.openNotificationSettings()
+    } catch {
+      // iOS 16 미만 등 지원 안 되는 경우 앱 설정 화면으로 대체
+      await SettingsLauncher.openAppSettings()
+    }
     return before.receive
   } catch (error) {
     console.log('권한 요청/설정 이동 실패:', error)

@@ -18,7 +18,7 @@ dependencies {
     implementation project(':capacitor-share')
     implementation project(':capacitor-splash-screen')
     implementation project(':capawesome-capacitor-badge')
-    implementation project(':capacitor-native-settings')
+    implementation project(':capawesome-capacitor-settings-launcher')
 
 }
 

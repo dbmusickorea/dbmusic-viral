@@ -21,7 +21,7 @@ let package = Package(
         .package(name: "CapacitorShare", path: "../../../node_modules/@capacitor/share"),
         .package(name: "CapacitorSplashScreen", path: "../../../node_modules/@capacitor/splash-screen"),
         .package(name: "CapawesomeCapacitorBadge", path: "../../../node_modules/@capawesome/capacitor-badge"),
-        .package(name: "CapacitorNativeSettings", path: "../../../node_modules/capacitor-native-settings")
+        .package(name: "CapawesomeCapacitorSettingsLauncher", path: "../../../node_modules/@capawesome/capacitor-settings-launcher")
     ],
     targets: [
         .target(
@@ -38,7 +38,7 @@ let package = Package(
                 .product(name: "CapacitorShare", package: "CapacitorShare"),
                 .product(name: "CapacitorSplashScreen", package: "CapacitorSplashScreen"),
                 .product(name: "CapawesomeCapacitorBadge", package: "CapawesomeCapacitorBadge"),
-                .product(name: "CapacitorNativeSettings", package: "CapacitorNativeSettings")
+                .product(name: "CapawesomeCapacitorSettingsLauncher", package: "CapawesomeCapacitorSettingsLauncher")
             ]
         )
     ]
