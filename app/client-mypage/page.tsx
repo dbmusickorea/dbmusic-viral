@@ -147,6 +147,7 @@ export default function ClientMyPage() {
   const [minVersion, setMinVersion] = useState('0')
   const [showParticipantSignup, setShowParticipantSignup] = useState(false)
   const [hasParticipantAccount, setHasParticipantAccount] = useState(false)
+  const [isCreatingParticipant, setIsCreatingParticipant] = useState(false)
   const [ptInstagram, setPtInstagram] = useState('')
   const [ptYoutube, setPtYoutube] = useState('')
   const [ptTiktok, setPtTiktok] = useState('')
@@ -314,6 +315,53 @@ export default function ClientMyPage() {
   return (
     <>
     <ApplyModal show={showApplyModal} onClose={() => setShowApplyModal(false)} userInfo={userInfo} />
+      {showParticipantSignup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs shadow-xl">
+            <h2 className="text-lg font-bold mb-1 dark:text-white">체험단 계정 추가</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">기존 계정 정보를 그대로 사용하며 체험단 기능을 추가로 이용할 수 있어요. 계좌/SNS 정보는 체험단 마이페이지에서 나중에 등록하시면 돼요.</p>
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setShowParticipantSignup(false)} className="flex-1 border dark:border-gray-600 rounded-lg py-2 text-sm text-gray-500 dark:text-gray-400">취소</button>
+              <button disabled={isCreatingParticipant} onClick={async () => {
+                if (isCreatingParticipant) return
+                setIsCreatingParticipant(true)
+                const info = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
+                const generateReferralCode = () => Math.random().toString(36).substr(2, 8).toUpperCase()
+                let referralCode = generateReferralCode()
+                let isUnique = false
+                while (!isUnique) {
+                  const checkRes = await fetchWithAuth(`/api/participants/signup-check?referral_code=${referralCode}`)
+                  const checkData = await checkRes.json()
+                  if (!checkData?.exists) isUnique = true
+                  else referralCode = generateReferralCode()
+                }
+                const res = await fetchWithAuth('/api/participants', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: info.name,
+                    email: info.email,
+                    mobile: info.mobile,
+                    referral_code: referralCode,
+                    level: 1
+                  })
+                })
+                if (!res.ok) { showToast('체험단 계정 생성 실패!'); setIsCreatingParticipant(false); return }
+                const newRes = await fetchWithAuth(`/api/participants?email=${encodeURIComponent(info.email)}`)
+                const newParticipants = await newRes.json()
+                const newParticipant = newParticipants?.[0]
+                if (!newParticipant) { showToast('계정 조회 실패!'); setIsCreatingParticipant(false); return }
+                setHasParticipantAccount(true)
+                setShowParticipantSignup(false)
+                localStorage.setItem('userInfo', JSON.stringify(newParticipant))
+                localStorage.setItem('userRole', 'participant')
+                if ((window as any).Capacitor?.isNativePlatform?.()) await initPushNotifications(String(newParticipant.id), 'participant')
+                router.push('/participant')
+              }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">{isCreatingParticipant ? '생성 중...' : '체험단 계정 생성'}</button>
+            </div>
+          </div>
+        </div>
+      )}
       <Sidebar
         show={showSidebar}
         onClose={() => setShowSidebar(false)}
