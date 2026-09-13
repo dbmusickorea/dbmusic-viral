@@ -1,5 +1,5 @@
 'use client'
-import { initPushNotifications, requestPushPermissionOrOpenSettings } from '../lib/push'
+import { initPushNotifications, requestPushPermissionOrOpenSettings, checkPushPermission } from '../lib/push'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
@@ -186,7 +186,22 @@ export default function ClientMyPage() {
         const updatedUser = { ...parsed, has_distribution: !!latest?.has_distribution }
         setUserInfo(updatedUser)
         localStorage.setItem('userInfo', JSON.stringify(updatedUser))
-        setNotificationPrefs({ project: true, cover: true, chat: true, ...(latest?.notification_prefs ?? {}) })
+        const mergedPrefs = { project: true, cover: true, chat: true, ...(latest?.notification_prefs ?? {}) }
+        setNotificationPrefs(mergedPrefs)
+        // 기기 알림 권한이 없는데 앱 설정상 켜져있다고 표시되면 실제 상태에 맞춰 꺼줌
+        if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && mergedPrefs.master !== false) {
+          checkPushPermission().then((status) => {
+            if (status !== 'granted') {
+              const synced = { ...mergedPrefs, master: false }
+              setNotificationPrefs(synced)
+              fetchWithAuth(`/api/users?id=${parsed.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notification_prefs: synced })
+              }).catch(() => {})
+            }
+          })
+        }
       }).catch(() => {})
     }
     setMyName(parsed.name ?? '')

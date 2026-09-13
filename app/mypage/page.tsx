@@ -1,5 +1,5 @@
 'use client'
-import { initPushNotifications, requestPushPermissionOrOpenSettings } from '../lib/push'
+import { initPushNotifications, requestPushPermissionOrOpenSettings, checkPushPermission } from '../lib/push'
 import BankSelect from '../../components/BankSelect'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 import ChatWindow from '../../components/ChatWindow'
@@ -224,7 +224,22 @@ export default function MyPage() {
       setMyAccountNumber(p.account_number ?? '')
       setMyInstagram(p.instagram_id ?? '')
       setMyYoutube(p.youtube_id ?? '')
-      setNotificationPrefs({ recruit: true, vacancy: true, reminder: true, ban: true, chat: true, ...(p.notification_prefs ?? {}) })
+      const mergedPrefs = { recruit: true, vacancy: true, reminder: true, ban: true, chat: true, ...(p.notification_prefs ?? {}) }
+      setNotificationPrefs(mergedPrefs)
+      // 기기 알림 권한이 없는데 앱 설정상 켜져있다고 표시되면 실제 상태에 맞춰 꺼줌
+      if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && mergedPrefs.master !== false) {
+        checkPushPermission().then((status) => {
+          if (status !== 'granted') {
+            const synced = { ...mergedPrefs, master: false }
+            setNotificationPrefs(synced)
+            fetchWithAuth(`/api/participants?id=${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ notification_prefs: synced })
+            }).catch(() => {})
+          }
+        })
+      }
       setMyTiktok(p.tiktok_id ?? '')
       setBalance(p.balance ?? 0)
       setReferralCode(p.referral_code ?? '')
