@@ -944,22 +944,22 @@ export default function LoginPage() {
                 </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <div className="flex flex-row justify-between">
-                <label className="flex items-center gap-2 text-sm text-gray-600">
+                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                   <input type="checkbox" checked={saveId} onChange={(e) => setSaveId(e.target.checked)} />
                   아이디 저장
                 </label>
-                <label className="flex items-center gap-2 text-sm text-gray-600">
+                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                   <input type="checkbox" checked={autoLogin} onChange={(e) => setAutoLogin(e.target.checked)} />
                   자동 로그인
                 </label>
               </div>
               <button onClick={handleLogin} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium">로그인</button>
               <div className="flex justify-center gap-3">
-                <button onClick={() => { setShowFindEmail(true); setShowForgotPassword(false); setFindEmailResult(null); setFindEmailMobile('') }} className="text-sm text-gray-500">이메일을 잊으셨나요?</button>
-                <span className="text-gray-300">|</span>
-                <button onClick={() => { setShowForgotPassword(true); setShowFindEmail(false) }} className="text-sm text-gray-500">비밀번호를 잊으셨나요?</button>
+                <button onClick={() => { setShowFindEmail(true); setShowForgotPassword(false); setFindEmailResult(null); setFindEmailMobile('') }} className="text-sm text-gray-500 dark:text-gray-400">이메일을 잊으셨나요?</button>
+                <span className="text-gray-300 dark:text-gray-600">|</span>
+                <button onClick={() => { setShowForgotPassword(true); setShowFindEmail(false) }} className="text-sm text-gray-500 dark:text-gray-400">비밀번호를 잊으셨나요?</button>
               </div>
-              <button onClick={() => setShowSignup(true)} className="w-full border rounded-lg py-2 text-sm text-gray-600">회원가입</button>
+              <button onClick={() => setShowSignup(true)} className="w-full border dark:border-gray-600 rounded-lg py-2 text-sm text-gray-600 dark:text-gray-300">회원가입</button>
               <a href="/privacy" className="block text-xs text-gray-400 text-center mt-2" onClick={(e) => { e.preventDefault(); router.push('/privacy') }}>개인정보처리방침</a>
               <a href="/terms" className="block text-xs text-gray-400 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/terms') }}>이용약관</a>
               <a href="/about" className="block text-xs text-blue-500 text-center mt-1" onClick={(e) => { e.preventDefault(); router.push('/about') }}>서비스 소개</a>
