@@ -357,53 +357,8 @@ export default function AdminMypagePage() {
               </div>
             </div>
           </div>
-          {/* 웹 브라우저 알림 */}
-          {typeof window !== 'undefined' && !(window as any).Capacitor?.isNativePlatform?.() && (
-            <button
-              onClick={webPushEnabled ? handleDisableWebPush : handleEnableWebPush}
-              className={`w-full text-sm rounded-lg py-3 mb-4 ${webPushEnabled ? 'text-gray-600 dark:text-gray-300 border dark:border-gray-600 bg-white dark:bg-gray-800' : 'text-white bg-blue-600'}`}
-            >
-              {webPushEnabled ? '🔕 브라우저 알림 끄기' : '🔔 이 브라우저에서 알림 받기'}
-            </button>
-          )}
 
-          {/* 채팅 첨부파일 캐시 */}
-          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
-            <div className="border dark:border-gray-600 rounded-lg p-3 mb-4 bg-white dark:bg-gray-800">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
-                  <p className="text-xs text-gray-400">{cacheSizeMB === null ? '계산 중...' : `${cacheSizeMB.toFixed(1)}MB 사용 중`}</p>
-                </div>
-                <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40">
-                  {clearingCache ? '정리 중...' : '캐시 비우기'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* 로그아웃 */}
-          <p className="text-xs text-center text-gray-300 mb-3">
-            {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
-              ? `앱 버전 ${appVersion}` 
-              : '웹 버전'}
-          </p>
-          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && appVersion < minVersion && (
-            <button onClick={async () => {
-              const { Capacitor } = await import('@capacitor/core')
-              const storeUrl = Capacitor.getPlatform() === 'ios'
-                ? 'https://apps.apple.com/kr/app/id6787446365'
-                : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
-              try {
-                const { Browser } = await import('@capacitor/browser')
-                await Browser.open({ url: storeUrl })
-              } catch {
-                window.open(storeUrl, '_blank')
-              }
-            }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
-          )}
-          <hr className="my-3 border-gray-100 dark:border-gray-700" />
-          {/* 다크모드 */}
+          {/* 화면 모드 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
             <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -432,8 +387,56 @@ export default function AdminMypagePage() {
               </button>
             </div>
           </div>
-          {/* 로그아웃 */}
-          <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-3 bg-white dark:bg-gray-800 mb-4">로그아웃</button>
+
+          {/* 웹 브라우저 알림 */}
+          {typeof window !== 'undefined' && !(window as any).Capacitor?.isNativePlatform?.() && (
+            <button
+              onClick={webPushEnabled ? handleDisableWebPush : handleEnableWebPush}
+              className={`w-full text-sm rounded-lg py-3 mb-4 ${webPushEnabled ? 'text-gray-600 dark:text-gray-300 border dark:border-gray-600 bg-white dark:bg-gray-800' : 'text-white bg-blue-600'}`}
+            >
+              {webPushEnabled ? '🔕 브라우저 알림 끄기' : '🔔 이 브라우저에서 알림 받기'}
+            </button>
+          )}
+
+          {/* 채팅 첨부파일 캐시 */}
+          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
+                  <p className="text-xs text-gray-400">{cacheSizeMB === null ? '계산 중...' : `${cacheSizeMB.toFixed(1)}MB 사용 중`}</p>
+                </div>
+                <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40">
+                  {clearingCache ? '정리 중...' : '캐시 비우기'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 앱버전/업데이트/로그아웃 */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <p className="text-xs text-center text-gray-300 mb-3">
+              {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
+                ? `앱 버전 ${appVersion}` 
+                : '웹 버전'}
+            </p>
+            {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && appVersion < minVersion && (
+              <button onClick={async () => {
+                const { Capacitor } = await import('@capacitor/core')
+                const storeUrl = Capacitor.getPlatform() === 'ios'
+                  ? 'https://apps.apple.com/kr/app/id6787446365'
+                  : 'https://play.google.com/store/apps/details?id=com.dbmusic.viral'
+                try {
+                  const { Browser } = await import('@capacitor/browser')
+                  await Browser.open({ url: storeUrl })
+                } catch {
+                  window.open(storeUrl, '_blank')
+                }
+              }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
+            )}
+            <hr className="my-3 border-gray-100 dark:border-gray-700" />
+            <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-lg py-3">로그아웃</button>
+          </div>
           </div>
           </div>
         </div>
