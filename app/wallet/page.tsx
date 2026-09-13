@@ -1,7 +1,7 @@
 'use client'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { encryptText } from '../lib/crypto'
 import BottomNav from '../../components/BottomNav'
@@ -39,6 +39,13 @@ export default function WalletPage() {
   const [projectsMap, setProjectsMap] = useState<any>({})
   const [filter, setFilter] = useState<'all' | 'earn' | 'exchange'>('all')
   const [showHistory, setShowHistory] = useState(false)
+  const filterBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const [filterIndicatorStyle, setFilterIndicatorStyle] = useState({ left: '0px', width: '0px' })
+  useEffect(() => {
+    const idx = filter === 'all' ? 0 : filter === 'earn' ? 1 : 2
+    const btn = filterBtnRefs.current[idx]
+    if (btn) setFilterIndicatorStyle({ left: `${btn.offsetLeft}px`, width: `${btn.offsetWidth}px` })
+  }, [filter, showHistory])
   const [showExchange, setShowExchange] = useState(false)
   const [agreedTax, setAgreedTax] = useState(false)
   const [residentNumber, setResidentNumber] = useState('')
@@ -257,7 +264,7 @@ export default function WalletPage() {
     : allHistory
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
       <p className="text-gray-400 dark:text-gray-500">로딩 중...</p>
     </div>
   )
@@ -276,7 +283,7 @@ export default function WalletPage() {
           { icon: '👤', label: '마이페이지', onClick: () => router.push('/mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
@@ -294,7 +301,7 @@ export default function WalletPage() {
           setIsPulling(false)
         }}
     >
-      <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
         {(isPulling || isRefreshing) && (
           <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
             {isRefreshing ? (
@@ -381,7 +388,7 @@ export default function WalletPage() {
 
         {/* 환전 신청 폼 */}
         {showExchange && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청</h2>
             <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
             {coverReward > 0 && (
@@ -442,22 +449,26 @@ export default function WalletPage() {
         </div>
         <div className="w-full md:w-1/2">
         {/* 총 적립금 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">총 적립금</p>
               <p className="text-2xl font-bold text-gray-800 dark:text-white">{balance.toLocaleString()}P</p>
             </div>
-            <button onClick={() => setShowHistory(!showHistory)} className="text-xs border dark:border-gray-600 rounded-lg px-3 py-2 text-gray-600 dark:text-gray-300">
+            <button onClick={() => setShowHistory(!showHistory)} className="text-xs bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2 text-gray-600 dark:text-gray-300">
               {showHistory ? '내역 접기 ▲' : '적립금 내역 ▼'}
             </button>
           </div>
 
           {showHistory && (
             <div className="mt-4 border-t dark:border-gray-600 pt-4">
-              <div className="flex gap-2 mb-3">
-                {(['all', 'earn', 'exchange'] as const).map(f => (
-                  <button key={f} onClick={() => setFilter(f)} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${filter === f ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 text-gray-500 dark:text-gray-400'}`}>
+              <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
+                <div
+                  className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-all duration-200 ease-out"
+                  style={{ left: filterIndicatorStyle.left, width: filterIndicatorStyle.width }}
+                />
+                {(['all', 'earn', 'exchange'] as const).map((f, i) => (
+                  <button key={f} ref={el => { filterBtnRefs.current[i] = el }} onClick={() => setFilter(f)} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${filter === f ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
                     {f === 'all' ? '전체' : f === 'earn' ? '적립' : '환전신청'}
                   </button>
                 ))}
