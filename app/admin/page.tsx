@@ -733,7 +733,7 @@ export default function Page1() {
       const clientUserRes = await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`)
       const clientUserData = await clientUserRes.json()
       const clientUser = clientUserData?.[0]
-      if (clientUser && clientUser.notification_prefs?.project !== false) {
+      if (clientUser && clientUser.notification_prefs?.master !== false && clientUser.notification_prefs?.project !== false) {
         const clientTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const clientTokens = await clientTokensRes.json()
         if (clientTokens && clientTokens.length > 0) {
@@ -870,7 +870,7 @@ export default function Page1() {
       const rawClientTokens = await clientTokensRes.json()
       const allClientUsersRes = await fetchWithAuth('/api/users')
       const allClientUsers = await allClientUsersRes.json()
-      const projectOffIds = new Set((allClientUsers ?? []).filter((u: any) => u.notification_prefs?.project === false).map((u: any) => String(u.id)))
+      const projectOffIds = new Set((allClientUsers ?? []).filter((u: any) => u.notification_prefs?.master === false || u.notification_prefs?.project === false).map((u: any) => String(u.id)))
       const clientTokens = (rawClientTokens ?? []).filter((t: any) => !projectOffIds.has(String(t.user_id)))
       if (clientTokens && clientTokens.length > 0) {
         await fetch('/api/push', {

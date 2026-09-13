@@ -1,5 +1,5 @@
 'use client'
-import { initPushNotifications } from '../lib/push'
+import { initPushNotifications, requestPushPermissionOrOpenSettings } from '../lib/push'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect } from 'react'
@@ -68,6 +68,21 @@ export default function ClientMyPage() {
   }
   const handleToggleNotif = async (key: string) => {
     const updated = { ...notificationPrefs, [key]: !notificationPrefs[key] }
+    setNotificationPrefs(updated)
+    await fetchWithAuth(`/api/users?id=${userInfo?.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notification_prefs: updated })
+    })
+  }
+
+  const handleToggleMaster = async () => {
+    const turningOn = notificationPrefs.master === false
+    if (turningOn) {
+      const result = await requestPushPermissionOrOpenSettings()
+      if (result !== 'granted') return
+    }
+    const updated = { ...notificationPrefs, master: turningOn }
     setNotificationPrefs(updated)
     await fetchWithAuth(`/api/users?id=${userInfo?.id}`, {
       method: 'PATCH',
@@ -589,8 +604,14 @@ export default function ClientMyPage() {
         {/* 알림 설정 (네이티브 앱에서만) */}
         {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-          <p className="text-sm font-medium dark:text-white mb-3">알림 설정</p>
-          <div className="space-y-3">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-medium dark:text-white">전체 알림</p>
+            <button onClick={handleToggleMaster} className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${notificationPrefs.master !== false ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notificationPrefs.master !== false ? 'translate-x-5' : ''}`} />
+            </button>
+          </div>
+          {notificationPrefs.master !== false && (
+          <div className="space-y-3 mt-3 pt-3 border-t dark:border-gray-700">
             {[
               ['project', '프로젝트 알림', '프로젝트 등록/종료 안내'],
               ['cover', '커버 알림', '커버 신청/승인/거절 안내'],
@@ -607,6 +628,7 @@ export default function ClientMyPage() {
               </div>
             ))}
           </div>
+          )}
         </div>
         )}
 

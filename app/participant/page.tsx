@@ -662,7 +662,7 @@ useEffect(() => {
       const clientRes = await fetchWithAuth(`/api/users?client_id=${proj.client_id}`)
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
-      if (clientUser && clientUser.notification_prefs?.cover !== false) {
+      if (clientUser && clientUser.notification_prefs?.master !== false && clientUser.notification_prefs?.cover !== false) {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
@@ -705,7 +705,7 @@ useEffect(() => {
       const clientRes = await fetchWithAuth(`/api/users?client_id=${proj.client_id}`)
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
-      if (clientUser && clientUser.notification_prefs?.cover !== false) {
+      if (clientUser && clientUser.notification_prefs?.master !== false && clientUser.notification_prefs?.cover !== false) {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {

@@ -1,4 +1,6 @@
 import { PushNotifications } from '@capacitor/push-notifications'
+import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings'
+import { Capacitor } from '@capacitor/core'
 
 let currentUserId = ''
 let currentUserRole = ''
@@ -62,5 +64,40 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
     await PushNotifications.register()
   } catch (error) {
     console.log('푸시 알림 초기화 실패:', error)
+  }
+}
+
+
+// 기기 알림 권한 상태 확인 ('granted' | 'denied' | 'prompt')
+export const checkPushPermission = async (): Promise<string> => {
+  try {
+    const status = await PushNotifications.checkPermissions()
+    return status.receive
+  } catch {
+    return 'denied'
+  }
+}
+
+// 권한 요청 시도. 이미 거부된 상태(재요청 불가)라면 기기 설정의 앱 알림 화면으로 이동
+export const requestPushPermissionOrOpenSettings = async (): Promise<string> => {
+  try {
+    const before = await PushNotifications.checkPermissions()
+    if (before.receive === 'granted') return 'granted'
+
+    if (before.receive === 'prompt' || before.receive === 'prompt-with-rationale') {
+      const after = await PushNotifications.requestPermissions()
+      if (after.receive === 'granted') {
+        await PushNotifications.register()
+        return 'granted'
+      }
+      return after.receive
+    }
+
+    // 이미 거부됐던 경우 -> OS 재요청 다이얼로그가 뜨지 않으므로 설정 화면으로 이동
+    await NativeSettings.open({ optionIOS: IOSSettings.App, optionAndroid: AndroidSettings.AppNotification })
+    return before.receive
+  } catch (error) {
+    console.log('권한 요청/설정 이동 실패:', error)
+    return 'denied'
   }
 }

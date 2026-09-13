@@ -11,7 +11,7 @@ async function filterTokensByNotifPref(tokens: any[], prefKey: string) {
   if (!tokens || tokens.length === 0) return tokens
   const userIds = [...new Set(tokens.map((t: any) => t.user_id))]
   const { data: prefs } = await supabase.from('participants').select('id, notification_prefs').in('id', userIds)
-  const offIds = new Set((prefs ?? []).filter((p: any) => p.notification_prefs?.[prefKey] === false).map((p: any) => String(p.id)))
+  const offIds = new Set((prefs ?? []).filter((p: any) => p.notification_prefs?.master === false || p.notification_prefs?.[prefKey] === false).map((p: any) => String(p.id)))
   return tokens.filter((t: any) => !offIds.has(String(t.user_id)))
 }
 
@@ -1076,7 +1076,7 @@ export async function GET() {
           // 해당 의뢰인에게 푸시
           if (project.client_id) {
             const { data: clientUser } = await supabase.from('users').select('id, notification_prefs').eq('client_id', project.client_id).maybeSingle()
-            if (clientUser && clientUser.notification_prefs?.project !== false) {
+            if (clientUser && clientUser.notification_prefs?.master !== false && clientUser.notification_prefs?.project !== false) {
               const { data: clientTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(clientUser.id))
               if (clientTokens && clientTokens.length > 0) {
                 await fetch(`https://app.doubleb.kr/api/push`, {
