@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { BarChart2, Music, Heart, ThumbsUp } from 'lucide-react'
 
 type Props = {
@@ -48,15 +48,28 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
     candidates.sort((a: any, b: any) => Math.abs(new Date(a.created_at).getTime() - postTime) - Math.abs(new Date(b.created_at).getTime() - postTime))
     return candidates[0].amount
   }
+
+  const filterBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const [filterIndicatorStyle, setFilterIndicatorStyle] = useState({ left: '0px', width: '0px' })
+  useEffect(() => {
+    const idx = postFilter === 'current' ? 0 : 1
+    const btn = filterBtnRefs.current[idx]
+    if (btn) setFilterIndicatorStyle({ left: `${btn.offsetLeft}px`, width: `${btn.offsetWidth}px` })
+  }, [postFilter])
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-bold dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 나의 게시물 현황</h2>
-        <button onClick={() => setShowPosts(!showPosts)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
+        <button onClick={() => setShowPosts(!showPosts)} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-lg px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
       </div>
-      <div className="flex gap-2 mb-3">
-        <button onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'current' || !showPosts) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'current' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>진행 프로젝트</button>
-        <button onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'all' || !showPosts) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${postFilter === 'all' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>전체 내역</button>
+      <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
+        <div
+          className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-all duration-200 ease-out"
+          style={{ left: filterIndicatorStyle.left, width: filterIndicatorStyle.width }}
+        />
+        <button ref={el => { filterBtnRefs.current[0] = el }} onClick={() => { setPostFilter('current'); setParticipationFilter('current'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'current' || !showPosts) }} className={`relative z-10 flex-1 rounded-md py-2 text-sm font-medium ${postFilter === 'current' ? 'text-white' : 'text-gray-500 dark:text-gray-300'}`}>진행 프로젝트</button>
+        <button ref={el => { filterBtnRefs.current[1] = el }} onClick={() => { setPostFilter('all'); setParticipationFilter('all'); setSelectedParticipation(null); setShowParticipation(postFilter !== 'all' || !showPosts) }} className={`relative z-10 flex-1 rounded-md py-2 text-sm font-medium ${postFilter === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-300'}`}>전체 내역</button>
       </div>
       <div className="grid grid-cols-3 gap-3 mb-3">
         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 col-span-3">
@@ -77,7 +90,7 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
         </div>
       </div>
       {showPosts && (
-        <div className="space-y-2">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {displayPosts.length === 0 ? (
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">게시물이 없습니다.</p>
           ) : (
@@ -87,7 +100,7 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
                 const actualAmount = findActualAmount(post)
                 const myAmount = actualAmount ?? getLevelAmount(baseAmount, level)
                 return (
-                  <div key={post.id} className="border dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3">
+                  <div key={post.id} className="py-3">
                     <div className="flex justify-between items-start">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1 mb-1">
