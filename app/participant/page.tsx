@@ -116,6 +116,13 @@ export default function Page2() {
   const [coverRequests, setCoverRequests] = useState<any[]>([])
   const [selectedParticipation, setSelectedParticipation] = useState<any>(null)
   const [participationFilter, setParticipationFilter] = useState<'current' | 'all'>('current')
+  const participationFilterBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const [participationFilterIndicatorStyle, setParticipationFilterIndicatorStyle] = useState({ left: '0px', width: '0px' })
+  useEffect(() => {
+    const idx = participationFilter === 'current' ? 0 : 1
+    const btn = participationFilterBtnRefs.current[idx]
+    if (btn) setParticipationFilterIndicatorStyle({ left: `${btn.offsetLeft}px`, width: `${btn.offsetWidth}px` })
+  }, [participationFilter])
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
@@ -1401,13 +1408,17 @@ useEffect(() => {
               return (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
                   <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><CheckCircle size={16} /> 내 참여 현황</h2>
-                  <div className="flex gap-2 mb-3">
-                    <button onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>진행중</button>
-                    <button onClick={() => { setParticipationFilter('all'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'all' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>전체</button>
+                  <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
+                    <div
+                      className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-all duration-200 ease-out"
+                      style={{ left: participationFilterIndicatorStyle.left, width: participationFilterIndicatorStyle.width }}
+                    />
+                    <button ref={el => { participationFilterBtnRefs.current[0] = el }} onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`relative z-10 flex-1 rounded-md py-2 text-sm font-medium ${participationFilter === 'current' ? 'text-white' : 'text-gray-500 dark:text-gray-300'}`}>진행중</button>
+                    <button ref={el => { participationFilterBtnRefs.current[1] = el }} onClick={() => { setParticipationFilter('all'); setSelectedParticipation(null) }} className={`relative z-10 flex-1 rounded-md py-2 text-sm font-medium ${participationFilter === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-300'}`}>전체</button>
                   </div>
-                  <div className="space-y-2">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredParticipations.slice(participationPage * PAGE_SIZE, (participationPage + 1) * PAGE_SIZE).map((p) => (
-                      <div key={p.id} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${selectedParticipation?.project_code === p.project_code ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`} onClick={() => {
+                      <div key={p.id} className={`rounded-lg p-3 cursor-pointer ${selectedParticipation?.project_code === p.project_code ? 'bg-blue-50 dark:bg-blue-900' : ''}`} onClick={() => {
                         if (selectedParticipation?.project_code === p.project_code) {
                           setSelectedParticipation(null)
                           setProjectCode('')
