@@ -62,7 +62,7 @@ async function getBadgeCountForUser(userId: string, role: string | null): Promis
 }
 
 export async function POST(request: NextRequest) {
-  const { title, body, tokens, userIds, saveToRole, data, skipNotificationSave } = await request.json()
+  const { title, body, tokens, userIds, saveToRole, notifRole, data, skipNotificationSave } = await request.json()
   
   const autoData = data ?? (saveToRole === 'participant' ? { url: '/participant' } : saveToRole === 'client' ? { url: '/client' } : {})
 
@@ -165,14 +165,15 @@ export async function POST(request: NextRequest) {
   } else if (saveToRole) {
     const table = saveToRole === 'participant' ? 'participants' : 'users'
     const { data: allUsers } = await supabaseAdmin.from(table).select('id')
-    const rows = allUsers?.map((u: any) => ({ user_id: String(u.id), title, body }))
+    const rows = allUsers?.map((u: any) => ({ user_id: String(u.id), title, body, user_role: saveToRole }))
     if (rows) await supabaseAdmin.from('notifications').insert(rows)
   } else if (userIds && userIds.length > 0) {
     const uniqueUserIds: string[] = [...new Set(userIds as string[])]
     const notificationRows = uniqueUserIds.map((userId: string) => ({
       user_id: userId,
       title,
-      body
+      body,
+      user_role: notifRole ?? null
     }))
     await supabaseAdmin.from('notifications').insert(notificationRows)
   }

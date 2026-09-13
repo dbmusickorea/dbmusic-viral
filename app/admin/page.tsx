@@ -873,10 +873,11 @@ export default function Page1() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '📢 프로젝트가 종료됐어요!',
-              data: { url: '/participant' },
+              data: { url: '/client' },
             body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 종료됐어요. 결과보고서를 확인해보세요!`,
             tokens: clientTokens.map((t: any) => t.token),
-            userIds: clientTokens.map((t: any) => t.user_id)
+            userIds: clientTokens.map((t: any) => t.user_id),
+            notifRole: 'client'
           })
         })
       }

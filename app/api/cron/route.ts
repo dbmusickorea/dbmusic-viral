@@ -1087,7 +1087,8 @@ export async function GET() {
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,
                     tokens: clientTokens.map((t: any) => t.token),
                     userIds: [String(clientUser.id)],
-                    data: { url: '/client' }
+                    data: { url: '/client' },
+                    notifRole: 'client'
                   })
                 })
               }
