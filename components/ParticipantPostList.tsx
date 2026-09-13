@@ -49,7 +49,7 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
     return candidates[0].amount
   }
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-bold dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 나의 게시물 현황</h2>
         <button onClick={() => setShowPosts(!showPosts)} className="text-xs border dark:border-gray-600 dark:text-gray-300 rounded px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>

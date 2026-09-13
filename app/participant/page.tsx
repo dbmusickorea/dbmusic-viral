@@ -1240,7 +1240,7 @@ useEffect(() => {
             <div className="flex-1 bg-black/30" onClick={() => setShowSidebar(false)} />
           </div>
         )}
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) {
             setPullStartY(e.touches[0].clientY)
@@ -1259,7 +1259,7 @@ useEffect(() => {
         }}
       >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
@@ -1399,7 +1399,7 @@ useEffect(() => {
                 ? myParticipations.filter(p => ['ONGOING', 'PENDING'].includes(p.projects?.status))
                 : myParticipations
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
                   <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><CheckCircle size={16} /> 내 참여 현황</h2>
                   <div className="flex gap-2 mb-3">
                     <button onClick={() => { setParticipationFilter('current'); setSelectedParticipation(null) }} className={`flex-1 rounded-lg py-2 text-sm font-medium ${participationFilter === 'current' ? 'bg-blue-600 text-white' : 'border dark:border-gray-600 dark:text-gray-300'}`}>진행중</button>
@@ -1759,7 +1759,7 @@ useEffect(() => {
             />
 
             {projectInfo && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
                 {(() => {
                   const isFull = projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants
                   const coverFull = projectInfo.cover_video_count > 0 && (projectInfo.cover_current ?? 0) >= projectInfo.cover_video_count
