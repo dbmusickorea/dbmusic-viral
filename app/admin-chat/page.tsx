@@ -106,9 +106,13 @@ function AdminChatContent() {
           </div>
         </div>
         <div className="max-w-2xl md:max-w-none w-full mx-auto p-4 flex-1 flex flex-col overflow-hidden">
-          <div className="flex gap-2 mb-3">
-            <button onClick={() => setNewChatRole('participant')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${newChatRole === 'participant' ? 'bg-green-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>체험단</button>
-            <button onClick={() => setNewChatRole('client')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${newChatRole === 'client' ? 'bg-purple-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>의뢰인</button>
+          <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
+            <div
+              className={`absolute top-1 bottom-1 rounded-md transition-all duration-200 ease-out ${newChatRole === 'client' ? 'bg-purple-600' : 'bg-green-600'}`}
+              style={{ width: 'calc(50% - 4px)', transform: `translateX(${newChatRole === 'client' ? 'calc(100% + 8px)' : '0px'})` }}
+            />
+            <button onClick={() => setNewChatRole('participant')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${newChatRole === 'participant' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>체험단</button>
+            <button onClick={() => setNewChatRole('client')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${newChatRole === 'client' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>의뢰인</button>
           </div>
           <div className="relative mb-3">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -119,7 +123,7 @@ function AdminChatContent() {
               className="w-full border dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm dark:bg-gray-700 dark:text-white"
             />
           </div>
-          <div className="space-y-1 flex-1 overflow-y-auto">
+          <div className="chat-scroll space-y-1 flex-1 overflow-y-auto">
             {newChatList.length === 0 ? (
               <p className="text-center text-xs text-gray-400 py-8">검색 결과가 없어요.</p>
             ) : newChatList.map((u: any) => (
@@ -135,7 +139,7 @@ function AdminChatContent() {
 
   const listColumn = (
     <div className={`${selected ? 'hidden md:flex' : 'flex'} md:w-96 md:shrink-0 md:border-r md:border-gray-100 md:dark:border-gray-700 flex-col md:h-screen`}>
-      <div className="flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0">
+      <div className="chat-scroll flex-1 md:overflow-y-auto p-4 pb-24 md:pb-4 max-w-2xl md:max-w-none w-full mx-auto md:mx-0">
         <div style={{paddingTop: 'env(safe-area-inset-top)'}} />
         <div className="flex justify-center mb-4">
           <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push('/admin')} />
@@ -241,6 +245,7 @@ function AdminChatContent() {
               title={selected.name}
               subtitle={selected.role === 'participant' ? '체험단' : '의뢰인'}
               onBack={() => { setSelected(null); fetchThreads() }}
+              embedded
             />
           </div>
         )}
