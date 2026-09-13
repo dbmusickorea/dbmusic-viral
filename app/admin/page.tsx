@@ -1207,7 +1207,7 @@ export default function Page1() {
                 }
                 setShowNotifications(!showNotifications)
               }} className="relative text-gray-500">
-                <Bell size={22} className="text-gray-600" strokeWidth={1.5} /> 
+                <Bell size={22} className="text-gray-600 dark:text-gray-300" strokeWidth={1.5} /> 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
                 )}

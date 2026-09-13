@@ -6,7 +6,7 @@ export default function TermsPage() {
   
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-4" style={{paddingTop: 'max(1rem, env(safe-area-inset-top))'}}>
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl p-6">
+      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-900 rounded-2xl p-6">
         <button onClick={() => router.back()} className="text-sm text-blue-600 mb-4 block">← 뒤로가기</button>
         <h1 className="text-xl font-bold mb-6 dark:text-white">이용약관</h1>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">시행일: 2026년 7월 12일</p>

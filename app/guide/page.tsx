@@ -20,13 +20,13 @@ export default function GuidePage() {
         </div>
 
         {/* 1. 서비스 개요 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-2">1. 서비스 개요</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">더블비뮤직은 발매되는 신곡 음원을 본인의 소셜 미디어(SNS) 채널에 배경음악으로 매칭하여 업로드하고 이에 따른 정당한 경제적 리워드를 정산받는 테크 기반의 음악 마케팅 플랫폼입니다.</p>
         </div>
 
         {/* 2. 가입 방법 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">2. 가입 방법</h2>
           <div className="space-y-3">
             <div>
@@ -52,7 +52,7 @@ export default function GuidePage() {
         </div>
 
         {/* 3. 체험단 유형 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">3. 체험단 유형 및 자격 구분</h2>
           <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3 mb-2">
             <p className="text-sm font-medium text-blue-800 dark:text-blue-300">일반 체험단</p>
@@ -65,7 +65,7 @@ export default function GuidePage() {
         </div>
 
         {/* 3. 미션 참여 절차 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">4. 미션 참여 및 게시 절차</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
             <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-2">
@@ -129,7 +129,7 @@ export default function GuidePage() {
         </div>
 
         {/* 4. 리워드 및 레벨 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">5. 리워드 적립 및 레벨 시스템</h2>
           <div className="space-y-3">
             <div>
@@ -157,7 +157,7 @@ export default function GuidePage() {
         </div>
 
         {/* 6. 밴 및 페널티 안내 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">6. 활동 제한(밴) 및 페널티 안내</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">건강한 캠페인 운영을 위해 아래와 같은 경우 일시적으로 활동이 제한될 수 있습니다.</p>
           <div className="space-y-3">
@@ -182,7 +182,7 @@ export default function GuidePage() {
         </div>
 
         {/* 7. 환전 신청 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">7. 환전 신청 및 세무 고지</h2>
           <div className="space-y-3">
             <div>
@@ -202,7 +202,7 @@ export default function GuidePage() {
         </div>
 
         {/* Q&A */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <h2 className="font-bold text-blue-600 dark:text-blue-400 mb-3">자주 묻는 질문 (Q&A)</h2>
           <div className="space-y-4">
             {[

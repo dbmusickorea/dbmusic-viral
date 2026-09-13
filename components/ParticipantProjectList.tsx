@@ -17,7 +17,7 @@ type Props = {
 
 export default function ParticipantProjectList({ allProjects, myParticipations, projectCode, projectListPage, setProjectListPage, PAGE_SIZE, isCoverPossible, isCoverApproved, onSelectProject, onDeselectProject }: Props) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
       <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><ClipboardList size={16} /> 전체 프로젝트 목록</h2>
       {allProjects.length === 0 ? (
         <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">진행중인 프로젝트가 없습니다.</p>

@@ -388,7 +388,7 @@ export default function WalletPage() {
 
         {/* 환전 신청 폼 */}
         {showExchange && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청</h2>
             <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
             {coverReward > 0 && (
@@ -449,7 +449,7 @@ export default function WalletPage() {
         </div>
         <div className="w-full md:w-1/2">
         {/* 총 적립금 */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">총 적립금</p>

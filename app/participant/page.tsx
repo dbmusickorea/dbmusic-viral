@@ -1302,7 +1302,7 @@ useEffect(() => {
                 }
                 setShowNotifications(!showNotifications)
               }} className="relative text-gray-500">
-                <Bell size={22} className="text-gray-600" strokeWidth={1.5} />
+                <Bell size={22} className="text-gray-600 dark:text-gray-300" strokeWidth={1.5} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>
                 )}
@@ -1408,7 +1408,7 @@ useEffect(() => {
                 ? myParticipations.filter(p => ['ONGOING', 'PENDING'].includes(p.projects?.status))
                 : myParticipations
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                   <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><CheckCircle size={16} /> 내 참여 현황</h2>
                   <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
                     <div
@@ -1772,7 +1772,7 @@ useEffect(() => {
             />
 
             {projectInfo && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 {(() => {
                   const isFull = projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants
                   const coverFull = projectInfo.cover_video_count > 0 && (projectInfo.cover_current ?? 0) >= projectInfo.cover_video_count

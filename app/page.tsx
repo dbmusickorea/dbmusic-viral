@@ -927,7 +927,7 @@ export default function LoginPage() {
       )}
       <div className="w-full max-w-sm">
         {!showSignup && !showForgotPassword && !showFindEmail ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
             <div className="flex justify-center mb-6">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
             </div>
@@ -967,7 +967,7 @@ export default function LoginPage() {
             </div>
           </div>
         ) : showFindEmail ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
             <h1 className="text-xl font-bold text-center mb-4 dark:text-white">이메일 찾기</h1>
             {findEmailResult === null ? (
               <div className="space-y-4">
@@ -1018,7 +1018,7 @@ export default function LoginPage() {
             )}
           </div>
         ) : showForgotPassword ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
             <h1 className="text-xl font-bold text-center mb-4 dark:text-white">비밀번호 찾기</h1>
             {!forgotSent ? (
               <div className="space-y-4">
@@ -1040,7 +1040,7 @@ export default function LoginPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
             <div className="flex justify-center mb-4">
               <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 dark:invert" />
             </div>

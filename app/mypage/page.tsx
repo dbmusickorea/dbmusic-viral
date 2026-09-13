@@ -500,11 +500,11 @@ export default function MyPage() {
         {/* 추천인 코드 */}
         {referralCode && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <p className="text-xs text-gray-500 mb-1">나의 추천인 코드</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">나의 추천인 코드</p>
             <div className="flex items-center gap-2">
               <p className="text-2xl font-bold text-blue-600">{referralCode}</p>
               <div className="flex gap-2 ml-auto">
-                <button onClick={() => { navigator.clipboard.writeText(referralCode); showToast('복사됐어요!') }} className="text-xs border rounded px-3 py-1.5 text-gray-600">복사</button>
+                <button onClick={() => { navigator.clipboard.writeText(referralCode); showToast('복사됐어요!') }} className="text-xs border dark:border-gray-600 rounded px-3 py-1.5 text-gray-600 dark:text-gray-300">복사</button>
                 {(!(window as any).Capacitor?.isNativePlatform?.() || appVersion >= '1.2') && (
                   <button onClick={async () => {
                     const { Share } = await import('@capacitor/share')
@@ -517,10 +517,10 @@ export default function MyPage() {
                 )}
             </div>
             </div>
-            <p className="text-xs text-gray-400 mt-1">친구에게 이 코드를 알려주세요!</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">친구에게 이 코드를 알려주세요!</p>
             {referredUsers.length > 0 && (
-              <div className="mt-3 border-t pt-3">
-                <p className="text-xs font-medium text-gray-600 mb-2">추천한 친구 ({referredUsers.length}명)</p>
+              <div className="mt-3 border-t dark:border-gray-700 pt-3">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-2">추천한 친구 ({referredUsers.length}명)</p>
                 <div className="space-y-1">
                   {referredUsers.map(u => (
                     <div key={u.id} className="flex justify-between items-center text-xs text-gray-500">
