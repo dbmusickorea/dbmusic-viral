@@ -538,6 +538,74 @@ export default function ClientMyPage() {
           </div>
           <div className="w-full md:w-1/2 space-y-4">
             {isInDistributionMode && <div id="dist-payment-slot" className="hidden md:block" />}
+        {/* 알림 설정 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <p className="text-sm font-medium dark:text-white mb-3">알림 설정</p>
+          <div className="space-y-3">
+            {[
+              ['project', '프로젝트 알림', '프로젝트 등록/종료 안내'],
+              ['cover', '커버 알림', '커버 신청/승인/거절 안내'],
+              ['chat', '채팅 알림', '관리자와의 채팅 메시지'],
+            ].map(([key, label, desc]) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm dark:text-white">{label}</p>
+                  <p className="text-xs text-gray-400">{desc}</p>
+                </div>
+                <button onClick={() => handleToggleNotif(key)} className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${notificationPrefs[key] ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notificationPrefs[key] ? 'translate-x-5' : ''}`} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 화면 모드 */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+          <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
+          <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div
+              className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+              style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(theme === 'system' ? 0 : theme === 'light' ? 1 : 2) * 100}%)` }}
+            />
+            <button onClick={() => applyTheme('system')} className={`relative z-10 flex-1 py-2 text-xs rounded-md flex flex-col items-center gap-1 ${theme === 'system' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+                <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z" fill="currentColor"/>
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="currentColor"/>
+              </svg>
+              시스템
+            </button>
+            <button onClick={() => applyTheme('light')} className={`relative z-10 flex-1 py-2 text-xs rounded-md flex flex-col items-center gap-1 ${theme === 'light' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+                <path d="M12 4V2M12 20V22M6.41421 6.41421L5 5M17.728 17.728L19.1422 19.1422M4 12H2M20 12H22M17.7285 6.41421L19.1427 5M6.4147 17.728L5.00049 19.1422M12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              라이트
+            </button>
+            <button onClick={() => applyTheme('dark')} className={`relative z-10 flex-1 py-2 text-xs rounded-md flex flex-col items-center gap-1 ${theme === 'dark' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+                <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              다크
+            </button>
+          </div>
+        </div>
+
+        {/* 채팅 첨부파일 캐시 */}
+        {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
+                <p className="text-xs text-gray-400">{cacheSizeMB === null ? '계산 중...' : `${cacheSizeMB.toFixed(1)}MB 사용 중`}</p>
+              </div>
+              <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40">
+                {clearingCache ? '정리 중...' : '캐시 비우기'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 앱버전/계정전환/로그아웃/계정삭제 */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <p className="text-xs text-center text-gray-300 mb-2">
             {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
@@ -559,54 +627,6 @@ export default function ClientMyPage() {
             }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
           <hr className="my-3 border-gray-100" />
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <p className="text-sm font-medium dark:text-white mb-3">알림 설정</p>
-            <div className="space-y-3">
-              {[
-                ['project', '프로젝트 알림', '프로젝트 등록/종료 안내'],
-                ['cover', '커버 알림', '커버 신청/승인/거절 안내'],
-                ['chat', '채팅 알림', '관리자와의 채팅 메시지'],
-              ].map(([key, label, desc]) => (
-                <div key={key} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm dark:text-white">{label}</p>
-                    <p className="text-xs text-gray-400">{desc}</p>
-                  </div>
-                  <button onClick={() => handleToggleNotif(key)} className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${notificationPrefs[key] ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
-                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notificationPrefs[key] ? 'translate-x-5' : ''}`} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
-            <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
-            <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <div
-                className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
-                style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(theme === 'system' ? 0 : theme === 'light' ? 1 : 2) * 100}%)` }}
-              />
-              <button onClick={() => applyTheme('system')} className={`relative z-10 flex-1 py-2 text-xs rounded-md flex flex-col items-center gap-1 ${theme === 'system' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
-                  <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z" fill="currentColor"/>
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="currentColor"/>
-                </svg>
-                시스템
-              </button>
-              <button onClick={() => applyTheme('light')} className={`relative z-10 flex-1 py-2 text-xs rounded-md flex flex-col items-center gap-1 ${theme === 'light' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
-                  <path d="M12 4V2M12 20V22M6.41421 6.41421L5 5M17.728 17.728L19.1422 19.1422M4 12H2M20 12H22M17.7285 6.41421L19.1427 5M6.4147 17.728L5.00049 19.1422M12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                라이트
-              </button>
-              <button onClick={() => applyTheme('dark')} className={`relative z-10 flex-1 py-2 text-xs rounded-md flex flex-col items-center gap-1 ${theme === 'dark' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
-                  <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                다크
-              </button>
-            </div>
-          </div>
           {hasParticipantAccount ? (
             <button onClick={async () => {
               const userInfo = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
@@ -631,19 +651,6 @@ export default function ClientMyPage() {
             ) : (
               <button onClick={() => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') }} className="w-full text-sm text-purple-600 border border-purple-300 rounded-lg py-2 mb-3">유통 서비스로 전환</button>
             )
-          )}
-          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
-            <div className="border dark:border-gray-600 rounded-lg p-3 mb-3 bg-gray-50 dark:bg-gray-700">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
-                  <p className="text-xs text-gray-400">{cacheSizeMB === null ? '계산 중...' : `${cacheSizeMB.toFixed(1)}MB 사용 중`}</p>
-                </div>
-                <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40 bg-white dark:bg-gray-800">
-                  {clearingCache ? '정리 중...' : '캐시 비우기'}
-                </button>
-              </div>
-            </div>
           )}
           <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
