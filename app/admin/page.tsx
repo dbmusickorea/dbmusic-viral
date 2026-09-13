@@ -733,7 +733,7 @@ export default function Page1() {
       const clientUserRes = await fetchWithAuth(`/api/users?client_id=${formData.selectedClientId}`)
       const clientUserData = await clientUserRes.json()
       const clientUser = clientUserData?.[0]
-      if (clientUser) {
+      if (clientUser && clientUser.notification_prefs?.project !== false) {
         const clientTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const clientTokens = await clientTokensRes.json()
         if (clientTokens && clientTokens.length > 0) {
@@ -742,10 +742,11 @@ export default function Page1() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 프로젝트가 등록됐어요!',
-              data: { url: '/participant?tab=project' },
+              data: { url: '/client' },
               body: `${formData.artistName || formData.productContent} - ${formData.songTitle || formData.productContent} 프로젝트가 등록됐어요. 앱에서 확인해보세요!`,
               tokens: clientTokens.map((t: any) => t.token),
-              userIds: [String(clientUser.id)]
+              userIds: [String(clientUser.id)],
+              notifRole: 'client'
             })
           })
         }
@@ -866,7 +867,11 @@ export default function Page1() {
       }
       // 의뢰인에게 종료 알림
       const clientTokensRes = await fetchWithAuth('/api/push_tokens?user_role=client')
-      const clientTokens = await clientTokensRes.json()
+      const rawClientTokens = await clientTokensRes.json()
+      const allClientUsersRes = await fetchWithAuth('/api/users')
+      const allClientUsers = await allClientUsersRes.json()
+      const projectOffIds = new Set((allClientUsers ?? []).filter((u: any) => u.notification_prefs?.project === false).map((u: any) => String(u.id)))
+      const clientTokens = (rawClientTokens ?? []).filter((t: any) => !projectOffIds.has(String(t.user_id)))
       if (clientTokens && clientTokens.length > 0) {
         await fetch('/api/push', {
           method: 'POST',

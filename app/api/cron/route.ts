@@ -1075,8 +1075,8 @@ export async function GET() {
 
           // 해당 의뢰인에게 푸시
           if (project.client_id) {
-            const { data: clientUser } = await supabase.from('users').select('id').eq('client_id', project.client_id).maybeSingle()
-            if (clientUser) {
+            const { data: clientUser } = await supabase.from('users').select('id, notification_prefs').eq('client_id', project.client_id).maybeSingle()
+            if (clientUser && clientUser.notification_prefs?.project !== false) {
               const { data: clientTokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(clientUser.id))
               if (clientTokens && clientTokens.length > 0) {
                 await fetch(`https://app.doubleb.kr/api/push`, {

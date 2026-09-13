@@ -55,6 +55,9 @@ export async function POST(request: NextRequest) {
       if (role === 'participant') {
         const { data: pref } = await supabaseAdmin.from('participants').select('notification_prefs').eq('id', user_id).maybeSingle()
         chatNotifOff = pref?.notification_prefs?.chat === false
+      } else if (role === 'client') {
+        const { data: pref } = await supabaseAdmin.from('users').select('notification_prefs').eq('id', user_id).maybeSingle()
+        chatNotifOff = pref?.notification_prefs?.chat === false
       }
       const { data: tokens } = chatNotifOff ? { data: [] } : await supabaseAdmin.from('push_tokens').select('token').eq('user_id', String(user_id))
       if (tokens && tokens.length > 0) {

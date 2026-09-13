@@ -662,7 +662,7 @@ useEffect(() => {
       const clientRes = await fetchWithAuth(`/api/users?client_id=${proj.client_id}`)
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
-      if (clientUser) {
+      if (clientUser && clientUser.notification_prefs?.cover !== false) {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
@@ -674,7 +674,8 @@ useEffect(() => {
               body: `[${proj.artist_name || proj.client_name} - ${proj.song_title}] 커버 체험단이 미션을 수락했어요!`,
               data: { url: '/cover' },
               tokens: tokens.map((t: any) => t.token),
-              userIds: [String(clientUser.id)]
+              userIds: [String(clientUser.id)],
+              notifRole: 'client'
             })
           })
         }
@@ -704,7 +705,7 @@ useEffect(() => {
       const clientRes = await fetchWithAuth(`/api/users?client_id=${proj.client_id}`)
       const clientData = await clientRes.json()
       const clientUser = clientData?.[0]
-      if (clientUser) {
+      if (clientUser && clientUser.notification_prefs?.cover !== false) {
         const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
         const tokens = await tokensRes.json()
         if (tokens && tokens.length > 0) {
@@ -716,7 +717,8 @@ useEffect(() => {
               body: `[${r.projects?.artist_name || r.projects?.client_name} - ${r.projects?.song_title}] 선택한 커버 체험단이 미션을 거절했어요. 재선택해주세요.`,
               data: { url: '/cover' },
               tokens: tokens.map((t: any) => t.token),
-              userIds: [String(clientUser.id)]
+              userIds: [String(clientUser.id)],
+              notifRole: 'client'
             })
           })
         }

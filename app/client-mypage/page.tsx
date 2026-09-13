@@ -18,6 +18,7 @@ import DistributionFooter from '../../components/DistributionFooter'
 export default function ClientMyPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [notificationPrefs, setNotificationPrefs] = useState<any>({ project: true, cover: true, chat: true })
   const [isInDistributionMode, setIsInDistributionMode] = useState(false)
 
   useEffect(() => {
@@ -64,6 +65,15 @@ export default function ClientMyPage() {
       prefersDark ? html.classList.add('dark') : html.classList.remove('dark')
       localStorage.removeItem('darkMode')
     }
+  }
+  const handleToggleNotif = async (key: string) => {
+    const updated = { ...notificationPrefs, [key]: !notificationPrefs[key] }
+    setNotificationPrefs(updated)
+    await fetchWithAuth(`/api/users?id=${userInfo?.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notification_prefs: updated })
+    })
   }
   const [myName, setMyName] = useState('')
   const [myCompany, setMyCompany] = useState('')
@@ -160,6 +170,7 @@ export default function ClientMyPage() {
         const updatedUser = { ...parsed, has_distribution: !!latest?.has_distribution }
         setUserInfo(updatedUser)
         localStorage.setItem('userInfo', JSON.stringify(updatedUser))
+        setNotificationPrefs({ project: true, cover: true, chat: true, ...(latest?.notification_prefs ?? {}) })
       }).catch(() => {})
     }
     setMyName(parsed.name ?? '')
@@ -548,6 +559,26 @@ export default function ClientMyPage() {
             }} className="w-full text-xs bg-blue-600 text-white rounded-lg py-2 mb-3 flex items-center justify-center gap-1"><RefreshCw size={12} /> 업데이트 하기</button>
           )}
           <hr className="my-3 border-gray-100" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <p className="text-sm font-medium dark:text-white mb-3">알림 설정</p>
+            <div className="space-y-3">
+              {[
+                ['project', '프로젝트 알림', '프로젝트 등록/종료 안내'],
+                ['cover', '커버 알림', '커버 신청/승인/거절 안내'],
+                ['chat', '채팅 알림', '관리자와의 채팅 메시지'],
+              ].map(([key, label, desc]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm dark:text-white">{label}</p>
+                    <p className="text-xs text-gray-400">{desc}</p>
+                  </div>
+                  <button onClick={() => handleToggleNotif(key)} className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${notificationPrefs[key] ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notificationPrefs[key] ? 'translate-x-5' : ''}`} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
             <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
