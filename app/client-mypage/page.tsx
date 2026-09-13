@@ -702,7 +702,7 @@ export default function ClientMyPage() {
               <button onClick={() => { localStorage.setItem('distributionMode', 'true'); router.push('/distribution') }} className="w-full text-sm text-purple-600 border border-purple-300 rounded-lg py-2 mb-3">유통 서비스로 전환</button>
             )
           )}
-          <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded-lg py-2 mb-3">로그아웃</button>
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
             <div className="mt-3 border border-red-300 rounded-lg p-4 bg-red-50">

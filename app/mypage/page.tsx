@@ -785,7 +785,7 @@ export default function MyPage() {
                 <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
                 <p className="text-xs text-gray-400">{cacheSizeMB === null ? '계산 중...' : `${cacheSizeMB.toFixed(1)}MB 사용 중`}</p>
               </div>
-              <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs border dark:border-gray-500 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40">
+              <button onClick={handleClearCache} disabled={clearingCache || !cacheSizeMB} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-lg px-3 py-1.5 disabled:opacity-40">
                 {clearingCache ? '정리 중...' : '캐시 비우기'}
               </button>
             </div>
@@ -832,7 +832,7 @@ export default function MyPage() {
           ) : (
             <button onClick={() => setShowClientSignup(true)} className="w-full text-sm text-green-600 border border-green-300 rounded-lg py-2 mb-3">의뢰인으로도 이용하기</button>
           )}
-          <button onClick={handleLogout} className="w-full text-sm text-gray-400 border border-gray-200 rounded-lg py-2 mb-3">로그아웃</button>
+          <button onClick={handleLogout} className="w-full text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg py-2 mb-3">로그아웃</button>
           <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full text-xs text-red-400 text-center py-1">계정 삭제</button>
           {showDeleteConfirm && (
             <div className="mt-3 border border-red-300 rounded-lg p-4 bg-red-50">
