@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
-import { LayoutGrid, BarChart2, FileText, User, Disc3, RefreshCw, ArrowDown, Wallet } from 'lucide-react'
+import { LayoutGrid, BarChart2, FileText, User, Disc3, RefreshCw, ArrowDown, Wallet, Search } from 'lucide-react'
 import { useToast } from '../../components/ToastContext'
 import PlatformIcon from '../../components/PlatformIcon'
 import BottomNav from '../../components/BottomNav'
@@ -264,7 +264,7 @@ export default function DistributionPage() {
           { icon: '', label: '마이페이지', onClick: () => router.push('/client-mypage') },
         ]}
       />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-0 flex flex-col"
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-0 flex flex-col"
         onTouchStart={(e) => {
           if (document.documentElement.scrollTop === 0) setPullStartY(e.touches[0].clientY)
           else setPullStartY(0)
@@ -320,7 +320,7 @@ export default function DistributionPage() {
                   </div>
 
                   {showApplyForm && (
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 space-y-3">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 space-y-3">
                       <div>
                         <label className="text-xs font-medium dark:text-white">발매 희망일 *</label>
                         <input type="date" value={desiredDate} onChange={(e) => setDesiredDate(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
@@ -368,7 +368,7 @@ export default function DistributionPage() {
                     </div>
                   )}
 
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <div className="flex flex-wrap gap-2 mb-3">
                       <select value={albumStatusFilter} onChange={(e) => setAlbumStatusFilter(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
                         <option value="">상태 전체</option>
@@ -480,7 +480,7 @@ export default function DistributionPage() {
                 <div className="space-y-4">
                   <button onClick={() => setSelectedAlbum(null)} className="text-xs text-gray-500 dark:text-gray-400">← 앨범 목록으로</button>
 
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <div className="flex gap-4">
                       {selectedAlbum.cover_image_url ? (
                         <img src={selectedAlbum.cover_image_url} className="w-24 h-24 rounded-lg object-cover shrink-0" />
@@ -508,7 +508,7 @@ export default function DistributionPage() {
                     )}
                   </div>
 
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <h2 className="font-bold dark:text-white mb-3">Track List</h2>
                     {albumTracks.length === 0 ? (
                       <p className="text-xs text-gray-400">등록된 트랙이 없어요.</p>
@@ -557,7 +557,7 @@ export default function DistributionPage() {
                   </div>
 
                   {(selectedAlbum.distribution_store_links ?? []).length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                       <h2 className="font-bold dark:text-white mb-3">Music Store 발매 링크</h2>
                       <div className="space-y-2">
                         {selectedAlbum.distribution_store_links.map((link: any) => (
@@ -572,7 +572,7 @@ export default function DistributionPage() {
               )}
 
               {subTab === 'artists' && !selectedArtist && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                   <div className="flex justify-between items-center mb-3">
                     <h2 className="font-bold dark:text-white">아티스트</h2>
                     <div className="flex gap-1">
@@ -619,7 +619,7 @@ export default function DistributionPage() {
                 <div className="space-y-4">
                   <button onClick={() => setSelectedArtist(null)} className="text-xs text-gray-500 dark:text-gray-400">← 아티스트 목록으로</button>
 
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <div className="flex flex-col items-center text-center mb-3">
                       {selectedArtist.profile_image_url ? (
                         <img src={selectedArtist.profile_image_url} className="w-24 h-24 rounded-full object-cover mb-2" />
@@ -642,7 +642,7 @@ export default function DistributionPage() {
                     )}
                   </div>
 
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <h2 className="font-bold dark:text-white mb-2">발매 앨범</h2>
                     <p className="text-xs text-gray-400 mb-2">총 앨범수: {(selectedArtist.distribution_album_artists ?? []).length}</p>
                     {(selectedArtist.distribution_album_artists ?? []).map((rel: any) => (
@@ -654,7 +654,7 @@ export default function DistributionPage() {
                   </div>
 
                   {(selectedArtist.distribution_artist_links ?? []).length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                       <h2 className="font-bold dark:text-white mb-3">URL</h2>
                       <div className="space-y-1">
                         {selectedArtist.distribution_artist_links.map((link: any) => (
@@ -669,7 +669,7 @@ export default function DistributionPage() {
               )}
 
               {subTab === 'content' && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                   <h2 className="font-bold dark:text-white mb-3">등록된 콘텐츠</h2>
                   {items.length === 0 ? (
                     <p className="text-xs text-gray-400">등록된 콘텐츠가 없어요.</p>
@@ -693,7 +693,7 @@ export default function DistributionPage() {
               {subTab === 'stats' && (
                 <div className="space-y-4">
                   {/* 기간 필터 */}
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">기간</p>
                     <div className="flex flex-wrap gap-2 items-center">
                       <select value={statsPeriodType} onChange={(e) => setStatsPeriodType(e.target.value as any)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white">
@@ -709,20 +709,24 @@ export default function DistributionPage() {
                       <input type="month" value={statsStartDate} onChange={(e) => setStatsStartDate(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white" />
                       <span className="text-xs text-gray-400">-</span>
                       <input type="month" value={statsEndDate} onChange={(e) => setStatsEndDate(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs dark:bg-gray-700 dark:text-white" />
-                      <button className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-600 text-white">🔍 검색</button>
+                      <button className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-600 text-white flex items-center gap-1"><Search size={14} /> 검색</button>
                     </div>
                   </div>
 
                   {/* 대탭 */}
-                  <div className="flex gap-2">
-                    <button onClick={() => setStatsMainTab('summary')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${statsMainTab === 'summary' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>요약</button>
-                    <button onClick={() => setStatsMainTab('breakdown')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${statsMainTab === 'breakdown' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범/트랙별/아티스트별</button>
-                    <button onClick={() => setStatsMainTab('store')} className={`flex-1 py-2 text-xs rounded-lg font-medium ${statsMainTab === 'store' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>뮤직스토어/국가별</button>
+                  <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div
+                      className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+                      style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(statsMainTab === 'summary' ? 0 : statsMainTab === 'breakdown' ? 1 : 2) * 100}%)` }}
+                    />
+                    <button onClick={() => setStatsMainTab('summary')} className={`relative z-10 flex-1 py-2 text-xs rounded-md font-medium ${statsMainTab === 'summary' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>요약</button>
+                    <button onClick={() => setStatsMainTab('breakdown')} className={`relative z-10 flex-1 py-2 text-xs rounded-md font-medium ${statsMainTab === 'breakdown' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>앨범/트랙별/아티스트별</button>
+                    <button onClick={() => setStatsMainTab('store')} className={`relative z-10 flex-1 py-2 text-xs rounded-md font-medium ${statsMainTab === 'store' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>뮤직스토어/국가별</button>
                   </div>
 
                   {statsMainTab === 'summary' && (
                     <>
-                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                         <div className="flex justify-between items-center mb-3">
                           <h2 className="font-bold dark:text-white">판매 추이</h2>
                           <select value={statsMetric} onChange={(e) => setStatsMetric(e.target.value as any)} className="border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:bg-gray-700 dark:text-white">
@@ -749,11 +753,11 @@ export default function DistributionPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                         <h2 className="font-bold dark:text-white mb-3">월별 판매 상세</h2>
                         <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                       </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                         <h2 className="font-bold dark:text-white mb-3">정산 상세내역</h2>
                         <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                       </div>
@@ -762,13 +766,17 @@ export default function DistributionPage() {
 
                   {statsMainTab === 'breakdown' && (
                     <>
-                      <div className="flex gap-2">
-                        <button onClick={() => setStatsBreakdownTab('album')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsBreakdownTab === 'album' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>앨범/트랙별</button>
-                        <button onClick={() => setStatsBreakdownTab('artist')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsBreakdownTab === 'artist' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>아티스트별</button>
+                      <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <div
+                          className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+                          style={{ width: 'calc(50% - 4px)', transform: `translateX(${statsBreakdownTab === 'artist' ? 'calc(100% + 8px)' : '0px'})` }}
+                        />
+                        <button onClick={() => setStatsBreakdownTab('album')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${statsBreakdownTab === 'album' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>앨범/트랙별</button>
+                        <button onClick={() => setStatsBreakdownTab('artist')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${statsBreakdownTab === 'artist' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>아티스트별</button>
                       </div>
                       {statsBreakdownTab === 'album' ? (
                         <>
-                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                             <div className="flex justify-between items-center mb-3">
                               <h2 className="font-bold dark:text-white">Top 5 앨범</h2>
                               <div className="flex gap-1 text-xs">
@@ -779,7 +787,7 @@ export default function DistributionPage() {
                             </div>
                             <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                           </div>
-                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                             <div className="flex justify-between items-center mb-3">
                               <h2 className="font-bold dark:text-white">Top 5 트랙</h2>
                               <div className="flex gap-1 text-xs">
@@ -790,13 +798,13 @@ export default function DistributionPage() {
                             </div>
                             <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                           </div>
-                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                             <h2 className="font-bold dark:text-white mb-3">앨범/트랙별 판매 상세</h2>
                             <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                           </div>
                         </>
                       ) : (
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                           <h2 className="font-bold dark:text-white mb-3">아티스트별 판매 상세</h2>
                           <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                         </div>
@@ -806,11 +814,15 @@ export default function DistributionPage() {
 
                   {statsMainTab === 'store' && (
                     <>
-                      <div className="flex gap-2">
-                        <button onClick={() => setStatsStoreTab('store')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsStoreTab === 'store' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>뮤직스토어</button>
-                        <button onClick={() => setStatsStoreTab('country')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${statsStoreTab === 'country' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>국가</button>
+                      <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <div
+                          className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+                          style={{ width: 'calc(50% - 4px)', transform: `translateX(${statsStoreTab === 'country' ? 'calc(100% + 8px)' : '0px'})` }}
+                        />
+                        <button onClick={() => setStatsStoreTab('store')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${statsStoreTab === 'store' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>뮤직스토어</button>
+                        <button onClick={() => setStatsStoreTab('country')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${statsStoreTab === 'country' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>국가</button>
                       </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                         <div className="flex justify-between items-center mb-3">
                           <h2 className="font-bold dark:text-white">Top 5 {statsStoreTab === 'store' ? '뮤직스토어' : '국가'}</h2>
                           <div className="flex gap-1 text-xs">
@@ -821,7 +833,7 @@ export default function DistributionPage() {
                         </div>
                         <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                       </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                         <h2 className="font-bold dark:text-white mb-3">{statsStoreTab === 'store' ? '뮤직스토어별' : '국가별'} 판매 상세</h2>
                         <p className="text-xs text-gray-400 text-center py-8">아직 정산 데이터가 없어요.</p>
                       </div>
@@ -832,7 +844,7 @@ export default function DistributionPage() {
 
               {subTab === 'withdraw' && (
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 flex flex-col md:flex-row gap-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
                       <h2 className="font-bold dark:text-white mb-3">세금 및 지급정보</h2>
                       <div className="space-y-1 text-sm">
@@ -861,7 +873,7 @@ export default function DistributionPage() {
                       })()}
                     </div>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     <p className="text-xs text-gray-400">잔액</p>
                     <p className="text-2xl font-bold dark:text-white mb-3">₩ {distributionBalance.toLocaleString()}</p>
                     <input
@@ -879,11 +891,15 @@ export default function DistributionPage() {
                       {isSubmittingWithdraw ? '신청 중...' : '출금 신청하기'}
                     </button>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => setWithdrawTab('requests')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${withdrawTab === 'requests' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>출금신청내역</button>
-                    <button onClick={() => setWithdrawTab('transactions')} className={`flex-1 py-1.5 text-xs rounded-lg font-medium ${withdrawTab === 'transactions' ? 'bg-blue-600 text-white' : 'border text-gray-500 dark:border-gray-600'}`}>거래내역</button>
+                  <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div
+                      className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
+                      style={{ width: 'calc(50% - 4px)', transform: `translateX(${withdrawTab === 'transactions' ? 'calc(100% + 8px)' : '0px'})` }}
+                    />
+                    <button onClick={() => setWithdrawTab('requests')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${withdrawTab === 'requests' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>출금신청내역</button>
+                    <button onClick={() => setWithdrawTab('transactions')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${withdrawTab === 'transactions' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>거래내역</button>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4">
                     {withdrawTab === 'requests' ? (
                       withdrawals.length === 0 ? (
                         <p className="text-xs text-gray-400 text-center py-8">출금 신청 내역이 없어요.</p>
