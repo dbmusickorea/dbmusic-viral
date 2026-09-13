@@ -412,7 +412,7 @@ useEffect(() => {
   }
 
   const fetchNotifications = async (id: string) => {
-    const res = await fetchWithAuth(`/api/notifications?user_id=${id}`)
+    const res = await fetchWithAuth(`/api/notifications?user_id=${id}&user_role=participant`)
     const data = await res.json()
     setNotifications(data ?? [])
     setUnreadCount(data?.filter((n: any) => !n.is_read).length ?? 0)

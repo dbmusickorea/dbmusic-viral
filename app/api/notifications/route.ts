@@ -23,9 +23,13 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('user_id')
+  const userRole = searchParams.get('user_role')
 
   let query = auth.client.from('notifications').select('*').order('created_at', { ascending: false })
   if (userId) query = query.eq('user_id', userId)
+  // 기존 알림은 role이 비어있음(체험단 시절 기록) -> 체험단 조회 시엔 포함, 의뢰인 조회 시엔 제외
+  if (userRole === 'client') query = query.eq('user_role', 'client')
+  else if (userRole === 'participant') query = query.or('user_role.eq.participant,user_role.is.null')
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error }, { status: 500 })
