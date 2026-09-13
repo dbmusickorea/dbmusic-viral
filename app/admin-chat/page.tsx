@@ -108,7 +108,7 @@ function AdminChatContent() {
         <div className="max-w-2xl md:max-w-none w-full mx-auto p-4 flex-1 flex flex-col overflow-hidden">
           <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
             <div
-              className={`absolute top-1 bottom-1 rounded-md transition-all duration-200 ease-out ${newChatRole === 'client' ? 'bg-purple-600' : 'bg-green-600'}`}
+              className={`absolute top-1 bottom-1 rounded-md transition-all duration-200 ease-out ${newChatRole === 'client' ? 'bg-green-600' : 'bg-blue-600'}`}
               style={{ width: 'calc(50% - 4px)', transform: `translateX(${newChatRole === 'client' ? 'calc(100% + 8px)' : '0px'})` }}
             />
             <button onClick={() => setNewChatRole('participant')} className={`relative z-10 flex-1 py-1.5 text-xs rounded-md font-medium ${newChatRole === 'participant' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>체험단</button>
@@ -158,7 +158,7 @@ function AdminChatContent() {
 
         <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
           <div
-            className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${filter === 'all' ? 'bg-blue-600' : filter === 'client' ? 'bg-purple-600' : 'bg-green-600'}`}
+            className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${filter === 'all' ? 'bg-purple-600' : filter === 'client' ? 'bg-green-600' : 'bg-blue-600'}`}
             style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(filter === 'all' ? 0 : filter === 'client' ? 1 : 2) * 100}%)` }}
           />
           <button onClick={() => setFilter('all')} className={`relative z-10 flex-1 py-1.5 text-xs font-medium rounded-md ${filter === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`}>전체</button>
@@ -192,7 +192,7 @@ function AdminChatContent() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium dark:text-white truncate">{t.name}</p>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full shrink-0 ${t.role === 'participant' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full shrink-0 ${t.role === 'participant' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
                       {t.role === 'participant' ? '체험단' : '의뢰인'}
                     </span>
                   </div>
