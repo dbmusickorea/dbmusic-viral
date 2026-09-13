@@ -779,7 +779,7 @@ export default function MyPage() {
         </div>
         {/* 채팅 첨부파일 캐시 */}
         {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
-          <div className="border dark:border-gray-600 rounded-lg p-3 mb-4 bg-white dark:bg-gray-800">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm font-medium dark:text-white">채팅 첨부파일 캐시</p>
