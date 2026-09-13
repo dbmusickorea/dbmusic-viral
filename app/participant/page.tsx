@@ -6,7 +6,7 @@ import { logCompleteRegistration } from '../lib/fbEvents'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Bell, CheckCircle, Music, Heart, ThumbsUp, ClipboardList, FileText, AlertTriangle, MessageSquare, BarChart2, Target, Wallet, User, Calendar, Briefcase, Trophy } from 'lucide-react'
+import { Bell, CheckCircle, XCircle, Music, Heart, ThumbsUp, ClipboardList, FileText, AlertTriangle, MessageSquare, BarChart2, Target, Wallet, User, Calendar, Briefcase, Trophy } from 'lucide-react'
 import ChatWindow from '../../components/ChatWindow'
 import { encryptText, maskAccount, decryptText } from '../lib/crypto'
 import { Eye, EyeOff } from 'lucide-react'
@@ -118,17 +118,17 @@ export default function Page2() {
   const [participationFilter, setParticipationFilter] = useState<'current' | 'all'>('current')
   const participationFilterBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [participationFilterIndicatorStyle, setParticipationFilterIndicatorStyle] = useState({ left: '0px', width: '0px' })
-  useEffect(() => {
-    const idx = participationFilter === 'current' ? 0 : 1
-    const btn = participationFilterBtnRefs.current[idx]
-    if (btn) setParticipationFilterIndicatorStyle({ left: `${btn.offsetLeft}px`, width: `${btn.offsetWidth}px` })
-  }, [participationFilter])
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [showCommentMission, setShowCommentMission] = useState(false)
   const [isCoverPossible, setIsCoverPossible] = useState(false)
   const [showParticipation, setShowParticipation] = useState(false)
+  useEffect(() => {
+    const idx = participationFilter === 'current' ? 0 : 1
+    const btn = participationFilterBtnRefs.current[idx]
+    if (btn) setParticipationFilterIndicatorStyle({ left: `${btn.offsetLeft}px`, width: `${btn.offsetWidth}px` })
+  }, [participationFilter, myParticipations.length, showParticipation])
   const [showGuide, setShowGuide] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
   const [isCoverApproved, setIsCoverApproved] = useState(false)
@@ -1462,12 +1462,12 @@ useEffect(() => {
                               )}
                             </div>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${
+                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 inline-flex items-center gap-0.5 ${
                             p.status === 'CANCELLED' ? 'bg-red-100 text-red-600' :
-                            p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-600' : 
+                            p.projects?.status === 'COMPLETED' ? 'bg-gray-100 text-gray-500' : 
                             'bg-green-100 text-green-700'
                           }`}>
-                            {p.status === 'CANCELLED' ? '취소됨 ❌' : p.projects?.status === 'COMPLETED' ? '종료 ✅' : '참여중 🟢'}
+                            {p.status === 'CANCELLED' ? <>취소됨 <XCircle size={10} /></> : p.projects?.status === 'COMPLETED' ? '종료' : <>참여중 <CheckCircle size={10} /></>}
                           </span>
                         </div>
                         {p.cover_requested && !p.is_cover && (

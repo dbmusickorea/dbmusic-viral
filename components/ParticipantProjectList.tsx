@@ -23,7 +23,7 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
         <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">진행중인 프로젝트가 없습니다.</p>
       ) : (
         <>
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {allProjects.slice(projectListPage * PAGE_SIZE, (projectListPage + 1) * PAGE_SIZE).map((project) => {
               const isFull = project.max_participants > 0 && (project.current_participants ?? 0) >= project.max_participants
               const isJoined = myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
@@ -53,7 +53,7 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
               }
 
               return (
-                <div key={project.id} className={`border dark:border-gray-600 rounded-lg p-3 cursor-pointer ${projectCode === project.project_code ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'dark:bg-gray-700'}`} onClick={() => {
+                <div key={project.id} className={`rounded-lg p-3 cursor-pointer ${projectCode === project.project_code ? 'bg-blue-50 dark:bg-blue-900' : ''}`} onClick={() => {
                   if (!isCompleted) {
                     if (projectCode === project.project_code) {
                       onDeselectProject()
