@@ -616,8 +616,8 @@ export default function ClientMyPage() {
           </div>
           <div className="w-full md:w-1/2 space-y-4">
             {isInDistributionMode && <div id="dist-payment-slot" className="hidden md:block" />}
-        {/* 알림 설정 (네이티브 앱에서만) */}
-        {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
+        {/* 알림 설정 (네이티브 앱에서만, 유통의뢰인은 아직 알림 이벤트가 없어 숨김) */}
+        {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && !isInDistributionMode && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
           <div className="flex items-center justify-between mb-1">
             <p className="text-sm font-medium dark:text-white">전체 알림</p>
