@@ -15,6 +15,11 @@ export default function AdminMypagePage() {
   const [webPushEnabled, setWebPushEnabled] = useState(false)
   const [cacheSizeMB, setCacheSizeMB] = useState<number | null>(null)
   const [clearingCache, setClearingCache] = useState(false)
+  const [isNative, setIsNative] = useState(false)
+
+  useEffect(() => {
+    setIsNative(!!(window as any).Capacitor?.isNativePlatform?.())
+  }, [])
 
   const calculateCacheSize = async () => {
     if (!(window as any).Capacitor?.isNativePlatform?.()) return
@@ -389,7 +394,7 @@ export default function AdminMypagePage() {
           </div>
 
           {/* 웹 브라우저 알림 */}
-          {typeof window !== 'undefined' && !(window as any).Capacitor?.isNativePlatform?.() && (
+          {!isNative && (
             <button
               onClick={webPushEnabled ? handleDisableWebPush : handleEnableWebPush}
               className={`w-full text-sm rounded-lg py-3 mb-4 ${webPushEnabled ? 'text-gray-600 dark:text-gray-300 border dark:border-gray-600 bg-white dark:bg-gray-800' : 'text-white bg-blue-600'}`}
@@ -399,7 +404,7 @@ export default function AdminMypagePage() {
           )}
 
           {/* 채팅 첨부파일 캐시 */}
-          {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && (
+          {isNative && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
               <div className="flex justify-between items-center">
                 <div>
@@ -416,11 +421,11 @@ export default function AdminMypagePage() {
           {/* 앱버전/업데이트/로그아웃 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <p className="text-xs text-center text-gray-300 mb-3">
-              {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() 
+              {isNative 
                 ? `앱 버전 ${appVersion}` 
                 : '웹 버전'}
             </p>
-            {typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.() && appVersion < minVersion && (
+            {isNative && appVersion < minVersion && (
               <button onClick={async () => {
                 const { Capacitor } = await import('@capacitor/core')
                 const storeUrl = Capacitor.getPlatform() === 'ios'
