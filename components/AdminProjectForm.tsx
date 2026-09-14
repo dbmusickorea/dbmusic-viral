@@ -37,6 +37,9 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
   const [newArtistName, setNewArtistName] = useState('')
   const [addingArtist, setAddingArtist] = useState(false)
   const [isSendingContract, setIsSendingContract] = useState(false)
+  const [showManualDocId, setShowManualDocId] = useState(false)
+  const [manualDocId, setManualDocId] = useState('')
+  const [isSavingManualDocId, setIsSavingManualDocId] = useState(false)
 
   const handleAddArtist = async () => {
     if (!newArtistName.trim() || !formData.selectedClientId || addingArtist) return
@@ -535,6 +538,31 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                             }
                             setIsSendingContract(false)
                           }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:opacity-50">{isSendingContract ? '발송 중...' : '📄 계약서 발송'}</button>
+
+                          {!showManualDocId ? (
+                            <button onClick={() => setShowManualDocId(true)} className="w-full text-xs text-gray-400 dark:text-gray-500 py-2 mt-1">이미 별도로 서명받은 계약서가 있나요? 문서ID로 직접 연결하기</button>
+                          ) : (
+                            <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-2">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">이폼사인에서 이미 서명 완료된 계약서의 문서ID를 입력하면, 새로 발송하지 않고 그 계약서를 의뢰인이 다운로드할 수 있게 연결돼요.</p>
+                              <input value={manualDocId} onChange={(e) => setManualDocId(e.target.value)} placeholder="이폼사인 문서ID 붙여넣기" className={inputClass} />
+                              <div className="flex gap-2">
+                                <button onClick={() => { setShowManualDocId(false); setManualDocId('') }} className="flex-1 border dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-lg py-2 text-sm">취소</button>
+                                <button disabled={isSavingManualDocId || !manualDocId.trim()} onClick={async () => {
+                                  setIsSavingManualDocId(true)
+                                  const totalCost = getTotalCost()
+                                  await fetchWithAuth(`/api/projects?project_code=${formData.projectCode.toUpperCase()}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ document_id: manualDocId.trim(), total_cost: totalCost })
+                                  })
+                                  setIsSavingManualDocId(false)
+                                  setShowManualDocId(false)
+                                  setManualDocId('')
+                                  showToast('계약서가 연결됐어요!')
+                                }} className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm disabled:opacity-50">{isSavingManualDocId ? '저장 중...' : '연결하기'}</button>
+                              </div>
+                            </div>
+                          )}
                         </>
                       ) : (
                         <button onClick={handleInsert} disabled={isSaving} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-400">{isSaving ? '등록 중...' : '프로젝트 등록'}</button>
