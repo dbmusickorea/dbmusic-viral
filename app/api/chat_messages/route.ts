@@ -80,13 +80,17 @@ export async function POST(request: NextRequest) {
       const adminIds = (adminUsers ?? []).map((u: any) => String(u.id))
       const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token').in('user_id', adminIds)
       if (tokens && tokens.length > 0) {
+        const senderName = role === 'participant'
+          ? (await supabaseAdmin.from('participants').select('name').eq('id', user_id).maybeSingle()).data?.name
+          : (await supabaseAdmin.from('users').select('name').eq('id', user_id).maybeSingle()).data?.name
+        const chatUrl = `/admin-chat?open_user_id=${user_id}&open_role=${role}&open_name=${encodeURIComponent(senderName ?? '')}`
         await fetch('https://app.doubleb.kr/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '💬 새 채팅 메시지가 왔어요',
             body: pushBody,
-            data: { url: '/admin-chat' },
+            data: { url: chatUrl },
             tokens: tokens.map((t: any) => t.token),
             userIds: adminIds,
             skipNotificationSave: true

@@ -156,6 +156,12 @@ useEffect(() => {
     setUserInfo(parsed)
     setUserRole(role ?? '')
 
+    // 채팅 푸시로 들어온 경우 자동으로 채팅창 열기
+    if (sessionStorage.getItem('openAdminChat') === '1') {
+      sessionStorage.removeItem('openAdminChat')
+      setShowChat(true)
+    }
+
     // 안읽은 채팅 메시지 개수 (마이페이지 탭 뱃지용)
     if (parsed?.id) {
       fetchWithAuth(`/api/chat_messages?user_id=${parsed.id}&role=participant`)
