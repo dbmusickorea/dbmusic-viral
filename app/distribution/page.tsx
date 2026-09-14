@@ -714,7 +714,7 @@ export default function DistributionPage() {
                   </div>
 
                   {/* 대탭 */}
-                  <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="relative z-0 flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <div
                       className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                       style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(statsMainTab === 'summary' ? 0 : statsMainTab === 'breakdown' ? 1 : 2) * 100}%)` }}
@@ -766,7 +766,7 @@ export default function DistributionPage() {
 
                   {statsMainTab === 'breakdown' && (
                     <>
-                      <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <div
                           className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                           style={{ width: 'calc(50% - 4px)', transform: `translateX(${statsBreakdownTab === 'artist' ? 'calc(100% + 8px)' : '0px'})` }}
@@ -814,7 +814,7 @@ export default function DistributionPage() {
 
                   {statsMainTab === 'store' && (
                     <>
-                      <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <div
                           className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                           style={{ width: 'calc(50% - 4px)', transform: `translateX(${statsStoreTab === 'country' ? 'calc(100% + 8px)' : '0px'})` }}
@@ -891,7 +891,7 @@ export default function DistributionPage() {
                       {isSubmittingWithdraw ? '신청 중...' : '출금 신청하기'}
                     </button>
                   </div>
-                  <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <div
                       className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                       style={{ width: 'calc(50% - 4px)', transform: `translateX(${withdrawTab === 'transactions' ? 'calc(100% + 8px)' : '0px'})` }}

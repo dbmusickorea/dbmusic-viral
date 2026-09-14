@@ -366,7 +366,7 @@ export default function AdminMypagePage() {
           {/* 화면 모드 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
             <p className="text-sm font-medium dark:text-white mb-3">화면 모드</p>
-            <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="relative z-0 flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <div
                 className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                 style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(theme === 'system' ? 0 : theme === 'light' ? 1 : 2) * 100}%)` }}

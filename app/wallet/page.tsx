@@ -462,7 +462,7 @@ export default function WalletPage() {
 
           {showHistory && (
             <div className="mt-4 border-t dark:border-gray-600 pt-4">
-              <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
+              <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
                 <div
                   className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-all duration-200 ease-out"
                   style={{ left: filterIndicatorStyle.left, width: filterIndicatorStyle.width }}

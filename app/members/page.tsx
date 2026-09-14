@@ -56,7 +56,7 @@ function ActivityDetail({ memberId, onUpdate }: { memberId: number, onUpdate?: (
 
   return (
     <div>
-      <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <div className="relative z-0 flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
         <div
           className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
           style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${['missions', 'points', 'penalty'].indexOf(activityTab) * 100}%)` }}
@@ -966,7 +966,7 @@ export default function Page4() {
           </div>
         </div>
 
-        <div className="relative flex mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="relative z-0 flex mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
           <div
             className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${tab === 'participant' ? 'bg-blue-600' : 'bg-green-600'}`}
             style={{ width: 'calc((100% - 8px) / 2)', transform: `translateX(${tab === 'participant' ? 0 : 100}%)` }}
@@ -1048,7 +1048,7 @@ export default function Page4() {
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 <div className="mb-3">
                   <h2 className="font-bold dark:text-white flex items-center gap-1 mb-2"><Users size={16} /> 체험단 목록 <span className="text-sm text-gray-500 font-normal">({filteredParticipants.length}명)</span></h2>
-                  <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
                     <div
                       className={`absolute top-1 bottom-1 rounded-md transition-all duration-200 ease-out ${coverFilter === 'all' ? 'bg-blue-600' : coverFilter === 'pending' ? 'bg-red-600' : coverFilter === 'cover' ? 'bg-purple-600' : coverFilter === 'normal' ? 'bg-gray-600' : 'bg-yellow-600'}`}
                       style={{ left: filterIndicatorStyle.left, width: filterIndicatorStyle.width }}
@@ -1227,7 +1227,7 @@ export default function Page4() {
                   </div>
                 )}
                 {selected && (
-                  <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <div className="relative z-0 flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
                     <div
                       className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                       style={{ width: 'calc((100% - 8px) / 2)', transform: `translateX(${memberDetailTab === 'activity' ? 0 : 100}%)` }}

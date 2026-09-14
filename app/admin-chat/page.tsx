@@ -106,7 +106,7 @@ function AdminChatContent() {
           </div>
         </div>
         <div className="max-w-2xl md:max-w-none w-full mx-auto p-4 flex-1 flex flex-col overflow-hidden">
-          <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
+          <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3">
             <div
               className={`absolute top-1 bottom-1 rounded-md transition-all duration-200 ease-out ${newChatRole === 'client' ? 'bg-green-600' : 'bg-blue-600'}`}
               style={{ width: 'calc(50% - 4px)', transform: `translateX(${newChatRole === 'client' ? 'calc(100% + 8px)' : '0px'})` }}
@@ -156,7 +156,7 @@ function AdminChatContent() {
           </div>
         </div>
 
-        <div className="relative flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="relative z-0 flex mb-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
           <div
             className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${filter === 'all' ? 'bg-purple-600' : filter === 'client' ? 'bg-green-600' : 'bg-blue-600'}`}
             style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(filter === 'all' ? 0 : filter === 'client' ? 1 : 2) * 100}%)` }}

@@ -537,7 +537,7 @@ export default function DistributionAdminPage() {
           <h1 className="text-xl font-bold dark:text-white">유통 서비스 관리</h1>
         </div>
 
-        <div className="relative flex mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="relative z-0 flex mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
           <div
             className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
             style={{ width: 'calc((100% - 8px) / 4)', transform: `translateX(${['requests', 'artists', 'albums', 'withdrawals'].indexOf(activeTab) * 100}%)` }}

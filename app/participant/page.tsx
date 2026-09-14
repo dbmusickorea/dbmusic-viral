@@ -1410,7 +1410,7 @@ useEffect(() => {
               return (
                 <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                   <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><CheckCircle size={16} /> 내 참여 현황</h2>
-                  <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
+                  <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
                     <div
                       className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-all duration-200 ease-out"
                       style={{ left: participationFilterIndicatorStyle.left, width: participationFilterIndicatorStyle.width }}

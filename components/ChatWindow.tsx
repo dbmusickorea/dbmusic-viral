@@ -836,7 +836,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           </div>
 
           <div className="w-full md:max-w-7xl md:mx-auto p-3 shrink-0">
-            <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="relative z-0 flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <div
                 className="absolute top-1 bottom-1 left-1 bg-blue-600 rounded-md transition-transform duration-200 ease-out"
                 style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(galleryTab === 'media' ? 0 : galleryTab === 'files' ? 1 : 2) * 100}%)` }}

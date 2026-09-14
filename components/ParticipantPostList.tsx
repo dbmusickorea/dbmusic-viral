@@ -63,7 +63,7 @@ export default function ParticipantPostList({ displayPosts, instagramPosts, yout
         <h2 className="font-bold dark:text-white flex items-center gap-1"><BarChart2 size={16} /> 나의 게시물 현황</h2>
         <button onClick={() => setShowPosts(!showPosts)} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded-lg px-2 py-1">{showPosts ? '숨기기' : '금액 내역 보기'}</button>
       </div>
-      <div className="relative flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
+      <div className="relative z-0 flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-3">
         <div
           className="absolute top-1 bottom-1 bg-blue-600 rounded-md transition-all duration-200 ease-out"
           style={{ left: filterIndicatorStyle.left, width: filterIndicatorStyle.width }}

@@ -24,7 +24,7 @@ export default function AdminPushSection({ pushTarget, setPushTarget, pushTitle,
         <div className="space-y-3">
           <div>
             <label className="text-sm font-medium dark:text-white">발송 대상</label>
-            <div className="relative flex mt-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+            <div className="relative z-0 flex mt-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <div
                 className={`absolute top-1 bottom-1 left-1 rounded-md transition-transform duration-200 ease-out ${pushTarget === 'all' ? 'bg-purple-600' : pushTarget === 'participant' ? 'bg-blue-600' : 'bg-green-600'}`}
                 style={{ width: 'calc((100% - 8px) / 3)', transform: `translateX(${(pushTarget === 'all' ? 0 : pushTarget === 'participant' ? 1 : 2) * 100}%)` }}
