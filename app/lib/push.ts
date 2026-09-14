@@ -46,7 +46,7 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
           if (url.searchParams.get('open_chat') === '1') {
             sessionStorage.setItem('openAdminChat', '1')
           }
-          window.location.href = url.pathname
+          window.location.href = url.pathname + url.search
         } else if (data?.page || data?.data?.page) {
           window.location.href = data?.page || data?.data?.page
         }
