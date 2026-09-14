@@ -456,6 +456,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       {selectedProject ? (
                         <>
                           <button onClick={handleUpdate} disabled={isSaving} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium mb-2 disabled:bg-gray-400">{isSaving ? '저장 중...' : '정보 수정하기'}</button>
+                          {!selectedProject?.document_id && (
                           <button disabled={isSendingContract} onClick={async () => {
                             if (!formData.selectedClientId) { showToast('의뢰인을 선택해주세요.'); return }
                             if (isSendingContract) return
@@ -538,13 +539,27 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                             }
                             setIsSendingContract(false)
                           }} className="w-full bg-purple-600 text-white rounded-lg py-2 font-medium disabled:opacity-50">{isSendingContract ? '발송 중...' : '📄 계약서 발송'}</button>
+                          )}
+
+                          {selectedProject?.document_id && !showManualDocId && (
+                            <p className="text-xs text-green-600 dark:text-green-400 text-center py-2">✓ 계약서가 연결돼있어요</p>
+                          )}
 
                           {!showManualDocId ? (
-                            <button onClick={() => setShowManualDocId(true)} className="w-full text-xs text-gray-400 dark:text-gray-500 py-2 mt-1">이미 별도로 서명받은 계약서가 있나요? 문서ID로 직접 연결하기</button>
+                            <button onClick={() => setShowManualDocId(true)} className="w-full text-xs text-gray-400 dark:text-gray-500 py-2 mt-1">{selectedProject?.document_id ? '연결된 계약서 문서ID 바꾸기' : '이미 별도로 서명받은 계약서가 있나요? 문서ID로 직접 연결하기'}</button>
                           ) : (
                             <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-2">
                               <p className="text-xs text-gray-500 dark:text-gray-400">이폼사인에서 이미 서명 완료된 계약서의 문서ID를 입력하면, 새로 발송하지 않고 그 계약서를 의뢰인이 다운로드할 수 있게 연결돼요.</p>
-                              <input value={manualDocId} onChange={(e) => setManualDocId(e.target.value)} placeholder="이폼사인 문서ID 붙여넣기" className={inputClass} />
+                              <input value={manualDocId} onChange={(e) => {
+                                const raw = e.target.value
+                                try {
+                                  const url = new URL(raw)
+                                  const idFromUrl = url.searchParams.get('document_id')
+                                  setManualDocId(idFromUrl ?? raw)
+                                } catch {
+                                  setManualDocId(raw)
+                                }
+                              }} placeholder="이폼사인 문서ID 또는 링크 통째로 붙여넣기" className={inputClass} />
                               <div className="flex gap-2">
                                 <button onClick={() => { setShowManualDocId(false); setManualDocId('') }} className="flex-1 border dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-lg py-2 text-sm">취소</button>
                                 <button disabled={isSavingManualDocId || !manualDocId.trim()} onClick={async () => {
