@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import Sidebar from '../../components/Sidebar'
-import { Eye, EyeOff, RefreshCw, Link, Disc3 } from 'lucide-react'
+import { Eye, EyeOff, RefreshCw, Link, Disc3, Lock, Fingerprint, Delete } from 'lucide-react'
+import { getLockSettings, setLockEnabled as saveLockEnabled, isBiometricAvailable, setLockPin, clearLockPin, LockMethod } from '../lib/appLock'
 
 export default function AdminMypagePage() {
   const router = useRouter()
@@ -97,11 +98,85 @@ export default function AdminMypagePage() {
   }
   const [showSidebar, setShowSidebar] = useState(false)
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system')
+  const [lockEnabled, setLockEnabledUi] = useState(false)
+  const [lockMethod, setLockMethodUi] = useState<LockMethod | null>(null)
+  const [showLockChooser, setShowLockChooser] = useState(false)
+  const [showPinSetup, setShowPinSetup] = useState(false)
+  const [pinSetupStep, setPinSetupStep] = useState<'enter' | 'confirm'>('enter')
+  const [pinValue, setPinValue] = useState('')
+  const [pinFirstEntry, setPinFirstEntry] = useState('')
+  const [pinError, setPinError] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
     setTheme(saved ?? 'system')
   }, [])
+
+  useEffect(() => {
+    const settings = getLockSettings()
+    setLockEnabledUi(settings.enabled)
+    setLockMethodUi(settings.method)
+  }, [])
+
+  const handleToggleAppLock = async () => {
+    if (lockEnabled) {
+      if (lockMethod === 'pin') await clearLockPin()
+      saveLockEnabled(false, null)
+      setLockEnabledUi(false)
+      setLockMethodUi(null)
+    } else {
+      setShowLockChooser(true)
+    }
+  }
+
+  const handleChooseBiometric = async () => {
+    const available = await isBiometricAvailable()
+    if (!available) { showToast('이 기기에서 생체인증을 사용할 수 없어요.'); return }
+    saveLockEnabled(true, 'biometric')
+    setLockEnabledUi(true)
+    setLockMethodUi('biometric')
+    setShowLockChooser(false)
+    showToast('앱 잠금이 켜졌어요!')
+  }
+
+  const handleChoosePin = () => {
+    setShowLockChooser(false)
+    setPinSetupStep('enter')
+    setPinValue('')
+    setPinFirstEntry('')
+    setPinError(false)
+    setShowPinSetup(true)
+  }
+
+  const handlePinDigit = async (digit: string) => {
+    if (pinValue.length >= 4) return
+    const next = pinValue + digit
+    setPinValue(next)
+    if (next.length === 4) {
+      if (pinSetupStep === 'enter') {
+        setPinFirstEntry(next)
+        setPinSetupStep('confirm')
+        setPinValue('')
+      } else {
+        if (next === pinFirstEntry) {
+          await setLockPin(next)
+          saveLockEnabled(true, 'pin')
+          setLockEnabledUi(true)
+          setLockMethodUi('pin')
+          setShowPinSetup(false)
+          showToast('앱 잠금이 켜졌어요!')
+        } else {
+          setPinError(true)
+          setTimeout(() => {
+            setPinError(false)
+            setPinValue('')
+            setPinSetupStep('enter')
+            setPinFirstEntry('')
+          }, 600)
+        }
+      }
+    }
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -362,6 +437,58 @@ export default function AdminMypagePage() {
               </div>
             </div>
           </div>
+
+          {/* 앱 잠금 (네이티브 앱 + 1.7 버전부터만) */}
+          {isNative && appVersion >= '1.7' && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lock size={16} className="text-gray-500 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm font-medium dark:text-white">앱 잠금</p>
+                  <p className="text-xs text-gray-400">{lockEnabled ? (lockMethod === 'biometric' ? '생체인증 사용 중' : '비밀번호 사용 중') : '앱을 열 때마다 잠금화면 표시'}</p>
+                </div>
+              </div>
+              <button onClick={handleToggleAppLock} className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${lockEnabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${lockEnabled ? 'translate-x-5' : ''}`} />
+              </button>
+            </div>
+
+            {showLockChooser && (
+              <div className="mt-3 pt-3 border-t dark:border-gray-700 space-y-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">잠금 방식을 선택해주세요</p>
+                <button onClick={handleChooseBiometric} className="w-full flex items-center gap-2 border dark:border-gray-600 rounded-lg py-2.5 px-3 text-sm dark:text-white">
+                  <Fingerprint size={16} /> 생체인증 사용 (Face ID/지문)
+                </button>
+                <button onClick={handleChoosePin} className="w-full flex items-center gap-2 border dark:border-gray-600 rounded-lg py-2.5 px-3 text-sm dark:text-white">
+                  <Lock size={16} /> 비밀번호(4자리) 설정
+                </button>
+                <button onClick={() => setShowLockChooser(false)} className="w-full text-center text-xs text-gray-400 py-1">취소</button>
+              </div>
+            )}
+
+            {showPinSetup && (
+              <div className="fixed inset-0 z-[100] bg-white dark:bg-gray-900 flex flex-col items-center justify-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{pinSetupStep === 'enter' ? '새 비밀번호 4자리를 입력해주세요' : '한 번 더 입력해주세요'}</p>
+                <div className="flex gap-3 mb-8">
+                  {Array.from({ length: 4 }, (_, i) => (
+                    <div key={i} className={`w-3 h-3 rounded-full ${pinError ? 'bg-red-500' : i < pinValue.length ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  {['1','2','3','4','5','6','7','8','9'].map(n => (
+                    <button key={n} onClick={() => handlePinDigit(n)} className="w-16 h-16 rounded-full text-xl font-medium text-gray-800 dark:text-white active:bg-gray-100 dark:active:bg-gray-800">{n}</button>
+                  ))}
+                  <button onClick={() => setShowPinSetup(false)} className="w-16 h-16 rounded-full text-sm text-gray-400">취소</button>
+                  <button onClick={() => handlePinDigit('0')} className="w-16 h-16 rounded-full text-xl font-medium text-gray-800 dark:text-white active:bg-gray-100 dark:active:bg-gray-800">0</button>
+                  <button onClick={() => setPinValue(prev => prev.slice(0, -1))} className="w-16 h-16 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800">
+                    <Delete size={20} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          )}
 
           {/* 화면 모드 */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 mb-4">
