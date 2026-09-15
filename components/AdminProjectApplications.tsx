@@ -26,8 +26,11 @@ export default function AdminProjectApplications({ projectApplications, onApprov
                   <p className="text-xs text-gray-500 dark:text-gray-400">{app.client_name} · {new Date(app.created_at).toLocaleDateString('ko-KR')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">희망 미션일: {app.mission_date ?? '미정'}</p>
                   {app.has_cover && <p className="text-xs text-purple-600">커버 옵션: {app.cover_count}명</p>}
+                  {app.budget != null && <p className="text-xs text-gray-500 dark:text-gray-400">책정 예산: {Number(app.budget).toLocaleString()}원</p>}
                   {app.requirements && <p className="text-xs text-gray-600 mt-1">{app.requirements}</p>}
                   {app.jacket_image && <img src={app.jacket_image} className="w-16 h-16 rounded-lg object-cover mt-1" />}
+                  {app.cover_audio_path && <a href={app.cover_audio_path} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline block mt-1">🎵 원곡 음원 듣기</a>}
+                  {app.cover_mr_path && <a href={app.cover_mr_path} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline block">🎼 MR 파일 다운로드</a>}
                 </div>
                 <div className="flex flex-col gap-1 shrink-0 ml-2">
                   <span className={`text-xs px-2 py-1 rounded-full text-center ${app.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : app.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'}`}>
