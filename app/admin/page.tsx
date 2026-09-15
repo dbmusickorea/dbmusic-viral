@@ -127,7 +127,14 @@ export default function Page1() {
   const fetchProjectApplications = async () => {
     const res = await fetchWithAuth('/api/project_applications')
     const data = await res.json()
-    setProjectApplications(data ?? [])
+    // 채팅/전화연결을 위해 client_id로 의뢰인 user id, 연락처 매칭
+    const clientsRes = await fetchWithAuth('/api/users?role=client')
+    const clientsData = await clientsRes.json()
+    const merged = (data ?? []).map((app: any) => {
+      const client = clientsData?.find((c: any) => c.client_id === app.client_id)
+      return { ...app, client_user_id: client?.id ?? null, client_mobile: client?.mobile ?? null }
+    })
+    setProjectApplications(merged)
   }
 
   const fetchUnlockVideos = async () => {
