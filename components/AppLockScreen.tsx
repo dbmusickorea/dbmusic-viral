@@ -32,7 +32,7 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
   }, [method])
 
   useEffect(() => {
-    if (method === 'pin' && pin.length === 6) {
+    if (method === 'pin' && pin.length === 4) {
       verifyLockPin(pin).then(ok => {
         if (ok) {
           onUnlock()
@@ -46,7 +46,7 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
   }, [pin, method])
 
   const handleKeyPress = (num: string) => {
-    if (pin.length >= 6) return
+    if (pin.length >= 4) return
     setPin(prev => prev + num)
   }
 
@@ -66,7 +66,7 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
         <div className="flex flex-col items-center gap-6">
           <p className="text-sm text-gray-500 dark:text-gray-400">비밀번호를 입력해주세요</p>
           <div className="flex gap-3">
-            {Array.from({ length: 6 }, (_, i) => (
+            {Array.from({ length: 4 }, (_, i) => (
               <div key={i} className={`w-3 h-3 rounded-full ${error ? 'bg-red-500' : i < pin.length ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
             ))}
           </div>
