@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react'
 import { BookOpen, MessageSquare, FileText, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, BarChart2, Target, Wallet, User, Briefcase, Lock, Fingerprint, Delete } from 'lucide-react'
-import { getLockSettings, setLockEnabled as saveLockEnabled, isBiometricAvailable, setLockPin, clearLockPin, LockMethod } from '../lib/appLock'
+import { getLockSettings, setLockEnabled as saveLockEnabled, isBiometricAvailable, authenticateBiometric, setLockPin, clearLockPin, LockMethod } from '../lib/appLock'
 import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
@@ -68,6 +68,8 @@ export default function MyPage() {
   const handleChooseBiometric = async () => {
     const available = await isBiometricAvailable()
     if (!available) { showToast('이 기기에서 생체인증을 사용할 수 없어요.'); return }
+    const verified = await authenticateBiometric('앱 잠금에 사용할 생체인증을 확인해주세요.')
+    if (!verified) { showToast('인증에 실패했어요.'); return }
     saveLockEnabled(true, 'biometric')
     setLockEnabledUi(true)
     setLockMethodUi('biometric')

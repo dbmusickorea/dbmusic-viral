@@ -15,6 +15,7 @@
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		ED26DBF630596484002111BA /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED26DBF530596484002111BA /* SceneDelegate.swift */; };
 		ED423BE92FF9345F00B0C0C9 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = ED423BE82FF9345F00B0C0C9 /* FirebaseMessaging */; };
 		ED6592852FFFF0C20078E96C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED6592842FFFF0C20078E96C /* GoogleService-Info.plist */; };
 		ED7BF7363039D20400C861A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED7BF7353039D20400C861A3 /* WidgetKit.framework */; };
@@ -61,6 +62,7 @@
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		ED26DBF530596484002111BA /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		ED423BE42FF9326200B0C0C9 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		ED6592842FFFF0C20078E96C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED7BF7333039D20400C861A3 /* DBMusicWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DBMusicWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,6 +136,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				ED26DBF530596484002111BA /* SceneDelegate.swift */,
 				ED7BF753303A03F700C861A3 /* MyBridgeViewController.swift */,
 				ED7BF74E3039D6FB00C861A3 /* WidgetDataPlugin.swift */,
 				ED6592842FFFF0C20078E96C /* GoogleService-Info.plist */,
@@ -284,6 +287,7 @@
 				ED7BF74F3039D6FC00C861A3 /* WidgetDataPlugin.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				ED7BF754303A040900C861A3 /* MyBridgeViewController.swift in Sources */,
+				ED26DBF630596484002111BA /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,7 +446,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 9DQVZF23SL;
 				INFOPLIST_FILE = App/Info.plist;
@@ -472,7 +476,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 9DQVZF23SL;
 				INFOPLIST_FILE = App/Info.plist;
