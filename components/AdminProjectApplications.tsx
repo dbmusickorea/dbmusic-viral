@@ -25,7 +25,9 @@ export default function AdminProjectApplications({ projectApplications, onApprov
                   <p className="text-sm font-medium dark:text-white">{app.artist_name} / {app.song_title}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{app.client_name} · {new Date(app.created_at).toLocaleDateString('ko-KR')}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">희망 미션일: {app.mission_date ?? '미정'}</p>
-                  {app.has_cover && <p className="text-xs text-purple-600">커버 옵션: {app.cover_count}명</p>}
+                  {app.has_cover && (
+                    <p className="text-xs text-purple-600">커버 희망 · 인원 {app.cover_count > 0 ? `${app.cover_count}명` : '미정'}</p>
+                  )}
                   {app.budget != null && <p className="text-xs text-gray-500 dark:text-gray-400">책정 예산: {Number(app.budget).toLocaleString()}원</p>}
                   {app.requirements && <p className="text-xs text-gray-600 mt-1">{app.requirements}</p>}
                   {app.jacket_image && <img src={app.jacket_image} className="w-16 h-16 rounded-lg object-cover mt-1" />}
