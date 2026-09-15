@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToastProvider } from "../components/ToastContext";
 import DarkModeInit from "../components/DarkModeInit";
 import GlobalErrorLogger from "../components/GlobalErrorLogger";
+import AppLockGate from "../components/AppLockGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,7 +71,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <DarkModeInit />
         <GlobalErrorLogger />
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <AppLockGate>{children}</AppLockGate>
+        </ToastProvider>
       </body>
     </html>
   );

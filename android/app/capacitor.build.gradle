@@ -19,6 +19,7 @@ dependencies {
     implementation project(':capacitor-splash-screen')
     implementation project(':capawesome-capacitor-badge')
     implementation project(':capawesome-capacitor-settings-launcher')
+    implementation project(':capgo-capacitor-native-biometric')
 
 }
 

@@ -31,3 +31,6 @@ project(':capawesome-capacitor-badge').projectDir = new File('../node_modules/@c
 
 include ':capawesome-capacitor-settings-launcher'
 project(':capawesome-capacitor-settings-launcher').projectDir = new File('../node_modules/@capawesome/capacitor-settings-launcher/android')
+
+include ':capgo-capacitor-native-biometric'
+project(':capgo-capacitor-native-biometric').projectDir = new File('../node_modules/@capgo/capacitor-native-biometric/android')
