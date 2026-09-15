@@ -90,8 +90,13 @@ export default function WalletPage() {
 
   const loadData = async (id: number) => {
     setLoading(true)
-    const res = await fetchWithAuth(`/api/participant-data?id=${id}`)
+    // 서로 의존관계 없는 두 호출을 병렬로 처리해서 로딩 시간 단축
+    const [res, phRes] = await Promise.all([
+      fetchWithAuth(`/api/participant-data?id=${id}`),
+      fetchWithAuth(`/api/point_history?member_id=${id}`)
+    ])
     const data = await res.json()
+    const phData = await phRes.json()
     const participant = data.participant
 
     setBalance(participant?.balance ?? 0)
@@ -100,28 +105,30 @@ export default function WalletPage() {
     setCoverReward(participant?.cover_reward ?? 0)
     setPosts(data.posts ?? [])
     setSettlements(data.settlements ?? [])
-    
-    const phRes = await fetchWithAuth(`/api/point_history?member_id=${id}`)
-    const phData = await phRes.json()
     setPointHistory(phData ?? [])
 
     // 환전 가능 금액: API에서 실제 point_history 기록 기준으로 정확히 계산되어 내려옴
     // (친구추천 등 프로젝트 무관 내역은 항상 포함, 프로젝트 관련 내역은 해당 프로젝트 종료 시에만 포함)
     setAvailableBalance(data.withdrawableBalance ?? 0)
 
-    if (data.posts && data.posts.length > 0) {
-      const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
-      const projectsRes = await fetchWithAuth(`/api/projects?codes=${codes.join(',')}`)
-      const projects = await projectsRes.json()
+    // 나머지 두 호출도 서로 의존관계 없이 병렬로 처리
+    const projectsPromise = (data.posts && data.posts.length > 0)
+      ? (() => {
+          const codes = [...new Set(data.posts.map((p: any) => p.project_code))]
+          return fetchWithAuth(`/api/projects?codes=${codes.join(',')}`).then(r => r.json())
+        })()
+      : Promise.resolve(null)
+    const referredPromise = fetchWithAuth(`/api/participants?referred_by=${participant?.referral_code}`).then(r => r.json())
+
+    const [projects, refData] = await Promise.all([projectsPromise, referredPromise])
+
+    if (projects) {
       const map: any = {}
       projects?.forEach((p: any) => { map[p.project_code.toUpperCase()] = p })
       setProjectsMap(map)
     }
-    setLoading(false)
-    // 추천 내역
-    const refRes = await fetchWithAuth(`/api/participants?referred_by=${participant?.referral_code}`)
-    const refData = await refRes.json()
     setReferredUsers(refData?.filter((u: any) => u.id !== id) ?? [])
+    setLoading(false)
   }
 
   const handleLogout = () => {
