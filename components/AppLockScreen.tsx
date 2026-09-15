@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { Fingerprint, Delete } from 'lucide-react'
-import { authenticateBiometric, verifyLockPin, LockMethod } from '../app/lib/appLock'
+import { Fingerprint, ScanFace, Delete } from 'lucide-react'
+import { authenticateBiometric, verifyLockPin, getBiometricKind, LockMethod } from '../app/lib/appLock'
 
 type Props = {
   method: LockMethod
@@ -12,7 +12,12 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
   const [pin, setPin] = useState('')
   const [error, setError] = useState(false)
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [biometricKind, setBiometricKind] = useState<'face' | 'fingerprint' | 'other' | null>(null)
   const triedOnce = useRef(false)
+
+  useEffect(() => {
+    if (method === 'biometric') getBiometricKind().then(setBiometricKind)
+  }, [method])
 
   const tryBiometric = async () => {
     setIsAuthenticating(true)
@@ -57,7 +62,11 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
       {method === 'biometric' ? (
         <div className="flex flex-col items-center gap-4">
           <button onClick={tryBiometric} disabled={isAuthenticating} className="w-20 h-20 rounded-full bg-blue-50 dark:bg-gray-800 flex items-center justify-center">
-            <Fingerprint size={40} className="text-blue-600 dark:text-blue-400" />
+            {biometricKind === 'face' ? (
+              <ScanFace size={40} className="text-blue-600 dark:text-blue-400" />
+            ) : (
+              <Fingerprint size={40} className="text-blue-600 dark:text-blue-400" />
+            )}
           </button>
           <p className="text-sm text-gray-500 dark:text-gray-400">{isAuthenticating ? '인증 중...' : '터치하여 잠금 해제'}</p>
           {error && <p className="text-xs text-red-500">인증에 실패했어요. 다시 시도해주세요.</p>}

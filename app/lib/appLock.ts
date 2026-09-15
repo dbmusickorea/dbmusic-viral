@@ -35,6 +35,21 @@ export async function isBiometricAvailable(): Promise<boolean> {
   }
 }
 
+// 'face' | 'fingerprint' | 'other' | null(확인 불가)
+export async function getBiometricKind(): Promise<'face' | 'fingerprint' | 'other' | null> {
+  if (!isNative()) return null
+  try {
+    const { NativeBiometric, BiometryType } = await import('@capgo/capacitor-native-biometric')
+    const result = await NativeBiometric.isAvailable({ useFallback: false })
+    if (result.biometryType === BiometryType.FACE_ID || result.biometryType === BiometryType.FACE_AUTHENTICATION) return 'face'
+    if (result.biometryType === BiometryType.TOUCH_ID || result.biometryType === BiometryType.FINGERPRINT) return 'fingerprint'
+    if (result.biometryType === BiometryType.NONE) return null
+    return 'other'
+  } catch {
+    return null
+  }
+}
+
 export async function authenticateBiometric(reason?: string): Promise<boolean> {
   if (!isNative()) return false
   try {

@@ -740,6 +740,16 @@ export default function ClientMyPage() {
             </button>
           </div>
 
+          {lockEnabled && !showLockChooser && !showPinSetup && (
+            <div className="mt-3 pt-3 border-t dark:border-gray-700 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {lockMethod === 'biometric' ? <Fingerprint size={14} className="text-gray-400" /> : <Lock size={14} className="text-gray-400" />}
+                <p className="text-xs text-gray-500 dark:text-gray-400">현재 방식: {lockMethod === 'biometric' ? '생체인증' : '비밀번호'}</p>
+              </div>
+              <button onClick={() => setShowLockChooser(true)} className="text-xs text-blue-600 dark:text-blue-400">변경</button>
+            </div>
+          )}
+
           {showLockChooser && (
             <div className="mt-3 pt-3 border-t dark:border-gray-700 space-y-2">
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">잠금 방식을 선택해주세요</p>
