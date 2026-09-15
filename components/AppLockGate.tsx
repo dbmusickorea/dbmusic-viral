@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import AppLockScreen from './AppLockScreen'
-import { getLockSettings, LockMethod } from '../app/lib/appLock'
+import { getLockSettings, biometricAuthInProgress, LockMethod } from '../app/lib/appLock'
 
 export default function AppLockGate({ children }: { children: React.ReactNode }) {
   const [isLocked, setIsLocked] = useState(false)
@@ -24,6 +24,9 @@ export default function AppLockGate({ children }: { children: React.ReactNode })
     import('@capacitor/app').then(({ App }) => {
       App.addListener('resume', () => {
         if (isLockedRef.current) return
+        // 안드로이드는 생체인증 팝업 자체가 진짜 pause/resume을 유발하므로,
+        // 우리 앱이 직접 인증을 요청해서 생긴 재개 신호는 무시
+        if (biometricAuthInProgress.current) return
         const s = getLockSettings()
         setMethod(s.method)
         if (s.enabled) {

@@ -5,6 +5,12 @@
 
 const PIN_STORAGE_KEY = 'app_lock_pin'
 
+// 생체인증 진행 중 여부를 앱 전역에서 공유하는 플래그.
+// 안드로이드는 생체인증 팝업 자체가 Activity의 진짜 onPause/onResume을 유발하기 때문에,
+// AppLockScreen이 인증을 요청하는 동안에는 AppLockGate가 그 재개 신호를 무시하도록
+// 이 플래그로 신호를 전달함
+export const biometricAuthInProgress = { current: false }
+
 export type LockMethod = 'biometric' | 'pin'
 
 function isNative(): boolean {

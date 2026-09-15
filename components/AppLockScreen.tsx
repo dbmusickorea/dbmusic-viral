@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { Fingerprint, ScanFace, Delete } from 'lucide-react'
-import { authenticateBiometric, verifyLockPin, getBiometricKind, LockMethod } from '../app/lib/appLock'
+import { authenticateBiometric, verifyLockPin, getBiometricKind, biometricAuthInProgress, LockMethod } from '../app/lib/appLock'
 
 type Props = {
   method: LockMethod
@@ -22,7 +22,9 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
   const tryBiometric = async () => {
     setIsAuthenticating(true)
     setError(false)
+    biometricAuthInProgress.current = true
     const ok = await authenticateBiometric()
+    biometricAuthInProgress.current = false
     setIsAuthenticating(false)
     if (ok) onUnlock()
     else setError(true)
