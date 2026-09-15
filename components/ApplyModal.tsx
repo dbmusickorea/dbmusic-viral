@@ -23,14 +23,17 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
   const [applyJacketFile, setApplyJacketFile] = useState<File | null>(null)
   const [applyAudioFile, setApplyAudioFile] = useState<File | null>(null)
   const [applyMrFile, setApplyMrFile] = useState<File | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!show) return null
 
   const handleSubmit = async () => {
+    if (isSubmitting) return
     if (!applyArtistName || !applySongTitle) {
       showToast ? showToast('가수명과 노래 제목을 입력해주세요.', 'error') : alert('가수명과 노래 제목을 입력해주세요.')
       return
     }
+    setIsSubmitting(true)
     let jacketImageUrl = null
     if (applyJacketFile) {
       const { data, error } = await supabase.storage
@@ -77,6 +80,23 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
       }
     }
 
+    // 관리자에게 푸시 알림 발송
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
+    const adminTokens = await adminTokensRes.json()
+    const adminUsersRes = await fetchWithAuth('/api/users?role=admin')
+    const adminUsers = await adminUsersRes.json()
+    const adminUserIds = adminUsers?.map((u: any) => String(u.id)) ?? []
+    await fetch('/api/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '📋 새 프로젝트 신청',
+        body: `${userInfo?.name ?? '의뢰인'}님이 프로젝트를 신청했어요: ${applyArtistName} - ${applySongTitle}`,
+        tokens: adminTokens?.map((t: any) => t.token) ?? [],
+        userIds: adminUserIds
+      })
+    })
+
     showToast ? showToast('프로젝트 신청이 완료됐어요!') : alert('프로젝트 신청이 완료됐어요!')
     onClose()
     setApplyArtistName('')
@@ -89,6 +109,7 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
     setApplyJacketFile(null)
     setApplyAudioFile(null)
     setApplyMrFile(null)
+    setIsSubmitting(false)
   }
 
   return (
@@ -145,7 +166,7 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
             <label className="text-sm font-medium dark:text-white">요청사항</label>
             <textarea value={applyRequirements} onChange={(e) => setApplyRequirements(e.target.value)} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400" rows={4} placeholder="요청사항 입력" />
           </div>
-          <button onClick={handleSubmit} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">신청하기</button>
+          <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium disabled:opacity-50">{isSubmitting ? "신청 중..." : "신청하기"}</button>
         </div>
       </div>
     </div>

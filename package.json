@@ -23,6 +23,7 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capawesome/capacitor-badge": "^8.0.2",
     "@capawesome/capacitor-settings-launcher": "^0.1.2",
+    "@capgo/capacitor-native-biometric": "^8.6.8",
     "@portone/browser-sdk": "^0.1.9",
     "@supabase/supabase-js": "^2.110.0",
     "@types/bcryptjs": "^2.4.6",
