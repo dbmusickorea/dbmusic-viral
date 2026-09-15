@@ -20,24 +20,43 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-    <dict>
-    <key>CFBundleTypeRole</key>
-    <string>Editor</string>
-    <key>CFBundleURLSchemes</key>
-    <array>
-    <string>dbmusic</string>
-    <string>fb1971917726837424</string>
-    </array>
-    </dict>
-    </array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dbmusic</string>
+				<string>fb1971917726837424</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FacebookAppID</key>
+	<string>1971917726837424</string>
+	<key>FacebookClientToken</key>
+	<string>25f1a09cf79da7301d424a95742dfe1a</string>
+	<key>FacebookDisplayName</key>
+	<string>더블비뮤직</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>채팅에서 사진이나 동영상을 촬영해 보내기 위해 카메라 접근이 필요해요.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>채팅에서 동영상을 촬영해 보내기 위해 마이크 접근이 필요해요.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>채팅에서 받은 사진을 사진첩에 저장하기 위해 접근이 필요해요.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>채팅에서 받은 사진을 사진첩에 저장하기 위해 접근이 필요해요.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -65,24 +84,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    <key>FacebookAppID</key>
-    <string>1971917726837424</string>
-    <key>FacebookClientToken</key>
-    <string>25f1a09cf79da7301d424a95742dfe1a</string>
-    <key>FacebookDisplayName</key>
-    <string>더블비뮤직</string>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>fbapi</string>
-        <string>fb-messenger-share-api</string>
-    </array>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>채팅에서 받은 사진을 사진첩에 저장하기 위해 접근이 필요해요.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>채팅에서 받은 사진을 사진첩에 저장하기 위해 접근이 필요해요.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>채팅에서 사진이나 동영상을 촬영해 보내기 위해 카메라 접근이 필요해요.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>채팅에서 동영상을 촬영해 보내기 위해 마이크 접근이 필요해요.</string>
 </dict>
 </plist>
