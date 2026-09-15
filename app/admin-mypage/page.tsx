@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
 import AdminBottomNav from '../../components/AdminBottomNav'
 import Sidebar from '../../components/Sidebar'
-import { Eye, EyeOff, RefreshCw, Link, Disc3, Lock, Fingerprint, Delete } from 'lucide-react'
-import { getLockSettings, setLockEnabled as saveLockEnabled, isBiometricAvailable, authenticateBiometric, setLockPin, clearLockPin, LockMethod } from '../lib/appLock'
+import { Eye, EyeOff, RefreshCw, Link, Disc3, Lock, Fingerprint, Delete, ScanFace } from 'lucide-react'
+import { getLockSettings, setLockEnabled as saveLockEnabled, isBiometricAvailable, authenticateBiometric, getBiometricKind, setLockPin, clearLockPin, LockMethod } from '../lib/appLock'
 
 export default function AdminMypagePage() {
   const router = useRouter()
@@ -106,6 +106,7 @@ export default function AdminMypagePage() {
   const [pinValue, setPinValue] = useState('')
   const [pinFirstEntry, setPinFirstEntry] = useState('')
   const [pinError, setPinError] = useState(false)
+  const [biometricKind, setBiometricKind] = useState<'face' | 'fingerprint' | 'other' | null>(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('theme') as 'system' | 'light' | 'dark' | null
@@ -116,6 +117,7 @@ export default function AdminMypagePage() {
     const settings = getLockSettings()
     setLockEnabledUi(settings.enabled)
     setLockMethodUi(settings.method)
+    getBiometricKind().then(setBiometricKind)
   }, [])
 
   const handleToggleAppLock = async () => {
@@ -459,7 +461,7 @@ export default function AdminMypagePage() {
             {lockEnabled && !showLockChooser && !showPinSetup && (
               <div className="mt-3 pt-3 border-t dark:border-gray-700 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {lockMethod === 'biometric' ? <Fingerprint size={14} className="text-gray-400" /> : <Lock size={14} className="text-gray-400" />}
+                  {lockMethod === 'biometric' ? (biometricKind === 'face' ? <ScanFace size={14} className="text-gray-400" /> : <Fingerprint size={14} className="text-gray-400" />) : <Lock size={14} className="text-gray-400" />}
                   <p className="text-xs text-gray-500 dark:text-gray-400">현재 방식: {lockMethod === 'biometric' ? '생체인증' : '비밀번호'}</p>
                 </div>
                 <button onClick={() => setShowLockChooser(true)} className="text-xs text-blue-600 dark:text-blue-400">변경</button>
