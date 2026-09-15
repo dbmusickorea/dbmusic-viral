@@ -1,5 +1,5 @@
 'use client'
-import { FileText } from 'lucide-react'
+import { FileText, MessageSquare, Phone } from 'lucide-react'
 
 type Props = {
   projectApplications: any[]
@@ -45,10 +45,10 @@ export default function AdminProjectApplications({ projectApplications, onApprov
                     <button onClick={() => onLoad(app)} className="text-xs bg-blue-500 text-white rounded px-2 py-1">불러오기</button>
                   )}
                   {app.client_user_id && (
-                    <a href={`/admin-chat?open_user_id=${app.client_user_id}&open_role=client&open_name=${encodeURIComponent(app.client_name ?? '')}`} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded px-2 py-1 text-center">💬 채팅하기</a>
+                    <a href={`/admin-chat?open_user_id=${app.client_user_id}&open_role=client&open_name=${encodeURIComponent(app.client_name ?? '')}`} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded px-2 py-1 flex items-center justify-center gap-1"><MessageSquare size={12} /> 채팅하기</a>
                   )}
                   {app.client_mobile && (
-                    <a href={`tel:${app.client_mobile}`} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded px-2 py-1 text-center">📞 통화하기</a>
+                    <a href={`tel:${app.client_mobile}`} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded px-2 py-1 flex items-center justify-center gap-1"><Phone size={12} /> 통화하기</a>
                   )}
                 </div>
               </div>
