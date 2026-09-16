@@ -203,7 +203,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                         }} className={inputClass}>
                           <option value="">상품 선택</option>
                           {products.map((p) => (
-                            <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}P)</option>
+                            <option key={p.id} value={p.name}>{p.name} ({p.price?.toLocaleString()}원)</option>
                           ))}
                           <option value="__direct__">직접 입력</option>
                         </select>

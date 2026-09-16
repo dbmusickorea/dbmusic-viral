@@ -36,7 +36,7 @@ export default function AdminProductManager({ products, newProduct, setNewProduc
                 <div key={p.id} className="flex justify-between items-center px-3 py-2">
                   <p className="text-sm dark:text-white">{p.name}</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-blue-600">{p.price?.toLocaleString()}P</p>
+                    <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
                     <button onClick={() => onDelete(p.id)} className="text-xs text-red-500">삭제</button>
                   </div>
                 </div>
