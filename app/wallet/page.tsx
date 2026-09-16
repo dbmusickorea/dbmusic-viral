@@ -137,6 +137,26 @@ export default function WalletPage() {
     router.push('/')
   }
 
+  // 주민번호(YYMMDD + 성별/세기 구분자)로 만 나이를 계산. 형식이 이상하면 null 반환
+  const getAgeFromResidentNumber = (rrn: string): number | null => {
+    if (rrn.length !== 13) return null
+    const yy = parseInt(rrn.slice(0, 2), 10)
+    const mm = parseInt(rrn.slice(2, 4), 10)
+    const dd = parseInt(rrn.slice(4, 6), 10)
+    const genderDigit = parseInt(rrn[6], 10)
+    let century: number
+    if (genderDigit === 1 || genderDigit === 2 || genderDigit === 5 || genderDigit === 6) century = 1900
+    else if (genderDigit === 3 || genderDigit === 4 || genderDigit === 7 || genderDigit === 8) century = 2000
+    else return null
+    const birthDate = new Date(century + yy, mm - 1, dd)
+    if (isNaN(birthDate.getTime())) return null
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--
+    return age
+  }
+
   const handleExchange = async () => {
     if (!agreedTax) { showToast('개인정보 수집 및 원천징수에 동의해주세요.'); return }
     if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
@@ -144,6 +164,10 @@ export default function WalletPage() {
     const amount = Number(exchangeAmount)
     if (amount < 10000) { showToast('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }
     if (amount > availableBalance) { showToast('환전 가능 금액을 초과합니다.'); return }
+    if (residentNumber.length !== 13) { showToast('주민번호 13자리를 모두 입력해주세요.'); return }
+    const age = getAgeFromResidentNumber(residentNumber)
+    if (age === null) { showToast('주민번호를 다시 확인해주세요.'); return }
+    if (age < 18) { showToast('적립금 환전은 만 18세 이상만 가능해요.'); return }
 
     const participantRes = await fetchWithAuth(`/api/participants?ids=${userInfo?.id}`)
     const participants = await participantRes.json()

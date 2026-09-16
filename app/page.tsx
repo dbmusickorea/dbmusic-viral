@@ -1234,7 +1234,7 @@ export default function LoginPage() {
                 </div>
                 <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
                   <input type="checkbox" checked={agreedAge} onChange={(e) => setAgreedAge(e.target.checked)} className="w-4 h-4" />
-                  만 18세 이상임을 확인합니다. (필수)
+                  만 14세 이상임을 확인합니다. (필수, 적립금 환전은 만 18세 이상만 가능)
                 </label>
                 <button onClick={handleSignupParticipant} disabled={!agreedAge || participantSignupLoading} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-300">{participantSignupLoading ? '처리중...' : '회원가입'}</button>
                 <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로가기</button>

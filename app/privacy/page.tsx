@@ -105,7 +105,7 @@ export default function PrivacyPage() {
 
         <section className="mb-6">
           <h2 className="font-bold mb-2 dark:text-white">10. 아동 및 미성년자 보호</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300">더블비뮤직 서비스는 만 18세 이상만 이용 가능합니다. 만 18세 미만의 경우 서비스 이용이 제한되며, 만 18세 미만으로 확인될 경우 계정이 즉시 삭제될 수 있습니다. 또한 만 14세 미만 아동의 개인정보는 수집하지 않습니다.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">더블비뮤직 서비스는 만 14세 이상만 이용 가능합니다. 다만 적립금 환전 신청은 만 18세 이상만 가능합니다. 만 14세 미만으로 확인될 경우 계정이 즉시 삭제될 수 있습니다. 또한 만 14세 미만 아동의 개인정보는 수집하지 않습니다.</p>
         </section>
 
       </div>
