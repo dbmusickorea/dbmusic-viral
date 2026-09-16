@@ -34,6 +34,17 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ success: true })
 }
 
+export async function PATCH(request: NextRequest) {
+  const auth = await getAuthenticatedClient(request)
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+  const body = await request.json()
+  const { error } = await auth.client.from('products').update(body).eq('id', id!)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
 export async function DELETE(request: NextRequest) {
   const auth = await getAuthenticatedClient(request)
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

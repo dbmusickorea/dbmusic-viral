@@ -259,6 +259,15 @@ export default function Page1() {
     fetchProducts()
   }
 
+  const handleUpdateProductPrice = async (id: number, price: number) => {
+    await fetchWithAuth(`/api/products?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price })
+    })
+    fetchProducts()
+  }
+
   const fetchCoverPosts = async () => {
     const res = await fetchWithAuth('/api/posts?is_cover=true')
     const data = await res.json()
@@ -1287,6 +1296,7 @@ export default function Page1() {
               setNewProductPrice={setNewProductPrice}
               onAdd={handleAddProduct}
               onDelete={handleDeleteProduct}
+              onUpdatePrice={handleUpdateProductPrice}
             />
 
             <AdminProjectList

@@ -10,10 +10,14 @@ type Props = {
   setNewProductPrice: (v: string) => void
   onAdd: () => void
   onDelete: (id: number) => void
+  onUpdatePrice: (id: number, price: number) => void
 }
 
-export default function AdminProductManager({ products, newProduct, setNewProduct, newProductPrice, setNewProductPrice, onAdd, onDelete }: Props) {
+export default function AdminProductManager({ products, newProduct, setNewProduct, newProductPrice, setNewProductPrice, onAdd, onDelete, onUpdatePrice }: Props) {
   const [showProductManager, setShowProductManager] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editPrice, setEditPrice] = useState('')
+  const sortedProducts = [...products].sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
@@ -32,13 +36,22 @@ export default function AdminProductManager({ products, newProduct, setNewProduc
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">등록된 상품이 없습니다.</p>
           ) : (
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {products.map((p) => (
+              {sortedProducts.map((p) => (
                 <div key={p.id} className="flex justify-between items-center px-3 py-2">
                   <p className="text-sm dark:text-white">{p.name}</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
-                    <button onClick={() => onDelete(p.id)} className="text-xs text-red-500">삭제</button>
-                  </div>
+                  {editingId === p.id ? (
+                    <div className="flex items-center gap-2">
+                      <input type="number" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} className="w-24 border dark:border-gray-600 rounded-lg px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" autoFocus />
+                      <button onClick={() => { onUpdatePrice(p.id, Number(editPrice) || 0); setEditingId(null) }} className="text-xs text-blue-600">저장</button>
+                      <button onClick={() => setEditingId(null)} className="text-xs text-gray-400">취소</button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-blue-600">{p.price?.toLocaleString()}원</p>
+                      <button onClick={() => { setEditingId(p.id); setEditPrice(String(p.price ?? 0)) }} className="text-xs text-gray-500 dark:text-gray-400">수정</button>
+                      <button onClick={() => onDelete(p.id)} className="text-xs text-red-500">삭제</button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
