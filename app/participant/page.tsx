@@ -840,11 +840,7 @@ useEffect(() => {
     const participants = await participantRes.json()
     const participantData = participants?.[0]
     
-    // 락 여부 체크
-    if (participantData?.is_locked) {
-      showToast('계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!')
-      return
-    }
+    // 1개월 미활동 잠금 기능은 폐지됨(2026-09-17)
 
     // 밴 여부 체크
     if (participantData?.banned_until && new Date(participantData.banned_until) > new Date()) {
@@ -919,7 +915,7 @@ useEffect(() => {
     const activeProjectCode = overrideProjectCode ?? projectCode
     const activeUrls = overrideUrls ?? postUrls
     const activeIsCover = overrideIsCover ?? isCover
-    if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제해주세요!'); return }
+    // 1개월 미활동 잠금 기능은 폐지됨(2026-09-17)
     // 게시물 수 제한 체크
     const postsRes = await fetchWithAuth(`/api/posts?project_code=${activeProjectCode}&member_id=${userInfo?.id}`)
     const existingPosts = await postsRes.json()

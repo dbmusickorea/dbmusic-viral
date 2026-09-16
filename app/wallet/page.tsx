@@ -159,7 +159,7 @@ export default function WalletPage() {
 
   const handleExchange = async () => {
     if (!agreedTax) { showToast('개인정보 수집 및 원천징수에 동의해주세요.'); return }
-    if (isLocked) { showToast('계정이 잠금 상태예요. 유튜브 댓글 10회 작성으로 잠금을 해제 후 환전 신청이 가능해요!'); return }
+    // 1개월 미활동 잠금 기능은 폐지됨(2026-09-17)
     if (!exchangeAmount) { showToast('신청 금액을 입력해주세요.'); return }
     const amount = Number(exchangeAmount)
     if (amount < 10000) { showToast('최소 10,000P 이상부터 환전 신청 가능합니다.'); return }

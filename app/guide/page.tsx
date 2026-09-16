@@ -174,10 +174,6 @@ export default function GuidePage() {
               <p className="text-sm font-medium text-red-800 dark:text-red-300">SNS 게시물 임의 삭제</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">미션 인증 후 SNS에서 게시물을 임의로 삭제한 사실이 확인되면 지급된 적립금이 즉시 회수됩니다. 커버 게시물의 경우 적립금 회수와 함께 3개월간 커버 미션 참여가 추가로 제한됩니다.</p>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-              <p className="text-sm font-medium dark:text-white">1개월 이상 미활동 시 계정 잠금</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">가입 후 1개월이 지났음에도, 참여 가능한 프로젝트가 있었음에도 최근 1개월간 활동 내역이 없으면 계정이 잠깁니다. (참여 가능한 프로젝트 자체가 없었던 경우에는 잠기지 않습니다) 유튜브 댓글 미션을 10회 작성하여 인증하면 잠금이 자동으로 해제됩니다. 인증이 어려우신 경우 고객센터로 문의해주시면 확인 후 해제해드립니다.</p>
-            </div>
           </div>
         </div>
 

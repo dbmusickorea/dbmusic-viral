@@ -1327,6 +1327,7 @@ export default function Page1() {
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
           />
+          {/* 락 해제 영상 관리 - 2026-09-17 1개월 미활동 잠금 기능 폐지로 당장은 사용 안 함. 추후 필요해질 수 있어 삭제 대신 주석 처리
           <AdminUnlockVideos
             unlockVideos={unlockVideos}
             newUnlockUrl={newUnlockUrl}
@@ -1334,6 +1335,7 @@ export default function Page1() {
             onAdd={handleAddUnlockVideo}
             onDelete={async (id) => { await fetchWithAuth(`/api/unlock_videos?id=${id}`, { method: 'DELETE' }); fetchUnlockVideos() }}
           />
+          */}
 
             <AdminPushSection
               pushTarget={pushTarget}

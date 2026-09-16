@@ -559,48 +559,11 @@ export async function GET() {
         }
       }
 
-      // 1개월 미활동 락 체크
+      // 1개월 미활동 락 체크는 폐지됨(2026-09-17) - 회원 수가 적을 때 참여 유도 목적으로 만들었으나,
+      // 회원이 늘면서 선착순 마감으로 참여 기회 자체가 없었던 사람까지 억울하게 잠기는 구조적 문제가 있어 제거.
+      // 미활동자에게는 아래의 자동 푸시 알림으로 계속 참여를 유도함(잠금 없이)
       const oneMonthAgo = new Date()
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-
-      // 체험단이 참여할 수 있는(모집중인) 프로젝트가 현재 존재하는지 확인
-      const { data: recentOpenProjects } = await supabase
-        .from('projects')
-        .select('id')
-        .in('status', ['ONGOING', 'PENDING'])
-        .limit(1)
-      const hadOpportunity = (recentOpenProjects?.length ?? 0) > 0
-
-      const { data: allParticipants } = await supabase.from('participants').select('id, created_at, last_unlocked_at').eq('is_locked', false)
-      if (allParticipants && hadOpportunity) {
-        for (const p of allParticipants) {
-          // 가입한 지 1개월 미만인 사람은 제외 (관리자가 수동으로 잠금 해제했다면 그 시점부터 1개월 기준)
-          const graceBaseline = p.last_unlocked_at ? new Date(p.last_unlocked_at) : new Date(p.created_at)
-          if (graceBaseline > oneMonthAgo) continue
-          
-          // 현재 ACTIVE 참여자는 제외 (여러 프로젝트에 동시 참여중일 수 있어 limit(1)로 존재 여부만 확인)
-          const { data: activeParticipation } = await supabase.from('project_participants').select('id').eq('member_id', p.id).eq('status', 'ACTIVE').limit(1)
-          if (activeParticipation && activeParticipation.length > 0) continue
-          const { data: recentPost } = await supabase.from('posts').select('id').eq('member_id', p.id).gte('created_at', oneMonthAgo.toISOString()).limit(1)
-          if (!recentPost || recentPost.length === 0) {
-            await supabase.from('participants').update({ is_locked: true }).eq('id', p.id)
-            const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(p.id))
-            if (tokens && tokens.length > 0) {
-              await fetch(`https://app.doubleb.kr/api/push`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  title: '⚠️ 활동 잠금 알림',
-                  body: '1개월간 미션 참여가 없어서 계정이 잠겼어요. 유튜브 댓글 10회 작성으로 잠금을 해제하세요!',
-                  tokens: tokens.map((t: any) => t.token),
-                  userIds: [String(p.id)],
-                  data: { url: '/participant' }
-                })
-              })
-            }
-          }
-        }
-      }
 
       // 미참여자 자동 푸시
       const { data: ongoingProjects } = await supabase.from('projects').select('project_code').eq('status', 'ONGOING')
