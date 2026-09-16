@@ -24,8 +24,10 @@ export default function AppLockScreen({ method, onUnlock }: Props) {
     setError(false)
     biometricAuthInProgress.current = true
     const ok = await authenticateBiometric()
-    biometricAuthInProgress.current = false
     setIsAuthenticating(false)
+    // 인증 종료 직후에도 안드로이드의 "재개" 신호가 살짝 늦게 도착할 수 있어서,
+    // 짧은 여유시간을 두고 나서 플래그를 해제함(늦게 오는 신호까지 무시하기 위함)
+    setTimeout(() => { biometricAuthInProgress.current = false }, 1000)
     if (ok) onUnlock()
     else setError(true)
   }
