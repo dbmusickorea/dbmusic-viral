@@ -7,7 +7,7 @@ export default function DistributionFooter({ fullBleed = true }: { fullBleed?: b
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">서울특별시 강남구 역삼로 228, 한성빌딩 4층 407호</p>
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">고객센터: 070-8065-5811</p>
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">제휴 및 광고 문의: doubleb@doubleb.kr</p>
-        <p className="text-xs text-gray-300 dark:text-gray-600">© 2026. Double B Music Co.,Ltd. ALL RIGHTS RESERVED.</p>
+        <p className="text-xs text-gray-300 dark:text-gray-600">© 2026. Double B Music Co.,Ltd.<br />ALL RIGHTS RESERVED.</p>
       </div>
     </div>
   )
