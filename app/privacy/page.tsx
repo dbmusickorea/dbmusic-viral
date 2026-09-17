@@ -17,6 +17,7 @@ export default function PrivacyPage() {
           <p className="text-sm text-gray-600 dark:text-gray-300">더블비뮤직(이하 "회사")은 서비스 제공을 위해 아래와 같은 개인정보를 수집합니다.</p>
           <ul className="text-sm text-gray-600 dark:text-gray-300 mt-2 space-y-1 list-disc pl-4">
             <li>필수: 이름, 이메일, 휴대전화번호, 비밀번호</li>
+            <li>본인인증 시: 이름, 생년월일, 성별, 휴대전화번호, 암호화된 이용자 확인값(CI)</li>
             <li>정산 시: 주민등록번호, 계좌번호, 예금주명, 은행명</li>
             <li>SNS 활동: 인스타그램/유튜브/틱톡 계정 ID, 팔로워수, 게시물 좋아요수/댓글수</li>
             <li>유통 서비스 이용 시: 국적, 회사명(또는 성명), 전화번호, 거주지/소재지 국가, 지급화폐, 지급방법, 사업자등록번호, 아티스트명, 앨범/음원 파일 및 관련 정보</li>
