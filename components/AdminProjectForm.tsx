@@ -75,7 +75,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                         {formData.monitoringExtension > 0 && <p>모니터링 연장 ({formData.monitoringExtension}일): +{(formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : 600000).toLocaleString()}원</p>}
                         {formData.refreshInterval && formData.refreshInterval !== '' && formData.refreshInterval !== '0' && formData.refreshInterval !== '12' && !(formData.refreshInterval === '6' && (formData.productContent.includes('프리미엄') || formData.productContent.includes('메가'))) && <p>트래픽 부스터: +{(formData.refreshInterval === '6' ? 150000 : formData.refreshInterval === '3' ? 300000 : 800000).toLocaleString()}원</p>}
                         {formData.coverVideoCount > 0 && <p>일반 커버 ({formData.coverVideoCount}명): +{(formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : 4500000).toLocaleString()}원</p>}
-                        {Number(formData.premiumCoverVideoCount) > 0 && <p>프리미엄 커버 (3명): +1,500,000원</p>}
+                        {Number(formData.premiumCoverVideoCount) > 0 && <p>프리미엄 커버 ({formData.premiumCoverVideoCount}명): +{(Number(formData.premiumCoverAmount) || 0).toLocaleString()}원</p>}
                       </div>
                     </div>
                   )}
@@ -325,11 +325,12 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium dark:text-gray-200">프리미엄 커버 (추가 옵션, 일반 커버와 동시 등록 가능)</label>
-                      <select value={formData.premiumCoverVideoCount || 0} onChange={(e) => setFormData((prev: any) => ({...prev, premiumCoverVideoCount: Number(e.target.value)}))} className={inputClass}>
-                        <option value="0">없음</option>
-                        <option value="3">3명 (1,500,000원)</option>
-                      </select>
+                      <label className="text-sm font-medium dark:text-gray-200">프리미엄 커버 인원수 (직접 입력, 일반 커버와 동시 등록 가능)</label>
+                      <input type="number" min="0" value={formData.premiumCoverVideoCount || 0} onChange={(e) => setFormData((prev: any) => ({...prev, premiumCoverVideoCount: Number(e.target.value)}))} className={inputClass} placeholder="예: 3" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium dark:text-gray-200">프리미엄 커버 금액 (총액, 직접 입력)</label>
+                      <input type="number" min="0" value={formData.premiumCoverAmount || 0} onChange={(e) => setFormData((prev: any) => ({...prev, premiumCoverAmount: Number(e.target.value)}))} className={inputClass} placeholder="예: 2500000" />
                     </div>
                     {(Number(formData.coverVideoCount) > 0 || Number(formData.premiumCoverVideoCount) > 0) && (
                     <>
@@ -456,7 +457,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               formData.refreshInterval ? ({'12':'기본 트래픽','6':'실버 트래픽','3':'골드 트래픽','1':'다이아 VIP'} as any)[String(formData.refreshInterval)] : '',
                               Number(formData.monitoringExtension) > 0 ? `모니터링 ${formData.monitoringExtension}일 연장` : '',
                               Number(formData.coverVideoCount) > 0 ? `일반 커버 ${formData.coverVideoCount}명` : '',
-                              Number(formData.premiumCoverVideoCount) > 0 ? `프리미엄 커버 3명` : '',
+                              Number(formData.premiumCoverVideoCount) > 0 ? `프리미엄 커버 ${formData.premiumCoverVideoCount}명` : '',
                               Number(formData.requiredPosts) > 1 ? `게시물 ${formData.requiredPosts}개` : '',
                               formData.optionName || ''
                             ].filter(Boolean).join(' / ')
