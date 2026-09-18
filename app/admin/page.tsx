@@ -28,7 +28,7 @@ export default function Page1() {
     productContent: '', requirements: '', status: 'PENDING',
     startDate: '', endDate: '', startTime: '', endTime: '',
     missionDate: '', missionTime: '', maxParticipants: '', rewardPerPost: '2500',
-    requiredPosts: '1', refreshInterval: '' as string, monitoringExtension: 0, coverVideoCount: 0, coverContestEnabled: false,
+    requiredPosts: '1', refreshInterval: '' as string, monitoringExtension: 0, coverVideoCount: 0, premiumCoverVideoCount: 0, coverContestEnabled: false,
     coverRewardAmount: '', shortsUrl1: '', shortsUrl2: '', playlistUrl: '',
     instagramAudioId: '', tiktokAudioId: '', youtubeAudioId: '',
     secondPostDate: '', secondPostTime: '', coverImageUrl: '', selectedClientId: '',
@@ -447,6 +447,7 @@ export default function Page1() {
       optionPrice: project.option_price ?? '',
       monitoringExtension: project.monitoring_extension ?? 0,
       coverVideoCount: project.cover_video_count ?? 0,
+      premiumCoverVideoCount: project.premium_cover_video_count ?? 0,
       coverContestEnabled: project.cover_contest_enabled ?? false,
       selectedClientId: project.client_id ?? '',
       youtubeAudioId: project.youtube_audio_id ?? '',
@@ -494,7 +495,9 @@ export default function Page1() {
     const monitoring = formData.monitoringExtension === 15 ? 200000 : formData.monitoringExtension === 30 ? 400000 : formData.monitoringExtension === 45 ? 600000 : 0
     const isPremiumOrMega = formData.productContent.includes('프리미엄') || formData.productContent.includes('메가')
     const traffic = formData.refreshInterval === '6' ? (isPremiumOrMega ? 0 : 150000) : formData.refreshInterval === '3' ? 300000 : formData.refreshInterval === '1' ? 800000 : 0
-    const cover = formData.coverType === 'premium' ? 1500000 : formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : formData.coverVideoCount === 30 ? 4500000 : 0
+    const normalCover = formData.coverVideoCount === 10 ? 1500000 : formData.coverVideoCount === 20 ? 3000000 : formData.coverVideoCount === 30 ? 4500000 : 0
+    const premiumCover = Number(formData.premiumCoverVideoCount) > 0 ? 1500000 : 0
+    const cover = normalCover + premiumCover
     const extraPosts = Number(formData.requiredPosts) === 2 ? Math.floor(productPrice * 0.5) : 0
     return productPrice + option + monitoring + traffic + cover + extraPosts
   }
@@ -673,6 +676,7 @@ export default function Page1() {
         base_refresh_interval: formData.productContent.includes('프리미엄') || formData.productContent.includes('메가') ? 6 : 12,
         monitoring_extension: Number(formData.monitoringExtension) || 0,
         cover_video_count: Number(formData.coverVideoCount) || 0,
+        premium_cover_video_count: Number(formData.premiumCoverVideoCount) || 0,
         cover_contest_enabled: !!formData.coverContestEnabled,
         start_time: formData.startTime || null,
         end_time: formData.endTime || null,
@@ -825,6 +829,7 @@ export default function Page1() {
         base_refresh_interval: formData.productContent.includes('프리미엄') || formData.productContent.includes('메가') ? 6 : 12,
         monitoring_extension: Number(formData.monitoringExtension) || 0,
         cover_video_count: Number(formData.coverVideoCount) || 0,
+        premium_cover_video_count: Number(formData.premiumCoverVideoCount) || 0,
         cover_contest_enabled: !!formData.coverContestEnabled,
         start_time: formData.startTime || null,
         end_time: formData.endTime || null,
@@ -1087,7 +1092,7 @@ export default function Page1() {
       productContent: '', requirements: '', status: 'PENDING',
       startDate: '', endDate: '', startTime: '', endTime: '',
       missionDate: '', missionTime: '', maxParticipants: '', rewardPerPost: '',
-      requiredPosts: '1', refreshInterval: '', monitoringExtension: 0, coverVideoCount: 0, coverContestEnabled: false,
+      requiredPosts: '1', refreshInterval: '', monitoringExtension: 0, coverVideoCount: 0, premiumCoverVideoCount: 0, coverContestEnabled: false,
       coverRewardAmount: '', shortsUrl1: '', shortsUrl2: '', playlistUrl: '',
       instagramAudioId: '', tiktokAudioId: '', youtubeAudioId: '',
       secondPostDate: '', secondPostTime: '', coverImageUrl: '', selectedClientId: '',

@@ -263,15 +263,16 @@ export default function ReportPage() {
 
     const optionsList = [
       project.monitoring_extension > 0 ? `모니터링 연장 ${project.monitoring_extension}일` : null,
-      project.cover_video_count > 0 ? `커버영상 ${project.cover_video_count}개` : null,
+      project.cover_video_count > 0 ? `일반 커버영상 ${project.cover_video_count}개` : null,
+      project.premium_cover_video_count > 0 ? `프리미엄 커버영상 ${project.premium_cover_video_count}명` : null,
       project.refresh_interval && project.refresh_interval !== '0' && project.refresh_interval !== '12' ? `트래픽 부스터 (${project.refresh_interval}시간)` : null,
       project.required_posts > 1 ? `게시물 ${project.required_posts}개` : null,
     ].filter(Boolean).join(', ') || '없음'
 
     let finalDateStr = ''
-    if (project.end_date && (project.monitoring_extension > 0 || project.cover_video_count > 0)) {
+    if (project.end_date && (project.monitoring_extension > 0 || project.cover_video_count > 0 || project.premium_cover_video_count > 0)) {
       const finalDate = new Date(project.end_date)
-      if (project.cover_video_count > 0) finalDate.setDate(finalDate.getDate() + 15)
+      if (project.cover_video_count > 0 || project.premium_cover_video_count > 0) finalDate.setDate(finalDate.getDate() + 15)
       finalDateStr = finalDate.toISOString().split('T')[0]
     }
 
@@ -499,16 +500,16 @@ export default function ReportPage() {
               </div>
             ))}
           </div>
-          {(project.monitoring_extension > 0 || project.cover_video_count > 0) && project.end_date && (() => {
+          {(project.monitoring_extension > 0 || project.cover_video_count > 0 || project.premium_cover_video_count > 0) && project.end_date && (() => {
             const finalDate = new Date(project.end_date)
-            if (project.cover_video_count > 0) finalDate.setDate(finalDate.getDate() + 15)
+            if (project.cover_video_count > 0 || project.premium_cover_video_count > 0) finalDate.setDate(finalDate.getDate() + 15)
             const finalDateStr = finalDate.toISOString().split('T')[0]
             return (
               <div className="mt-3 bg-blue-50 p-3 rounded-lg">
                 <p className="text-sm font-medium text-blue-900 mb-2">📅 데이터 갱신 마감일: {finalDateStr}</p>
                 <div className="text-xs text-gray-600 space-y-0.5">
                   {project.monitoring_extension > 0 && <p>· 모니터링 연장 {project.monitoring_extension}일 포함 종료일: {project.end_date}</p>}
-                  {project.cover_video_count > 0 && <p>· 커버 옵션 추가 모니터링: +15일</p>}
+                  {(project.cover_video_count > 0 || project.premium_cover_video_count > 0) && <p>· 커버 옵션 추가 모니터링: +15일</p>}
                   <p className="text-gray-500 mt-1">{finalDateStr} 이후로는 이 보고서의 수치가 더 이상 업데이트되지 않습니다.</p>
                 </div>
               </div>

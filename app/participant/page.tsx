@@ -1444,7 +1444,7 @@ useEffect(() => {
                               {myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
                                 <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"><Music size={10} /> COVER</span>
                               )}
-                              {(p.projects?.cover_video_count ?? 0) > 0 && p.projects?.cover_contest_enabled && myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
+                              {((p.projects?.cover_video_count ?? 0) > 0 || (p.projects?.premium_cover_video_count ?? 0) > 0) && p.projects?.cover_contest_enabled && myPosts.some(post => post.project_code?.toUpperCase() === p.project_code?.toUpperCase() && post.is_cover) && (
                                 <button onClick={(e) => { e.stopPropagation(); router.push(`/cover-contest?project_code=${p.project_code}`) }} className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 ml-1">
                                   <Trophy size={10} /> 컨테스트 순위 보기
                                 </button>
@@ -1515,7 +1515,7 @@ useEffect(() => {
                               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                                 {projectInfo.start_date && <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Calendar size={14} /> 미션일: {projectInfo.start_date}</p>}
                                 <div className="flex justify-between items-center mt-2">
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{(projectInfo.cover_video_count > 0 || projectInfo.premium_cover_video_count > 0) ? ` + 커버 ${projectInfo.cover_current ?? 0}/${(projectInfo.cover_video_count ?? 0) + (projectInfo.premium_cover_video_count ?? 0)}` : ''}</p>
                                   {bannedUntil ? (
                                     <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">활동제한</span>
                                   ) : isJoined ? (
@@ -1570,7 +1570,7 @@ useEffect(() => {
                                   {(() => {
                                     const normalPosts = myPosts.filter(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && !p.is_cover)
                                     const maxNormal = projectInfo?.required_posts ?? 1
-                                    const hasCoverOption = projectInfo?.cover_video_count > 0
+                                    const hasCoverOption = projectInfo?.cover_video_count > 0 || projectInfo?.premium_cover_video_count > 0
                                     const normalMax = maxNormal
                                     return normalMax > 0 && (
                                       <>
@@ -1609,7 +1609,7 @@ useEffect(() => {
                                   })()}
 
                                   {/* 커버 게시물 */}
-                                  {selectedParticipation?.is_cover && projectInfo?.cover_video_count > 0 && coverRequests.find(r => r.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())?.status === 'APPROVED' && (() => {
+                                  {selectedParticipation?.is_cover && (projectInfo?.cover_video_count > 0 || projectInfo?.premium_cover_video_count > 0) && coverRequests.find(r => r.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase())?.status === 'APPROVED' && (() => {
                                     const coverPost = myPosts.find(p => p.project_code?.toLowerCase() === selectedParticipation?.project_code?.toLowerCase() && p.is_cover)
                                     return (
                                       <div className="mt-3 pt-3 border-t dark:border-gray-600">
@@ -1777,8 +1777,9 @@ useEffect(() => {
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
                 {(() => {
                   const isFull = projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants
-                  const coverFull = projectInfo.cover_video_count > 0 && (projectInfo.cover_current ?? 0) >= projectInfo.cover_video_count
-                  const canCover = isCoverPossible && isCoverApproved && projectInfo.cover_video_count > 0
+                  const totalCoverSlots = (projectInfo.cover_video_count ?? 0) + (projectInfo.premium_cover_video_count ?? 0)
+                  const coverFull = totalCoverSlots > 0 && (projectInfo.cover_current ?? 0) >= totalCoverSlots
+                  const canCover = isCoverPossible && isCoverApproved && totalCoverSlots > 0
                   return (
                     <>
                       <h2 className="font-bold mb-3 dark:text-white flex items-center gap-1"><Target size={16} /> 프로젝트 참여</h2>
@@ -1799,7 +1800,7 @@ useEffect(() => {
                             </div>
                           )}
                           <div className="flex justify-between items-center mt-2">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{projectInfo.cover_video_count > 0 ? ` + 커버 ${projectInfo.cover_current ?? 0}/${projectInfo.cover_video_count}` : ''}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {participantCount}/{projectInfo.max_participants || '∞'}{(projectInfo.cover_video_count > 0 || projectInfo.premium_cover_video_count > 0) ? ` + 커버 ${projectInfo.cover_current ?? 0}/${(projectInfo.cover_video_count ?? 0) + (projectInfo.premium_cover_video_count ?? 0)}` : ''}</p>
                             {projectInfo.max_participants > 0 && participantCount >= projectInfo.max_participants ? (
                               <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">모집종료</span>
                             ) : !projectInfo.mission_date || new Date() < new Date(`${projectInfo.mission_date}T${projectInfo.mission_time || '00:00'}`) ? (
@@ -1827,7 +1828,7 @@ useEffect(() => {
                                           coverPenaltyUntil && new Date(coverPenaltyUntil) > new Date() ? (
                                             <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full inline-flex items-center gap-0.5"><AlertTriangle size={10} /> 커버페널티</span>
                                           ) : (
-                                            <span className={`text-xs px-3 py-1 rounded-full inline-flex items-center gap-0.5 ${projectInfo?.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}>{projectInfo?.cover_type === 'premium' ? '프리미엄 커버참여중' : '커버참여중'} <Music size={10} /></span>
+                                            <span className="text-xs px-3 py-1 rounded-full inline-flex items-center gap-0.5 bg-purple-100 text-purple-700">커버참여중 <Music size={10} /></span>
                                           )
                                         ) : coverExcludedJoin ? (
                                           <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-3 py-1 rounded-full">커버제외</span>

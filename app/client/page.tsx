@@ -665,9 +665,10 @@ export default function Page3() {
                                 <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                                 <div className="flex items-center gap-1 mt-0.5">
                                   <p className="text-xs text-gray-500 dark:text-gray-400">{project.project_code} · {project.start_date ? new Date(project.start_date).toLocaleDateString('ko-KR') : '미정'}</p>
-                                  {project.cover_video_count > 0 && <span className={`text-xs px-1 py-0.5 rounded inline-flex items-center gap-0.5 ${project.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}><Music size={10} /> {project.cover_type === 'premium' ? '프리미엄 커버' : '일반 커버'}</span>}
+                                  {project.cover_video_count > 0 && <span className="text-xs px-1 py-0.5 rounded inline-flex items-center gap-0.5 bg-purple-100 text-purple-700"><Music size={10} /> 일반 커버</span>}
+                                  {project.premium_cover_video_count > 0 && <span className="text-xs px-1 py-0.5 rounded inline-flex items-center gap-0.5 bg-yellow-100 text-yellow-700"><Music size={10} /> 프리미엄 커버</span>}
                                 </div>
-                                <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />{project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{project.cover_video_count > 0 ? ` · 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500"><Users size={12} className="inline mr-1" />{project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}명{(project.cover_video_count > 0 || project.premium_cover_video_count > 0) ? ` · 커버 ${project.cover_current ?? 0}/${(project.cover_video_count ?? 0) + (project.premium_cover_video_count ?? 0)}` : ''}</p>
                               </div>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${project.status === 'ONGOING' ? 'bg-green-100 text-green-700' : project.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
@@ -781,7 +782,7 @@ export default function Page3() {
             {/* 선택된 프로젝트 정보 */}
             {projectInfo && (
               <>
-                {userRole === 'client' && projectInfo?.cover_video_count > 0 && (
+                {userRole === 'client' && (projectInfo?.cover_video_count > 0 || projectInfo?.premium_cover_video_count > 0) && (
                   projectInfo?.cover_contest_enabled ? (
                     <div className="flex gap-2 mb-3">
                       <button onClick={() => router.push('/cover')} className="flex-1 text-sm border dark:border-gray-600 dark:text-gray-300 rounded px-3 py-2 text-gray-600 flex items-center justify-center gap-1"><Music size={12} /> 커버 페이지</button>
@@ -862,7 +863,8 @@ export default function Page3() {
                     <p className="text-sm dark:text-gray-300">모집인원: {projectInfo.max_participants ?? '-'}명</p>
                     {projectInfo.monitoring_extension > 0 && <p className="text-sm dark:text-gray-300">모니터링 연장: {projectInfo.monitoring_extension}일</p>}
                     {projectInfo.refresh_interval && <p className="text-sm dark:text-gray-300">새로고침 주기: {projectInfo.refresh_interval}시간</p>}
-                    {projectInfo.cover_video_count > 0 && <p className="text-sm dark:text-gray-300">{projectInfo.cover_type === 'premium' ? `프리미엄 커버: 3명` : `일반 커버: ${projectInfo.cover_video_count}명`}</p>}
+                    {projectInfo.cover_video_count > 0 && <p className="text-sm dark:text-gray-300">일반 커버: {projectInfo.cover_video_count}명</p>}
+                    {projectInfo.premium_cover_video_count > 0 && <p className="text-sm dark:text-gray-300">프리미엄 커버: {projectInfo.premium_cover_video_count}명</p>}
                   </div>
                 </div>
                 {projectInfo.requirements && (

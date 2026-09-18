@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     ['상품 금액', project.total_cost ? `${Number(project.total_cost).toLocaleString()}원` : '-'],
     ['모니터링 연장', project.monitoring_extension > 0 ? `${project.monitoring_extension}일` : '없음'],
     ['새로고침 주기', project.refresh_interval ? `${project.refresh_interval}시간` : '기본(하루 1회)'],
-    ['커버영상 옵션', project.cover_video_count > 0 ? `${project.cover_video_count}개` : '없음'],
+    ['커버영상 옵션', [project.cover_video_count > 0 ? `일반 ${project.cover_video_count}개` : '', project.premium_cover_video_count > 0 ? `프리미엄 ${project.premium_cover_video_count}명` : ''].filter(Boolean).join(' + ') || '없음'],
     ['요청사항', project.requirements ?? '-'],
     ['시작일', project.start_date ?? '-'],
     ['종료일', project.end_date ?? '-'],

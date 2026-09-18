@@ -58,14 +58,15 @@ export async function POST(request: NextRequest) {
     if (action === 'send') {
       // 계약서 서명 요청
       const body = await request.json()
-      const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate, artistName, optionName, refreshInterval, monitoringExtension, coverVideoCount, requiredPosts } = body
+      const { clientName, clientEmail, clientMobile, projectCode, productContent, songTitle, totalCost, startDate, endDate, artistName, optionName, refreshInterval, monitoringExtension, coverVideoCount, premiumCoverVideoCount, requiredPosts } = body
       const { accessToken, apiUrl } = await getAccessToken()
 
       const refreshMap: any = { '12': '기본 트래픽', '6': '실버 트래픽', '3': '골드 트래픽', '1': '다이아 VIP' }
       const options = [
         refreshInterval ? refreshMap[String(refreshInterval)] : '',
         Number(monitoringExtension) > 0 ? `모니터링 ${monitoringExtension}일 연장` : '',
-        Number(coverVideoCount) > 0 ? `커버영상 ${coverVideoCount}개` : '',
+        Number(coverVideoCount) > 0 ? `일반 커버영상 ${coverVideoCount}개` : '',
+        Number(premiumCoverVideoCount) > 0 ? `프리미엄 커버영상 ${premiumCoverVideoCount}명` : '',
         Number(requiredPosts) > 1 ? `게시물 ${requiredPosts}개` : '',
         optionName || ''
       ].filter(Boolean).join(' / ')

@@ -37,8 +37,8 @@ export default function AdminProjectList({ projects, selectedProject, projectPag
                       <p className="font-medium text-sm dark:text-white">{project.artist_name || project.client_name} / {project.song_title ?? project.product_content}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500">프로젝트 코드: {project.project_code}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"><Users size={12} /> 참여인원: {project.current_participants ?? 0}/{project.max_participants > 0 ? project.max_participants : '∞'}</p>
-                      {project.cover_video_count > 0 && (
-                        <p className="text-xs text-purple-500 dark:text-purple-400 flex items-center gap-1"><Music size={12} /> 커버: {project.cover_current ?? 0}/{project.cover_video_count}</p>
+                      {(project.cover_video_count > 0 || project.premium_cover_video_count > 0) && (
+                        <p className="text-xs text-purple-500 dark:text-purple-400 flex items-center gap-1"><Music size={12} /> 커버: {project.cover_current ?? 0}/{(project.cover_video_count ?? 0) + (project.premium_cover_video_count ?? 0)}{project.cover_video_count > 0 && project.premium_cover_video_count > 0 ? ` (일반 ${project.cover_video_count} + 프리미엄 ${project.premium_cover_video_count})` : ''}</p>
                       )}
                     </div>
                   </div>

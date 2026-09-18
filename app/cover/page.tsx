@@ -125,7 +125,7 @@ export default function CoverPage() {
       const projectsRes = await fetchWithAuth(`/api/projects?client_id=${user.client_id}`)
       const projects = await projectsRes.json()
       // 커버 옵션 선택한 프로젝트만
-      const coverProjects = projects?.filter((p: any) => p.cover_video_count > 0) ?? []
+      const coverProjects = projects?.filter((p: any) => p.cover_video_count > 0 || p.premium_cover_video_count > 0) ?? []
       if (coverProjects.length === 0) {
         showToast('커버 옵션을 선택한 프로젝트가 없어요.')
         router.push('/client')
@@ -549,7 +549,8 @@ export default function CoverPage() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-1 flex-wrap">
                             <p className="text-base font-bold dark:text-white">{p.artist_name || p.client_name} / {p.song_title ?? p.product_content}</p>
-                            {p.cover_video_count > 0 && <span className={`text-xs px-2 py-0.5 rounded-full ${p.cover_type === 'premium' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'}`}>{p.cover_type === 'premium' ? '프리미엄 커버' : '일반 커버'}</span>}
+                            {p.cover_video_count > 0 && <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">일반 커버</span>}
+                            {p.premium_cover_video_count > 0 && <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">프리미엄 커버</span>}
                           </div>
                           <p className="text-xs text-gray-500 mt-1">{p.start_date ?? '미정'} ~ {p.end_date ?? '미정'}</p>
                         </div>
@@ -709,8 +710,11 @@ export default function CoverPage() {
                                     }
                                     if (p.cover_penalty_until && new Date(p.cover_penalty_until) > new Date()) return <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">페널티</span>
                                     if (coverExcludedIds.includes(p.id)) return <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded-full">커버제외</span>
-                                    if (selectedProject?.cover_type === 'premium' && p.cover_grade !== 'premium') return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">일반만 가능</span>
-                                    if (selectedProject?.cover_type !== 'premium' && p.cover_grade === 'premium') return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">프리미엄만 가능</span>
+                                    const projectHasNormal = (selectedProject?.cover_video_count ?? 0) > 0
+                                    const projectHasPremium = (selectedProject?.premium_cover_video_count ?? 0) > 0
+                                    const participantIsPremium = p.cover_grade === 'premium'
+                                    if (participantIsPremium && !projectHasPremium) return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">프리미엄 슬롯 없음</span>
+                                    if (!participantIsPremium && !projectHasNormal) return <span className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-full">일반 슬롯 없음</span>
                                     return <button onClick={() => handleSelectParticipant(p)} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full">선택</button>
                                   })()
                                 ) : request.status === 'PENDING' ? (

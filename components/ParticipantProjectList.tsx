@@ -28,8 +28,9 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
               const isFull = project.max_participants > 0 && (project.current_participants ?? 0) >= project.max_participants
               const isJoined = myParticipations.some(p => p.project_code.toLowerCase() === project.project_code.toLowerCase())
               const isCompleted = project.status === 'COMPLETED'
-              const coverFull = project.cover_video_count > 0 && (project.cover_current ?? 0) >= project.cover_video_count
-              const canCover = isCoverPossible && isCoverApproved && project.cover_video_count > 0
+              const totalCoverSlots = (project.cover_video_count ?? 0) + (project.premium_cover_video_count ?? 0)
+              const coverFull = totalCoverSlots > 0 && (project.cover_current ?? 0) >= totalCoverSlots
+              const canCover = isCoverPossible && isCoverApproved && totalCoverSlots > 0
 
               const getStatusButton = () => {
                 if (isCompleted) return <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">종료</span>
@@ -73,7 +74,7 @@ export default function ParticipantProjectList({ allProjects, myParticipations, 
                         {project.start_date && (
                           <p className="text-xs text-gray-500 dark:text-gray-400">미션일: {project.start_date}</p>
                         )}
-                        <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}{project.cover_video_count > 0 ? ` + 커버 ${project.cover_current ?? 0}/${project.cover_video_count}` : ''}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">참여인원: {project.current_participants ?? 0}{project.max_participants > 0 ? `/${project.max_participants}` : ''}{(project.cover_video_count > 0 || project.premium_cover_video_count > 0) ? ` + 커버 ${project.cover_current ?? 0}/${(project.cover_video_count ?? 0) + (project.premium_cover_video_count ?? 0)}` : ''}</p>
                       </div>
                     </div>
                     {getStatusButton()}
