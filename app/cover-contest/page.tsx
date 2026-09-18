@@ -52,6 +52,10 @@ function CoverContestPageInner() {
     const members = await membersRes.json()
     const memberMap = new Map((Array.isArray(members) ? members : []).map((m: any) => [m.id, m]))
 
+    // 프리미엄 커버자는 컨테스트 경쟁에서 제외 (일반 커버자끼리만 순위 산정)
+    const contestPosts = posts.filter((p: any) => memberMap.get(p.member_id)?.cover_grade !== 'premium')
+    if (contestPosts.length === 0) { setRows([]); setLoading(false); return }
+
     // 좋아요순 정렬 + 동순위 처리 + 순위점수 산정 (체험단 채널)
     const rankBy = (list: any[], field: string, rankKey: string, scoreKey: string) => {
       const sorted = [...list].sort((a: any, b: any) => (b[field] ?? 0) - (a[field] ?? 0))
@@ -68,10 +72,10 @@ function CoverContestPageInner() {
       return map
     }
 
-    const likeRankMap = rankBy(posts, 'likes_count', 'likeRank', 'rankScore')
-    const adminRankMap = rankBy(posts, 'admin_channel_likes', 'adminLikeRank', 'adminRankScore')
+    const likeRankMap = rankBy(contestPosts, 'likes_count', 'likeRank', 'rankScore')
+    const adminRankMap = rankBy(contestPosts, 'admin_channel_likes', 'adminLikeRank', 'adminRankScore')
 
-    const withRankScore = posts.map((p: any) => {
+    const withRankScore = contestPosts.map((p: any) => {
       const likeInfo = likeRankMap.get(p.id) ?? { rank: 0, score: 0 }
       const adminInfo = adminRankMap.get(p.id) ?? { rank: 0, score: 0 }
       return {
