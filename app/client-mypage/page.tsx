@@ -11,6 +11,7 @@ import BottomNav from '../../components/BottomNav'
 import { RefreshCw, ArrowDown } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import ApplyModal from '../../components/ApplyModal'
+import PlatformIcon from '../../components/PlatformIcon'
 import { useSearchParams } from 'next/navigation'
 import { useToast } from '../../components/ToastContext'
 import DistributionClientInfo from '../../components/DistributionClientInfo'
@@ -248,6 +249,11 @@ export default function ClientMyPage() {
   const [ptSnsInput, setPtSnsInput] = useState('')
   const [ptSnsPlatform, setPtSnsPlatform] = useState('instagram')
   const [ptChecking, setPtChecking] = useState(false)
+  const [ptInstagramFollowers, setPtInstagramFollowers] = useState(0)
+  const [ptInstagramPrivate, setPtInstagramPrivate] = useState(false)
+  const [ptYoutubeSubscribers, setPtYoutubeSubscribers] = useState(0)
+  const [ptTiktokFollowers, setPtTiktokFollowers] = useState(0)
+  const [ptTiktokPrivate, setPtTiktokPrivate] = useState(false)
 
   useEffect(() => {
     const info = localStorage.getItem('userInfo')
@@ -428,11 +434,92 @@ export default function ClientMyPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs shadow-xl">
             <h2 className="text-lg font-bold mb-1 dark:text-white">체험단 계정 추가</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">기존 계정 정보를 그대로 사용하며 체험단 기능을 추가로 이용할 수 있어요. 계좌/SNS 정보는 체험단 마이페이지에서 나중에 등록하시면 돼요.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">기존 계정 정보를 그대로 사용하며 체험단 기능을 추가로 이용할 수 있어요. 팔로워 100명 이상인 SNS 계정을 하나 이상 등록해주세요. 계좌 정보는 체험단 마이페이지에서 나중에 등록하시면 돼요.</p>
+            <div className="mb-3">
+              <div className="flex gap-2 mb-2">
+                <select value={ptSnsPlatform} onChange={(e) => setPtSnsPlatform(e.target.value)} className="border dark:border-gray-600 rounded-lg px-2 py-2 text-sm shrink-0 w-20 dark:bg-gray-700 dark:text-white">
+                  <option value="instagram">인스타</option>
+                  <option value="youtube">유튜브</option>
+                  <option value="tiktok">틱톡</option>
+                </select>
+                <input value={ptSnsInput} onChange={(e) => setPtSnsInput(e.target.value)} className="flex-1 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:text-white" placeholder="@아이디" />
+              </div>
+              <button type="button" disabled={ptChecking} onClick={async () => {
+                if (!ptSnsInput) return
+                setPtChecking(true)
+                const cleanId = ptSnsInput.replace('@', '')
+                if (ptSnsPlatform === 'instagram') {
+                  const igRes = await fetchWithAuth(`/api/instagram-user?username=${cleanId}`)
+                  const igData = await igRes.json()
+                  setPtInstagram(ptSnsInput)
+                  setPtInstagramFollowers(igData.followers ?? 0)
+                  setPtInstagramPrivate(!!igData.isPrivate)
+                  setPtSnsInput('')
+                  if (igData.isPrivate) showToast(`비공개 계정이에요 (팔로워 ${(igData.followers ?? 0).toLocaleString()}명). 공개로 전환해주세요.`, 'error')
+                  else showToast(`팔로워 ${(igData.followers ?? 0).toLocaleString()}명 · 공개 계정 확인됐어요.`)
+                } else if (ptSnsPlatform === 'youtube') {
+                  const ytRes = await fetchWithAuth(`/api/youtube-channel?handle=${cleanId}`)
+                  const ytData = await ytRes.json()
+                  setPtYoutube(ptSnsInput)
+                  setPtYoutubeSubscribers(ytData.subscriberCount ?? 0)
+                  setPtSnsInput('')
+                  showToast(`구독자 ${(ytData.subscriberCount ?? 0).toLocaleString()}명 확인됐어요.`)
+                } else if (ptSnsPlatform === 'tiktok') {
+                  let ttFollowers = 0
+                  let ttPrivate = false
+                  try {
+                    const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/user/info?unique_id=${cleanId}`, {
+                      headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' }
+                    })
+                    const ttData = await ttRes.json()
+                    ttPrivate = !!ttData?.data?.user?.privateAccount
+                    ttFollowers = ttData?.data?.stats?.followerCount ?? 0
+                  } catch {}
+                  if (!ttFollowers) {
+                    try {
+                      const ttRes2 = await fetch(`https://tiktok-api23.p.rapidapi.com/api/user/info?uniqueId=${cleanId}`, {
+                        headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-api23.p.rapidapi.com' }
+                      })
+                      const ttData2 = await ttRes2.json()
+                      ttFollowers = ttData2?.userInfo?.stats?.followerCount ?? 0
+                    } catch {}
+                  }
+                  setPtTiktok(ptSnsInput)
+                  setPtTiktokFollowers(ttFollowers)
+                  setPtTiktokPrivate(ttPrivate)
+                  setPtSnsInput('')
+                  if (ttPrivate) showToast(`비공개 계정이에요 (팔로워 ${ttFollowers.toLocaleString()}명). 공개로 전환해주세요.`, 'error')
+                  else showToast(`팔로워 ${ttFollowers.toLocaleString()}명 확인됐어요.`)
+                }
+                setPtChecking(false)
+              }} className="w-full text-sm bg-blue-600 text-white rounded-lg px-3 py-2 disabled:bg-gray-400 mb-2">{ptChecking ? '확인 중...' : '등록/추가'}</button>
+              <div className="space-y-1">
+                {ptInstagram && (
+                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                    <span className="text-sm flex items-center gap-1"><PlatformIcon platform="instagram" size={16} /> {ptInstagram} ({ptInstagramFollowers.toLocaleString()}명)</span>
+                    <button type="button" onClick={() => { setPtInstagram(''); setPtInstagramFollowers(0); setPtInstagramPrivate(false) }} className="text-xs text-red-400">삭제</button>
+                  </div>
+                )}
+                {ptYoutube && (
+                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                    <span className="text-sm flex items-center gap-1"><PlatformIcon platform="youtube" size={16} /> {ptYoutube} ({ptYoutubeSubscribers.toLocaleString()}명)</span>
+                    <button type="button" onClick={() => { setPtYoutube(''); setPtYoutubeSubscribers(0) }} className="text-xs text-red-400">삭제</button>
+                  </div>
+                )}
+                {ptTiktok && (
+                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+                    <span className="text-sm flex items-center gap-1"><PlatformIcon platform="tiktok" size={16} /> {ptTiktok} ({ptTiktokFollowers.toLocaleString()}명)</span>
+                    <button type="button" onClick={() => { setPtTiktok(''); setPtTiktokFollowers(0); setPtTiktokPrivate(false) }} className="text-xs text-red-400">삭제</button>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="flex gap-2 mt-4">
               <button onClick={() => setShowParticipantSignup(false)} className="flex-1 border dark:border-gray-600 rounded-lg py-2 text-sm text-gray-500 dark:text-gray-400">취소</button>
               <button disabled={isCreatingParticipant} onClick={async () => {
                 if (isCreatingParticipant) return
+                const hasEnoughFollowers = (ptInstagram && ptInstagramFollowers >= 100 && !ptInstagramPrivate) || (ptYoutube && ptYoutubeSubscribers >= 100) || (ptTiktok && ptTiktokFollowers >= 100 && !ptTiktokPrivate)
+                if (!hasEnoughFollowers) { showToast('팔로워 100명 이상인 SNS 계정을 하나 이상 등록해주세요.'); return }
                 setIsCreatingParticipant(true)
                 const info = JSON.parse(localStorage.getItem('userInfo') ?? '{}')
                 const generateReferralCode = () => Math.random().toString(36).substr(2, 8).toUpperCase()
@@ -452,7 +539,13 @@ export default function ClientMyPage() {
                     email: info.email,
                     mobile: info.mobile,
                     referral_code: referralCode,
-                    level: 1
+                    level: 1,
+                    instagram_id: ptInstagram || null,
+                    instagram_followers: ptInstagram ? ptInstagramFollowers : null,
+                    youtube_id: ptYoutube || null,
+                    youtube_subscribers: ptYoutube ? ptYoutubeSubscribers : null,
+                    tiktok_id: ptTiktok || null,
+                    tiktok_followers: ptTiktok ? ptTiktokFollowers : null
                   })
                 })
                 if (!res.ok) { showToast('체험단 계정 생성 실패!'); setIsCreatingParticipant(false); return }
