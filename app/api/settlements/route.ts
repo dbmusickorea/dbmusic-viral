@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getWithdrawableBalance } from '../../lib/withdrawableBalance'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -56,6 +57,14 @@ export async function POST(request: NextRequest) {
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
+
+  if (body.member_id && body.amount) {
+    const withdrawableBalance = await getWithdrawableBalance(auth.client, body.member_id)
+    if (Number(body.amount) > withdrawableBalance) {
+      return NextResponse.json({ error: '환전 가능 금액을 초과했습니다.' }, { status: 400 })
+    }
+  }
+
   const { error } = await auth.client.from('settlements').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
