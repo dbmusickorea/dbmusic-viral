@@ -3,6 +3,18 @@
     {
       "path": "/api/cron",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron-snapshot",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron-follower-refresh",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron-daily",
+      "schedule": "0 * * * *"
     }
   ]
 }
