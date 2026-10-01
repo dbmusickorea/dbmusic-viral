@@ -31,6 +31,7 @@ export default function WalletPage() {
   const [showChat, setShowChat] = useState(false)
   const [balance, setBalance] = useState(0)
   const [availableBalance, setAvailableBalance] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [coverReward, setCoverReward] = useState(0)
   const [level, setLevel] = useState(1)
   const [isLocked, setIsLocked] = useState(false)
@@ -158,6 +159,7 @@ export default function WalletPage() {
   }
 
   const handleExchange = async () => {
+    if (isSubmitting) return
     if (!agreedTax) { showToast('개인정보 수집 및 원천징수에 동의해주세요.'); return }
     // 1개월 미활동 잠금 기능은 폐지됨(2026-09-17)
     if (!exchangeAmount) { showToast('신청 금액을 입력해주세요.'); return }
@@ -169,80 +171,85 @@ export default function WalletPage() {
     if (age === null) { showToast('주민번호를 다시 확인해주세요.'); return }
     if (age < 18) { showToast('적립금 환전은 만 18세 이상만 가능해요.'); return }
 
-    const participantRes = await fetchWithAuth(`/api/participants?ids=${userInfo?.id}`)
-    const participants = await participantRes.json()
-    const participantData = participants?.[0]
+    setIsSubmitting(true)
+    try {
+      const participantRes = await fetchWithAuth(`/api/participants?ids=${userInfo?.id}`)
+      const participants = await participantRes.json()
+      const participantData = participants?.[0]
 
-    if (!participantData?.account_number || !participantData?.bank_name || !participantData?.account_holder) {
-      showToast('계좌번호가 등록되지 않았어요. 마이페이지에서 계좌를 먼저 등록해주세요!')
-      router.push('/mypage')
-      return
-    }
-
-    if (participantData?.account_holder && participantData?.name) {
-      if (participantData.account_holder !== participantData.name) {
-        showToast('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
+      if (!participantData?.account_number || !participantData?.bank_name || !participantData?.account_holder) {
+        showToast('계좌번호가 등록되지 않았어요. 마이페이지에서 계좌를 먼저 등록해주세요!')
+        router.push('/mypage')
         return
       }
-    }
 
-    // 팝빌 계좌 실명조회
-    if (participantData?.bank_code && participantData?.account_number) {
-      const checkRes = await fetchWithAuth('/api/account-check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bankCode: participantData.bank_code, accountNumber: participantData.account_number })
-      })
-      const checkData = await checkRes.json()
-      if (checkData.error) {
-        showToast('계좌 확인에 실패했어요. 잠시 후 다시 시도해주세요.')
-        return
+      if (participantData?.account_holder && participantData?.name) {
+        if (participantData.account_holder !== participantData.name) {
+          showToast('예금주와 가입자 이름이 일치하지 않아요. 본인 명의 계좌만 환전 신청 가능합니다.')
+          return
+        }
       }
-      if (checkData.accountName && participantData.name && !checkData.accountName.includes(participantData.name)) {
-        showToast(`계좌 예금주(${checkData.accountName})와 가입자 이름이 일치하지 않아요.`)
-        return
+
+      // 팝빌 계좌 실명조회
+      if (participantData?.bank_code && participantData?.account_number) {
+        const checkRes = await fetchWithAuth('/api/account-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bankCode: participantData.bank_code, accountNumber: participantData.account_number })
+        })
+        const checkData = await checkRes.json()
+        if (checkData.error) {
+          showToast('계좌 확인에 실패했어요. 잠시 후 다시 시도해주세요.')
+          return
+        }
+        if (checkData.accountName && participantData.name && !checkData.accountName.includes(participantData.name)) {
+          showToast(`계좌 예금주(${checkData.accountName})와 가입자 이름이 일치하지 않아요.`)
+          return
+        }
       }
-    }
 
-    const taxAmount = Math.floor(amount * 0.033)
-    const netAmount = amount - taxAmount
-    const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
+      const taxAmount = Math.floor(amount * 0.033)
+      const netAmount = amount - taxAmount
+      const encryptedResident = residentNumber ? await encryptText(residentNumber) : ''
 
-    const settlementRes = await fetchWithAuth('/api/settlements', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
-        resident_number: encryptedResident, status: 'PENDING',
-        is_privacy_agreed: true,
-        agreed_at: new Date().toISOString(),
-        user_ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown')
-      })
-    })
-    if (!settlementRes.ok) { showToast('환전 신청 실패!'); return }
-
-    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
-    const adminTokens = await adminTokensRes.json()
-    if (adminTokens && adminTokens.length > 0) {
-      await fetch('/api/push', {
+      const settlementRes = await fetchWithAuth('/api/settlements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: '💰 환전 신청이 들어왔어요!',
-          data: { url: '/settlement' },
-          body: `${userInfo?.name}님이 ${amount.toLocaleString()}P 환전을 신청했어요.`,
-          tokens: adminTokens.map((t: any) => t.token),
-          userIds: adminTokens.map((t: any) => t.user_id)
+          member_id: userInfo?.id, amount, tax_amount: taxAmount, net_amount: netAmount,
+          resident_number: encryptedResident, status: 'PENDING',
+          is_privacy_agreed: true,
+          agreed_at: new Date().toISOString(),
+          user_ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown')
         })
       })
-    }
+      if (!settlementRes.ok) { showToast('환전 신청 실패!'); return }
 
-    showToast(`환전 신청 완료! ${netAmount.toLocaleString()}P (세후)가 신청됐어요.`)
-    setExchangeAmount('')
-    setAgreedTax(false)
-    setResidentNumber('')
-    setShowExchange(false)
-    loadData(userInfo?.id)
+      const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
+      const adminTokens = await adminTokensRes.json()
+      if (adminTokens && adminTokens.length > 0) {
+        await fetch('/api/push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: '💰 환전 신청이 들어왔어요!',
+            data: { url: '/settlement' },
+            body: `${userInfo?.name}님이 ${amount.toLocaleString()}P 환전을 신청했어요.`,
+            tokens: adminTokens.map((t: any) => t.token),
+            userIds: adminTokens.map((t: any) => t.user_id)
+          })
+        })
+      }
+
+      showToast(`환전 신청 완료! ${netAmount.toLocaleString()}P (세후)가 신청됐어요.`)
+      setExchangeAmount('')
+      setAgreedTax(false)
+      setResidentNumber('')
+      setShowExchange(false)
+      loadData(userInfo?.id)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const earnHistory = posts.map(post => {
@@ -472,7 +479,7 @@ export default function WalletPage() {
                   <p className="font-medium">실수령액: {(Number(exchangeAmount) - Math.floor(Number(exchangeAmount) * 0.033)).toLocaleString()}P</p>
                 </div>
               )}
-              <button onClick={handleExchange} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium">환전 신청하기</button>
+              <button onClick={handleExchange} disabled={isSubmitting} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">{isSubmitting ? '처리 중...' : '환전 신청하기'}</button>
             </div>
           </div>
         )}
