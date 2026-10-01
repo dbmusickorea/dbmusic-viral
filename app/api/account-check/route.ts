@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const popbill = require('popbill')
-
-popbill.config({
-  LinkID: process.env.POPBILL_LINK_ID,
-  SecretKey: process.env.POPBILL_SECRET_KEY,
-  IsTest: false,
-  IPRestrictOnOff: true,
-  UseStaticIP: false,
-  UseLocalTimeYN: true,
-  defaultErrorHandler: (err: any) => console.error('Popbill Error:', err),
-})
-
-const accountCheckService = popbill.AccountCheckService()
+const BOLTA_API_URL = 'https://xapi.bolta.io/v1/bankAccountHolders:inquire'
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const authHeader = req.headers.get('authorization')
@@ -24,26 +12,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '은행코드와 계좌번호는 필수입니다.' }, { status: 400 })
   }
 
+  const cleanBankCode = bankCode.replace(/[^0-9]/g, '').padStart(3, '0')
   const cleanAccountNumber = accountNumber.replace(/[^0-9]/g, '')
-  const paddedBankCode = bankCode.replace(/[^0-9]/g, '').padStart(4, '0')
 
-  return new Promise<NextResponse>((resolve) => {
-    accountCheckService.checkAccountInfo(
-      '6598703644',
-      paddedBankCode,
-      cleanAccountNumber,
-      (result: any) => {
-        resolve(NextResponse.json({
-          accountName: result.accountName,
-          bankCode: result.bankCode,
-          accountNumber: result.accountNumber,
-          resultCode: result.resultCode,
-          resultMessage: result.resultMessage,
-        }))
+  const apiKey = process.env.BOLTA_API_KEY
+  if (!apiKey) {
+    console.error('BOLTA_API_KEY is not set')
+    return NextResponse.json({ error: '서버 설정 오류' }, { status: 500 })
+  }
+
+  const authToken = Buffer.from(`${apiKey}:`).toString('base64')
+
+  try {
+    const boltaRes = await fetch(BOLTA_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${authToken}`,
       },
-      (err: any) => {
-        resolve(NextResponse.json({ error: err.message ?? '계좌 조회 실패' }, { status: 500 }))
-      }
-    )
-  })
+      body: JSON.stringify({
+        bankCode: cleanBankCode,
+        accountNumber: cleanAccountNumber,
+      }),
+    })
+
+    const data = await boltaRes.json()
+
+    if (!boltaRes.ok) {
+      console.error('Bolta Error:', data)
+      return NextResponse.json({ error: data.message ?? '계좌 조회 실패' }, { status: boltaRes.status })
+    }
+
+    return NextResponse.json({
+      accountName: data.holderName,
+      bankCode: data.bankCode,
+      accountNumber: data.accountNumber,
+      resultCode: 'SUCCESS',
+      resultMessage: '조회 성공',
+    })
+  } catch (err: any) {
+    console.error('Bolta Error:', err)
+    return NextResponse.json({ error: err.message ?? '계좌 조회 실패' }, { status: 500 })
+  }
 }
