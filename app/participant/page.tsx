@@ -977,13 +977,20 @@ useEffect(() => {
       }
     }
 
-    // 인스타그램 게시물 작성자 확인
-    if (platform === 'instagram' && snsAccount) {
+    // 인스타그램 게시물 확인 (작성자 일치 + 필수 문구)
+    if (platform === 'instagram') {
       for (const url of validUrls) {
         const shortcode = url.split('/p/')[1]?.split('/')[0] || url.split('/reel/')[1]?.split('/')[0]
-        if (shortcode) {
-          const igRes = await fetchWithAuth(`/api/instagram?shortcode=${shortcode}`)
-          const igData = await igRes.json()
+        if (!shortcode) continue
+        let igData: any = null
+        for (let attempt = 0; attempt < 2 && !igData; attempt++) {
+          try {
+            const igRes = await fetchWithAuth(`/api/instagram?shortcode=${shortcode}`)
+            const json = await igRes.json()
+            if (json && !json.error) igData = json
+          } catch { /* 재시도 */ }
+        }
+        if (snsAccount && igData) {
           const postOwner = igData?.user?.username?.toLowerCase()
           const myAccount = snsAccount.replace('@', '').toLowerCase()
           if (postOwner && postOwner !== myAccount) {
@@ -991,38 +998,72 @@ useEffect(() => {
             return
           }
         }
-      }
-    }
-
-    // 유튜브 게시물 작성자 확인
-    if (platform === 'youtube' && snsAccount) {
-      for (const url of validUrls) {
-        const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
-        if (videoId) {
-          const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
-          const ytData = await ytRes.json()
-          const channelId = ytData?.items?.[0]?.snippet?.channelId
-          const myChannelRes = await fetchWithAuth(`/api/youtube-channel?handle=${snsAccount.replace('@', '')}`)
-          const myChannelData = await myChannelRes.json()
-          if (channelId && myChannelData?.channelId && channelId !== myChannelData.channelId) {
-            showToast(`게시물 채널과 등록된 계정이 일치하지 않아요.`)
-            return
-          }
+        if (igData?.user?.is_private) {
+          showToast('계정이 비공개 상태예요. 공개로 전환한 후 다시 제출해주세요.')
+          return
+        }
+        const igCaption = igData?.caption?.text
+        if (igCaption && !/협찬|광고/.test(igCaption.slice(0, 50))) {
+          showToast('게시물 맨 앞에 "협찬" 또는 "광고" 문구를 추가한 후 다시 제출해주세요.')
+          return
         }
       }
     }
 
-    // 틱톡 게시물 작성자 확인
-    if (platform === 'tiktok' && snsAccount) {
+    // 유튜브 게시물 확인 (작성자 일치 + 필수 문구)
+    if (platform === 'youtube') {
       for (const url of validUrls) {
-        const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(url)}&hd=1`,
-          { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
-        )
-        const ttData = await ttRes.json()
+        const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/)?.[1]
+        if (!videoId) continue
+        let ytData: any = null
+        for (let attempt = 0; attempt < 2 && !ytData; attempt++) {
+          try {
+            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`)
+            const json = await ytRes.json()
+            if (json?.items?.length) ytData = json
+          } catch { /* 재시도 */ }
+        }
+        const channelId = ytData?.items?.[0]?.snippet?.channelId
+        if (snsAccount && channelId) {
+          const myChannelRes = await fetchWithAuth(`/api/youtube-channel?handle=${snsAccount.replace('@', '')}`)
+          const myChannelData = await myChannelRes.json()
+          if (myChannelData?.channelId && channelId !== myChannelData.channelId) {
+            showToast(`게시물 채널과 등록된 계정이 일치하지 않아요.`)
+            return
+          }
+        }
+        const ytDescription = ytData?.items?.[0]?.snippet?.description
+        if (ytDescription && !/협찬|광고/.test(ytDescription.slice(0, 50))) {
+          showToast('게시물 맨 앞에 "협찬" 또는 "광고" 문구를 추가한 후 다시 제출해주세요.')
+          return
+        }
+      }
+    }
+
+    // 틱톡 게시물 확인 (작성자 일치 + 필수 문구)
+    if (platform === 'tiktok') {
+      for (const url of validUrls) {
+        let ttData: any = null
+        for (let attempt = 0; attempt < 2 && !ttData; attempt++) {
+          try {
+            const ttRes = await fetch(`https://tiktok-scraper7.p.rapidapi.com/?url=${encodeURIComponent(url)}&hd=1`,
+              { headers: { 'x-rapidapi-key': '00a17b2152msh1a098423700fc90p1d97d2jsn85e2250f9992', 'x-rapidapi-host': 'tiktok-scraper7.p.rapidapi.com' } }
+            )
+            const json = await ttRes.json()
+            if (json?.data) ttData = json
+          } catch { /* 재시도 */ }
+        }
         const author = ttData?.data?.author?.unique_id?.toLowerCase()
-        const myAccount = snsAccount.replace('@', '').toLowerCase()
-        if (author && author !== myAccount) {
-          showToast(`게시물 작성자(${author})와 등록된 계정(${myAccount})이 일치하지 않아요.`)
+        if (snsAccount && author) {
+          const myAccount = snsAccount.replace('@', '').toLowerCase()
+          if (author !== myAccount) {
+            showToast(`게시물 작성자(${author})와 등록된 계정(${myAccount})이 일치하지 않아요.`)
+            return
+          }
+        }
+        const ttCaption = ttData?.data?.desc
+        if (ttCaption && !/협찬|광고/.test(ttCaption.slice(0, 50))) {
+          showToast('게시물 맨 앞에 "협찬" 또는 "광고" 문구를 추가한 후 다시 제출해주세요.')
           return
         }
       }
@@ -1563,7 +1604,11 @@ useEffect(() => {
                                 </>}
                                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
                                   <p className="text-xs text-orange-700 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> 필수 문구 안내</p>
-                                  <p className="text-xs text-orange-600 mt-1">'더블비뮤직 체험단 선정, 협찬으로 올려요' 라는 문구를 반드시 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.</p>
+                                  <p className="text-xs text-orange-600 mt-1">게시글 맨 앞에 "#협찬" 또는 "[광고] 더블비뮤직 체험단" 중 하나를 반드시 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.</p>
+                                </div>
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                                  <p className="text-xs text-red-700 font-medium flex items-center gap-0.5"><AlertTriangle size={10} /> 게시물 유지 안내</p>
+                                  <p className="text-xs text-red-600 mt-1">제출한 게시물을 삭제하거나 SNS 계정을 비공개로 전환하면 지급된 적립금이 회수될 수 있어요. 제출 후에도 게시물은 공개 상태로 계속 유지해주세요.</p>
                                 </div>
                                 <div>
                                   {/* 일반 게시물 */}

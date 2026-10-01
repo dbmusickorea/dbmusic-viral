@@ -115,8 +115,8 @@ export default function GuidePage() {
               <p className="text-sm font-medium dark:text-white">③ SNS 업로드</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">더블비뮤직 앱에 연동 등록해 두신 본인의 SNS 계정(인스타그램, 유튜브, 틱톡 등) 1곳 이상에 일상적인 사진이나 영상물과 함께 미션 곡을 배경음악으로 선택하여 업로드 하면 됩니다.</p>
               <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-2 mt-2">
-                <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">게시글 설명에 필히 표기:</p>
-                <p className="text-xs text-orange-600 dark:text-orange-200">"더블비뮤직 체험단 선정, 협찬으로 올려요"</p>
+                <p className="text-xs text-orange-700 dark:text-orange-400 font-medium">게시글 설명 맨 앞에 아래 중 하나를 꼭 표기:</p>
+                <p className="text-xs text-orange-600 dark:text-orange-200">"#협찬" 또는 "[광고] 더블비뮤직 체험단"</p>
                 <p className="text-xs text-orange-600 dark:text-orange-200 mt-1">인스타그램의 경우 사진일지라도 반드시 '릴스'로 업로드 해주세요.</p>
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function GuidePage() {
               },
               {
                 q: 'Q3. 게시물을 올릴 때 본문에 꼭 적어야 하는 문구가 있나요?',
-                a: '대한민국 표시광고법(뒷광고 제재) 지침 준수를 위해, 영상 본문 맨 첫 줄에 "더블비뮤직 체험단 선정, 협찬으로 올려요"라는 문구를 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.'
+                a: '대한민국 표시광고법(뒷광고 제재) 지침 준수를 위해, 영상 본문 맨 첫 줄에 "#협찬" 또는 "[광고] 더블비뮤직 체험단" 중 하나를 기재하셔야 합니다. 해당 문구가 누락되거나 숨겨져 있을 경우 미션이 자동으로 반려 처리됩니다.'
               },
               {
                 q: 'Q4. 친구를 내 추천인 코드로 가입시키면 어떤 이득이 있나요?',

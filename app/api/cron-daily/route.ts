@@ -11,6 +11,7 @@ export async function GET() {
     const now = new Date()
     const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000)
     const currentHour = kstNow.getUTCHours()
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
     // 댓글 삭제 여부 체크 (하루 1회)
     if (currentHour === 3) {
@@ -63,7 +64,7 @@ export async function GET() {
     // 인스타그램 비공개 전환 체크 (하루 1회 - 한국시간 오전 10시)
     // 전날 새벭 3시 체크에서 저장된 sns_is_private 값을 그대로 사용 (추가 API 호출 없음)
     if (currentHour === 10) {
-      const { data: ongoingProjectsForPrivacy } = await supabase.from('projects').select('project_code, reward_per_post, artist_name, song_title').eq('status', 'ONGOING')
+      const { data: ongoingProjectsForPrivacy } = await supabase.from('projects').select('project_code, reward_per_post, artist_name, song_title').gte('start_date', ninetyDaysAgo)
       if (ongoingProjectsForPrivacy && ongoingProjectsForPrivacy.length > 0) {
         const projectMap = new Map(ongoingProjectsForPrivacy.map((p: any) => [p.project_code, p]))
         const { data: privacyPosts } = await supabase
@@ -175,7 +176,7 @@ export async function GET() {
         .from('posts')
         .select('id, post_url, platform, member_id, project_code, likes_count, is_cover')
         .in('project_code', 
-          (await supabase.from('projects').select('project_code').eq('status', 'ONGOING')).data?.map((p: any) => p.project_code) ?? []
+          (await supabase.from('projects').select('project_code').gte('start_date', ninetyDaysAgo)).data?.map((p: any) => p.project_code) ?? []
         )
 
       if (ongoingPosts) {
