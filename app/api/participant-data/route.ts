@@ -89,15 +89,22 @@ export async function GET(request: NextRequest) {
   const completedCodes = completedProjects.map((p: any) => p.project_code.toLowerCase())
   // 커버 관련 point_history 인지 구분 (memo에 "커버" 포함 여부로 판단)
   const isCoverMemo = (memo: string) => (memo ?? '').includes('커버')
+  // 프로젝트 시작일로부터 45일 경과해야 환전 가능 (게시물 유효성/비공개 체크 보장기간과 동일)
+  const isWithdrawable = (p: any) => {
+    if (!p.start_date) return true
+    const withdrawableFrom = new Date(new Date(p.start_date).getTime() + 45 * 24 * 60 * 60 * 1000)
+    return new Date() >= withdrawableFrom
+  }
 
   // 환전 가능 금액 계산: 
   // - 프로젝트 무관 내역(추천인 등) - 항상 포함
-  // - 일반 프로젝트 관련 내역 - 프로젝트 종료 시 포함
+  // - 일반 프로젝트 관련 내역 - 프로젝트 종료 + 시작일로부터 45일 경과 후 포함
   // - 커버 관련 내역 - 프로젝트 종료일로부터 15일 경과 후에만 포함
   const availableAmount = (pointHistoryRes.data ?? []).reduce((sum: number, ph: any) => {
     if (!ph.project_code) return sum + (ph.amount ?? 0) // 프로젝트 무관 (친구추천 등) - 항상 포함
     const project = completedProjects.find((p: any) => p.project_code.toLowerCase() === ph.project_code.toLowerCase())
     if (!project) return sum // 프로젝트가 아직 종료 안 됨
+    if (!isWithdrawable(project)) return sum // 시작일로부터 45일 안 지남
     if (isCoverMemo(ph.memo)) {
       const endDate = project.end_date ? new Date(project.end_date) : null
       if (!endDate) return sum

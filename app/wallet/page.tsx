@@ -429,6 +429,7 @@ export default function WalletPage() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청</h2>
             <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
+            <p className="text-xs text-gray-500 mb-3">※ 환전은 프로젝트 시작일로부터 45일 이후에 가능합니다</p>
             {coverReward > 0 && (
               <div className="bg-purple-50 dark:bg-purple-900 rounded-lg p-3 mb-3">
                 <p className="text-xs text-gray-500 dark:text-gray-400">커버영상 수익</p>

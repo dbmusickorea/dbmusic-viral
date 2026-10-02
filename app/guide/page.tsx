@@ -187,7 +187,7 @@ export default function GuidePage() {
             </div>
             <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
               <p className="text-sm font-medium text-blue-800 dark:text-blue-300">환전 가능 시점</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">참여하신 프로젝트가 완료(종료) 처리된 이후부터 해당 리워드를 환전 신청할 수 있습니다.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">참여하신 프로젝트가 완료(종료) 처리되고, 프로젝트 시작일로부터 45일이 지난 시점부터 해당 리워드를 환전 신청할 수 있습니다.</p>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">커버영상으로 참여하신 리워드는 프로젝트 종료일로부터 15일이 더 지난 시점부터 환전 신청이 가능합니다.</p>
             </div>
             <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3">

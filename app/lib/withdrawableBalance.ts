@@ -2,7 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 // 환전 가능 금액 계산 (participant-data/route.ts의 계산 로직과 동일한 규칙)
 // - 프로젝트 무관 내역(추천인 등) - 항상 포함
-// - 일반 프로젝트 관련 내역 - 프로젝트 종료 시 포함
+// - 일반 프로젝트 관련 내역 - 프로젝트 종료 + 시작일로부터 45일 경과 후 포함
 // - 커버 관련 내역 - 프로젝트 종료일로부터 15일 경과 후에만 포함
 // - 이미 PENDING/APPROVED 상태인 기존 환전신청 금액은 차감
 export async function getWithdrawableBalance(client: SupabaseClient, memberId: string | number): Promise<number> {
@@ -19,11 +19,17 @@ export async function getWithdrawableBalance(client: SupabaseClient, memberId: s
 
   const completedProjects = myProjectsRes.data?.filter((p: any) => p.status === 'COMPLETED') ?? []
   const isCoverMemo = (memo: string) => (memo ?? '').includes('커버')
+  const isWithdrawable = (p: any) => {
+    if (!p.start_date) return true
+    const withdrawableFrom = new Date(new Date(p.start_date).getTime() + 45 * 24 * 60 * 60 * 1000)
+    return new Date() >= withdrawableFrom
+  }
 
   const availableAmount = (pointHistoryRes.data ?? []).reduce((sum: number, ph: any) => {
     if (!ph.project_code) return sum + (ph.amount ?? 0)
     const project = completedProjects.find((p: any) => p.project_code.toLowerCase() === ph.project_code.toLowerCase())
     if (!project) return sum
+    if (!isWithdrawable(project)) return sum
     if (isCoverMemo(ph.memo)) {
       const endDate = project.end_date ? new Date(project.end_date) : null
       if (!endDate) return sum

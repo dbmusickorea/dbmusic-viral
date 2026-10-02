@@ -74,9 +74,14 @@ async function handleComment(comment: any, igAccountId: string) {
     .eq("instagram_media_id", media?.id)
     .eq("is_active", true);
 
-  const matchedRule = (rules ?? []).find(
-    (rule) => !rule.trigger_keyword || text?.includes(rule.trigger_keyword)
-  );
+  const matchedRule = (rules ?? []).find((rule) => {
+    if (!rule.trigger_keyword) return true;
+    const keywords = rule.trigger_keyword
+      .split(",")
+      .map((k: string) => k.trim())
+      .filter(Boolean);
+    return keywords.some((keyword: string) => text?.includes(keyword));
+  });
   if (!matchedRule) return;
 
   try {
