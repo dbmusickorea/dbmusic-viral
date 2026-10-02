@@ -58,6 +58,9 @@ export async function createRule(formData: {
   triggerKeyword: string;
   dmTemplate: string;
   requireFollowCheck: boolean;
+  publicReplyTemplate: string;
+  buttonText: string;
+  buttonUrl: string;
 }) {
   const { error } = await supabaseAdmin.from("comment_dm_rules").insert({
     connected_account_id: formData.connectedAccountId,
@@ -67,6 +70,9 @@ export async function createRule(formData: {
     trigger_keyword: formData.triggerKeyword || null,
     dm_template: formData.dmTemplate,
     require_follow_check: formData.requireFollowCheck,
+    public_reply_template: formData.publicReplyTemplate || null,
+    button_text: formData.buttonText || null,
+    button_url: formData.buttonUrl || null,
     is_active: true,
   });
   if (error) throw error;
@@ -84,7 +90,14 @@ export async function toggleRuleActive(ruleId: string, isActive: boolean) {
 
 export async function updateRule(
   ruleId: string,
-  updates: { triggerKeyword: string; dmTemplate: string; requireFollowCheck: boolean }
+  updates: {
+    triggerKeyword: string;
+    dmTemplate: string;
+    requireFollowCheck: boolean;
+    publicReplyTemplate: string;
+    buttonText: string;
+    buttonUrl: string;
+  }
 ) {
   const { error } = await supabaseAdmin
     .from("comment_dm_rules")
@@ -92,6 +105,9 @@ export async function updateRule(
       trigger_keyword: updates.triggerKeyword || null,
       dm_template: updates.dmTemplate,
       require_follow_check: updates.requireFollowCheck,
+      public_reply_template: updates.publicReplyTemplate || null,
+      button_text: updates.buttonText || null,
+      button_url: updates.buttonUrl || null,
     })
     .eq("id", ruleId);
   if (error) throw error;

@@ -112,7 +112,13 @@ async function handleComment(comment: any, igAccountId: string) {
         status: "sent",
       });
     } else {
-      await sendPrivateReply(account.access_token, commentId, matchedRule.dm_template);
+      await sendPrivateReply(
+        account.access_token,
+        commentId,
+        matchedRule.dm_template,
+        matchedRule.button_text,
+        matchedRule.button_url
+      );
       await supabase.from("dm_send_logs").insert({
         rule_id: matchedRule.id,
         comment_id: commentId,
@@ -162,7 +168,14 @@ async function handleMessage(messaging: any, igAccountId: string) {
     const isFollowing = await checkUserFollowsBusiness(account.access_token, senderId);
 
     if (isFollowing) {
-      await sendDirectMessage(account.access_token, senderId, rule.dm_template);
+      await sendDirectMessage(
+        account.access_token,
+        senderId,
+        rule.dm_template,
+        false,
+        rule.button_text,
+        rule.button_url
+      );
       await supabase.from("follow_gate_pending").delete().eq("id", pending.id);
       await supabase.from("dm_send_logs").insert({
         rule_id: rule.id,

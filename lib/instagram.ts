@@ -84,10 +84,34 @@ export async function sendPublicReply(
   return data;
 }
 
+function buildMessageBody(
+  text: string,
+  buttonText?: string | null,
+  buttonUrl?: string | null
+): any {
+  if (buttonUrl) {
+    return {
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "button",
+          text: text || "아래 버튼을 눌러주세요 👇",
+          buttons: [
+            { type: "web_url", url: buttonUrl, title: buttonText || "자세히 보기" },
+          ],
+        },
+      },
+    };
+  }
+  return { text };
+}
+
 export async function sendPrivateReply(
   accessToken: string,
   commentId: string,
-  text: string
+  text: string,
+  buttonText?: string | null,
+  buttonUrl?: string | null
 ) {
   const res = await fetch(
     `https://graph.instagram.com/${GRAPH_VERSION}/me/messages?access_token=${accessToken}`,
@@ -96,7 +120,7 @@ export async function sendPrivateReply(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         recipient: { comment_id: commentId },
-        message: { text },
+        message: buildMessageBody(text, buttonText, buttonUrl),
       }),
     }
   );
@@ -142,7 +166,9 @@ export async function sendDirectMessage(
   accessToken: string,
   igsid: string,
   text: string,
-  withFollowButton = false
+  withFollowButton = false,
+  buttonText?: string | null,
+  buttonUrl?: string | null
 ) {
   const message: any = withFollowButton
     ? {
@@ -157,7 +183,7 @@ export async function sendDirectMessage(
           },
         },
       }
-    : { text };
+    : buildMessageBody(text, buttonText, buttonUrl);
   const res = await fetch(
     `https://graph.instagram.com/${GRAPH_VERSION}/me/messages?access_token=${accessToken}`,
     {

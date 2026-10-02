@@ -30,6 +30,9 @@ type Rule = {
   dm_template: string;
   is_active: boolean;
   require_follow_check: boolean;
+  public_reply_template: string | null;
+  button_text: string | null;
+  button_url: string | null;
 };
 
 type Media = {
@@ -107,11 +110,17 @@ export default function RuleManager({
   const [keyword, setKeyword] = useState("");
   const [template, setTemplate] = useState("");
   const [requireFollowCheck, setRequireFollowCheck] = useState(false);
+  const [publicReply, setPublicReply] = useState("");
+  const [buttonText, setButtonText] = useState("");
+  const [buttonUrl, setButtonUrl] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editKeyword, setEditKeyword] = useState("");
   const [editTemplate, setEditTemplate] = useState("");
   const [editRequireFollowCheck, setEditRequireFollowCheck] = useState(false);
+  const [editPublicReply, setEditPublicReply] = useState("");
+  const [editButtonText, setEditButtonText] = useState("");
+  const [editButtonUrl, setEditButtonUrl] = useState("");
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -193,12 +202,18 @@ export default function RuleManager({
           triggerKeyword: keyword,
           dmTemplate: template,
           requireFollowCheck: requireFollowCheck,
+          publicReplyTemplate: publicReply,
+          buttonText: buttonText,
+          buttonUrl: buttonUrl,
         });
         setTemplate("");
         setKeyword("");
         setSelectedMediaId("");
         setMediaList([]);
         setRequireFollowCheck(false);
+        setPublicReply("");
+        setButtonText("");
+        setButtonUrl("");
         setShowAddModal(false);
         await loadRules(selectedAccountId);
       } catch (e: any) {
@@ -219,6 +234,9 @@ export default function RuleManager({
     setEditKeyword(rule.trigger_keyword ?? "");
     setEditTemplate(rule.dm_template);
     setEditRequireFollowCheck(rule.require_follow_check);
+    setEditPublicReply(rule.public_reply_template ?? "");
+    setEditButtonText(rule.button_text ?? "");
+    setEditButtonUrl(rule.button_url ?? "");
   }
 
   function saveEdit(ruleId: string) {
@@ -227,6 +245,9 @@ export default function RuleManager({
         triggerKeyword: editKeyword,
         dmTemplate: editTemplate,
         requireFollowCheck: editRequireFollowCheck,
+        publicReplyTemplate: editPublicReply,
+        buttonText: editButtonText,
+        buttonUrl: editButtonUrl,
       });
       setEditingId(null);
       await loadRules(selectedAccountId);
@@ -317,6 +338,9 @@ export default function RuleManager({
                       {r.require_follow_check && (
                         <span className="ml-2 text-xs text-gray-400">· 팔로우 확인</span>
                       )}
+                      {r.public_reply_template && (
+                        <span className="ml-2 text-xs text-gray-400">· 공개 답글</span>
+                      )}
                     </span>
                     <Toggle on={r.is_active} onClick={() => handleToggle(r.id, r.is_active)} />
                   </div>
@@ -334,6 +358,24 @@ export default function RuleManager({
                         rows={2}
                         value={editTemplate}
                         onChange={(e) => setEditTemplate(e.target.value)}
+                      />
+                      <input
+                        className="border rounded px-3 py-2 w-full text-sm"
+                        placeholder="공개 답글 (비우면 공개 답글 안 함)"
+                        value={editPublicReply}
+                        onChange={(e) => setEditPublicReply(e.target.value)}
+                      />
+                      <input
+                        className="border rounded px-3 py-2 w-full text-sm"
+                        placeholder="버튼 문구 (예: 다운로드하기)"
+                        value={editButtonText}
+                        onChange={(e) => setEditButtonText(e.target.value)}
+                      />
+                      <input
+                        className="border rounded px-3 py-2 w-full text-sm"
+                        placeholder="버튼 URL (비우면 버튼 없이 텍스트만)"
+                        value={editButtonUrl}
+                        onChange={(e) => setEditButtonUrl(e.target.value)}
                       />
                       <label className="flex items-center gap-2 text-xs text-gray-600">
                         <input
@@ -490,6 +532,27 @@ export default function RuleManager({
               rows={3}
               value={template}
               onChange={(e) => setTemplate(e.target.value)}
+            />
+
+            <input
+              className="border rounded px-3 py-2 w-full text-sm"
+              placeholder="공개 답글 (비우면 공개 답글 안 함)"
+              value={publicReply}
+              onChange={(e) => setPublicReply(e.target.value)}
+            />
+
+            <input
+              className="border rounded px-3 py-2 w-full text-sm"
+              placeholder="버튼 문구 (예: 다운로드하기)"
+              value={buttonText}
+              onChange={(e) => setButtonText(e.target.value)}
+            />
+
+            <input
+              className="border rounded px-3 py-2 w-full text-sm"
+              placeholder="버튼 URL (비우면 버튼 없이 텍스트만)"
+              value={buttonUrl}
+              onChange={(e) => setButtonUrl(e.target.value)}
             />
 
             <label className="flex items-center gap-2 text-sm text-gray-600">
