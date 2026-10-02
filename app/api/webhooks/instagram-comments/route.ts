@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import {
+  sendPublicReply,
   sendPrivateReply,
   sendFollowGatePrivateReply,
   sendDirectMessage,
@@ -85,6 +86,14 @@ async function handleComment(comment: any, igAccountId: string) {
   if (!matchedRule) return;
 
   try {
+    if (matchedRule.public_reply_template) {
+      try {
+        await sendPublicReply(account.access_token, commentId, matchedRule.public_reply_template);
+      } catch (publicErr) {
+        console.error("공개 답글 실패:", publicErr);
+      }
+    }
+
     if (matchedRule.require_follow_check) {
       await sendFollowGatePrivateReply(
         account.access_token,

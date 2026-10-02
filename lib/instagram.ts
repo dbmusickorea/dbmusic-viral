@@ -66,6 +66,24 @@ export async function enableWebhookSubscription(accessToken: string) {
   return data;
 }
 
+export async function sendPublicReply(
+  accessToken: string,
+  commentId: string,
+  text: string
+) {
+  const res = await fetch(
+    `https://graph.instagram.com/${GRAPH_VERSION}/${commentId}/replies?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text }),
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(`공개 답글 발송 실패: ${JSON.stringify(data)}`);
+  return data;
+}
+
 export async function sendPrivateReply(
   accessToken: string,
   commentId: string,
