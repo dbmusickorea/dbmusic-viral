@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.searchParams.get('username')
-  
+
   if (!username) return NextResponse.json({ error: 'username required' }, { status: 400 })
 
   const cleanUsername = username.replace('@', '')
@@ -18,6 +18,14 @@ export async function GET(request: NextRequest) {
   )
 
   const data = await response.json()
+
+  if (!response.ok || data?.follower_count === undefined) {
+    return NextResponse.json(
+      { error: true, status: response.status, message: data?.message ?? 'upstream_failed' },
+      { status: 502 }
+    )
+  }
+
   return NextResponse.json({
     followers: data?.follower_count ?? 0,
     posts: data?.media_count ?? 0,

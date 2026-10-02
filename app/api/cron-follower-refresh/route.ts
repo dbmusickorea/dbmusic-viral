@@ -25,14 +25,20 @@ export async function GET(request: Request) {
         for (const p of allParticipantsForFollowers) {
           try {
             if (p.instagram_id) {
-              const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
-              const igData = await igRes.json()
-              if (igData.followers !== undefined && igData.followers > 0) {
+              let igData: any = null
+              for (let attempt = 0; attempt < 2 && !igData; attempt++) {
+                if (attempt > 0) await new Promise(r => setTimeout(r, 1500))
+                const igRes = await fetch(`https://app.doubleb.kr/api/instagram-user?username=${p.instagram_id}`)
+                const json = await igRes.json()
+                if (!json?.error) igData = json
+              }
+              if (igData && igData.followers !== undefined && igData.followers > 0) {
                 await supabase.from('participants').update({ instagram_followers: igData.followers, instagram_profile_image: igData.thumbnail ?? undefined, instagram_is_private: igData.isPrivate ?? false }).eq('id', p.id)
                 console.log(`[follower-refresh] IG OK id=${p.id} user=${p.instagram_id} followers=${igData.followers}`)
               } else {
                 console.log(`[follower-refresh] IG SKIP id=${p.id} user=${p.instagram_id} data=${JSON.stringify(igData)}`)
               }
+              await new Promise(r => setTimeout(r, 300))
             }
             if (p.youtube_id) {
               const ytRes = await fetch(`https://app.doubleb.kr/api/youtube-channel?handle=${p.youtube_id}`)
