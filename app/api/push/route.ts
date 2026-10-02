@@ -18,10 +18,10 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Firebase Admin 초기화
-if (!getApps().length) {
+// Firebase Admin 초기화 (FIREBASE_SERVICE_ACCOUNT 없으면 스킵 - 로컬 빌드/개발 환경 대응)
+if (!getApps().length && process.env.FIREBASE_SERVICE_ACCOUNT) {
   const serviceAccount = JSON.parse(
-    Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT!, 'base64').toString()
+    Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString()
   )
   initializeApp({
     credential: cert(serviceAccount)
