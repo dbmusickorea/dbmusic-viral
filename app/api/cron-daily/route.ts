@@ -335,6 +335,44 @@ export async function GET() {
       }
     }
 
+    // cover_current 자가치유 재계산 (하루 1회, 새벭 5시)
+    // 실제 상태(승인된 cover_requests + 활동중인 project_participants)로부터 정답값을 다시 계산해서
+    // 여러 곳에 흩어진 +1/-1 로직이 어긋나도 매일 자동으로 교정되게 함
+    if (currentHour === 5) {
+      const { data: coverProjects } = await supabase
+        .from('projects')
+        .select('project_code, cover_current')
+        .or('cover_video_count.gt.0,premium_cover_video_count.gt.0')
+
+      if (coverProjects && coverProjects.length > 0) {
+        for (const proj of coverProjects) {
+          try {
+            const { data: approvedRequests } = await supabase
+              .from('cover_requests')
+              .select('participant_id')
+              .eq('project_code', proj.project_code)
+              .eq('status', 'APPROVED')
+
+            let correctCount = 0
+            if (approvedRequests && approvedRequests.length > 0) {
+              const { data: activeParticipants } = await supabase
+                .from('project_participants')
+                .select('member_id')
+                .eq('project_code', proj.project_code)
+                .eq('status', 'ACTIVE')
+                .in('member_id', approvedRequests.map((r: any) => r.participant_id))
+              correctCount = activeParticipants?.length ?? 0
+            }
+
+            if ((proj.cover_current ?? 0) !== correctCount) {
+              console.log(`[cover-current-fix] ${proj.project_code}: ${proj.cover_current ?? 0} -> ${correctCount}`)
+              await supabase.from('projects').update({ cover_current: correctCount }).eq('project_code', proj.project_code)
+            }
+          } catch { continue }
+        }
+      }
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ success: false, error: String(error) })
