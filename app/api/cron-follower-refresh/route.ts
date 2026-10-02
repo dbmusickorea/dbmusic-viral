@@ -6,14 +6,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const force = searchParams.get('force') === '1'
     const now = new Date()
     const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000)
     const currentHour = kstNow.getUTCHours()
 
-    // 체험단 팔로워 수 갱신 (하루 1회)
-    if (currentHour === 3) {
+    // 체험단 팔로워 수 갱신 (하루 1회, force=1로 수동 실행 가능)
+    if (currentHour === 3 || force) {
       const { data: allParticipantsForFollowers } = await supabase
         .from('participants')
         .select('id, instagram_id, youtube_id, tiktok_id')
@@ -27,6 +29,9 @@ export async function GET() {
               const igData = await igRes.json()
               if (igData.followers !== undefined && igData.followers > 0) {
                 await supabase.from('participants').update({ instagram_followers: igData.followers, instagram_profile_image: igData.thumbnail ?? undefined, instagram_is_private: igData.isPrivate ?? false }).eq('id', p.id)
+                console.log(`[follower-refresh] IG OK id=${p.id} user=${p.instagram_id} followers=${igData.followers}`)
+              } else {
+                console.log(`[follower-refresh] IG SKIP id=${p.id} user=${p.instagram_id} data=${JSON.stringify(igData)}`)
               }
             }
             if (p.youtube_id) {
@@ -34,6 +39,9 @@ export async function GET() {
               const ytData = await ytRes.json()
               if (ytData.subscriberCount !== undefined && ytData.subscriberCount > 0) {
                 await supabase.from('participants').update({ youtube_subscribers: ytData.subscriberCount, youtube_profile_image: ytData.thumbnail ?? undefined }).eq('id', p.id)
+                console.log(`[follower-refresh] YT OK id=${p.id} handle=${p.youtube_id} subscribers=${ytData.subscriberCount}`)
+              } else {
+                console.log(`[follower-refresh] YT SKIP id=${p.id} handle=${p.youtube_id} data=${JSON.stringify(ytData)}`)
               }
             }
             if (p.tiktok_id) {
@@ -46,9 +54,15 @@ export async function GET() {
               const ttData = await ttRes.json()
               if (ttData?.data?.stats?.followerCount !== undefined && ttData.data.stats.followerCount > 0) {
                 await supabase.from('participants').update({ tiktok_followers: ttData.data.stats.followerCount, tiktok_profile_image: ttData.data?.user?.avatarLarger ?? undefined, tiktok_is_private: ttData.data?.user?.privateAccount ?? false }).eq('id', p.id)
+                console.log(`[follower-refresh] TT OK id=${p.id} handle=${p.tiktok_id} followers=${ttData.data.stats.followerCount}`)
+              } else {
+                console.log(`[follower-refresh] TT SKIP id=${p.id} handle=${p.tiktok_id} data=${JSON.stringify(ttData)}`)
               }
             }
-          } catch { continue }
+          } catch (err) {
+            console.log(`[follower-refresh] PARTICIPANT ERROR id=${p.id} ig=${p.instagram_id} yt=${p.youtube_id} tt=${p.tiktok_id} error=${String(err)}`)
+            continue
+          }
         }
       }
     }
