@@ -119,7 +119,7 @@ async function handleComment(comment: any, igAccountId: string) {
 
 async function handleMessage(messaging: any, igAccountId: string) {
   const senderId = messaging.sender?.id;
-  const payload = messaging.message?.quick_reply?.payload;
+  const payload = messaging.postback?.payload;
   if (!senderId || payload !== "FOLLOW_CHECK") return;
 
   const account = await getAccount(igAccountId);
@@ -142,7 +142,7 @@ async function handleMessage(messaging: any, igAccountId: string) {
     .maybeSingle();
   if (!rule) return;
 
-  const logId = messaging.message?.mid ?? "follow-check";
+  const logId = messaging.postback?.mid ?? "follow-check";
 
   try {
     const isFollowing = await checkUserFollowsBusiness(account.access_token, senderId);

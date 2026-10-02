@@ -54,7 +54,7 @@ export async function getInstagramProfile(accessToken: string) {
 // 구독해도 이 특정 계정에서 일어난 일은 webhook으로 안 옴
 export async function enableWebhookSubscription(accessToken: string) {
   const params = new URLSearchParams({
-    subscribed_fields: "comments,messages",
+    subscribed_fields: "comments,messages,messaging_postbacks",
     access_token: accessToken,
   });
   const res = await fetch(
@@ -101,10 +101,16 @@ export async function sendFollowGatePrivateReply(
       body: JSON.stringify({
         recipient: { comment_id: commentId },
         message: {
-          text: promptText,
-          quick_replies: [
-            { content_type: "text", title: "팔로우 확인", payload: "FOLLOW_CHECK" },
-          ],
+          attachment: {
+            type: "template",
+            payload: {
+              template_type: "button",
+              text: promptText,
+              buttons: [
+                { type: "postback", title: "팔로우 확인 🙌🏻", payload: "FOLLOW_CHECK" },
+              ],
+            },
+          },
         },
       }),
     }
@@ -120,12 +126,20 @@ export async function sendDirectMessage(
   text: string,
   withFollowButton = false
 ) {
-  const message: any = { text };
-  if (withFollowButton) {
-    message.quick_replies = [
-      { content_type: "text", title: "팔로우 확인", payload: "FOLLOW_CHECK" },
-    ];
-  }
+  const message: any = withFollowButton
+    ? {
+        attachment: {
+          type: "template",
+          payload: {
+            template_type: "button",
+            text,
+            buttons: [
+              { type: "postback", title: "팔로우 확인 🙌🏻", payload: "FOLLOW_CHECK" },
+            ],
+          },
+        },
+      }
+    : { text };
   const res = await fetch(
     `https://graph.instagram.com/${GRAPH_VERSION}/me/messages?access_token=${accessToken}`,
     {
