@@ -351,11 +351,11 @@ export default function RuleManager({
                         className="border rounded px-3 py-2 w-full text-sm"
                         value={editKeyword}
                         onChange={(e) => setEditKeyword(e.target.value)}
-                        placeholder="키워드 (비우면 전체 댓글)"
+                        placeholder="키워드 (비우면 전체 댓글, 콤마로 여러 개 가능)"
                       />
                       <textarea
                         className="border rounded px-3 py-2 w-full text-sm"
-                        rows={2}
+                        rows={5}
                         value={editTemplate}
                         onChange={(e) => setEditTemplate(e.target.value)}
                       />
@@ -521,7 +521,7 @@ export default function RuleManager({
 
             <input
               className="border rounded px-3 py-2 w-full text-sm"
-              placeholder="트리거 키워드 (비우면 모든 댓글에 반응)"
+              placeholder="트리거 키워드 (비우면 모든 댓글, 콤마로 여러 개 가능: 체험단,이벤트)"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
@@ -529,7 +529,7 @@ export default function RuleManager({
             <textarea
               className="border rounded px-3 py-2 w-full text-sm"
               placeholder="보낼 DM 내용"
-              rows={3}
+              rows={5}
               value={template}
               onChange={(e) => setTemplate(e.target.value)}
             />
