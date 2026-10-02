@@ -521,7 +521,7 @@ export default function RuleManager({
 
             <input
               className="border rounded px-3 py-2 w-full text-sm"
-              placeholder="트리거 키워드 (비우면 모든 댓글, 콤마로 여러 개 가능: 체험단,이벤트)"
+              placeholder="트리거 키워드 (비우면 모든 댓글, 콤마로 여러 개 가능)"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
