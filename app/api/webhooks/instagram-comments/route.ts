@@ -32,12 +32,6 @@ export async function POST(req: NextRequest) {
     "sha256=" +
     crypto.createHmac("sha256", process.env.INSTAGRAM_APP_SECRET!).update(rawBody).digest("hex");
   if (signature !== expected) {
-    console.log("SIGNATURE_DEBUG", {
-      received: signature,
-      expected: expected,
-      secretLength: (process.env.INSTAGRAM_APP_SECRET ?? "").length,
-      bodyLength: rawBody.length,
-    });
     return new NextResponse("Invalid signature", { status: 401 });
   }
 
