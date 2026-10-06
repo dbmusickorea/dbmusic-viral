@@ -297,6 +297,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const PREVIEWABLE_TYPES = [
     'application/pdf', 'text/plain',
+    'video/mp4', 'video/quicktime', 'video/x-m4v', 'video/webm',
     'audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/wav', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/webm',
   ]
 
@@ -336,7 +337,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const handleOpenFile = async (messageId: number, url: string, filename: string, type?: string | null) => {
     const alreadyCached = await isAttachmentCached(messageId, filename)
-    if (!alreadyCached && (window as any).Capacitor?.isNativePlatform?.()) {
+    if (!alreadyCached && !type?.startsWith('video/') && (window as any).Capacitor?.isNativePlatform?.()) {
       setDownloadProgress((prev) => ({ ...prev, [messageId]: { received: 0, total: 0 } }))
       await cacheAttachment(messageId, url, filename, (received, total) => {
         setDownloadProgress((prev) => ({ ...prev, [messageId]: { received, total } }))
@@ -901,11 +902,18 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                         <button
                           key={m.id}
                           disabled={!src}
-                          onClick={() => src && (cachedPaths[m.id] ? openImageViewer(m.id) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
+                          onClick={() => src && (m.attachment_type?.startsWith('video/') ? handleOpenFile(m.id, m.attachment_url ?? '', m.attachment_name || 'video', m.attachment_type) : cachedPaths[m.id] ? openImageViewer(m.id) : handleImageClick(m.id, m.attachment_url ?? '', m.attachment_name || 'image.jpg'))}
                           className="relative aspect-square"
                         >
                           {src ? (
-                            <img src={src} className="w-full h-full object-cover rounded" />
+                            m.attachment_type?.startsWith('video/') ? (
+                              <>
+                                <video src={`${src}#t=0.1`} preload="metadata" muted playsInline className="w-full h-full object-cover rounded" />
+                                <span className="absolute inset-0 flex items-center justify-center text-white text-2xl drop-shadow">▶</span>
+                              </>
+                            ) : (
+                              <img src={src} className="w-full h-full object-cover rounded" />
+                            )
                           ) : (
                             <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
                               <span className="text-[9px] text-gray-400 text-center px-1">만료됨</span>
