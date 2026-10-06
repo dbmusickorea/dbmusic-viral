@@ -254,6 +254,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const [isDraggingFile, setIsDraggingFile] = useState(false)
   const dragCounter = useRef(0)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
+  const [uploadInfo, setUploadInfo] = useState<{ name: string; size: number } | null>(null)
 
   const resizeImage = (file: File, maxSize: number, quality: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
@@ -560,20 +561,22 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     }
     if (uploadingAttachment) return
     setUploadingAttachment(true)
+    setUploadInfo({ name: file.name, size: file.size })
+    try {
+      // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드 - 용량 제한 없음
+      const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_name: file.name })
+      })
+      if (!signRes.ok) { alert('전송에 실패했어요. 다시 시도해주세요.'); return }
+      const { path, token, publicUrl } = await signRes.json()
 
-    // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드 - 용량 제한 없음
-    const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file_name: file.name })
-    })
-    const { path, token, publicUrl } = await signRes.json()
+      const { error: uploadError } = await supabase.storage
+        .from('chat-attachments')
+        .uploadToSignedUrl(path, token, file, { contentType: file.type })
+      if (uploadError) { alert('전송에 실패했어요. 네트워크 상태를 확인하고 다시 시도해주세요.'); return }
 
-    const { error: uploadError } = await supabase.storage
-      .from('chat-attachments')
-      .uploadToSignedUrl(path, token, file, { contentType: file.type })
-
-    if (!uploadError) {
       const sendRes = await fetchWithAuth('/api/chat_messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -582,17 +585,29 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type, attachment_size: file.size,
         })
       })
-      const sentMsg = await sendRes.json()
-      if (sentMsg?.id) cacheAttachment(sentMsg.id, publicUrl, file.name)
+      if (!sendRes.ok) { alert('전송에 실패했어요. 다시 시도해주세요.'); return }
       await fetchMessages()
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+    } catch {
+      alert('전송 중 오류가 발생했어요. 다시 시도해주세요.')
+    } finally {
+      setUploadingAttachment(false)
+      setUploadInfo(null)
     }
-    setUploadingAttachment(false)
   }
 
   return (
     <div className={`fixed ${embedded ? 'md:static' : ''} top-0 left-0 right-0 z-[60] ${embedded ? 'md:z-0' : ''} flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] ${embedded ? 'md:h-full' : ''} w-full`}>
       <div className="w-full shrink-0" style={{paddingTop: 'env(safe-area-inset-top)'}} />
+      {uploadingAttachment && uploadInfo && (
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] w-[calc(100%-2rem)] max-w-md bg-gray-900/90 text-white rounded-xl px-4 py-3 shadow-lg flex items-center gap-3">
+          <span className="inline-block w-4 h-4 shrink-0 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium truncate">{uploadInfo.name}</p>
+            <p className="text-xs text-gray-300">전송 중... ({(uploadInfo.size / 1024 / 1024).toFixed(1)}MB) 완료될 때까지 이 화면을 닫지 마세요</p>
+          </div>
+        </div>
+      )}
       {(title || onBack) && (
         <div className="w-full bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 shrink-0">
           <div className={`max-w-2xl ${embedded ? 'md:max-w-none' : ''} mx-auto flex items-center gap-3 px-4 py-3`}>
