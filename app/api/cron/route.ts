@@ -304,7 +304,7 @@ export async function GET() {
           }
           await fetch(`https://app.doubleb.kr/api/push`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎵 모집이 시작됐어요!',
               body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 모집이 시작됐어요! 지금 참여하세요!`,
@@ -348,7 +348,7 @@ export async function GET() {
               if (normalTokens && normalTokens.length > 0) {
                 await fetch(`https://app.doubleb.kr/api/push`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '📅 미션이 시작됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 시작됐어요! 48시간 안에 게시물을 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
@@ -366,7 +366,7 @@ export async function GET() {
               if (coverTokens && coverTokens.length > 0) {
                 await fetch(`https://app.doubleb.kr/api/push`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '🎵 커버영상 미션이 시작됐어요!', data: { url: '/participant' },
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 커버영상 미션이 시작됐어요! ${new Date(new Date(project.start_date).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')}까지 업로드해주세요.`,
@@ -395,7 +395,7 @@ export async function GET() {
             if (tokens && tokens.length > 0) {
               await fetch(`https://app.doubleb.kr/api/push`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   title: '📅 2차 미션이 시작됐어요!', data: { url: '/participant' },
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 2차 게시물을 48시간 안에 올려주세요. ⚠️ 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
@@ -437,7 +437,7 @@ export async function GET() {
             const tokens = await filterTokensByNotifPref(rawTokens ?? [], 'reminder')
             if (tokens && tokens.length > 0) {
               await fetch('https://app.doubleb.kr/api/push', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   title: '⏰ 게시물 업로드 잊지 않으셨나요?',
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 게시물 업로드 마감까지 24시간 남았어요! 참여신청 후 48시간 이내 미업로드 시 레벨 하락 및 7일간 활동 제한됩니다.`,
@@ -480,7 +480,7 @@ export async function GET() {
                 const memberTokens = await filterTokensByNotifPref(rawMemberTokens ?? [], 'ban')
                 await fetch(`https://app.doubleb.kr/api/push`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '⚠️ 미션 불이행으로 활동이 제한됐어요!',
                     body: `미션을 완료하지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
@@ -501,7 +501,7 @@ export async function GET() {
                 if (filteredTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '🔔 추가 모집 공고!', data: { url: '/participant' },
                       body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 공석이 생겼어요! 지금 참여하세요!`,
@@ -544,7 +544,7 @@ export async function GET() {
                 if (memberTokens && memberTokens.length > 0) {
                   await fetch(`https://app.doubleb.kr/api/push`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '⚠️ 2차 미션 불이행으로 활동이 제한됐어요!', data: { url: '/participant' },
                       body: `2차 게시물을 올리지 않아 Lv.${newLevel}으로 하락했어요. 7일간 미션 참여가 제한됩니다.`,
@@ -577,7 +577,7 @@ export async function GET() {
           if (tokens && tokens.length > 0) {
             await fetch(`https://app.doubleb.kr/api/push`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: '🎵 새 프로젝트가 기다리고 있어요!',
                 body: '아직 참여한 프로젝트가 없어요. 지금 참여해보세요!',
@@ -607,7 +607,7 @@ export async function GET() {
           if (tokens && tokens.length > 0) {
             await fetch(`https://app.doubleb.kr/api/push`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: '💪 오랫동안 활동이 없었어요!',
                 body: '새로운 프로젝트가 기다리고 있어요. 지금 참여해보세요!',
@@ -651,7 +651,7 @@ export async function GET() {
           if (tokens && tokens.length > 0) {
             await fetch('https://app.doubleb.kr/api/push', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: '⚠️ 커버영상 요청이 거절됐어요', data: { url: '/cover' },
                 body: `[${r.projects?.artist_name} / ${r.projects?.song_title}] 24시간 내 응답이 없어 자동 거절됐어요. 재선택해주세요.`,
@@ -731,7 +731,7 @@ export async function GET() {
           if (tokens && tokens.length > 0) {
             await fetch('https://app.doubleb.kr/api/push', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: '⚠️ 커버영상 미업로드 패널티', data: { url: '/participant' },
                 body: '15일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
@@ -784,7 +784,7 @@ export async function GET() {
           if (tokens && tokens.length > 0) {
             await fetch('https://app.doubleb.kr/api/push', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: '⚠️ 커버영상 미업로드 패널티', data: { url: '/participant' },
                 body: '15일 이내 커버영상을 업로드하지 않아 3개월간 커버영상 업로드가 제한됩니다.',
@@ -812,7 +812,7 @@ export async function GET() {
         if (tokens && tokens.length > 0) {
           await fetch('https://app.doubleb.kr/api/push', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '✅ 활동 제한이 해제됐어요!', data: { url: '/participant' },
               body: '미션 불이행 제한 기간이 끝났어요. 이제 다시 미션에 참여할 수 있어요!',
@@ -839,7 +839,7 @@ export async function GET() {
         if (tokens && tokens.length > 0) {
           await fetch('https://app.doubleb.kr/api/push', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '✅ 커버영상 제한이 해제됐어요!', data: { url: '/participant' },
               body: '커버영상 업로드 제한 기간이 끝났어요. 이제 다시 커버영상 미션에 참여할 수 있어요!',
@@ -908,7 +908,7 @@ export async function GET() {
                 if (agencyTokens && agencyTokens.length > 0) {
                   await fetch('https://app.doubleb.kr/api/push', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '💰 수수료가 적립됐어요!',
                       body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트 수수료 ${commission.toLocaleString()}P가 적립됐어요.`,
@@ -930,7 +930,7 @@ export async function GET() {
             if (tokens && tokens.length > 0) {
               await fetch(`https://app.doubleb.kr/api/push`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   title: '📅 미션이 종료됐어요!',
                   body: `${project.artist_name || project.client_name} - ${project.song_title} 미션이 종료됐어요. 수고하셨어요!`,
@@ -950,7 +950,7 @@ export async function GET() {
               if (clientTokens && clientTokens.length > 0) {
                 await fetch(`https://app.doubleb.kr/api/push`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '📅 프로젝트가 종료됐어요!',
                     body: `${project.artist_name || project.client_name} - ${project.song_title} 프로젝트가 종료됐어요. 결과를 확인해보세요!`,

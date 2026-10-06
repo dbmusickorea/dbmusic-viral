@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       if (tokens && tokens.length > 0) {
         await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://app.doubleb.kr'}/api/push`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: '🎵 커버 신청이 왔어요!', data: { url: '/cover' },
             body: `${project.artist_name} / ${project.song_title} 커버 신청을 확인해주세요.`,

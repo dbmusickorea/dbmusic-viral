@@ -63,7 +63,10 @@ async function getBadgeCountForUser(userId: string, role: string | null): Promis
 }
 
 export async function POST(request: NextRequest) {
-  const me = await getChatIdentity(request)
+  // 서버 내부 호출(크론 등)은 서비스 키로 확인, 그 외는 로그인한 사용자만
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const isInternal = !!serviceKey && request.headers.get('authorization') === `Bearer ${serviceKey}`
+  const me: any = isInternal ? { isAdmin: true, isMember: true } : await getChatIdentity(request)
   if (!me || !me.isMember) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { title, body, tokens: rawTokens, userIds, saveToRole, notifRole, data, skipNotificationSave } = await request.json()

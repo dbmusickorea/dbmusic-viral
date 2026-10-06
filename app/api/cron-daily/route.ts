@@ -45,7 +45,7 @@ export async function GET() {
               if (tokens && tokens.length > 0) {
                 await fetch('https://app.doubleb.kr/api/push', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '⚠️ 댓글 삭제로 적립금이 차감됐어요',
                     body: `댓글이 삭제되어 ${(mission.reward_amount ?? 300).toLocaleString()}P가 차감됐어요.`,
@@ -98,7 +98,7 @@ export async function GET() {
                 const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
                 if (tokens && tokens.length > 0) {
                   await fetch('https://app.doubleb.kr/api/push', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '✅ 계정 공개 확인, 페널티 취소됐어요',
                       body: '인스타그램 계정이 다시 공개로 확인되어 적용됐던 페널티가 취소됐어요.',
@@ -119,7 +119,7 @@ export async function GET() {
                 const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
                 if (tokens && tokens.length > 0) {
                   await fetch('https://app.doubleb.kr/api/push', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '⚠️ 인스타그램 계정이 비공개예요',
                       body: '오늘 자정까지 공개로 전환하지 않으면 적립금 회수 및 페널티가 적용돼요.',
@@ -155,7 +155,7 @@ export async function GET() {
                 const { data: tokens } = await supabase.from('push_tokens').select('token, user_id').eq('user_id', String(post.member_id))
                 if (tokens && tokens.length > 0) {
                   await fetch('https://app.doubleb.kr/api/push', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       title: '⚠️ 비공개 미전환으로 페널티가 적용됐어요',
                       body: post.is_cover ? '적립금 회수 및 3개월 커버 페널티가 적용됐어요. 공개로 전환하면 취소돼요.' : '적립금이 회수됐어요. 공개로 전환하면 취소돼요.',
@@ -252,7 +252,7 @@ export async function GET() {
               if (tokens && tokens.length > 0) {
                 await fetch('https://app.doubleb.kr/api/push', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     title: '⚠️ 게시물이 삭제됐어요', data: { url: '/participant' },
                     body: post.is_cover ? '커버 게시물 링크가 유효하지 않아 적립금 회수 및 3개월 커버 페널티가 적용됐어요.' : '게시물 링크가 유효하지 않아 적립금 회수 및 삭제 처리됐어요.',

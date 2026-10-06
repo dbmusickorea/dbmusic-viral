@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         if (referrerTokens && referrerTokens.length > 0) {
           await fetch('https://app.doubleb.kr/api/push', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🎉 레벨이 올랐어요!',
               body: `추천인 보상으로 Lv.${newLevel}이 됐어요! 150P도 적립됐어요.`,
