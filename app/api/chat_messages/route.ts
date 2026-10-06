@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getChatIdentity, canAccessThread, isOwnThread } from '../../lib/chatAuth'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +12,10 @@ export async function GET(request: NextRequest) {
   const userId = searchParams.get('user_id')
   const role = searchParams.get('role')
   if (!userId || !role) return NextResponse.json({ error: 'user_id, role 필요' }, { status: 400 })
+
+  const me = await getChatIdentity(request)
+  if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!canAccessThread(me, userId, role)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { data, error } = await supabaseAdmin
     .from('chat_messages')
@@ -28,6 +33,16 @@ export async function POST(request: NextRequest) {
   const { user_id, role, sender, body: messageBody, project_code, attachment_url, attachment_name, attachment_type, attachment_size } = body
   if (!user_id || !role || !sender || (!messageBody && !attachment_url)) {
     return NextResponse.json({ error: 'user_id, role, sender, (body 또는 attachment_url) 필요' }, { status: 400 })
+  }
+
+  const me = await getChatIdentity(request)
+  if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (sender === 'admin') {
+    if (!me.isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  } else if (sender === 'user') {
+    if (!isOwnThread(me, user_id, role)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  } else {
+    return NextResponse.json({ error: 'sender 값이 올바르지 않아요' }, { status: 400 })
   }
 
   const { data, error } = await supabaseAdmin
@@ -110,6 +125,11 @@ export async function PATCH(request: NextRequest) {
   const { user_id, role, reader } = body
   if (!user_id || !role || !reader) return NextResponse.json({ error: 'user_id, role, reader 필요' }, { status: 400 })
 
+  const me = await getChatIdentity(request)
+  if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const allowed = reader === 'admin' ? me.isAdmin : isOwnThread(me, user_id, role)
+  if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const otherSender = reader === 'admin' ? 'user' : 'admin'
 
   const { error } = await supabaseAdmin
@@ -129,7 +149,12 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-  const { data: msg } = await supabaseAdmin.from('chat_messages').select('attachment_url').eq('id', id).single()
+  const me = await getChatIdentity(request)
+  if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { data: msg } = await supabaseAdmin.from('chat_messages').select('attachment_url, user_id, role, sender').eq('id', id).single()
+  if (!msg) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  // 관리자이거나, 본인 대화 안의 본인 메시지만 삭제 가능
+  if (!(me.isAdmin || (msg.sender === 'user' && isOwnThread(me, msg.user_id, msg.role)))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   if (msg?.attachment_url) {
     const marker = '/chat-attachments/'
     const idx = msg.attachment_url.indexOf(marker)

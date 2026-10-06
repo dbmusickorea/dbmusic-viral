@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getChatIdentity } from '../../lib/chatAuth'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const me = await getChatIdentity(request)
+  if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!me.isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { data: messages, error } = await supabaseAdmin
     .from('chat_messages')
     .select('*')

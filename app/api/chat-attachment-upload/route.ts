@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getChatIdentity } from '../../lib/chatAuth'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,6 +8,9 @@ const supabaseAdmin = createClient(
 )
 
 export async function POST(request: NextRequest) {
+  const me = await getChatIdentity(request)
+  if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!me.isMember) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const formData = await request.formData()
   const file = formData.get('file') as File
 
