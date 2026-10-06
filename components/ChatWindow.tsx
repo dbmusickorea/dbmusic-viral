@@ -554,8 +554,8 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   }
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith('image/') && file.size > 50 * 1024 * 1024) {
-      alert('50MB보다 큰 파일은 보낼 수 없어요.')
+    if (!file.type.startsWith('image/') && file.size > 300 * 1024 * 1024) {
+      alert('300MB보다 큰 파일은 보낼 수 없어요.')
       return
     }
     if (uploadingAttachment) return
