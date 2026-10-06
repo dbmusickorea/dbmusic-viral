@@ -38,7 +38,7 @@ export default function ApplyModal({ show, onClose, userInfo, showToast }: Apply
     if (applyJacketFile) {
       const { data, error } = await supabase.storage
         .from('covers')
-        .upload(`jacket_${Date.now()}`, applyJacketFile, { upsert: true })
+        .upload(`jacket_${Date.now()}`, applyJacketFile, { upsert: false })
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         jacketImageUrl = urlData.publicUrl

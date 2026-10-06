@@ -636,7 +636,7 @@ export default function Page1() {
       const resized = await resizeImageFile(coverImageFile)
       const { data, error } = await supabase.storage
         .from('covers')
-        .upload(`${formData.projectCode.toUpperCase()}_${Date.now()}`, resized, { upsert: true })
+        .upload(`${formData.projectCode.toUpperCase()}_${Date.now()}`, resized, { upsert: false })
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
@@ -791,7 +791,7 @@ export default function Page1() {
       const resized = await resizeImageFile(coverImageFile)
       const { data, error } = await supabase.storage
         .from('covers')
-        .upload(`${selectedProject.project_code}_${Date.now()}`, resized, { upsert: true })
+        .upload(`${selectedProject.project_code}_${Date.now()}`, resized, { upsert: false })
       if (!error && data) {
         const { data: urlData } = supabase.storage.from('covers').getPublicUrl(data.path)
         uploadedImageUrl = urlData.publicUrl
