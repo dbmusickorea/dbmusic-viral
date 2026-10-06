@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       if (tokens && tokens.length > 0) {
         await fetch('https://app.doubleb.kr/api/push', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: request.headers.get('authorization') ?? '' },
           body: JSON.stringify({
             title: '💬 새 채팅 메시지가 왔어요',
             body: pushBody,
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
         const chatUrl = `/admin-chat?open_user_id=${user_id}&open_role=${role}&open_name=${encodeURIComponent(senderName ?? '')}`
         await fetch('https://app.doubleb.kr/api/push', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: request.headers.get('authorization') ?? '' },
           body: JSON.stringify({
             title: '💬 새 채팅 메시지가 왔어요',
             body: pushBody,
