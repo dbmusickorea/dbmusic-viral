@@ -25,7 +25,25 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: true })
 
   if (error) return NextResponse.json({ error }, { status: 500 })
-  return NextResponse.json(data ?? [])
+  // 첨부 주소를 짧은 유효기간의 서명 주소로 교체 (DB에 저장된 값은 그대로, 버킷을 비공개로 바꿔도 열리게 함)
+  const rows: any[] = data ?? []
+  const marker = '/chat-attachments/'
+  const pathOf = (url: string | null): string | null => {
+    if (!url) return null
+    const idx = url.indexOf(marker)
+    if (idx < 0) return null
+    return decodeURIComponent(url.slice(idx + marker.length).split('?')[0])
+  }
+  const paths = Array.from(new Set(rows.map((m: any) => pathOf(m.attachment_url)).filter((p: any): p is string => !!p)))
+  if (paths.length > 0) {
+    const { data: signed } = await supabaseAdmin.storage.from('chat-attachments').createSignedUrls(paths, 60 * 60 * 24)
+    const signedMap = new Map((signed ?? []).filter((s: any) => s.signedUrl).map((s: any) => [s.path, s.signedUrl] as [string, string]))
+    for (const m of rows) {
+      const p = pathOf(m.attachment_url)
+      if (p && signedMap.has(p)) m.attachment_url = signedMap.get(p)
+    }
+  }
+  return NextResponse.json(rows)
 }
 
 export async function POST(request: NextRequest) {

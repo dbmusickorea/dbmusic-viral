@@ -56,12 +56,25 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showScrollButton, setShowScrollButton] = useState(false)
 
+  // 서명 주소는 호출마다 달라지므로, 같은 파일이면 받아둔 주소를 일정 시간 유지 (사진 깜빡임/재다운로드 방지)
+  const attachmentUrlMemo = useRef<Map<any, { url: string; at: number }>>(new Map())
+
   const myLabel = viewerType === 'admin' ? 'admin' : 'user'
 
   const fetchMessages = useCallback(async () => {
     const res = await fetchWithAuth(`/api/chat_messages?user_id=${userId}&role=${role}`)
     const data = await res.json()
-    setMessages(Array.isArray(data) ? data : [])
+    const now = Date.now()
+    const memo = attachmentUrlMemo.current
+    const next = (Array.isArray(data) ? data : []).map((m: any) => {
+      if (!m.attachment_url) return m
+      const old = memo.get(m.id)
+      const samePath = old && old.url.split('?')[0] === String(m.attachment_url).split('?')[0]
+      if (old && samePath && now - old.at < 12 * 60 * 60 * 1000) return { ...m, attachment_url: old.url }
+      memo.set(m.id, { url: m.attachment_url, at: now })
+      return m
+    })
+    setMessages(next)
     setLoading(false)
   }, [userId, role])
 
