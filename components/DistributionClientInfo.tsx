@@ -78,7 +78,8 @@ function FormSection({ title, fields, form, setForm, locked, extra }: any) {
 }
 
 export default function DistributionClientInfo({ userInfo, fetchWithAuth, showToast, onSaved, isAdmin = false }: Props) {
-  const isReallyLocked = !!userInfo?.dist_info_locked
+  const [distLocked, setDistLocked] = useState<boolean>(!!userInfo?.dist_info_locked)
+  const isReallyLocked = distLocked
   const locked = isReallyLocked && !isAdmin
   const allFields = [...DIST_FIELDS, ...TAX_FIELDS, ...PAYMENT_FIELDS]
   const initial: any = {}
@@ -92,6 +93,26 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
   useEffect(() => {
     setPaymentSlot(document.getElementById('dist-payment-slot'))
   }, [])
+
+  // 마운트 시 서버의 최신 정보를 불러와 폼/잠금/서류 경로를 채움 (localStorage의 옛 정보 대응)
+  useEffect(() => {
+    if (!userInfo?.id) return
+    let cancelled = false
+    fetchWithAuth(`/api/users?id=${userInfo.id}`)
+      .then((r: Response) => r.json())
+      .then((rows: any) => {
+        const u = Array.isArray(rows) ? rows[0] : null
+        if (!u || cancelled) return
+        const next: any = {}
+        allFields.forEach(f => { next[f.key] = u[f.key] ?? '' })
+        setForm(next)
+        setCertUrl(u.dist_business_cert_url ?? '')
+        setDistLocked(!!u.dist_info_locked)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo?.id])
 
   const handleFileUpload = async (file: File) => {
     setUploadingCert(true)
