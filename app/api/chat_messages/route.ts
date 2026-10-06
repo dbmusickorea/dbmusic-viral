@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { user_id, role, sender, body: messageBody, project_code, attachment_url, attachment_name, attachment_type, attachment_size } = body
+  const { user_id, role, sender, body: messageBody, project_code, attachment_url, attachment_name, attachment_type, attachment_size, attachment_group, group_count, suppress_push } = body
   if (!user_id || !role || !sender || (!messageBody && !attachment_url)) {
     return NextResponse.json({ error: 'user_id, role, sender, (body 또는 attachment_url) 필요' }, { status: 400 })
   }
@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
       attachment_name: attachment_name ?? null,
       attachment_type: attachment_type ?? null,
       attachment_size: attachment_size ?? null,
+      attachment_group: attachment_group ?? null,
     })
     .select()
     .single()
@@ -80,9 +81,11 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error }, { status: 500 })
 
   // 푸시 알림 발송 (첨부파일만 보내고 본문이 비어있으면, 빈 본문으론 푸시가 발송 안 되므로 대체 문구 사용)
-  const pushBody = messageBody || (attachment_type?.startsWith('image/') ? '사진을 보냈어요' : attachment_url ? `${attachment_name || '파일'}을 보냈어요` : messageBody)
+  const pushBody = messageBody || (Number(group_count) > 1 ? `${Number(group_count)}개의 사진/영상을 보냈어요` : attachment_type?.startsWith('image/') ? '사진을 보냈어요' : attachment_url ? `${attachment_name || '파일'}을 보냈어요` : messageBody)
   try {
-    if (sender === 'admin') {
+    if (suppress_push) {
+      // 묶음 전송의 중간 메시지는 푸시 생략 (마지막 1건만 발송)
+    } else if (sender === 'admin') {
       // 관리자 -> 체험단/의뢰인
       let chatNotifOff = false
       if (role === 'participant') {

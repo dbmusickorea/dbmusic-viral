@@ -19,6 +19,7 @@ type ChatMessage = {
   attachment_name?: string | null
   attachment_type?: string | null
   attachment_size?: number | null
+  attachment_group?: string | null
   deleted_at?: string | null
 }
 
@@ -255,16 +256,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const dragCounter = useRef(0)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
   const [uploadInfo, setUploadInfo] = useState<{ name: string; size: number } | null>(null)
-  const [pendingFile, setPendingFile] = useState<File | null>(null)
-  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null)
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([])
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null)
   useEffect(() => {
-    if (pendingFile && (pendingFile.type.startsWith('image/') || pendingFile.type.startsWith('video/'))) {
-      const url = URL.createObjectURL(pendingFile)
-      setPendingPreviewUrl(url)
-      return () => URL.revokeObjectURL(url)
-    }
-    setPendingPreviewUrl(null)
-  }, [pendingFile])
+    const urls = pendingFiles.map((f) => (f.type.startsWith('image/') || f.type.startsWith('video/')) ? URL.createObjectURL(f) : '')
+    setPendingPreviews(urls)
+    return () => urls.forEach((u) => { if (u) URL.revokeObjectURL(u) })
+  }, [pendingFiles])
 
   const resizeImage = (file: File, maxSize: number, quality: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
@@ -300,8 +299,14 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
 
   const handleDeleteMessage = async (msgId: number) => {
     setContextMenuMsgId(null)
-    if (!confirm('이 메시지를 삭제하시겠어요?')) return
-    await fetchWithAuth(`/api/chat_messages?id=${msgId}`, { method: 'DELETE' })
+    const target = messages.find((x) => x.id === msgId)
+    const ids = target?.attachment_group
+      ? messages.filter((x) => x.attachment_group === target.attachment_group && !x.deleted_at).map((x) => x.id)
+      : [msgId]
+    if (!confirm(ids.length > 1 ? `이 사진/영상 ${ids.length}개를 모두 삭제하시겠어요?` : '이 메시지를 삭제하시겠어요?')) return
+    for (const id of ids) {
+      await fetchWithAuth(`/api/chat_messages?id=${id}`, { method: 'DELETE' })
+    }
     await fetchMessages()
   }
 
@@ -565,38 +570,71 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     openImageViewer(messageId)
   }
 
-  const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith('image/') && file.size > 300 * 1024 * 1024) {
-      alert('300MB보다 큰 파일은 보낼 수 없어요.')
-      return
+  const MAX_BATCH = 10
+  const isMediaFile = (f: File) => f.type.startsWith('image/') || f.type.startsWith('video/')
+
+  const handlePickFiles = (list: File[]) => {
+    if (list.length === 0) return
+    let files = list
+    if (files.length > MAX_BATCH) {
+      alert(`한 번에 ${MAX_BATCH}개까지 보낼 수 있어요.`)
+      files = files.slice(0, MAX_BATCH)
     }
-    if (uploadingAttachment) return
+    setPendingFiles(files)
+  }
+
+  const uploadOne = async (job: { file: File; group: string | null; groupCount: number; suppress: boolean }): Promise<boolean> => {
+    const { file } = job
+    // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드
+    const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file_name: file.name })
+    })
+    if (!signRes.ok) { alert(`전송에 실패했어요. (${file.name})`); return false }
+    const { path, token, publicUrl } = await signRes.json()
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-attachments')
+      .uploadToSignedUrl(path, token, file, { contentType: file.type })
+    if (uploadError) { alert(`전송에 실패했어요. 네트워크 상태를 확인하고 다시 시도해주세요. (${file.name})`); return false }
+
+    const sendRes = await fetchWithAuth('/api/chat_messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId, role, sender: myLabel, body: '',
+        attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type, attachment_size: file.size,
+        attachment_group: job.group, group_count: job.groupCount, suppress_push: job.suppress,
+      })
+    })
+    if (!sendRes.ok) { alert(`전송에 실패했어요. (${file.name})`); return false }
+    return true
+  }
+
+  const sendFiles = async (files: File[]) => {
+    if (uploadingAttachment || files.length === 0) return
+    const tooBig = files.find((f) => !f.type.startsWith('image/') && f.size > 300 * 1024 * 1024)
+    if (tooBig) { alert(`300MB보다 큰 파일은 보낼 수 없어요. (${tooBig.name})`); return }
+
+    // 사진/영상은 한 묶음, 그 외 파일은 하나씩
+    const media = files.filter(isMediaFile)
+    const others = files.filter((f) => !isMediaFile(f))
+    const groupId = media.length > 1 ? `g_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` : null
+    const jobs: { file: File; group: string | null; groupCount: number; suppress: boolean }[] = []
+    media.forEach((f, i) => jobs.push({ file: f, group: groupId, groupCount: media.length, suppress: !!groupId && i < media.length - 1 }))
+    others.forEach((f) => jobs.push({ file: f, group: null, groupCount: 1, suppress: false }))
+
     setUploadingAttachment(true)
-    setUploadInfo({ name: file.name, size: file.size })
     try {
-      // 서버(Vercel)를 거치지 않고 저장소로 직접 업로드 - 용량 제한 없음
-      const signRes = await fetchWithAuth('/api/chat-attachment-sign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_name: file.name })
-      })
-      if (!signRes.ok) { alert('전송에 실패했어요. 다시 시도해주세요.'); return }
-      const { path, token, publicUrl } = await signRes.json()
-
-      const { error: uploadError } = await supabase.storage
-        .from('chat-attachments')
-        .uploadToSignedUrl(path, token, file, { contentType: file.type })
-      if (uploadError) { alert('전송에 실패했어요. 네트워크 상태를 확인하고 다시 시도해주세요.'); return }
-
-      const sendRes = await fetchWithAuth('/api/chat_messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: userId, role, sender: myLabel, body: '',
-          attachment_url: publicUrl, attachment_name: file.name, attachment_type: file.type, attachment_size: file.size,
-        })
-      })
-      if (!sendRes.ok) { alert('전송에 실패했어요. 다시 시도해주세요.'); return }
+      let done = 0
+      for (const job of jobs) {
+        setUploadInfo({ name: job.file.name, size: job.file.size })
+        setUploadProgress({ done, total: jobs.length })
+        const ok = await uploadOne(job)
+        if (!ok) break
+        done++
+      }
       await fetchMessages()
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
     } catch {
@@ -604,35 +642,56 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
     } finally {
       setUploadingAttachment(false)
       setUploadInfo(null)
+      setUploadProgress(null)
     }
+  }
+
+  // 드래그앤드롭 등 단일 파일 경로 호환
+  const handleFileSelect = async (file: File) => {
+    await sendFiles([file])
   }
 
   return (
     <div className={`fixed ${embedded ? 'md:static' : ''} top-0 left-0 right-0 z-[60] ${embedded ? 'md:z-0' : ''} flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] ${embedded ? 'md:h-full' : ''} w-full`}>
       <div className="w-full shrink-0" style={{paddingTop: 'env(safe-area-inset-top)'}} />
-      {pendingFile && !uploadingAttachment && (
-        <div className="fixed inset-0 z-[85] bg-black/60 flex items-end md:items-center justify-center" onClick={() => setPendingFile(null)}>
+      {pendingFiles.length > 0 && !uploadingAttachment && (
+        <div className="fixed inset-0 z-[85] bg-black/60 flex items-end md:items-center justify-center" onClick={() => setPendingFiles([])}>
           <div
             className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-2xl md:rounded-2xl p-4"
             style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-sm font-bold dark:text-white mb-3">이 파일을 보낼까요?</p>
-            {pendingPreviewUrl && pendingFile.type.startsWith('image/') && (
-              <img src={pendingPreviewUrl} className="w-full max-h-64 object-contain rounded-xl bg-gray-100 dark:bg-gray-700 mb-3" />
-            )}
-            {pendingPreviewUrl && pendingFile.type.startsWith('video/') && (
-              <video src={`${pendingPreviewUrl}#t=0.1`} preload="metadata" muted playsInline controls className="w-full max-h-64 rounded-xl bg-black mb-3" />
-            )}
-            <p className="text-sm dark:text-white truncate">{pendingFile.name}</p>
-            <p className="text-xs text-gray-400 mb-4">{(pendingFile.size / 1024 / 1024).toFixed(1)}MB</p>
+            <p className="text-sm font-bold dark:text-white mb-3">{pendingFiles.length > 1 ? `${pendingFiles.length}개 파일을 보낼까요?` : '이 파일을 보낼까요?'}</p>
+            <div className={`grid gap-1.5 mb-3 max-h-72 overflow-y-auto ${pendingFiles.length === 1 ? 'grid-cols-1' : 'grid-cols-3'}`}>
+              {pendingFiles.map((f, i) => (
+                <div key={`${f.name}-${i}`} className={`relative ${pendingFiles.length === 1 ? 'aspect-video' : 'aspect-square'} bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center`}>
+                  {pendingPreviews[i] && f.type.startsWith('image/') ? (
+                    <img src={pendingPreviews[i]} className="w-full h-full object-cover" />
+                  ) : pendingPreviews[i] && f.type.startsWith('video/') ? (
+                    <video src={`${pendingPreviews[i]}#t=0.1`} preload="metadata" muted playsInline className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="px-2 text-center">
+                      <FileText size={20} className="mx-auto text-gray-400 mb-1" />
+                      <p className="text-[10px] text-gray-500 dark:text-gray-300 break-all line-clamp-2">{f.name}</p>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setPendingFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ✕
+                  </button>
+                  <span className="absolute bottom-0.5 left-0.5 text-[9px] text-white bg-black/50 px-1 rounded">{(f.size / 1024 / 1024).toFixed(1)}MB</span>
+                </div>
+              ))}
+            </div>
             <div className="flex gap-2">
-              <button onClick={() => setPendingFile(null)} className="flex-1 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg py-2.5 text-sm font-medium">취소</button>
+              <button onClick={() => setPendingFiles([])} className="flex-1 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg py-2.5 text-sm font-medium">취소</button>
               <button
-                onClick={() => { const f = pendingFile; setPendingFile(null); handleFileSelect(f) }}
+                onClick={() => { const fs = pendingFiles; setPendingFiles([]); sendFiles(fs) }}
                 className="flex-1 bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium"
               >
-                보내기
+                {pendingFiles.length > 1 ? `${pendingFiles.length}개 보내기` : '보내기'}
               </button>
             </div>
           </div>
@@ -643,7 +702,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           <span className="inline-block w-4 h-4 shrink-0 border-2 border-white border-t-transparent rounded-full animate-spin" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{uploadInfo.name}</p>
-            <p className="text-xs text-gray-300">전송 중... ({(uploadInfo.size / 1024 / 1024).toFixed(1)}MB) 완료될 때까지 이 화면을 닫지 마세요</p>
+            <p className="text-xs text-gray-300">전송 중... {uploadProgress && uploadProgress.total > 1 ? `${uploadProgress.done + 1}/${uploadProgress.total} ` : ''}({(uploadInfo.size / 1024 / 1024).toFixed(1)}MB) 완료될 때까지 이 화면을 닫지 마세요</p>
           </div>
         </div>
       )}
@@ -693,6 +752,9 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           <p className="text-center text-xs text-gray-400 py-8">아직 대화가 없어요.</p>
         ) : (
           messages.map((m) => {
+            const groupMembers = m.attachment_group ? messages.filter((x) => x.attachment_group === m.attachment_group && !x.deleted_at) : null
+            if (groupMembers && groupMembers.length > 1 && groupMembers[0].id !== m.id) return null
+            const isGroup = !!groupMembers && groupMembers.length > 1
             const isMine = m.sender === myLabel
             return (
               <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
@@ -720,7 +782,36 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
                     </div>
                   ) : (
                     <>
-                  {m.attachment_url && (
+                  {isGroup && groupMembers && (
+                    <div className={`mb-1 max-w-[240px] w-full grid gap-0.5 ${groupMembers.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                      {groupMembers.map((x) => {
+                        const src = resolveImageSrc(x)
+                        const isVideo = x.attachment_type?.startsWith('video/')
+                        return (
+                          <button
+                            key={x.id}
+                            disabled={!src}
+                            onClick={() => src && (isVideo ? handleOpenFile(x.id, x.attachment_url ?? '', x.attachment_name || 'video', x.attachment_type) : handleImageClick(x.id, x.attachment_url ?? '', x.attachment_name || 'image.jpg'))}
+                            className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700"
+                          >
+                            {src ? (
+                              isVideo ? (
+                                <>
+                                  <video src={`${src}#t=0.1`} preload="metadata" muted playsInline className="w-full h-full object-cover" />
+                                  <span className="absolute inset-0 flex items-center justify-center text-white text-2xl drop-shadow">▶</span>
+                                </>
+                              ) : (
+                                <img src={src} className="w-full h-full object-cover" />
+                              )
+                            ) : (
+                              <span className="text-[9px] text-gray-400 px-1">만료됨</span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {!isGroup && m.attachment_url && (
                     (Date.now() - new Date(m.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) ? (
                       cachedPaths[m.id] ? (
                         m.attachment_type?.startsWith('image/') ? (
@@ -863,7 +954,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         <div className={`max-w-2xl ${embedded ? 'md:max-w-none' : ''} mx-auto flex gap-2 p-3 pb-0`}>
           <label className="text-gray-400 dark:text-gray-500 w-10 h-10 flex items-center justify-center shrink-0 cursor-pointer">
             <Paperclip size={20} />
-            <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setPendingFile(f); e.target.value = '' }} />
+            <input type="file" multiple className="hidden" onChange={(e) => { handlePickFiles(Array.from(e.target.files ?? [])); e.target.value = '' }} />
           </label>
           <textarea
             value={input}
