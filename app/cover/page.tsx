@@ -204,7 +204,7 @@ export default function CoverPage() {
       const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(participant.id)}`)
       const tokens = await tokensRes.json()
       if (tokens && tokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -284,7 +284,7 @@ export default function CoverPage() {
     const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(post.member_id)}`)
     const tokens = await tokensRes.json()
     if (tokens && tokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -795,7 +795,7 @@ export default function CoverPage() {
                   const tokensRes = await fetchWithAuth(`/api/push_tokens?user_ids=${ids.join(',')}`)
                   const tokens = await tokensRes.json()
                   if (tokens && tokens.length > 0) {
-                    await fetch('/api/push', {
+                    await fetchWithAuth('/api/push', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({

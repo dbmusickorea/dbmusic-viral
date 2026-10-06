@@ -377,7 +377,7 @@ export default function MyPage() {
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
       ])]
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -424,7 +424,7 @@ export default function MyPage() {
     const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens && adminTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -786,7 +786,7 @@ export default function MyPage() {
                         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
                         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
                       ])]
-                      await fetch('/api/push', {
+                      await fetchWithAuth('/api/push', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

@@ -94,7 +94,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
           badgeUserId = String(info.id ?? userId)
           badgeRole = 'admin'
         }
-        const res = await fetch(`/api/badge-count?user_id=${badgeUserId}&role=${badgeRole}`)
+        const res = await fetchWithAuth(`/api/badge-count?user_id=${badgeUserId}&role=${badgeRole}`)
         const { count } = await res.json()
         const { Badge } = await import('@capawesome/capacitor-badge')
         if (count > 0) await Badge.set({ count })

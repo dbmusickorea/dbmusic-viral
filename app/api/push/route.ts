@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getMessaging } from 'firebase-admin/messaging'
 import webpush from 'web-push'
+import { getChatIdentity } from '../../lib/chatAuth'
 
 if (process.env.VAPID_PRIVATE_KEY && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
   webpush.setVapidDetails(
@@ -62,7 +63,19 @@ async function getBadgeCountForUser(userId: string, role: string | null): Promis
 }
 
 export async function POST(request: NextRequest) {
-  const { title, body, tokens, userIds, saveToRole, notifRole, data, skipNotificationSave } = await request.json()
+  const me = await getChatIdentity(request)
+  if (!me || !me.isMember) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { title, body, tokens: rawTokens, userIds, saveToRole, notifRole, data, skipNotificationSave } = await request.json()
+  const tokens: string[] = Array.isArray(rawTokens) ? rawTokens : []
+
+  // 일반 사용자는 전체 공지/대량 발송 불가 (관리자만 가능)
+  if (!me.isAdmin) {
+    if (saveToRole) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (tokens.length > 50 || (Array.isArray(userIds) && userIds.length > 50)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
   
   const autoData = data ?? (saveToRole === 'participant' ? { url: '/participant' } : saveToRole === 'client' ? { url: '/client' } : {})
 

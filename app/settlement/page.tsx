@@ -141,7 +141,7 @@ export default function Page5() {
     const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.member_id)}`)
     const memberTokens = await memberTokensRes.json()
     if (memberTokens && memberTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -168,7 +168,7 @@ export default function Page5() {
     const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(selected.member_id)}`)
     const memberTokens = await memberTokensRes.json()
     if (memberTokens && memberTokens.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

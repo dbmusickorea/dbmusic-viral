@@ -513,7 +513,7 @@ export default function AdminProjectForm({ formData, setFormData, products, clie
                               const clientTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(client.id)}`)
                               const clientTokens = await clientTokensRes.json()
                               if (clientTokens && clientTokens.length > 0) {
-                                await fetch('/api/push', {
+                                await fetchWithAuth('/api/push', {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({

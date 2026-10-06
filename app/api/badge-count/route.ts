@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getChatIdentity } from '../../lib/chatAuth'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,10 +40,20 @@ async function getBadgeCountForUser(userId: string, role: string | null): Promis
 }
 
 export async function GET(request: NextRequest) {
+  const me = await getChatIdentity(request)
+  if (!me || !me.isMember) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('user_id')
-  const role = searchParams.get('role')
+  let role = searchParams.get('role')
   if (!userId) return NextResponse.json({ error: 'user_id 필요' }, { status: 400 })
+
+  // 일반 사용자는 본인 것만, 관리자용 집계는 관리자만
+  if (!me.isAdmin) {
+    const own = [me.participantId, me.clientId].filter((v: any) => v != null).map(String)
+    if (!own.includes(String(userId))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (role === 'admin') role = null
+  }
 
   const count = await getBadgeCountForUser(userId, role)
   return NextResponse.json({ count })

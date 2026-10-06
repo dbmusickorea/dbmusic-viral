@@ -711,7 +711,7 @@ export default function LoginPage() {
         ...(adminTokens?.map((t: any) => t.user_id) ?? []),
         ...(adminUsers?.map((u: any) => String(u.id)) ?? [])
       ])]
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -747,7 +747,7 @@ export default function LoginPage() {
     const adminTokensRes2 = await fetch('/api/push_tokens?user_role=admin')
     const adminTokens2 = await adminTokensRes2.json()
     if (adminTokens2?.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -819,7 +819,7 @@ export default function LoginPage() {
     const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens?.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

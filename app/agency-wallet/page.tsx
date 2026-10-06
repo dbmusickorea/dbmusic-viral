@@ -88,7 +88,7 @@ export default function AgencyWalletPage() {
     const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens?.length > 0) {
-      await fetch('/api/push', {
+      await fetchWithAuth('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
