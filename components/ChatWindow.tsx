@@ -255,6 +255,16 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   const dragCounter = useRef(0)
   const [uploadingAttachment, setUploadingAttachment] = useState(false)
   const [uploadInfo, setUploadInfo] = useState<{ name: string; size: number } | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (pendingFile && (pendingFile.type.startsWith('image/') || pendingFile.type.startsWith('video/'))) {
+      const url = URL.createObjectURL(pendingFile)
+      setPendingPreviewUrl(url)
+      return () => URL.revokeObjectURL(url)
+    }
+    setPendingPreviewUrl(null)
+  }, [pendingFile])
 
   const resizeImage = (file: File, maxSize: number, quality: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
@@ -600,6 +610,34 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
   return (
     <div className={`fixed ${embedded ? 'md:static' : ''} top-0 left-0 right-0 z-[60] ${embedded ? 'md:z-0' : ''} flex flex-col items-center bg-gray-50 dark:bg-gray-900 h-[100dvh] ${embedded ? 'md:h-full' : ''} w-full`}>
       <div className="w-full shrink-0" style={{paddingTop: 'env(safe-area-inset-top)'}} />
+      {pendingFile && !uploadingAttachment && (
+        <div className="fixed inset-0 z-[85] bg-black/60 flex items-end md:items-center justify-center" onClick={() => setPendingFile(null)}>
+          <div
+            className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-2xl md:rounded-2xl p-4"
+            style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-sm font-bold dark:text-white mb-3">이 파일을 보낼까요?</p>
+            {pendingPreviewUrl && pendingFile.type.startsWith('image/') && (
+              <img src={pendingPreviewUrl} className="w-full max-h-64 object-contain rounded-xl bg-gray-100 dark:bg-gray-700 mb-3" />
+            )}
+            {pendingPreviewUrl && pendingFile.type.startsWith('video/') && (
+              <video src={`${pendingPreviewUrl}#t=0.1`} preload="metadata" muted playsInline controls className="w-full max-h-64 rounded-xl bg-black mb-3" />
+            )}
+            <p className="text-sm dark:text-white truncate">{pendingFile.name}</p>
+            <p className="text-xs text-gray-400 mb-4">{(pendingFile.size / 1024 / 1024).toFixed(1)}MB</p>
+            <div className="flex gap-2">
+              <button onClick={() => setPendingFile(null)} className="flex-1 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg py-2.5 text-sm font-medium">취소</button>
+              <button
+                onClick={() => { const f = pendingFile; setPendingFile(null); handleFileSelect(f) }}
+                className="flex-1 bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium"
+              >
+                보내기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {uploadingAttachment && uploadInfo && (
         <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] w-[calc(100%-2rem)] max-w-md bg-gray-900/90 text-white rounded-xl px-4 py-3 shadow-lg flex items-center gap-3">
           <span className="inline-block w-4 h-4 shrink-0 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -825,7 +863,7 @@ export default function ChatWindow({ userId, role, viewerType, title, subtitle, 
         <div className={`max-w-2xl ${embedded ? 'md:max-w-none' : ''} mx-auto flex gap-2 p-3 pb-0`}>
           <label className="text-gray-400 dark:text-gray-500 w-10 h-10 flex items-center justify-center shrink-0 cursor-pointer">
             <Paperclip size={20} />
-            <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); e.target.value = '' }} />
+            <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setPendingFile(f); e.target.value = '' }} />
           </label>
           <textarea
             value={input}
