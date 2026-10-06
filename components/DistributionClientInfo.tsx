@@ -95,13 +95,33 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
 
   const handleFileUpload = async (file: File) => {
     setUploadingCert(true)
-    const path = `${userInfo.id}_${Date.now()}_${file.name}`
-    const { data, error } = await supabase.storage.from('distribution-documents').upload(path, file, { upsert: true })
-    setUploadingCert(false)
-    if (error || !data) { showToast('업로드에 실패했어요. 다시 시도해주세요.'); return }
-    const { data: urlData } = supabase.storage.from('distribution-documents').getPublicUrl(data.path)
-    setCertUrl(urlData.publicUrl)
-    showToast('사업자등록증이 업로드됐어요. 저장 버튼을 눌러주세요.')
+    try {
+      const signRes = await fetchWithAuth('/api/distribution-document', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userInfo.id, filename: file.name })
+      })
+      if (!signRes.ok) {
+        const err = await signRes.json().catch(() => null)
+        showToast(err?.error || '업로드에 실패했어요. 다시 시도해주세요.')
+        return
+      }
+      const { path, token } = await signRes.json()
+      const { error } = await supabase.storage.from('distribution-documents').uploadToSignedUrl(path, token, file)
+      if (error) { showToast('업로드에 실패했어요. 다시 시도해주세요.'); return }
+      setCertUrl(path)
+      showToast('사업자등록증이 업로드됐어요. 저장 버튼을 눌러주세요.')
+    } finally {
+      setUploadingCert(false)
+    }
+  }
+
+  const openCert = async () => {
+    const res = await fetchWithAuth(`/api/distribution-document?path=${encodeURIComponent(certUrl)}`)
+    if (!res.ok) { showToast('파일을 열 수 없어요.'); return }
+    const { url } = await res.json()
+    const w = window.open(url, '_blank', 'noopener,noreferrer')
+    if (!w) window.location.href = url
   }
 
   const handleSave = async () => {
@@ -133,9 +153,9 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
         <div className="mt-3">
           <label className="text-sm font-medium dark:text-white">사업자등록증</label>
           {certUrl ? (
-            <a href={certUrl} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-1.5 text-sm text-blue-500 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
+            <button type="button" onClick={openCert} className="mt-1 flex items-center gap-1.5 text-sm text-blue-500 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2">
               <FileText size={14} /> 첨부파일 보기
-            </a>
+            </button>
           ) : (
             <p className="text-xs text-gray-400 mt-1">등록된 파일이 없어요.</p>
           )}
