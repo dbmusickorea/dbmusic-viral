@@ -12,34 +12,18 @@ export async function GET(request: NextRequest) {
   if (!me) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!me.isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: messages, error } = await supabaseAdmin
-    .from('chat_messages')
-    .select('*')
-    .order('created_at', { ascending: false })
-
+  // 대화방별 마지막 메시지/안 읽은 수는 DB 함수에서 집계 (전체 메시지를 읽지 않음)
+  const { data: rows, error } = await supabaseAdmin.rpc('chat_thread_summary')
   if (error) return NextResponse.json({ error }, { status: 500 })
 
-  // user_id + role 기준으로 그룹화
-  const threadMap: Record<string, { user_id: string; role: string; last_message: string; last_sender: string; last_created_at: string; unread_count: number }> = {}
-
-  for (const m of messages ?? []) {
-    const key = `${m.role}_${m.user_id}`
-    if (!threadMap[key]) {
-      threadMap[key] = {
-        user_id: m.user_id,
-        role: m.role,
-        last_message: m.body,
-        last_sender: m.sender,
-        last_created_at: m.created_at,
-        unread_count: 0,
-      }
-    }
-    if (m.sender === 'user' && !m.read_at) {
-      threadMap[key].unread_count++
-    }
-  }
-
-  const threads = Object.values(threadMap)
+  const threads: { user_id: string; role: string; last_message: string; last_sender: string; last_created_at: string; unread_count: number }[] = (rows ?? []).map((r: any) => ({
+    user_id: r.user_id as string,
+    role: r.role as string,
+    last_message: r.last_message as string,
+    last_sender: r.last_sender as string,
+    last_created_at: r.last_created_at as string,
+    unread_count: Number(r.unread_count ?? 0),
+  }))
 
   // 이름 붙이기
   const participantIds = threads.filter(t => t.role === 'participant').map(t => t.user_id)
