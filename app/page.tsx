@@ -744,7 +744,7 @@ export default function LoginPage() {
     }
 
     // 관리자에게 신규 가입 알림
-    const adminTokensRes2 = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes2 = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens2 = await adminTokensRes2.json()
     if (adminTokens2?.length > 0) {
       await fetchWithAuth('/api/push', {
@@ -816,7 +816,7 @@ export default function LoginPage() {
     if (!res.ok) { showToast('회원가입 실패!'); setClientSignupLoading(false); return }
 
     // 관리자에게 신규 의뢰인 가입 알림
-    const adminTokensRes = await fetch('/api/push_tokens?user_role=admin')
+    const adminTokensRes = await fetchWithAuth('/api/push_tokens?user_role=admin')
     const adminTokens = await adminTokensRes.json()
     if (adminTokens?.length > 0) {
       await fetchWithAuth('/api/push', {

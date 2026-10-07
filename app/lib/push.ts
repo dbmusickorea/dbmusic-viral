@@ -1,3 +1,4 @@
+import { fetchWithAuth } from './fetchWithAuth'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { SettingsLauncher } from '@capawesome/capacitor-settings-launcher'
 
@@ -17,7 +18,7 @@ export const initPushNotifications = async (userId: string, userRole: string) =>
 
       PushNotifications.addListener('registration', async (token) => {
         console.log('FCM Token:', token.value)
-        await fetch('/api/push_tokens', {
+        await fetchWithAuth('/api/push_tokens', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
