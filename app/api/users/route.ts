@@ -67,6 +67,15 @@ export async function GET(request: NextRequest) {
   const role = searchParams.get('role')
   const id = searchParams.get('id')
 
+  // 관리자가 아닌 사용자가 관리자 목록을 요청하면 id만 돌려줌 (알림 대상 계산용, 이름/연락처 등은 노출하지 않음)
+  if (role === 'admin' && !email && !clientId && !mobile && !id) {
+    const me = await getMe(auth.user.id, auth.user.email)
+    if (me?.role !== 'admin') {
+      const { data: adminIds } = await supabaseAdmin.from('users').select('id').eq('role', 'admin')
+      return NextResponse.json(adminIds ?? [])
+    }
+  }
+
   let query = auth.client.from('users').select('*')
 
   if (email) query = query.eq('email', email)
