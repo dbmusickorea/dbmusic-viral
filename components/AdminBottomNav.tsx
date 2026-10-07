@@ -37,7 +37,17 @@ export default function AdminBottomNav({ active, onClientClick }: AdminBottomNav
       setSettlementCount(Array.isArray(settleData) ? settleData.length : 0)
       setChatUnreadCount(Array.isArray(chatData) ? chatData.reduce((sum: number, t: any) => sum + (t.unread_count ?? 0), 0) : 0)
     }
-    fetchCounts()
+    fetchCounts().catch(() => {})
+    // 다른 화면에서 처리한 뒤/주기적으로/앱으로 돌아왔을 때 숫자 갱신
+    const onRefresh = () => { fetchCounts().catch(() => {}) }
+    window.addEventListener('admin-badge-refresh', onRefresh)
+    window.addEventListener('focus', onRefresh)
+    const timer = setInterval(onRefresh, 60 * 1000)
+    return () => {
+      window.removeEventListener('admin-badge-refresh', onRefresh)
+      window.removeEventListener('focus', onRefresh)
+      clearInterval(timer)
+    }
   }, [])
 
   // 활성 탭으로 자동 스크롤

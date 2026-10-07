@@ -154,6 +154,7 @@ export default function Page5() {
     }
     showToast('승인 완료!')
     fetchSettlements()
+    window.dispatchEvent(new Event('admin-badge-refresh'))
     setSelected(null); setSelectedParticipant(null); setMemberPosts([]); setMemo('')
   }
 
@@ -181,6 +182,7 @@ export default function Page5() {
     }
     showToast('거절 완료!')
     fetchSettlements()
+    window.dispatchEvent(new Event('admin-badge-refresh'))
     setSelected(null); setSelectedParticipant(null); setMemberPosts([]); setMemo('')
   }
 
