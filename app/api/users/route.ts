@@ -1,3 +1,4 @@
+import { precheckVerification, recordVerification } from '../../lib/portone'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -180,7 +181,25 @@ export async function POST(request: NextRequest) {
   const { data: dup } = await supabaseAdmin.from('users').select('id').eq('email', row.email).or('is_deleted.is.null,is_deleted.eq.false').limit(1)
   if (dup && dup.length > 0) return NextResponse.json({ error: 'already exists' }, { status: 409 })
 
-  const { error } = await supabaseAdmin.from('users').insert(row)
+  // 본인인증 검증 (REQUIRE_IDENTITY=true 이면 필수)
+  const verificationId = typeof body.identityVerificationId === 'string' ? body.identityVerificationId : ''
+  let identity: any = null
+  if (verificationId) {
+    const check = await precheckVerification('client', verificationId)
+    if (!check.ok) return NextResponse.json({ error: check.message, code: check.code }, { status: 409 })
+    identity = check.identity
+  } else if (process.env.REQUIRE_IDENTITY === 'true') {
+    return NextResponse.json({ error: '본인인증이 필요해요.', code: 'NOT_VERIFIED' }, { status: 400 })
+  }
+
+  const { data: created, error } = await supabaseAdmin.from('users').insert(row).select('id').single()
   if (error) return NextResponse.json({ error }, { status: 500 })
+  if (identity && created) {
+    try {
+      await recordVerification('client', verificationId, Number(created.id), identity)
+    } catch (e) {
+      console.error('본인인증 기록 실패:', e)
+    }
+  }
   return NextResponse.json({ success: true })
 }

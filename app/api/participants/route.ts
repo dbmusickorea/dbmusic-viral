@@ -1,3 +1,5 @@
+import { getChatIdentity } from '../../lib/chatAuth'
+import { precheckVerification, recordVerification } from '../../lib/portone'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -111,9 +113,59 @@ export async function DELETE(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   // 회원가입은 인증 불필요, service_role 사용
-  const body = await request.json()
-  const { error } = await supabaseAdmin.from('participants').insert(body)
+  const raw = await request.json()
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return NextResponse.json({ error: 'Bad request' }, { status: 400 })
+  }
+  let isAdmin = false
+  try {
+    const me: any = await getChatIdentity(request)
+    isAdmin = !!me?.isAdmin
+  } catch {}
+
+  // 관리자는 기존처럼 전체 필드 허용, 그 외(회원가입/전환)는 허용 필드만 받음 (잔액/레벨/인증표시 조작 방지)
+  const SIGNUP_FIELDS = [
+    'name', 'mobile', 'email', 'bank_name', 'bank_code', 'account_holder', 'account_number',
+    'instagram_id', 'youtube_id', 'tiktok_id',
+    'instagram_followers', 'youtube_subscribers', 'tiktok_followers',
+    'instagram_profile_image', 'youtube_profile_image', 'tiktok_profile_image',
+    'instagram_is_private', 'tiktok_is_private',
+    'referral_code', 'referred_by', 'is_cover_possible', 'cover_video_url',
+    'genres', 'agreed_terms', 'download_source',
+  ]
+  const body: any = {}
+  if (isAdmin) {
+    Object.assign(body, raw)
+  } else {
+    for (const k of SIGNUP_FIELDS) if (raw[k] !== undefined) body[k] = raw[k]
+    body.level = 1
+  }
+  delete body.password
+  delete body.identityVerificationId
+  body.is_verified = false
+
+  // 본인인증 검증 (REQUIRE_IDENTITY=true 이면 필수)
+  const verificationId = typeof raw.identityVerificationId === 'string' ? raw.identityVerificationId : ''
+  let identity: any = null
+  if (!isAdmin) {
+    if (verificationId) {
+      const check = await precheckVerification('participant', verificationId)
+      if (!check.ok) return NextResponse.json({ error: check.message, code: check.code }, { status: 409 })
+      identity = check.identity
+    } else if (process.env.REQUIRE_IDENTITY === 'true') {
+      return NextResponse.json({ error: '본인인증이 필요해요.', code: 'NOT_VERIFIED' }, { status: 400 })
+    }
+  }
+
+  const { data: created, error } = await supabaseAdmin.from('participants').insert(body).select('id').single()
   if (error) return NextResponse.json({ error }, { status: 500 })
+  if (identity && created) {
+    try {
+      await recordVerification('participant', verificationId, Number(created.id), identity)
+    } catch (e) {
+      console.error('본인인증 기록 실패:', e)
+    }
+  }
 
   // 추천인 보상 처리 (인증 없는 가입 시점이라 서버(service_role)에서 안전하게 처리)
   if (body.referred_by) {
