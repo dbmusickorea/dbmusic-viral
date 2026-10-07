@@ -35,7 +35,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
       const tokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(clientUser.id)}`)
       const tokens = await tokensRes.json()
       if (tokens && tokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -51,7 +51,7 @@ export default function AdminClientRequests({ clientRequests, PAGE_SIZE, project
       const memberTokensRes = await fetchWithAuth(`/api/push_tokens?user_id=${String(req.member_id)}`)
       const memberTokens = await memberTokensRes.json()
       if (memberTokens && memberTokens.length > 0) {
-        await fetch('/api/push', {
+        await fetchWithAuth('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
