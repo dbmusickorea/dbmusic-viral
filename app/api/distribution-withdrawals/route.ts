@@ -55,6 +55,11 @@ export async function POST(request: NextRequest) {
   if (!Number.isInteger(amount) || amount <= 0) return NextResponse.json({ error: '출금 금액이 올바르지 않아요.' }, { status: 400 })
   if (!isAdmin && client_id !== me.client_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  if (!isAdmin && process.env.REQUIRE_IDENTITY === 'true') {
+    const { data: v } = await supabaseAdmin.from('users').select('is_verified').eq('client_id', client_id).maybeSingle()
+    if (!v?.is_verified) return NextResponse.json({ error: '본인인증이 필요해요.', code: 'NOT_VERIFIED' }, { status: 403 })
+  }
+
   const { data: pending } = await supabaseAdmin
     .from('distribution_withdrawals')
     .select('id')

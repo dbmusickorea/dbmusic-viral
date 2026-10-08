@@ -1,4 +1,5 @@
 'use client'
+import { requestPassVerification } from '../app/lib/identityClient'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Lock, AlertTriangle, Upload, FileText } from 'lucide-react'
@@ -89,6 +90,54 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
   const [certUrl, setCertUrl] = useState<string>(userInfo?.dist_business_cert_url ?? '')
   const [uploadingCert, setUploadingCert] = useState(false)
   const [paymentSlot, setPaymentSlot] = useState<HTMLElement | null>(null)
+  const [passMode, setPassMode] = useState(false)
+  const [isVerified, setIsVerified] = useState<boolean | null>(null)
+  const [verifying, setVerifying] = useState(false)
+
+  const completeIdentity = async (verificationId: string) => {
+    const res = await fetchWithAuth('/api/identity/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'client', identityVerificationId: verificationId })
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) { showToast(data?.error || '본인인증 저장에 실패했어요.'); return false }
+    setIsVerified(true)
+    showToast('✅ 본인인증이 완료됐어요!')
+    return true
+  }
+
+  const handleVerifyNow = async () => {
+    if (verifying) return
+    setVerifying(true)
+    try {
+      const r = await requestPassVerification(`${window.location.pathname}?pass=1&idv=client`)
+      if (!r.ok) { showToast(r.message); return }
+      await completeIdentity(r.identityVerificationId)
+    } catch {
+      showToast('본인인증 중 오류가 발생했어요.')
+    } finally {
+      setVerifying(false)
+    }
+  }
+
+  // 인증 모드 확인 + 모바일 인증창에서 돌아왔을 때 계정에 연결
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get('pass') === '1' || sessionStorage.getItem('passMode') === '1') {
+      sessionStorage.setItem('passMode', '1')
+      setPassMode(true)
+    } else if (process.env.NEXT_PUBLIC_REQUIRE_IDENTITY === 'true') {
+      setPassMode(true)
+    }
+    if (q.get('idv') === 'client') {
+      const returnedId = q.get('identityVerificationId')
+      if (q.get('code')) showToast(q.get('message') || '본인인증에 실패했어요.')
+      else if (returnedId) completeIdentity(returnedId)
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setPaymentSlot(document.getElementById('dist-payment-slot'))
@@ -108,6 +157,7 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
         setForm(next)
         setCertUrl(u.dist_business_cert_url ?? '')
         setDistLocked(!!u.dist_info_locked)
+        setIsVerified(!!u.is_verified)
       })
       .catch(() => {})
     return () => { cancelled = true }
@@ -146,6 +196,7 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
   }
 
   const handleSave = async () => {
+    if (!isAdmin && passMode && isVerified === false) { showToast('저장 전에 본인인증이 필요해요.'); return }
     const emptyRequired = allFields.filter((f: any) => (!f.showIf || f.showIf(form)) && !form[f.key]?.toString().trim())
     if (emptyRequired.length > 0) {
       showToast(`모든 항목을 입력해주세요. (${emptyRequired[0].label} 등)`)
@@ -189,6 +240,14 @@ export default function DistributionClientInfo({ userInfo, fetchWithAuth, showTo
         </div>
       } />
       <FormSection title="지급정보" fields={PAYMENT_FIELDS} form={form} setForm={setForm} locked={locked} />
+      {!isAdmin && passMode && isVerified === false && (
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-3">
+          <p className="text-sm font-medium text-blue-700 dark:text-blue-300">본인인증이 필요해요</p>
+          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 mb-2">정보 저장과 출금 전에 한 번만 간편 본인인증을 해주세요.</p>
+          <button onClick={handleVerifyNow} disabled={verifying} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">{verifying ? '인증 진행 중...' : '본인인증 하기'}</button>
+        </div>
+      )}
+      {isVerified && <p className="text-xs text-green-600 mb-3">✅ 본인인증 완료</p>}
       {!locked && (
         <button onClick={handleSave} disabled={saving} className="w-full bg-blue-600 text-white rounded-lg py-2.5 font-medium disabled:bg-gray-400 mb-4">
           {saving ? '저장 중...' : '저장하기'}
