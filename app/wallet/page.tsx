@@ -1,4 +1,5 @@
 'use client'
+import { requestPassVerification } from '../lib/identityClient'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 
 import { useState, useEffect, useRef } from 'react'
@@ -107,6 +108,7 @@ export default function WalletPage() {
     setPosts(data.posts ?? [])
     setSettlements(data.settlements ?? [])
     setPointHistory(phData ?? [])
+    fetchWithAuth(`/api/participants?ids=${id}`).then(r => r.json()).then(list => setIsVerified(!!list?.[0]?.is_verified)).catch(() => {})
 
     // 환전 가능 금액: API에서 실제 point_history 기록 기준으로 정확히 계산되어 내려옴
     // (친구추천 등 프로젝트 무관 내역은 항상 포함, 프로젝트 관련 내역은 해당 프로젝트 종료 시에만 포함)
@@ -158,8 +160,57 @@ export default function WalletPage() {
     return age
   }
 
+  const [passMode, setPassMode] = useState(false)
+  const [isVerified, setIsVerified] = useState<boolean | null>(null)
+  const [verifying, setVerifying] = useState(false)
+
+  const completeIdentity = async (verificationId: string) => {
+    const res = await fetchWithAuth('/api/identity/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'participant', identityVerificationId: verificationId })
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) { showToast(data?.error || '본인인증 저장에 실패했어요.'); return false }
+    setIsVerified(true)
+    showToast('✅ 본인인증이 완료됐어요!')
+    return true
+  }
+
+  const handleVerifyNow = async () => {
+    if (verifying) return
+    setVerifying(true)
+    try {
+      const r = await requestPassVerification('/wallet?pass=1&idv=participant')
+      if (!r.ok) { showToast(r.message); return }
+      await completeIdentity(r.identityVerificationId)
+    } catch {
+      showToast('본인인증 중 오류가 발생했어요.')
+    } finally {
+      setVerifying(false)
+    }
+  }
+
+  // 인증 모드 확인 + 모바일 인증창에서 돌아왔을 때 계정에 연결
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get('pass') === '1' || sessionStorage.getItem('passMode') === '1') {
+      sessionStorage.setItem('passMode', '1')
+      setPassMode(true)
+    } else if (process.env.NEXT_PUBLIC_REQUIRE_IDENTITY === 'true') {
+      setPassMode(true)
+    }
+    if (q.get('idv') === 'participant') {
+      const returnedId = q.get('identityVerificationId')
+      if (q.get('code')) showToast(q.get('message') || '본인인증에 실패했어요.')
+      else if (returnedId) completeIdentity(returnedId)
+      window.history.replaceState(null, '', '/wallet')
+    }
+  }, [])
+
   const handleExchange = async () => {
     if (isSubmitting) return
+    if (passMode && isVerified === false) { showToast('환전 신청 전에 본인인증이 필요해요.'); return }
     if (!agreedTax) { showToast('개인정보 수집 및 원천징수에 동의해주세요.'); return }
     // 1개월 미활동 잠금 기능은 폐지됨(2026-09-17)
     if (!exchangeAmount) { showToast('신청 금액을 입력해주세요.'); return }
@@ -428,6 +479,14 @@ export default function WalletPage() {
         {showExchange && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-4">
             <h2 className="font-bold mb-1 dark:text-white flex items-center gap-1"><Coins size={16} /> 환전 신청</h2>
+            {passMode && isVerified === false && (
+              <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-3">
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">본인인증이 필요해요</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 mb-2">환전 신청 전에 한 번만 간편 본인인증을 해주세요. 인증 후 바로 신청할 수 있어요.</p>
+                <button onClick={handleVerifyNow} disabled={verifying} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:bg-gray-300">{verifying ? '인증 진행 중...' : '본인인증 하기'}</button>
+              </div>
+            )}
+            {passMode && isVerified && <p className="text-xs text-green-600 mb-2">✅ 본인인증 완료</p>}
             <p className="text-xs text-gray-500 mb-3">※ 최소 10,000P 이상 신청 가능</p>
             <p className="text-xs text-gray-500 mb-3">※ 환전은 프로젝트 시작일로부터 45일 이후에 가능합니다</p>
             {coverReward > 0 && (

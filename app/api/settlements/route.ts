@@ -58,6 +58,13 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json()
 
+  if (process.env.REQUIRE_IDENTITY === 'true' && body.member_id) {
+    const { createClient } = await import('@supabase/supabase-js')
+    const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    const { data: pv } = await admin.from('participants').select('is_verified').eq('id', body.member_id).maybeSingle()
+    if (!pv?.is_verified) return NextResponse.json({ error: '본인인증이 필요해요.', code: 'NOT_VERIFIED' }, { status: 403 })
+  }
+
   if (body.member_id && body.amount) {
     const withdrawableBalance = await getWithdrawableBalance(auth.client, body.member_id)
     if (Number(body.amount) > withdrawableBalance) {
