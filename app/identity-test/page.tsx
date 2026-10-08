@@ -1,62 +1,59 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { requestPassVerification, checkIdentity } from '../lib/identityClient'
 
 export default function IdentityTestPage() {
-  const [result, setResult] = useState<any>(null)
+  const [kind, setKind] = useState<'participant' | 'client'>('participant')
   const [loading, setLoading] = useState(false)
-  const [sdkLoaded, setSdkLoaded] = useState(false)
+  const [log, setLog] = useState<string[]>([])
+  const add = (m: string) => setLog((l) => [...l, m])
 
+  // 모바일/앱: 인증창에서 돌아오면 주소에 결과가 붙어 있음
   useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://cdn.iamport.kr/v1/iamport.js'
-    script.async = true
-    script.onload = () => setSdkLoaded(true)
-    script.onerror = () => setResult({ error: 'SDK 로드 실패' })
-    document.head.appendChild(script)
+    const q = new URLSearchParams(window.location.search)
+    const id = q.get('identityVerificationId')
+    const code = q.get('code')
+    if (code) add(`돌아옴: 실패 (${q.get('message') ?? code})`)
+    else if (id) {
+      add('돌아옴: 인증 창에서 복귀, 서버 확인 중...')
+      checkIdentity('participant', id).then((r) => add(`서버 확인: ${JSON.stringify(r)}`))
+    }
   }, [])
 
-  const handleVerify = async () => {
+  const start = async () => {
     setLoading(true)
+    setLog([])
     try {
-      const IMP = (window as any).IMP
-      if (!IMP) { setResult({ error: 'IMP SDK 로드 실패' }); setLoading(false); return }
-      IMP.init('imp83548163')
-      IMP.certification({
-        merchant_uid: `identity-${Date.now()}`,
-        pg: 'inicis_unified.MIIiasTest',
-      }, (rsp: any) => {
-        if (rsp.success) {
-          setResult({ success: true, message: `본인인증 완료! imp_uid: ${rsp.imp_uid}` })
-        } else {
-          setResult({ error: rsp.error_msg })
-        }
-        setLoading(false)
-      })
+      add('인증창 여는 중...')
+      const r = await requestPassVerification('/identity-test')
+      if (!r.ok) { add(`인증 실패: ${r.message}`); return }
+      add(`인증창 완료: ${r.identityVerificationId}`)
+      const c = await checkIdentity(kind, r.identityVerificationId)
+      add(`서버 확인: ${JSON.stringify(c)}`)
     } catch (e: any) {
-      setResult({ error: e.message })
+      add(`오류: ${e?.message ?? e}`)
+    } finally {
       setLoading(false)
     }
   }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-8">
-      <div className="bg-white rounded-2xl shadow p-8 w-full max-w-sm text-center">
-        <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-8 mx-auto mb-6" />
-        <h1 className="text-lg font-bold mb-2">본인인증 테스트</h1>
-        <p className="text-xs text-gray-500 mb-6">KG이니시스 통합인증 서비스 테스트 페이지입니다.</p>
-        <button
-          onClick={handleVerify}
-          disabled={loading || !sdkLoaded}
-          className="w-full bg-blue-600 text-white rounded-xl py-3 font-medium disabled:bg-gray-300"
-        >
-          {!sdkLoaded ? 'SDK 로딩중...' : loading ? '인증 중...' : '본인인증 시작'}
+      <div className="bg-white rounded-2xl shadow p-6 w-full max-w-sm">
+        <h1 className="text-lg font-bold mb-1">본인인증 테스트 (V2)</h1>
+        <p className="text-xs text-gray-500 mb-4">테스트 채널입니다. 실제 가입에는 영향이 없어요.</p>
+        <div className="flex gap-2 mb-3">
+          {(['participant', 'client'] as const).map((k) => (
+            <button key={k} onClick={() => setKind(k)} className={`flex-1 rounded-lg py-2 text-sm border ${kind === k ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`}>
+              {k === 'participant' ? '체험단' : '의뢰인'}
+            </button>
+          ))}
+        </div>
+        <button onClick={start} disabled={loading} className="w-full bg-blue-600 text-white rounded-xl py-3 font-medium disabled:bg-gray-300">
+          {loading ? '진행 중...' : '본인인증 시작'}
         </button>
-        {result && (
-          <div className={`mt-4 p-3 rounded-lg text-sm ${result.error ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
-            {result.error ?? result.message}
-          </div>
-        )}
+        <pre className="mt-4 text-xs bg-gray-100 rounded-lg p-3 whitespace-pre-wrap break-all min-h-[60px]">{log.join('\n') || '결과가 여기에 표시돼요.'}</pre>
       </div>
     </div>
   )
