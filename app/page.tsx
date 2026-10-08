@@ -1,4 +1,5 @@
 'use client'
+import { requestPassVerification, checkIdentity } from './lib/identityClient'
 import BankSelect from '../components/BankSelect'
 import { fetchWithAuth } from './lib/fetchWithAuth'
 import { convertHangulToEnglish } from './lib/hangulToEnglish'
@@ -62,6 +63,29 @@ export default function LoginPage() {
       setPReferral(ref)
       setShowSignup(true)
       setSignupType('participant')
+    }
+
+    // 본인인증 모드 (?pass=1 또는 환경변수) / 인증창에서 돌아왔을 때 처리
+    if (params.get('pass') === '1' || sessionStorage.getItem('passMode') === '1') {
+      sessionStorage.setItem('passMode', '1')
+      setPassMode(true)
+    }
+    const passKind = params.get('signup')
+    const returnedId = params.get('identityVerificationId')
+    if (passKind === 'participant' || passKind === 'client') {
+      setShowSignup(true)
+      setSignupType(passKind)
+      if (params.get('code')) {
+        showToast(params.get('message') || '본인인증에 실패했어요.')
+      } else if (returnedId) {
+        checkIdentity(passKind, returnedId).then((r) => {
+          if (!r.ok) { showToast(r.message || '본인인증 확인에 실패했어요.'); return }
+          setPassId(returnedId)
+          if (passKind === 'participant') { setPName(r.name ?? ''); setPMobile((r.phone ?? '').replace(/-/g, '')); setPVerified(true) }
+          else { setCName(r.name ?? ''); setCMobile((r.phone ?? '').replace(/-/g, '')); setCVerified(true) }
+        })
+      }
+      window.history.replaceState(null, '', '/')
     }
 
     // 딥링크 처리
@@ -163,6 +187,9 @@ export default function LoginPage() {
   const [roleSelectData, setRoleSelectData] = useState<{participant: any, user: any} | null>(null)
   const [showSignup, setShowSignup] = useState(false)
   const [signupType, setSignupType] = useState('')
+  const [passMode, setPassMode] = useState(process.env.NEXT_PUBLIC_REQUIRE_IDENTITY === 'true')
+  const [passId, setPassId] = useState('')
+  const [passBusy, setPassBusy] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent] = useState(false)
@@ -542,6 +569,7 @@ export default function LoginPage() {
     if (participantSignupLoading) return
     setParticipantSignupLoading(true)
     try {
+    if (passMode && !passId) { showToast('본인인증이 필요해요.'); setParticipantSignupLoading(false); return }
     if (!p_name || !p_email || !p_password) { showToast('이름, 이메일, 비밀번호는 필수입니다.'); setParticipantSignupLoading(false); return }
     if (isCoverPossible && !coverVideoUrl) { showToast('커버영상 촬영 가능 선택 시 영상 링크를 입력해주세요.'); setParticipantSignupLoading(false); return }
     if (p_password !== p_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); setParticipantSignupLoading(false); return }
@@ -682,6 +710,7 @@ export default function LoginPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        identityVerificationId: passId || undefined,
         name: p_name, mobile: p_mobile, email: p_email,
         bank_name: p_bank, bank_code: p_bank_code, account_holder: p_holder, account_number: p_account,
         instagram_id: p_instagram, youtube_id: p_youtube, tiktok_id: p_tiktok,
@@ -774,6 +803,7 @@ export default function LoginPage() {
     if (clientSignupLoading) return
     setClientSignupLoading(true)
     if (!c_verified) { showToast('휴대전화 인증을 완료해주세요.'); setClientSignupLoading(false); return }
+    if (passMode && !passId) { showToast('본인인증이 필요해요.'); setClientSignupLoading(false); return }
     if (!c_name || !c_email || !c_password) { showToast('대표자명, 이메일, 비밀번호는 필수입니다.'); setClientSignupLoading(false); return }
     if (c_password !== c_passwordConfirm) { showToast('비밀번호가 일치하지 않아요.'); setClientSignupLoading(false); return }
     // 이메일/전화번호 중복 체크
@@ -807,6 +837,7 @@ export default function LoginPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        identityVerificationId: passId || undefined,
         name: c_name, company: c_company, artist: c_artist,
         phone: c_phone, mobile: c_mobile, email: c_email,
         role: 'client', client_id: clientId,
@@ -835,6 +866,26 @@ export default function LoginPage() {
     showToast(`회원가입 완료! 로그인해주세요.\n의뢰인 코드: ${clientId}`)
     setShowSignup(false)
     setSignupType('')
+  }
+
+  const handleStartPass = async () => {
+    if (passBusy || !signupType) return
+    setPassBusy(true)
+    try {
+      const kind = signupType === 'client' ? 'client' : 'participant'
+      const back = `/?pass=1&signup=${kind}${p_referral ? `&ref=${encodeURIComponent(p_referral)}` : ''}`
+      const r = await requestPassVerification(back)
+      if (!r.ok) { showToast(r.message); return }
+      const c = await checkIdentity(kind, r.identityVerificationId)
+      if (!c.ok) { showToast(c.message || '본인인증 확인에 실패했어요.'); return }
+      setPassId(r.identityVerificationId)
+      if (kind === 'participant') { setPName(c.name ?? ''); setPMobile((c.phone ?? '').replace(/-/g, '')); setPVerified(true) }
+      else { setCName(c.name ?? ''); setCMobile((c.phone ?? '').replace(/-/g, '')); setCVerified(true) }
+    } catch (e: any) {
+      showToast('본인인증 중 오류가 발생했어요.')
+    } finally {
+      setPassBusy(false)
+    }
   }
 
   return (
@@ -1055,7 +1106,16 @@ export default function LoginPage() {
               </div>
             )}
 
-            {signupType === 'participant' && (
+            {signupType && passMode && !passId && (
+              <div className="space-y-3">
+                <h2 className="font-bold dark:text-white">본인인증</h2>
+                <p className="text-sm text-gray-500">{signupType === 'participant' ? '체험단' : '의뢰인'} 가입을 위해 간편 본인인증이 필요해요. 인증이 끝나면 이름과 휴대폰번호가 자동으로 입력돼요.</p>
+                <button onClick={handleStartPass} disabled={passBusy} className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium disabled:bg-gray-300">{passBusy ? '인증 진행 중...' : '본인인증 하기'}</button>
+                <button onClick={() => setSignupType('')} className="w-full border rounded-lg py-2 text-sm text-gray-600">뒤로</button>
+              </div>
+            )}
+
+            {signupType === 'participant' && (!passMode || passId) && (
               <div className="space-y-3">
                 <h2 className="font-bold dark:text-white">체험단 회원가입</h2>
                 {[
@@ -1083,7 +1143,7 @@ export default function LoginPage() {
                         </button>
                       </div>
                     ) : (
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(type === 'email' ? convertHangulToEnglish(e.target.value) : e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                      <input type={type ?? 'text'} disabled={!!passId && (label.startsWith('이름') || label.startsWith('대표자명'))} value={value} onChange={(e) => setter(type === 'email' ? convertHangulToEnglish(e.target.value) : e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                     )}
                   </div>
                 ))}
@@ -1241,7 +1301,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            {signupType === 'client' && (
+            {signupType === 'client' && (!passMode || passId) && (
               <div className="space-y-3">
                 <h2 className="font-bold dark:text-white">의뢰인 회원가입</h2>
                 {[
@@ -1271,7 +1331,7 @@ export default function LoginPage() {
                         </button>
                       </div>
                     ) : (
-                      <input type={type ?? 'text'} value={value} onChange={(e) => setter(type === 'email' ? convertHangulToEnglish(e.target.value) : e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
+                      <input type={type ?? 'text'} disabled={!!passId && (label.startsWith('이름') || label.startsWith('대표자명'))} value={value} onChange={(e) => setter(type === 'email' ? convertHangulToEnglish(e.target.value) : e.target.value)} placeholder={placeholder ?? ''} className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 text-sm mt-1 dark:bg-gray-700 dark:text-white" />
                     )}
                   </div>
                 ))}

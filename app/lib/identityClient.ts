@@ -28,5 +28,5 @@ export async function checkIdentity(kind: 'participant' | 'client', identityVeri
     body: JSON.stringify({ kind, identityVerificationId }),
   })
   const data = await res.json().catch(() => ({}))
-  return { ok: res.ok && data?.ok === true, ...data } as { ok: boolean; maskedName?: string; message?: string; code?: string }
+  return { ok: res.ok && data?.ok === true, ...data } as { ok: boolean; maskedName?: string; name?: string; phone?: string; message?: string; code?: string }
 }

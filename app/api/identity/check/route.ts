@@ -13,5 +13,5 @@ export async function POST(request: NextRequest) {
   if (!check.ok) return NextResponse.json({ ok: false, message: check.message, code: check.code }, { status: 409 })
   const n = check.identity.name ?? ''
   const maskedName = n.length <= 1 ? n : n[0] + '*'.repeat(n.length - 1)
-  return NextResponse.json({ ok: true, maskedName })
+  return NextResponse.json({ ok: true, maskedName, name: check.identity.name, phone: check.identity.phone })
 }
