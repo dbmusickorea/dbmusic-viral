@@ -941,7 +941,7 @@ export default function Page4() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'max(0.5rem, env(safe-area-inset-top))'}}>
+        <div className="sticky top-0 z-10 -mt-4 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'calc(1rem + max(0.5rem, env(safe-area-inset-top)))'}}>
           {(isPulling || isRefreshing) && (
             <div className="text-center py-1 text-sm text-blue-500 flex items-center justify-center gap-1">
               {isRefreshing ? (
