@@ -163,7 +163,7 @@ html {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
-.fixed.left-0.right-0 {
+.fixed.left-0.right-0:not(.md\:static) {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
