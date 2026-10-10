@@ -175,3 +175,14 @@ html {
 html.dark {
   background-color: #0a0a0a;
 }
+
+/* scroll-top-auto-hide: 맨 위로 가기 버튼은 스크롤 중일 때만 표시 */
+.fixed.right-4.w-10.h-10.rounded-full {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+html.show-scroll-top .fixed.right-4.w-10.h-10.rounded-full {
+  opacity: 1;
+  pointer-events: auto;
+}
