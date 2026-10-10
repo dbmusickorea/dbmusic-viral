@@ -186,3 +186,8 @@ html.show-scroll-top .fixed.right-4.w-10.h-10.rounded-full {
   opacity: 1;
   pointer-events: auto;
 }
+
+/* scroll-top-position: 맨 위로 가기 버튼 위치 (하단 탭바 유무에 따라 JS가 변수 갱신) */
+.fixed.right-4.w-10.h-10.rounded-full {
+  bottom: var(--scroll-top-bottom, calc(env(safe-area-inset-bottom) + 4.5rem)) !important;
+}
