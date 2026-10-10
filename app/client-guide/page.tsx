@@ -11,7 +11,7 @@ export default function ClientGuidePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-4" style={{wordBreak: "keep-all"}}>
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'max(0.5rem, env(safe-area-inset-top))'}}>
           <div className="flex items-center gap-3">
             <BackButton />
             <h1 className="text-xl font-bold dark:text-white">의뢰인 공식 이용안내</h1>

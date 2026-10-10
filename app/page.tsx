@@ -974,7 +974,7 @@ export default function LoginPage() {
       )}
 
       {(showSignup || showForgotPassword || showFindEmail) && (
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 w-full" style={{paddingTop: 'env(safe-area-inset-top)'}}>
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 w-full" style={{paddingTop: 'max(0.5rem, env(safe-area-inset-top))'}}>
         </div>
       )}
       <div className="w-full max-w-sm">
