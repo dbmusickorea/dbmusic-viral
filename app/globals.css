@@ -170,3 +170,8 @@ html {
 .fixed.right-4 {
   right: calc(1rem + env(safe-area-inset-right));
 }
+
+/* duo-dark-bg: 좌우 safe-area 띠가 다크모드에서도 어둡게 보이도록 */
+html.dark {
+  background-color: #0a0a0a;
+}
