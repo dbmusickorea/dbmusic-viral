@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 // 개별 페이지에 버튼이 없는 화면을 위해 전역 버튼도 함께 제공 (이미 있는 페이지에서는 숨김)
 export default function ScrollTopVisibility() {
   const [duplicate, setDuplicate] = useState(false)
+  const [hasNav, setHasNav] = useState(true)
 
   useEffect(() => {
     const root = document.documentElement
@@ -13,6 +14,8 @@ export default function ScrollTopVisibility() {
     const onScroll = () => {
       const existing = document.querySelector('.fixed.right-4.w-10.h-10.rounded-full:not([data-global-scroll-top])')
       setDuplicate(!!existing)
+      const navs = Array.from(document.querySelectorAll('.fixed.bottom-0.left-0.right-0'))
+      setHasNav(navs.some((el) => el.getClientRects().length > 0))
       if (window.scrollY > 200) {
         root.classList.add('show-scroll-top')
         if (timer) clearTimeout(timer)
@@ -36,7 +39,7 @@ export default function ScrollTopVisibility() {
       aria-label="맨 위로"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       className="fixed right-4 w-10 h-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center text-gray-500 dark:text-gray-400 z-50"
-      style={{ bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)' }}
+      style={{ bottom: hasNav ? 'calc(env(safe-area-inset-bottom) + 4.5rem)' : 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}
     >
       ↑
     </button>
