@@ -122,7 +122,7 @@ export default function AgencyWalletPage() {
     <>
       {showSidebar && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl p-6 flex flex-col">
+          <div className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl p-6 flex flex-col" style={{ width: "calc(16rem + env(safe-area-inset-left))", paddingLeft: "calc(1.5rem + env(safe-area-inset-left))" }}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-bold text-lg dark:text-white">더블비뮤직</h2>
               <button onClick={() => setShowSidebar(false)} className="text-gray-400 dark:text-gray-300">✕</button>
