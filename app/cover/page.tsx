@@ -458,7 +458,7 @@ export default function CoverPage() {
       />
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'max(0.5rem, env(safe-area-inset-top))'}}>
+        <div className="sticky top-0 z-10 -mt-4 bg-white dark:bg-gray-900 pb-2 mb-4" style={{paddingTop: 'calc(1rem + max(0.5rem, env(safe-area-inset-top)))'}}>
           <div className="flex justify-center mb-2">
             <img src="/DBMUSIC_HEADER.svg" alt="DBMUSIC" className="h-7 cursor-pointer dark:invert" onClick={() => router.push(userRole === 'admin' ? '/admin' : '/client')} />
           </div>
