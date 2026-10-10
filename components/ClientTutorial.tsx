@@ -75,17 +75,17 @@ export default function ClientTutorial({ onDone, onOpenSidebar, onCloseSidebar }
     if (!highlightStyle.top) return {}
     // 아이패드에서 사이드바 하이라이트는 말풍선을 오른쪽에
     if (isMd && sidebarNeededSteps.includes(step)) {
-      return { top: Math.max(16, highlightStyle.top), left: highlightStyle.left + highlightStyle.width + 16, right: 16 }
+      return { top: Math.max(16, highlightStyle.top), left: highlightStyle.left + highlightStyle.width + 16, right: 'calc(16px + env(safe-area-inset-right))' }
     }
     if (current.position === 'top') {
-      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
+      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 'calc(16px + env(safe-area-inset-left))', right: 'calc(16px + env(safe-area-inset-right))' }
     }
     // bottom 위치인데 화면 밖으로 나가면 위로
     const bubbleTop = highlightStyle.top + highlightStyle.height + 12
     if (bubbleTop + 200 > window.innerHeight) {
-      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
+      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 'calc(16px + env(safe-area-inset-left))', right: 'calc(16px + env(safe-area-inset-right))' }
     }
-    return { top: bubbleTop, left: 16, right: 16 }
+    return { top: bubbleTop, left: 'calc(16px + env(safe-area-inset-left))', right: 'calc(16px + env(safe-area-inset-right))' }
   }
 
   return (

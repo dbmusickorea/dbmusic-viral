@@ -69,12 +69,12 @@ export default function ParticipantTutorial({ onDone, onOpenSidebar, onCloseSide
   const getBubblePosition = () => {
     if (!highlightStyle.top) return {}
     if (isMd) {
-      return { top: Math.max(16, highlightStyle.top), left: highlightStyle.left + highlightStyle.width + 16, right: 16 }
+      return { top: Math.max(16, highlightStyle.top), left: highlightStyle.left + highlightStyle.width + 16, right: 'calc(16px + env(safe-area-inset-right))' }
     }
     if (current.position === 'top') {
-      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 16, right: 16 }
+      return { bottom: window.innerHeight - highlightStyle.top + 12, left: 'calc(16px + env(safe-area-inset-left))', right: 'calc(16px + env(safe-area-inset-right))' }
     }
-    return { top: highlightStyle.top + highlightStyle.height + 12, left: 16, right: 16 }
+    return { top: highlightStyle.top + highlightStyle.height + 12, left: 'calc(16px + env(safe-area-inset-left))', right: 'calc(16px + env(safe-area-inset-right))' }
   }
 
   return (
